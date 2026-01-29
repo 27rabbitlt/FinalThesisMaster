@@ -1,0 +1,40 @@
+\makeatletter
+\newtheorem*{rep@theorem}{\rep@title}
+\newcommand{\newreptheorem}[2]{%
+\newenvironment{rep#1}[1]{%
+ \def\rep@title{#2 ##1}%
+ \begin{rep@theorem}}%
+ {\end{rep@theorem}}}
+\makeatother
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{question}[theorem]{Question}
+
+\newtheorem*{question*}{Question}
+
+% paired solution
+\newenvironment{sol}
+  {\par\noindent\textbf{Solution}.}
+  {\par\bigskip}
+
+\newtheoremstyle{bluequestion}
+  {12pt}          
+  {12pt}          
+  {\itshape}     
+  {}            
+  {\bfseries\color{blue}}
+  {.}             
+  { }            
+  {}            
+
+\theoremstyle{bluequestion}
+\newtheorem{bq}{Question}[section]
+\newtheorem*{bq*}{Question}      

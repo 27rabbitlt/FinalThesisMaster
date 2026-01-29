@@ -1,0 +1,33 @@
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{centernot}
+
+\usepackage[yyyymmdd,hhmmss]{datetime}
+\renewcommand{\dateseparator}{-}
+\renewcommand{\timeseparator}{:}
+
+\usepackage{fontspec}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref} % blue for all
+\usepackage{mathrsfs} 
+
+\usepackage{biblatex} 
+\usepackage{stmaryrd}
+\usepackage{import}
+\usepackage{xifthen}
+\usepackage{pdfpages}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{shapes.geometric}
+
+\newcommand{\incfig}[1]{%
+    \def\svgwidth{0.5\columnwidth}
+    \import{./figures/}{#1.pdf_tex}
+}
