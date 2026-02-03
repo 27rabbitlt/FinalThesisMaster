@@ -12,21 +12,18 @@
 \maketitle
 
 \section{Background}
-Many real-world routing and scheduling problems are subject to uncertainty: 
-this house might not have mails to deliver, customer requests can be canceled.
-Tasks may appear only with some probability. A classical abstraction is the stochastic
-traveling salesman problem (stochastic TSP), where each vertex may become 
-“active” (requires service) according to a known probability distribution, 
-and the goal is to minimize the expected travel cost.
+Many real-world routing and scheduling problems are subject to uncertainty. Take delivery service as an example, the delivery person may find that 
+a household might not have mails to deliver today, customer requests can be canceled, etc..
+A classical abstraction is the stochastic
+traveling salesperson problem (stochastic TSP), where each vertex $v_i$ comes with a specified probability $p_i$ and becomes \textit{active} (requires service) independently with probabilty $p_i$. The goal is to minimize the expected travel cost.
 
-An interesting question is how much adaptivity helps. In the non-adaptive (a priori) setting,
-one has to stick to a master tour in advance and later shortcuts it according to 
-which vertices turn out active. In the adaptive setting, decisions can depend on
-observations revealed during execution. Understanding the quantitative advantage
-of adaptivity and designing provably good adaptive strategies helps us making better policies.
+An important modeling choice is whether the model could make adapted decision based on information revealed during execution or additional information known beforehand. In the non-adaptive (a priori) setting, one commits to a master tour and, after the set of active vertices is realized, follows the tour while shortcutting inactive vertices. In the adaptive setting, decisions may depend on observations revealed along the way, allowing the route to be adjusted on the fly. A fundamental question is how much adaptivity can improve performance.
+Understanding the quantitative advantage of adaptivity and designing provably good adaptive strategies helps us making better policies.
 
-We want to studie the relationship between adaptive and non-adaptive stochastic policies,
-aiming to bound (upper/lower bound) the performance gap and to develop strategies with provable guarantees.
+Thus We want to study the relationship between adaptive and non-adaptive stochastic policies,
+aiming to bound (upper/lower bound) the performance gap and to develop policies with provable performance guarantees.
+
+It's worth noting that optimal solution for stochastic TSP problem is computationally hard, following from the fact that it is a generalized version of classical TSP, which is proved to be NP-Complete\cite{Karp1972}.
 
 \section{Notations and Definitions}
 Let $(V, d)$ be a finite metric space (symmetric distances satisfying triangle inequality).
