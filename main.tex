@@ -35,9 +35,9 @@ It precisely models a delivery planning the delivery route for customers located
 
 A key distinction between common formulations of stochastic TSP is \textit{when} the algorithm learns which vertices are active and how much it is allowed to change its route \textit{adaptively} in response. We study three variants, \textit{a posteriori}, \textit{a priori} and \textit{adaptive} TSP, which corresponds to three levels of information and adaptivity.
 
-\subsection{a posterior TSP}
-The delivery person knows in advance exactly which customers will need service today (e.g., everyone has already confirmed beforehand). Then we can plan the optimal tour for today’s realized requests.
-a posterior TSP\cite{Shmoys2008} each time asks one to give a tour after we know which vertices would be activated.
+\subsection{a posterior TSP\cite{Shmoys2008}}
+The delivery person knows in advance exactly which customers will need service today (e.g. everyone has already confirmed beforehand). Then we can plan the optimal tour for today’s realized requests.
+a posterior TSP each time asks one to give a tour after we know which vertices would be activated.
 In this case we are basically solving classical TSP each time and we can make the most adaptive decision since we know exactly which vertices would be activated. Let $\opt_A$ denotes the minimum cost of a tour in a deterministic TSP instance induced by $A$ and our object is to minimize 
 $$
 \E_{A \sim \mu} [\opt_A]
@@ -46,11 +46,9 @@ $$
 where $\mu$ is the distribution of active vertices subsets defined by $\mu(A) = \Pi_{v \in A}p_v \cdot \Pi_{v \notin A}(1 - p_v)$.
 
 \subsection{a priori (non-adaptive) TSP}
-The delivery person in  this case doesn't know which customers A priori TSP asks one to choose a master tour $T$ visiting all vertices in certain order.
-After active subsets $A$ is known, one cannot make any adjustments but the executed tour is
-solely obtained by shortcutting $T$ to visit only vertices in $A$. The objective is 
+The delivery person in this case doesn't know which customers will be activated. The person will decide a master tour $T$ in advance given only the probability information $\{p_v\}$, and commit to this tour even after activated customers information are gradually revealed along the tour. The executed tour is solely obtained by shortcutting $T$ to include only vertices in $A$. The objective value $T$ is defined as the $c(T_A)$ being expected length (with probability distribution $\mu$) of $T$ after shortcutting to include only $A$. Formally, we want to minimize 
 $$
-\min_{T} \E_{A} [\text{cost}(T|_{A})]
+\E_{A\sim \mu} [c(T)]
 $$ 
 
 where $T|_{A}$ stands for tour $T$ shortcutted on $A$ and $A$ is the activated subset of vertices.
@@ -59,6 +57,8 @@ In this case we can make no adaptive decision since the tour is determined befor
 we know anything about $A$.
 
 \subsection{Adaptive TSP}
+The delivery person in this case doesn't know which customers will be activated. The person each time will decide a customer to call according two a policy based on current information revealed (i.e. current position and which vertices are known to be activated). If a customer responded that he/she needs service then the delivery person has to go to the customer's city and provide service. 
+
 Adaptive TSP asks one to choose a vertex to probe in each round. Once probing is done, we 
 can know if the probed vertex is activated or not. If it is activated, we have to 
 visit this vertex as next move; if it is not activated, we do nothing and get into next round.
@@ -81,10 +81,10 @@ Concretely:
 
 \begin{enumerate}
     \item \textbf{Gap characterization}: Prove upper and lower bounds on $\frac{\opt_{prior}}{\opt_{adapt}}$ and 
-        construct instances demonstrating tightness. This mostly is a mathematical question, where we don't pay much attention to the efficiency or space usage of the algorithm. It's worth noting that this gap in symmetric case would be $O(1)$, precisely we already know upper bound $$ 
-    \item \textbf{Algorithm design}: Develop adaptive strategies with approximation guarantees.
-    \item \textbf{Discovering other metrics}: Obtain stronger results on other metrics like tree metrics then 
-        extend the result by tree embedding.
+        construct instances demonstrating tightness. This mostly is a mathematical question, where we don't pay much attention to the efficiency or space usage of the algorithm. It's worth noting that this gap in symmetric case would be $O(1)$, precisely we already have $3$ as the upper bound\cite{Shmoys2008}; in asymmetric case, we have upper bound $O(\sqrt{n})$ and lower bound $\Omega(n^{1/4} / \log n)$\cite{Christalla2025} with $n$ being the $n = |V|$.
+    \item \textbf{Algorithm design}: Develop adaptive policies with provable approximation guarantees.
+    % \item \textbf{Discovering other metrics}: Obtain stronger results on other metrics like tree metrics then 
+    %     extend the result by tree embedding.
 \end{enumerate}
 
 
