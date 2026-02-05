@@ -45,23 +45,18 @@ $$
 
 where $\mu$ is the distribution of active vertices subsets defined by $\mu(A) = \Pi_{v \in A}p_v \cdot \Pi_{v \notin A}(1 - p_v)$.
 
-\subsection{a priori (non-adaptive) TSP}
+\subsection{a priori (non-adaptive) TSP\texorpdfstring{\cite{Jaillet1985}}{}}
 The delivery person in this case doesn't know which customers will be activated. The person will decide a master tour $T$ in advance given only the probability information $\{p_v\}$, and commit to this tour even after activated customers information are gradually revealed along the tour. The executed tour is solely obtained by shortcutting $T$ to include only vertices in $A$. The objective value $T$ is defined as the $c(T_A)$ being expected length (with probability distribution $\mu$) of $T$ after shortcutting to include only $A$. Formally, we want to minimize 
 $$
-\E_{A\sim \mu} [c(T)]
+\E_{A\sim \mu} [c(T_A)]
 $$ 
 
-where $T|_{A}$ stands for tour $T$ shortcutted on $A$ and $A$ is the activated subset of vertices.
-
-In this case we can make no adaptive decision since the tour is determined before
-we know anything about $A$.
+In this case we can make no adaptive decision since the tour is determined before we know anything about $A$.
 
 \subsection{Adaptive TSP}
-The delivery person in this case doesn't know which customers will be activated. The person each time will decide a customer to call according two a policy based on current information revealed (i.e. current position and which vertices are known to be activated). If a customer responded that he/she needs service then the delivery person has to go to the customer's city and provide service. 
+The delivery person also doesn't know which customers will be activated. The person each time will decide a customer to call according to a policy based on current information revealed (i.e. current position and which vertices are known to be activated). If a customer responds that he/she needs service then the delivery person has to go to the customer's city and provide service; otherwise the delivery person doesn't need to do anything.
 
-Adaptive TSP asks one to choose a vertex to probe in each round. Once probing is done, we 
-can know if the probed vertex is activated or not. If it is activated, we have to 
-visit this vertex as next move; if it is not activated, we do nothing and get into next round.
+Precisely, adaptive TSP asks one to choose a vertex to call in each round based on current information. After calling we know if the called vertex is activated or not. If it is activated, we have to visit this vertex as next move; if it is not activated, we do nothing and get into next round. Formally, 
 The object is 
 $$
 \min_{T} \E_{A} [\text{cost}(T_{\sim A})]
