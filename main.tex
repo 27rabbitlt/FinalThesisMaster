@@ -15,76 +15,120 @@
 Many real-world routing and scheduling problems are subject to uncertainty. Take delivery service as an example, a courier has several customers located at different cities and it needs to plan a route that visits the customers. The delivery person may find that 
 a household might not have packages to deliver today, or customer requests can be canceled, etc..
 A classical abstraction is the stochastic
-traveling salesperson problem (stochastic TSP), where each vertex $v_v$ comes with a specified probability $p_v$ and becomes \textit{active} (requires service) independently with probabilty $p_i$. The goal is to visit all active vertices and minimize the expected travel cost.
+traveling salesperson problem (stochastic TSP), where each vertex $v$ comes with a specified probability $p_v$ and becomes \textit{active} (requires service) independently with probabilty $p_v$. The goal is to find a tour that visits all active vertices and minimizes the expected travel cost.
 
-An important modeling choice is whether the model could make adapted decision based on information revealed during execution or additional information known beforehand. In the non-adaptive (a priori) setting, one commits to a master tour and, after the set of active vertices is realized, follows the tour while shortcutting inactive vertices. In the adaptive setting, decisions may depend on observations revealed along the way, allowing the route to be adjusted on the fly. A fundamental question is how much adaptivity can improve performance.
-Understanding the quantitative advantage of adaptivity and designing provably good adaptive strategies helps us making better policies.
+An important modeling choice is whether the salesperson is allowed to adapt their future decisions based on information revealed during the execution of the tour. In the nonadaptive (a priori) setting, the salesperson commits to a master tour that only depends on the activation probabilities and not the actual realizations. During the actual execution of the tour, i.e., once the set of active vertices is realized, the salesperson follows the tour while shortcutting inactive vertices. In the adaptive setting, decisions may depend on observations revealed along the way, allowing the tour to be adjusted on the fly. 
 
-Thus we want to study the relationship between adaptive and non-adaptive stochastic policies,
-aiming to bound (upper/lower bound) the performance gap and to develop policies with provable performance guarantees.
-
-It's worth noting that optimal solution for stochastic TSP problem is computationally hard, following from the fact that it is a generalization of classical TSP, which is proved to be NP-Complete\cite{Karp1972}. However, approximation algorithms with constant approximation ratio in polynomial time are known for both symmetric metrics\cite{Christofides1973}\cite{Karlin2021} and asymmetric metrics\cite{Svensson2020}.
+A fundamental analysis question is how much adaptivity can improve performance relative to an optimal nonadaptive tour.
+A related algorithmic question is whether we can design provably good adaptive policies using limited computational resources.
+% This will be the main focus of my project. 
+% 
+% Thus we want to study the relationship between adaptive and non-adaptive stochastic policies,
+% aiming to bound (upper/lower bound) the performance gap and to develop policies with provable performance guarantees.
+% 
+Note that computing an optimal adaptive policy (or a nonadaptive master tour) for stochastic TSP is computationally hard, since the setting with $p_v = 1$ for all $v \in V$ corresponds to the classical TSP which is known to be APX-hard (cite appropriate paper). 
+Also, describing an optimal adaptive policy might require exponential space. 
+%\cite{Karp1972}. 
+% 
+Thus, we will be interested in designing adaptive policies that can be implemented efficiently 
+% (i.e., polynomial in the size of the input description) 
+and its expected cost can be provably bounded in terms of the optimal cost within some small factor $\alpha \geq 1$.  
+% However, approximation algorithms with constant approximation ratio in polynomial time are known for both symmetric metrics\cite{Christofides1973}\cite{Karlin2021} and asymmetric metrics\cite{Svensson2020}.
 
 \section{Notations and Definitions}
-Let $(V,d)$ be a finite metric space with distance function $d$ satisfying the triangle inequality. A metric is called symmetric if $d(x, y) = d(y, x)$ for any $x, y$.
+Let $(\{r\}\cup V,d)$ be a finite metric space on $n+1$ vertices (a depot vertex $r$ and $n$ clients) equipped with a distance function $d$. 
+That is, $d$ satisfies the triangle inequality: for any three vertices $u,v,w \in V$, $d(u,v) \leq d(u,w) + d(w,v)$ holds. 
+A metric is said to be \emph{symmetric} if $d(x, y) = d(y, x)$ for any $x, y$.
 
-For classical TSP, we are given the finite metric space $(V, d)$ as input and we want to find a tour $\tau$, which is a cyclic permutation of $V$, such that total length of the tour $c(\tau) := \sum_{i \in V} c(i, \tau(i))$ is minimized. 
+For classical TSP, we want to find a tour $T = (r,v_1,v_2,\ldots,v_n,r)$ that starts and ends at the depot, visits all vertices exactly once, and minimizes the total distance traversed, $c(T) := d(r,v_1) + d(v_1,v_2) + \cdots + d(v_{n-1},v_n) + d(v_n,r)$. 
 
-In stochastic setting, the set of active vertices is a subset $A \subseteq V$ generated by independent activations: each vertex $v \in V$ is active (i.e., $v \in A$) independently with probability $p_v$.
-It precisely models a delivery planning the delivery route for customers located at different places and each customer needs delivery with a specified probability independently.
+In the stochastic setting, the set of active vertices is a subset $A \subseteq V$ generated by independent activations: each vertex $v \in V$ is active (i.e., $v \in A$) independently with probability $p_v$.
+% It precisely models a delivery planning the delivery route for customers located at different places and each customer needs delivery with a specified probability independently.
+% 
+We consider three different benchmarks for stochastic TSP depending on how much the tour is allowed to depend on the realization of the set of active vertices:
+\begin{enumerate}
+    \item \textbf{A posteriori TSP:} %\texorpdfstring{\cite{Shmoys2008}}{}} 
+        Here, the salesperson knows the set $A$ of active vertices. 
+        Let $\opt(A)$ denote the cost of an optimal TSP tour that visits $\{r\} \cup A$. (Note that this is simply an instance of the classical TSP.) 
+        % a posterior TSP each time asks one to give a tour after we know which vertices would be activated.
+        % Note that a posteriori TSP is just solving an instance of classical TSP on the set of active vertices.  
+        % each time and we can make the most adaptive decision since we know exactly which vertices would be activated. 
+        % Let $\opt(A)$ denote the optimal cost of a tour in a deterministic TSP instance induced by $A$ and our object is to minimize 
+        The cost of a posteriori TSP is defined to be 
+        $\optpost := \E_{A \sim \mu} [\opt(A)]$, where $\mu$ is the probability distribution over the set of active vertices. 
+        Note $\mu(A) = \Pi_{v \in A}p_v \cdot \Pi_{v \notin A}(1 - p_v)$ for any $A \subseteq V$.  
+        
+    \item \textbf{A priori (non-adaptive) TSP:} 
+    % \texorpdfstring{\cite{Jaillet1985}}{}}
+        Here, the salesperson only knows the metric and the activation probabilities and they are required to compute a master tour $T = (r, v_1,\ldots,v_n,r)$ that visits all vertices while starting and ending at $r$. 
+        % given only the probability information $\{p_v\}$, and commit to this tour even after activated customers information are gradually revealed along the tour. 
+        For any set $A$ of active vertices, the tour $T\vert_A$ traversed by the salesperson (for that $A$) is obtained by shortcutting $T$ to include only vertices in $A$. 
+        More precisely, if $1 \leq i_1 < i_2 < \cdots < i_{|A|} \leq n$ are such that $\{v_{i_k} : 1 \leq k \leq |A|\} = A$, then $T\vert_A = (r,v_{i_1},v_{i_2},\ldots,v_{i_{|A|}},r)$.  
+        We overload the notation $c$ and define the cost of $T$ to be $\E_{A \sim \mu} [c(T\vert_A)]$. 
+        We define $\optprior$ to be the cost of an optimal master tour.  
+        
+        % Note that  can make no adaptive decision since the tour is determined before we know anything about $A$.
+    \item \textbf{Adaptive TSP:} 
+        In this case the salesperson knows all the activation probabilities but not the realization of the set of active vertices $A$. 
+        However, on the day of the execution of the tour, the salesperson calls all the customers one by one in some order. 
+        If the customer $v$ that they call is in $A$, then the salesperson \emph{must} visit $v$ right away from their current position before calling any other customer. 
+        On the other hand, if $v$ is not in $A$, then the salesperson remains at the current position. 
+        In an adaptive policy, the salesperson is allowed to use the revealed information about the customers that they have called to decide which customer to call next.    
+        % does not know which customers will be active, but they have the ability to call a customer and inquire if they are active. When a customer $v$ is called, they are active with probability $p_v$. The person each time will decide a customer to call according to a policy based on current information revealed (i.e. current position and which vertices are known to be activated). If a customer responds that he/she needs service then the delivery person has to go to the customer's city and provide service; otherwise the delivery person doesn't need to do anything.
+        % Precisely, adaptive TSP asks for a policy to choose a vertex to call in each round based on current information. After calling we know if the called vertex is activated or not. If it is activated, we have to visit this vertex as next move; if it is not activated, we do nothing and get into next round. 
+        
+        Formally, the decision tree of an adaptive policy can be represented as a function $\pi: (\{r\} \cup V) \times 2^V \rightarrow \{r\} \cup V \cup \{\bot\}$, where $\pi(u,S)$ denotes the vertex that should be called next given that the salesperson is currently at $u$ and the set of vertices that have never been called is exactly $S$. 
+        We require that $\pi$ is a well-defined policy.
+        That is: (a)~$\pi(u,S) := \bot$ whenever $u \in S$, which models invalid input to the policy; (b)~$S = \emptyset$ iff $\pi(u,S) = r$, which models that the salesperson must return to the depot only when there are no other vertices to call; and (c)~$S \neq \emptyset$ iff $\pi(u,S) \in S$, which models that the salesperson must call one of the vertices that have not been called yet. 
 
-A key distinction between common formulations of stochastic TSP is \textit{when} the algorithm learns which vertices are active and how much it is allowed to change its route \textit{adaptively} in response. We study three variants, \textit{a posteriori}, \textit{a priori} and \textit{adaptive} TSP, which corresponds to three levels of information and adaptivity.
+        We now describe the (random) tour $T(A;\pi)$ traversed by an adaptive policy $\pi$ when the set of active vertices is $A$.  
+        We drop the argument $\pi$ when it is clear from the context. 
+        Note that $A$ is unknown to $\pi$. 
+        Initially, $u \leftarrow r$ and $S \leftarrow V$, which models that the salesperson starts at the depot vertex and they have not called any vertex so far.  
+        As long as $S \neq \emptyset$ or $u \neq r$, the salesperson computes $v = \pi(u,S)$. 
+        If $S \neq \emptyset$, the salesperson calls $v$. 
+        (Note that $v \in S$ since $\pi$ is well-defined.) 
+        If $v \in A$, then the salesperson travels from $u$ to $v$. 
+        Otherwise, the salesperson remains at $u$. 
+        In the former case, we update $u \leftarrow v$.
+        In both cases, we update $S \leftarrow S \setminus \{v\}$.
+        If $S = \emptyset$, then $v = r$ holds.
+        As all vertices have been called by now, the salesperson simply returns to $r$. 
+        This is modeled by setting $u \leftarrow r$.
+        
+        Observe that $T(A;\pi)$ corresponds to a random tour $(r,v_1,\ldots,v_{|A|},r)$ on $\{r\} \cup A$, where $v_i$ is the $i$th among $A$ to be called. 
+        We again overload the cost function and define $c(\pi) := \E_{A \sim \mu}[c(T(A;\pi))]$.   
+        
+        % After querying $q_t$, the algorithm observes $x_{q_t}$ and updates $S_{t+1} = S_t \cup \{q_t\}$. Here the ovserved activation outcome $X_{S_t}$ is defined as $S_t \cap A$, which is the active vertices currently revealed.
+        % The movement is then forced by the rule:
+        
+        % $$
+        % l_{t+1} = 
+        % \begin{cases}
+        %     q_t, \;\; &\text{if} \;\; x_{q_t} = 1 \\
+        %     l_t, \;\; &\text{if} \;\; x_{q_t} = 0
+        % \end{cases}
+        % $$
+        
+        % and the incurred travel cost at step $t$ is $d(l_t, l_{t+1})$.
+        
+        % A policy is feasible if for every realization $A \subseteq V$ it eventually queries every vertex
+        % and hence visits every active vertex.
+        
+        % The objective is to find a feasible policy minimizing
+        
+        % $$
+        % \E_{A\sim \mu} [c(\pi_{A})]
+        % $$
+        
+        % where $\pi_A$ is the tour generated by policy $\pi$ together with the realization of active vertex subset $A$.
+        % The cost of the generated tour is simply the sum of distance at each step, which we defined above.
+\end{enumerate}
 
-\subsection{a posterior TSP\texorpdfstring{\cite{Shmoys2008}}{}}
-The delivery person knows in advance exactly which customers will need service today (e.g. everyone has already confirmed beforehand). Then we can plan the optimal tour for today’s realized requests.
-a posterior TSP each time asks one to give a tour after we know which vertices would be activated.
-In this case we are basically solving classical TSP each time and we can make the most adaptive decision since we know exactly which vertices would be activated. Let $\opt_A$ denotes the minimum cost of a tour in a deterministic TSP instance induced by $A$ and our object is to minimize 
-$$
-\E_{A \sim \mu} [\opt_A]
-$$
+% A key distinction between common formulations of stochastic TSP is \textit{when} the algorithm learns which vertices are active and how much it is allowed to change its route \textit{adaptively} in response. We study three variants, \textit{a posteriori}, \textit{a priori} and \textit{adaptive} TSP, which corresponds to three levels of information and adaptivity.
 
-where $\mu$ is the distribution of active vertices subsets defined by $\mu(A) = \Pi_{v \in A}p_v \cdot \Pi_{v \notin A}(1 - p_v)$.
 
-\subsection{a priori (non-adaptive) TSP\texorpdfstring{\cite{Jaillet1985}}{}}
-The delivery person in this case doesn't know which customers will be activated. The person will decide a master tour $T$ in advance given only the probability information $\{p_v\}$, and commit to this tour even after activated customers information are gradually revealed along the tour. The executed tour is solely obtained by shortcutting $T$ to include only vertices in $A$. For a certain master tour $T$,
-the cost is defined as the $c(T_A)$ being the length of $T$ after shortcutting to include only $A$. Eventually, we want to minimize 
-$$
-\E_{A\sim \mu} [c(T_A)]
-$$ 
-
-In this case we can make no adaptive decision since the tour is determined before we know anything about $A$.
-
-\subsection{adaptive TSP}
-The delivery person also doesn't know which customers will be activated. The person each time will decide a customer to call according to a policy based on current information revealed (i.e. current position and which vertices are known to be activated). If a customer responds that he/she needs service then the delivery person has to go to the customer's city and provide service; otherwise the delivery person doesn't need to do anything.
-
-Precisely, adaptive TSP asks for a policy to choose a vertex to call in each round based on current information. After calling we know if the called vertex is activated or not. If it is activated, we have to visit this vertex as next move; if it is not activated, we do nothing and get into next round. 
-
-Formally, an adaptive policy is a (deterministic) function $\pi: V \times 2^V \times \{0, 1\}^S \rightarrow V \setminus S$,
-which, given the current location $l_t \in V$, queried set $S_t \subset V$, and observed activation outcome $X_{S_t} \in \{0, 1\}^{S_t}$,
-selects the next vertex $q_t = \pi(l_t, S_t, X_{S_t})$ to call. After querying $q_t$, the algorithm observes $x_{q_t}$ and updates $S_{t+1} = S_t \cup \{q_t\}$. Here the ovserved activation outcome $X_{S_t}$ is defined as $S_t \cap A$, which is the active vertices currently revealed.
-The movement is then forced by the rule:
-
-$$
-l_{t+1} = 
-\begin{cases}
-    q_t, \;\; &\text{if} \;\; x_{q_t} = 1 \\
-    l_t, \;\; &\text{if} \;\; x_{q_t} = 0
-\end{cases}
-$$
-
-and the incurred travel cost at step $t$ is $d(l_t, l_{t+1})$.
-
-A policy is feasible if for every realization $A \subseteq V$ it eventually queries every vertex
-and hence visits every active vertex.
-
-The objective is to find a feasible policy minimizing
-
-$$
-\E_{A\sim \mu} [c(\pi_{A})]
-$$
-
-where $\pi_A$ is the tour generated by policy $\pi$ together with the realization of active vertex subset $A$.
-The cost of the generated tour is simply the sum of distance at each step, which we defined above.
+% \subsection{adaptive TSP}
 
 \section{Research Question}
 A priori TSP is the most non-adaptive policy, since we can't adjust our strategy at all.
@@ -114,3 +158,15 @@ respectively for a priori and adaptive setting. Then our research question can b
 \printbibliography
 
 \end{document}
+
+
+
+%% opt post <= opt adapt <= opt nonadapt
+% for symmetric d known that nonadapt / post <= O(1);  also mention the lower boundthis directly implies that opt adapt / opt post & opt nonadapt / opt adapt <= O(1) *also whats the lower bound for both
+% nevertheless we interested in showing better bound
+%%
+% asymmetric, known that opt nonadapt / opt post is >= n ^1/4, see section blah
+% It is not hard to see that the same example implies opt nonadapt / opt adapt >- n^1/4 questions 
+% question1 is opt adapt  / opt post = O(1) for all instances? or does it grow to inf with n; can we construct a family of instances to achieve this behaviour
+% question2 can we effienctly compute a optimal/near optimal policy
+%%
