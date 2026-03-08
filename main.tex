@@ -109,6 +109,157 @@ Another key objective of my project is to prove or disprove that the clairvoyanc
 % can one compute efficiently an optimal or near-optimal adaptive policy, and what approximation
 % guarantees are provable?
 
+\section{Proof of epsilon normalization equivalence}
+We call an instance $I = (V, c, p)$ $\varepsilon$-normalized if there exists a depot $d \in V$ with $p(d) = 1$ and $p(v) = \varepsilon$ for all $v \in V \setminus \{d\}$.
+
+\begin{lemma}\label{lem:transform}
+    There is a transform $g$ mapping any instance $I$ to an $\varepsilon$-normalized instance $I' = g(I)$ such that the following hold:
+    \begin{alignat*}{2}
+        (1-\xi)\optpost(I)  &\le{}& \optpost(I')  &\le{} \optpost(I) \\
+        (1-\xi)\optprior(I) &\le{}& \optprior(I') &\le{} \optprior(I) \\
+        (1-\xi)\optadapt(I) &\le{}& \optadapt(I') &\le{} \optadapt(I)
+    \end{alignat*}
+\end{lemma}
+
+There is a lemma from paper \cite{Blauth2024} Lemma 32 says:
+
+\begin{lemma}[Existence of proper parameters]\label{lem:param}
+    For  $\sigma \in (0, 1), \lambda > 0$ and $p \in (0, 1]$. There is $\varepsilon_p \in (0, 1)$ such that for any $\varepsilon \in (0, \varepsilon_p ]$ there is $k \in \mathbb{N}$ such that 
+    \begin{enumerate}
+        \item $1 - (1-\varepsilon)^k \le p$
+        \item $(1-\lambda)p \le 1-(1-\varepsilon)^k$
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}[Proof of Lemma \ref{lem:param}]
+    We can simplify the inequalities into $1 - p \le (1-\varepsilon)^k \le 1 - (1-\lambda)p$. Suppose $p < 1$, then for any certain $\varepsilon$, the inequalities are equivalent to $\frac{\ln (1 - (1-\lambda)p)}{\ln (1 - \varepsilon)} \le k \le \frac{\ln (1 - p)}{\ln (1 - \varepsilon)}$. Since $k$ has to be an integer, we can choose $\varepsilon_p$ to be small enough such that $\frac{\ln (1 - p)}{\ln (1 - \varepsilon_p)} - \frac{\ln (1 - (1-\lambda)p)}{\ln (1 - \varepsilon_p)} > 1$. Suppose $p = 1$, then we only need to choose $k$ to be large enough such that $(1-\epsilon)^k \le \lambda$. Thus in this case $\varepsilon_p$ can be any value in $(0,1)$.
+\end{proof}
+
+With Lemma \ref{lem:param}, we can now prove Lemma \ref{lem:transform}.
+
+\begin{proof}[Proof of Lemma \ref{lem:transform}]
+    We firstly give a transform $g$ and then prove the required properties hold.
+
+    For a certain instance $I = (V, c, p)$, we apply Lemma \ref{lem:param} for every $p(v), v \in V$ and get $\varepsilon_{p(v)}$. Then we pick $\varepsilon := \min \{\varepsilon_{p(v)}\ \mid v \in V\}$. Again by Lemma \ref{lem:param}, for each vertex $v$, there exists $k_v$ satisfying the required two inequalities. 
+    
+    The transform $g$ will split each vertex $v$ to $k_v$ copies with activation probability to be $\varepsilon$ and keep the original distance metric unchanged. Formally, suppose $g(I) = I' = (V', c', p')$, then $V' = \bigcup_{v \in  V} \{v_1, v_2, \dots, v_{k_v}\}$ where $v_1, v_2, \dots, v_{k_v}$ represents the copies of a vertex $v$. And we let the distance $c'(v_i, v'_j) = c(v, v')$ if $v \neq v'$ and $c'(v_i, v'_j) = 0$ if $v = v'$. We let the activation probability $p'(v) = \varepsilon$ for any $v \in V'$.
+
+    Notice that transform $g$ can be decomposed as $g = g_{|V|}  \circ \cdots g_2 \circ g_1$ where $g_i$ is the transform that keeps everything unchanged except splitting the $i$-th vertex $v$ into a set of vertices $s(v) = \{v_{1}, v_{2}, \cdots, v_{k_{v}}\}$ and adjusting the distance and activation probability accordingly. 
+
+    We firstly prove for such transform $g_i$, transforming $I$ to $I' = g_i(I)$, we have:
+
+    \begin{alignat*}{2}
+        (1-\eta)\optpost(I)  &\le{}& \optpost(I')  &\le{} \optpost(I) \\
+        (1-\eta)\optprior(I) &\le{}& \optprior(I') &\le{} \optprior(I) \\
+        (1-\eta)\optadapt(I) &\le{}& \optadapt(I') &\le{} \optadapt(I)
+    \end{alignat*}
+
+    \newcommand{\bp}[0]{\bar{p}}
+    \newcommand{\tsp}[0]{\text{TSP}}
+    Denote $\bp(v) := 1 - (1 - \varepsilon)^{k_v}$. We can see that  $\bp(v)$ corresponds to the probability that at least one vertex in $s(v)$ is active. Let $\pi: 2^{V'} \rightarrow 2^{V}$ denote the map $\pi(A') = \{v \in V \mid A' \cap s(v) \neq \emptyset\}$ from active vertices set in $I'$ to corresponding active vertices set in $I$. Since we are only considering transform $g_i$ which only split the $i$-th vertex $v^*$, by definition we have that for any $A_0 \ni v^*$, 
+    \begin{align*}
+        \Pr_{A \sim \mu}[A = A_0] = \Pi_{v \in A_0 \setminus \{v^*\}} p(v) \cdot \Pi_{v \notin A_0 \setminus \{v^*\}}(1 - p(v)) \cdot p(v^*)
+    \end{align*}
+    and that
+    \begin{align*}
+        &\Pr_{A' \sim \mu'} [\pi(A') = A_0] \\
+        =& \Pi_{v \in A_0 \setminus \{v^*\}} p(v) \cdot \Pi_{v \notin A_0 \setminus \{v^*\}}(1 - p(v)) \cdot \Pr[\text{at least one vertex in } s(v^*) \text{is active}] \\
+        =& \Pi_{v \in A_0 \setminus \{v^*\}} p(v) \cdot \Pi_{v \notin A_0 \setminus \{v^*\}}(1 - p(v)) \cdot \bp(v^*)
+    \end{align*}
+    
+    So we have when $A_0 \ni v^*$, 
+    \begin{align*}
+       (1-\lambda)\Pr_{A \sim \mu}[A = A_0] \le\Pr_{A' \sim \mu'}[\pi(A') = A_0] \le \Pr_{A \sim \mu}[A = A_0]
+    \end{align*}
+
+    And by similar derivation the inequality holds also when $v^* \notin A_0$.
+
+    We now prove a helping claim that the cost of optimal TSP tour for $I'$ restricted on active vertices $A'$, denoted as $c'_\tsp(A')$, is the same as the cost of optimal TSP tour for $I$ restricted on active vertices $\pi(A')$, denoted as $c_\tsp(\pi(A'))$. This is because $A'$ can be seen as $\pi(A')$ together with some additional vertices so $c'_\tsp(A') \ge c_\tsp(\pi(A'))$; on the other hand the optimal TSP for $\pi(A')$ can be simply extended to a TSP tour for $A'$: instead of visit one vertex each time in $\pi(A')$, we visit all corresponding vertices in $A'$, and since the distance between vertices within $s(v)$ is $0$ so the extended tour for $A'$ has exactly the same cost of the optimal tour for $\pi(A')$, which means  $c'_\tsp(A') = c_\tsp(\pi(A'))$.
+
+    Now consider that 
+    $$
+        \optpost(I) = \sum_{A \subset V} \Pr[A]\opt(A)
+    $$ and that 
+    \begin{align*}
+        \optpost(I') &= \sum_{A' \subset  V'} \Pr[A']\opt(A') \\
+        &= \sum_{A \subset V} \Pr_{A' \sim \mu'}[\pi(A')=A_0]\opt(A') \\
+        &= \sum_{A \subset V} \Pr_{A' \sim \mu'}[\pi(A')=A_0]\opt(A)
+    \end{align*}
+
+    Since 
+    \begin{align*}
+       (1-\lambda)\Pr_{A \sim \mu}[A = A_0] \le\Pr_{A' \sim \mu'}[\pi(A') = A_0] \le \Pr_{A \sim \mu}[A = A_0]
+    \end{align*}
+
+    we finally have that
+    $$
+        (1-\lambda)\optpost(I) \le \optpost(I')  \le \optpost(I) 
+    $$  
+
+    Under a priori setting, we need to prove another helping claim that the optimal a priori master tour will always visit all vertices within the cluster $s(v)$ consecutively. This is true because starting from some vertex in $s(v)$, we cannot gain benefits from visiting another vertex in $s(v')$ next, instead of visiting the remaining vertices in $s(v)$ and then visit that vertex in $s(v')$, since going between vertices in $s(v)$ cost $0$. Then it is easy to see that any a priori master tour $T = (v_1, v_2, \cdots, v_{|V|})$ of $V$ has a corresponding a priori master tour $T'$ of $V'$ which firstly visits all vertices in $s(v_1)$, and then visit all vertices in $s(v_2)$ and so on. It is also easy to see the cost of any a priori master tour $T$ is the same as the corresponding  a priori master tour $T'$ since going between vertices in $s(v)$ cost $0$ 
+    
+\end{proof}
+
+\section{Estimate of Rounds Needed}\label{sec:gridexample}
+
+We consider a new graph where vertices are also placed in a $k$ by $k$ grid. Instead of connecting all vertices from column $i$ to column $i + 1$, the $j$-th vertex in $i$-th column will only connect to vertices $j'$ in the $i+1$-th column only when under $\Delta$ base, $j'$ differs from  $j$  in at most $1$ digit. Here $\Delta$ is a parameter that we firstly set to be $\frac{\log k}{\log \log k}$.
+
+We say two vertices are connected if the distance between them is the same as the (cyclic) distance of their underlying column. It is then easy to see that any active vertex in $i$-th column are connected to any vertex in $i'$-th column if $i' \ge i + \Delta$. We call a path to have $1$ round if it starts from $i$-th column, and after moving only by connecting edges (the edges connecting  two \emph{connected} vertices) it comes across $i$-th column again. Clearly each round costs $\Theta(k)$, we want to know how many rounds do we need to cover all active vertices, which gives an upper bound of optimal a posteriori cost.
+
+Denote $M := \max_{i} \sum_{r=-\Delta}^{\Delta} X_{i+r}$, where $X_i$ represents the number of active vertices in $i$-th column. Then we claim that we need at most $M$ rounds to cover all vertices.
+
+We prove the claim by contradiction. Suppose after $M$ rounds, there are still a vertex $v$ in column $j$ which is not covered. Then consider the interval $I_j$ consisting of columns $[j - \Delta, j + \Delta]$, there are no more than $M$ active vertices in $I_j$, so within the $M$ rounds, there exists at least one round $r$ such that no vertices from $I_j$ is touched (by pigeonhole principle). Then we can adjust the previous path by adding vertex $j$ into round $r$. This is always possible because in the round $r$ we can always find the last vertex before $I_j$ and the first vertex after $I_j$, we can insert vertex $v$ without breaking the connection rule since   any active vertex in $i$-th column are connected to any vertex in $i'$-th column if $i' \ge i + \Delta$. We can always perform this adjustment until there is no such vertex exists, then we have a contradiction.
+
+We then need to bound $\E[M]$ and the optimal a posteriori cost would be bounded by $\E[M] \cdot k$.
+
+Define the cyclic window length $m := 2\Delta + 1$. Assume $X_1, \dots, X_k$ are independet and $X_i \sim \textbf{Bin}(k, 1/k)$. Define the cyclic window sums $S_i := \sum_{r=0}^{m-1} X_{i+r} \;\; (\text{indices mod } k)$. And the quantity of interest $M := \max_{1 \le i \le k} S_i$.
+
+By the trick discussed, we know for any $T$:
+
+\begin{align*}
+    \E[M] \le T + \sum_{i=1}^k \E[(S_i - T)^+]
+\end{align*}
+
+This is nice because we do not need independence here (we do not thave independence since intervals $S_i$ might be overlapping) and by symmetry, we have:
+
+\begin{align*}
+    \E[M] \le T + k \E[(S_i - T)^+]
+\end{align*}
+
+Then we convert the $\E[S_1 - T)^+]$ into a tail sum. Since $S_i$ is integer-valued variable, so $\E[(S_1 - T)^+] = \sum_{u=1}^{\infty} \Pr[S_1 \ge T + u]$. So we have:
+
+\begin{align*}
+    \E[M] \le T + k \sum_{u=1}^{\infty} \Pr[S_1 \ge T + u]
+\end{align*}
+
+We know $S_1 \sim \textbf{Bin}(mk, 1/k)$ with mean $m$ and for large $k$ it is approximated by $\textbf{Poi}(m)$. So let $Z \sim \textbf{Poi}(m)$ and then $\Pr[S_1 \ge t] \simeq \Pr[Z \ge t]$. And for Poisson distribution, we have the property that $\Pr[Z \ge t + 1] \le \frac{m}{t + 1}\Pr[Z \ge t]$. This implies that the tail decreases very fast (geometrically fast) when $t > m$. Suppose $T + 2 > m$, then $\Pr[S_1 \ge T + u] \le (\frac{m}{T + 2})^{u-1} \Pr[Z \ge T + 1]$. So $\sum_{u \ge 1} \Pr[Z \ge T + u] \le \frac{\Pr[Z \ge T + 1]}{1 - m/(T + 2)} \le \Pr[Z \ge T] \cdot \frac{m}{T + 1} \cdot \frac{1}{1 - m / (T + 2)}$.
+
+So by approximation, $\E[M] \lesssim T + k \Pr[Z \ge T] \cdot \frac{m}{T + 1} \cdot \frac{1}{1 - m / (T + 2)}$. We can pick $T$ such that $k \Pr[Z \ge T] \simeq 1$, then this would be a good upper bound. To find the $T$, we use the fact that $\Pr[Z \ge T] \simeq \exp(-m h(T/m))$ where $h(x) = x \ln x - x + 1$. Solving the equation we have $m h(T/m) \simeq \ln k$. Since $\ln k / m = \Theta(\ln \ln k)$ and $h(x) \rightarrow x \ln x$ when $x \rightarrow \infty$, so
+
+$$
+    \frac{T}{m} \ln (\frac{T}{m}) \simeq \Theta(\log \log k)
+$$
+
+So we can represent $T$ with Lambert $W$ function:
+
+$$
+\frac{T}{m} = \Theta\left(\frac{\log \log k}{W(\log \log k)}\right)
+$$
+
+Thus we have:
+
+$$
+T = \Theta\left(\frac{\log k}{W(\log \log k)}\right) = \Theta\left(\frac{\log k}{\log \log \log k}\right)
+$$
+
+So we know $\E[M] = \Theta\left(\frac{\log k}{\log \log \log k}\right)$ which means the a posteriori optimal cost is bounded by $k \cdot \Theta\left(\frac{\log k}{\log \log \log k}\right)$.
+
+\section{How To Create a Gap Between a post And adaptive}
+The example graph shown in section \ref{sec:gridexample} has small a post optimal cost, however the optimal adaptive cost is also small. In fact, it is easy to give a policy which achieves the same bound.
+
+So now the problem is that how to create a gap between adaptive and a post. The issue of this grid example is that we cannot punish adaptive policy when it picks a vertex to call. If we want to create a gap, we should be able to punish adaptive policy, i.e., when policy picks some vertex $v$, we need to be able to construct the following graph with remaining uncalled vertices that the policy's choice is globally a bad choice.
+
+
 
 \printbibliography
 
