@@ -121,7 +121,7 @@ We call an instance $I = (V, c, p)$ $\varepsilon$-normalized if there exists a d
     \end{alignat*}
 \end{lemma}
 
-There is a lemma from paper \cite{Blauth2024} Lemma 32 says:
+There is a lemma from paper \cite{Blauth2024} Lemma 32 which says:
 
 \begin{lemma}[Existence of proper parameters]\label{lem:param}
     For  $\sigma \in (0, 1), \lambda > 0$ and $p \in (0, 1]$. There is $\varepsilon_p \in (0, 1)$ such that for any $\varepsilon \in (0, \varepsilon_p ]$ there is $k \in \mathbb{N}$ such that 
@@ -196,7 +196,7 @@ With Lemma \ref{lem:param}, we can now prove Lemma \ref{lem:transform}.
         (1-\lambda)\optpost(I) \le \optpost(I')  \le \optpost(I) 
     $$  
 
-    Under a priori setting, we need to prove another helping claim that the optimal a priori master tour will always visit all vertices within the cluster $s(v)$ consecutively. This is true because starting from some vertex in $s(v)$, we cannot gain benefits from visiting another vertex in $s(v')$ next, instead of visiting the remaining vertices in $s(v)$ and then visit that vertex in $s(v')$, since going between vertices in $s(v)$ cost $0$. Then it is easy to see that any a priori master tour $T = (v_1, v_2, \cdots, v_{|V|})$ of $V$ has a corresponding a priori master tour $T'$ of $V'$ which firstly visits all vertices in $s(v_1)$, and then visit all vertices in $s(v_2)$ and so on. It is also easy to see the cost of any a priori master tour $T$ is the same as the corresponding  a priori master tour $T'$ since going between vertices in $s(v)$ cost $0$ 
+    Under a priori setting, we need to prove another helping claim that the optimal a priori master tour will always visit all vertices within the cluster $s(v)$ consecutively. This is true because starting from some vertex in $s(v)$, we cannot gain benefits from visiting another vertex in $s(v')$ next, instead of visiting the remaining vertices in $s(v)$ and then visit that vertex in $s(v')$, since going between vertices in $s(v)$ cost $0$. Then it is easy to see that any a priori master tour $T = (v_1, v_2, \cdots, v_{|V|})$ of $V$ has a corresponding a priori master tour $T'$ of $V'$ which firstly visits all vertices in $s(v_1)$, and then visit all vertices in $s(v_2)$ and so on. It is also easy to see the cost of any a priori master tour $T$ is the same as the corresponding  a priori master tour $T'$ since going between vertices in $s(v)$ cost $0$.
     
 \end{proof}
 
