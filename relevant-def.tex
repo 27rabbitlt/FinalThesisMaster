@@ -1,8 +1,8 @@
-\section{Related Problem Definitions}\label{sec:relateddef}
+\subsection{Related Problem Definitions}\label{sec:relateddef}
 
-In this section we give formal definitions of two related stochastic optimization problems that share key structural similarities with the stochastic TSP variants studied in this thesis: the stochastic probing problem and the stochastic $k$-TSP problem. Both problems involve sequential decision-making under uncertainty, and the notion of adaptivity gap plays a central role in their analysis.
+There are two related problems sharing some similarities: stochastic probing problem and stochastic $k$-TSP problem. 
 
-\subsection{Stochastic Probing}
+\subsubsection{Stochastic Probing}
 
 The stochastic probing framework, introduced by Gupta and Nagarajan~\cite{GuptaNagarajan2013}, provides a unifying abstraction for a broad class of stochastic combinatorial optimization problems.
 
@@ -26,6 +26,8 @@ At all times, the set of probed elements must satisfy the outer constraint and t
 
 The objective is to find a probing policy $\pi$ that maximizes $\E[\sum_{e \in S(\pi)} v_e]$, where $S(\pi)$ denotes the (random) set of active probed elements.
 
+So given the constraints, historical information is useful. While in adaptive TSP, historical information is somewhat useless, what really matters is simply where you current are.
+
 \begin{definition}[Adaptivity Gap for Stochastic Probing]
     A \emph{non-adaptive} probing policy commits to a fixed ordering $\sigma = (e_1, e_2, \dots, e_n)$ of elements and probes them in this order, stopping when either constraint is about to be violated.
     Let $\mathrm{ADAPT}(I)$ and $\mathrm{NONADAPT}(I)$ denote the expected values of optimal adaptive and non-adaptive policies on instance $I$, respectively. The \emph{adaptivity gap} is defined as
@@ -48,22 +50,18 @@ Key results in this area include:
 \end{itemize}
 
 \begin{remark}
-    The adaptive TSP model studied in this thesis can be viewed through the lens of stochastic probing on a metric space: the ground set consists of customers, each activated independently, and probing a customer reveals its activation status. The key additional structure is that probing an active customer \emph{forces immediate travel} to that customer, coupling the probing decisions with the metric cost. This geographic constraint distinguishes adaptive TSP from the combinatorial probing framework above.
+    It seems difficult to model the cost of TSP tours by probing and summing up some value.
 \end{remark}
 
-\subsection{Stochastic $k$-TSP}
+\subsubsection{Stochastic $k$-TSP}
 
 The stochastic $k$-TSP problem concerns a salesperson who must collect a certain amount of reward by visiting vertices whose rewards are stochastic.
-
-\subsubsection{Deterministic $k$-TSP}
 
 \begin{definition}[Deterministic $k$-TSP]
     Given a metric space $(V \cup \{r\}, d)$ with a depot $r$, a reward $w_v \ge 0$ for each vertex $v \in V$, and a target $k > 0$, find a tour starting and ending at $r$ that collects total reward at least $k$ while minimizing the total travel cost.
 \end{definition}
 
 This is dual to the \emph{orienteering} problem: orienteering maximizes collected reward subject to a budget on travel cost, while $k$-TSP minimizes travel cost subject to a target on collected reward.
-
-\subsubsection{Stochastic $k$-TSP}
 
 In the stochastic version, rewards are random variables drawn from known distributions, realized only upon visiting the vertex. Two natural variants have been studied:
 
@@ -79,36 +77,43 @@ In the stochastic version, rewards are random variables drawn from known distrib
     An \emph{adaptive} policy chooses the next vertex to visit based on all previously observed rewards (or costs). A \emph{non-adaptive} policy commits to a fixed tour in advance and follows it regardless of observed outcomes, stopping once the target $k$ is reached.
 \end{definition}
 
-\begin{definition}[Adaptivity Gap for Stochastic $k$-TSP]
+\begin{definition}[Adaptivity Gap for Stochastic $k$-TSP]\hfill\\
     Let $\mathrm{ADAPT}(I)$ and $\mathrm{NONADAPT}(I)$ denote the expected costs of optimal adaptive and non-adaptive policies on instance $I$. The adaptivity gap is
     \[
         \sup_{I} \frac{\mathrm{NONADAPT}(I)}{\mathrm{ADAPT}(I)}.
     \]
-    Note that since we are minimizing cost, the non-adaptive policy has higher cost, so the ratio is $\ge 1$.
+    Note that since we are minimizing cost, the non-adaptive policy has higher cost, so we always make ratio $\ge 1$.
 \end{definition}
 
 The main results for stochastic $k$-TSP are:
 \begin{itemize}
-    \item Ene, Nagarajan, and Saket~\cite{EneNagarajanSaket2017} give an adaptive $O(\log k)$-approximation algorithm and a non-adaptive $O(\log^2 k)$-approximation. They show that the adaptivity gap lies between $e$ and $O(\log^2 k)$.
-    \item Jiang, Li, Liu, and Singla~\cite{JiangLiLiuSingla2020} resolve an open question by proving that the adaptivity gap for Stochastic-Reward $k$-TSP is $O(1)$, and they give an $O(1)$-approximation non-adaptive algorithm. This shows that adaptivity provides at most a constant-factor benefit for this problem.
+    \item Ene et al~\cite{EneNagarajanSaket2017} give an adaptive $O(\log k)$-approximation algorithm and a non-adaptive $O(\log^2 k)$-approximation. They show that the adaptivity gap lies between $e$ and $O(\log^2 k)$.
+    \item Jiang et al~\cite{JiangLiLiuSingla2020} proved that the adaptivity gap for Stochastic-Reward $k$-TSP is $O(1)$, and they give an $O(1)$-approximation non-adaptive algorithm. This shows that adaptivity provides at most a constant-factor benefit for this problem.
 \end{itemize}
 
-\subsection{Comparison with Stochastic TSP Variants in This Thesis}
+\subsubsection{Comparison with Stochastic TSP Variants in This Thesis}
 
 We summarize the key structural differences and similarities between these problems and the stochastic TSP variants studied in this thesis.
 
 \begin{center}
+\resizebox{\textwidth}{!}{%
+\renewcommand{\arraystretch}{1.5}%
 \begin{tabular}{l c c c c}
     \hline
     & \textbf{A Posteriori} & \textbf{Adaptive TSP} & \textbf{Stoch.\ Probing} & \textbf{Stoch.\ $k$-TSP} \\
     \hline
     Uncertainty & active set & active set & active set & reward/cost \\
+    \hline
     Information & full $A$ revealed & one-by-one & one-by-one & upon visit \\
+    \hline
     Forced action & none & immediate visit & irrevocable select & none \\
+    \hline
     Objective & min $\E[\text{tour}]$ & min $\E[\text{tour}]$ & max $\E[\text{value}]$ & min $\E[\text{cost}]$ \\
+    \hline
     Stopping & visit all active & probe all & constraints & reward $\ge k$ \\
     \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 
-The adaptive TSP model studied in this thesis is closest to a stochastic probing problem on a metric space with the additional constraint that active elements force immediate travel. The stochastic $k$-TSP is related in that it also studies the power of adaptivity for routing under uncertainty, though the objective (collect-at-least-$k$ vs.\ visit-all-active) and the nature of the uncertainty (random rewards vs.\ random activation) differ.
+Not sure if the papers about these two topics would be helpful for our project.

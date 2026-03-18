@@ -1,12 +1,10 @@
-\section{Stochastic Knapsack Problem --- Paper Notes}\label{sec:sk-notes}
+\subsection{Stochastic Knapsack Problem --- Paper Notes}\label{sec:sk-notes}
 
 We summarize two papers on the stochastic knapsack problem that are relevant to the study of adaptivity gaps in stochastic combinatorial optimization.
 
-\subsection{Dean, Goemans, and Vondr\'{a}k (2008): Approximating the Stochastic Knapsack Problem}
+Did not finish reading, especially the technical details. But would like to summarize the results first.
 
-Published in \emph{Mathematics of Operations Research}, Vol.~33, No.~4, pp.~945--964~\cite{DeanGoemansVondrak2008}.
-
-\subsubsection{Problem Setup}
+\subsubsection{DGV (2008)}
 
 Consider a stochastic 0/1 knapsack with $n$ items. Each item $i$ has a deterministic value $v_i \ge 0$ and a random size $s_i$ drawn independently from a known distribution. The knapsack has capacity~1. Items are inserted sequentially; the process terminates when the knapsack overflows, and the overflowing item contributes no value. The goal is to maximize the expected total value of successfully placed items.
 
@@ -16,11 +14,13 @@ Two types of policies are considered:
     \item \textbf{Adaptive:} chooses the next item dynamically based on remaining capacity.
 \end{itemize}
 
-\subsubsection{Key Concept --- Adaptivity Gap}
+Here adaptivity immediately sounds helpful because we can get information about the current remaining capacity. This is impossible for nonadaptive algo. 
+
+So what does adaptivity give us in stochastic TSP setting? We do not need the historical data, but we benefit from being able to change our mind once we probed some active vertices, which is impossible in nonadaptive algo. 
 
 The \emph{adaptivity gap} is the worst-case ratio $\mathrm{ADAPT}(I) / \mathrm{NONADAPT}(I)$ over all instances $I$, measuring how much benefit comes from making decisions dynamically versus committing to a fixed ordering upfront. This is analogous to the integrality gap in integer programming.
 
-\subsubsection{Technical Tools}
+\paragraph{Technical Tools}
 
 \begin{itemize}
     \item \textbf{Effective value:} $w_i = v_i \cdot \P[s_i \le 1]$, an upper bound on the value any policy can obtain from item $i$.
@@ -34,7 +34,7 @@ The \emph{adaptivity gap} is the worst-case ratio $\mathrm{ADAPT}(I) / \mathrm{N
     \item \textbf{LP relaxation (stronger, polymatroid-based):} $\Psi(t)$ with exponential constraints capturing the mass bound more tightly. One has $\mathrm{ADAPT} \le \Psi(2) \le \Phi(2)$, and $\Psi(t)$ can be solved efficiently via a greedy algorithm on a polymatroid.
 \end{itemize}
 
-\subsubsection{Main Results}
+\paragraph{Main Results}
 
 \begin{enumerate}
     \item \textbf{$\f{32}{7}$-approximation nonadaptive algorithm ($\approx 4.57$):}
@@ -55,7 +55,7 @@ The \emph{adaptivity gap} is the worst-case ratio $\mathrm{ADAPT}(I) / \mathrm{N
     \end{itemize}
 \end{enumerate}
 
-\subsubsection{Key Examples}
+\paragraph{Key Examples}
 
 \begin{itemize}
     \item \textbf{Example~1:} A knapsack with $n$ unit-value items demonstrates that an optimal adaptive policy can have exponentially many leaves in its decision tree.
@@ -63,11 +63,11 @@ The \emph{adaptivity gap} is the worst-case ratio $\mathrm{ADAPT}(I) / \mathrm{N
     \item \textbf{Example~5:} The randomized greedy algorithm can be as bad as $\mathrm{ADAPT}/4$ on instances with items of size $(1+\eps)/2$ versus Bernoulli items.
 \end{itemize}
 
-\subsection{Barak and Talgam-Cohen (2026): Semi-Adaptivity Gaps and Improved Approximation}
+\subsubsection{Barak and Talgam-Cohen (2026): Semi-Adaptivity Gaps and Improved Approximation}
 
 Available as arXiv:2602.24042v2, March 2026~\cite{BarakTalgamCohen2026}.
 
-\subsubsection{Problem Setup}
+\paragraph{Problem Setup}
 
 The same stochastic knapsack framework as Dean et al., but with two variants:
 \begin{itemize}
@@ -75,7 +75,7 @@ The same stochastic knapsack framework as Dean et al., but with two variants:
     \item \textbf{Risky-SK (main focus):} Overflow forfeits \emph{all} accumulated value. Also called Fixed-Set, All-Or-None, or Blackjack variant.
 \end{itemize}
 
-\subsubsection{Key New Concept --- Semi-Adaptivity}
+\paragraph{Key New Concept --- Semi-Adaptivity}
 
 A \emph{$k$-semi-adaptive} policy makes at most $k$ adaptive queries (observations of remaining knapsack capacity). Between queries, items are inserted nonadaptively.
 \begin{itemize}
@@ -84,7 +84,7 @@ A \emph{$k$-semi-adaptive} policy makes at most $k$ adaptive queries (observatio
 \end{itemize}
 This provides a smooth interpolation between the two extremes.
 
-\subsubsection{Two New Gap Notions}
+\paragraph{Two New Gap Notions}
 
 \begin{itemize}
     \item \textbf{$0$-$k$ semi-adaptivity gap} ($G_{0\text{-}k}$): the ratio $A_k(I) / \mathrm{ALG}(I)$, measuring the benefit of augmenting a nonadaptive policy with $k$ queries.
@@ -92,7 +92,7 @@ This provides a smooth interpolation between the two extremes.
     \item \textbf{Decomposition (Lemma~1):} $G_{k\text{-}n} \ge G / G_{0\text{-}k}$, i.e., the full adaptivity gap factors through the semi-adaptivity gaps.
 \end{itemize}
 
-\subsubsection{Main Results --- Risky-SK}
+\paragraph{Main Results --- Risky-SK}
 
 \begin{center}
 \begin{tabular}{l c c c c}
@@ -110,7 +110,7 @@ This provides a smooth interpolation between the two extremes.
 \end{tabular}
 \end{center}
 
-\subsubsection{Main Results --- Non-Risky-SK}
+\paragraph{Main Results --- Non-Risky-SK}
 
 \begin{center}
 \begin{tabular}{l c c c c}
@@ -124,9 +124,10 @@ This provides a smooth interpolation between the two extremes.
 \end{tabular}
 \end{center}
 
-\subsubsection{Algorithmic Improvements over DGV08}
+\paragraph{Algorithmic Improvements over DGV08}
 
 \begin{center}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{l c c}
     \hline
     & DGV08 & Barak \& Talgam-Cohen \\
@@ -135,10 +136,11 @@ This provides a smooth interpolation between the two extremes.
     Running time & $O(\mathrm{poly}(n))$, $\eps$-dependent & $O(n \log n)$ \\
     Best known (Risky-SK) & $(8+\eps)$-approx fully adaptive & $6.44$-approx, $\tilde{O}(1/\eps)$ queries \\
     \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{center}
 
-\subsubsection{Key Insights}
+\paragraph{Key Insights}
 
 \begin{enumerate}
     \item \textbf{A single adaptive query matters.} The $0$-$1$ semi-adaptivity gap is exactly $1 + \ln 2 \approx 1.69$ for Risky-SK. Even one observation of remaining capacity gives a provable constant-factor improvement.
@@ -150,7 +152,7 @@ This provides a smooth interpolation between the two extremes.
     \item \textbf{$\eps$-Noisy Bernoulli distributions} (size $\eps$ with probability $1-\eps$, size $1$ with probability $\eps$) form a natural hard family: the adaptivity gap lower bound of $2$ for Risky-SK and the tight $0$-$1$ gap bound of $1.69$ are both established on this family.
 \end{enumerate}
 
-\subsubsection{Technique --- Simplify-Equalize-Optimize}
+\paragraph{Technique --- Simplify-Equalize-Optimize}
 
 A three-step approach for analyzing adaptive decision trees:
 \begin{enumerate}
@@ -160,7 +162,7 @@ A three-step approach for analyzing adaptive decision trees:
 \end{enumerate}
 This technique may have broader applications to semi-adaptivity in other stochastic combinatorial optimization problems.
 
-\subsection{Relationship Between the Two Papers}
+\subsubsection{Relationship Between the Two Papers}
 
 \begin{itemize}
     \item Barak and Talgam-Cohen directly build on and improve the Dean et al.\ framework.

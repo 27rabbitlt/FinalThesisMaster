@@ -1,0 +1,64 @@
+\subsection{Gupta, Nagarajan, and Ravi (2017): Optimal Decision Trees and Adaptive TSP}\label{sec:adt-notes}
+
+We summarize the paper~\cite{GuptaNagarajanRavi2017}, which gives the first poly-logarithmic approximation for Adaptive TSP and a tight $O(\log m)$-approximation for the Optimal Decision Tree problem.
+
+Published in \emph{Mathematics of Operations Research}, Vol.~42, No.~3, pp.~876--896~\cite{GuptaNagarajanRavi2017}.
+
+\subsubsection{Problem Setup}
+
+The paper studies three closely related adaptive optimization problems.
+
+\paragraph{Optimal Decision Tree (ODT)}
+
+There are $m$ possible hypotheses (e.g., diseases), each with a known prior probability. A set of tests is available, each with a cost; each test partitions the hypotheses by its outcome. An algorithm selects tests adaptively (each choice may depend on prior outcomes) until the true hypothesis is uniquely identified. The objective is to minimize the expected total cost of tests performed.
+
+\paragraph{Adaptive TSP}
+
+Given a metric space $(V \cup \{r\}, d)$ and a distribution over subsets $S \subseteq V$, the salesperson starts at the root $r$ and must visit all vertices in $S$. Crucially, whether a vertex $v$ belongs to $S$ is revealed \emph{only upon visiting} $v$. The salesperson adapts its route based on revealed information. The objective is to minimize the expected total distance traveled.
+
+This is strictly stronger than adaptive TSP in our thesis model: here the activation status is revealed upon visit (not upon calling), so the algorithm has less information per step and must physically travel to discover activations.
+
+\paragraph{Adaptive Traveling Repairman (AdapTRP)}
+
+Same setup as Adaptive TSP, but the objective is to minimize the expected sum of arrival times (latencies) at vertices in $S$, rather than total tour length.
+
+\subsubsection{Main Results}
+
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c}
+    \hline
+    \textbf{Problem} & \textbf{Approximation ratio} & \textbf{Hardness} \\
+    \hline
+    Optimal Decision Tree & $O(\log m)$, tight & $\Omega(\log m)$ \\
+    Adaptive TSP (tree metric) & $O(\log^2 n \cdot \log \log n)$ & $\Omega(\log^{2-\varepsilon} n)$ \\
+    Adaptive TSP (general metric) & $O(\mathrm{polylog}\, n)$ & $\Omega(\log^{2-\varepsilon} n)$ on trees \\
+    Adaptive Traveling Repairman & $O(\mathrm{polylog}\, n)$ & --- \\
+    \hline
+\end{tabular}%
+}
+\end{center}
+
+\subsubsection{Key Technical Ideas}
+
+\paragraph{Isolation as a core subroutine}
+
+The central reduction is to the \emph{Isolation Problem}: given $g$ scenarios, find a minimum-cost adaptive strategy that identifies which scenario is true (i.e., isolates one from all others). ODT reduces to Isolation via a recursive halving argument: a strategy that eliminates half the remaining scenarios in each phase achieves $O(\log m)$ total cost relative to OPT.
+
+\paragraph{Group Steiner Orienteering as a subroutine}
+
+Each phase of the algorithm solves a \emph{Group Steiner Orienteering (GSO)} subproblem: given groups of vertices (each group representing a set of scenarios), find a walk of bounded length from the current position that hits the maximum number of groups. GSO is used as a black box; the approximation guarantee for Adaptive TSP inherits directly from that of GSO. On tree metrics, GSO can be approximated within $O(\log^2 n \cdot \log \log n)$, giving the bound in the table above.
+
+\paragraph{Scenario-halving argument}
+
+At each round, the algorithm finds a tour that reduces the number of live scenarios by a constant factor. After $O(\log m)$ rounds, only one scenario remains. The cost per round is bounded via GSO, and the total cost accumulates to $O(\log m \cdot \mathrm{polylog})$ times OPT.
+
+\paragraph{Tightness}
+
+The $\Omega(\log m)$ hardness for ODT follows by reduction from Set Cover. The $\Omega(\log^{2-\varepsilon} n)$ hardness for Adaptive TSP on trees follows from a reduction showing that any improvement would imply an improvement to Group Steiner Tree, a long-standing open problem.
+
+\subsubsection{Relationship to Our Model}
+
+The Adaptive TSP model here differs from ours: activation is revealed upon \emph{visiting} a vertex, whereas in our model the salesperson \emph{calls} a vertex (without traveling) to learn its status and then travels only if it is active. Our model thus gives strictly more information per unit cost, making it no harder than the model studied here.
+
+The paper is relevant as evidence that adaptivity genuinely helps (the hardness result rules out a constant-factor non-adaptive approximation on general metrics) and as a source of algorithmic techniques (scenario-halving, Group Steiner Orienteering) that may be applicable to our setting.
