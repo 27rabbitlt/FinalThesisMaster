@@ -202,7 +202,7 @@ With Lemma \ref{lem:param}, we can now prove Lemma \ref{lem:transform}.
 
 \section{Estimate of Rounds Needed}\label{sec:gridexample}
 
-We consider a new graph where vertices are also placed in a $k$ by $k$ grid. Instead of connecting all vertices from column $i$ to column $i + 1$, the $j$-th vertex in $i$-th column will only connect to vertices $j'$ in the $i+1$-th column only when under $\Delta$ base, $j'$ differs from  $j$  in at most $1$ digit. Here $\Delta$ is a parameter that we firstly set to be $\frac{\log k}{\log \log k}$.
+We consider a new graph where vertices are also placed in a $k$ by $k$ grid where $k = \Delta^\Delta$ for some parameter $\Delta$. Instead of connecting all vertices from column $i$ to column $i + 1$, the $j$-th vertex in $i$-th column will only connect to vertices $j'$ in the $i+1$-th column only when under $\Delta$ base, $j'$ differs from  $j$  in at most $1$ coordinate. Here $\Delta$ is a parameter that we firstly set to be $\frac{\log k}{\log \log k}$.
 
 We say two vertices are connected if the distance between them is the same as the (cyclic) distance of their underlying column. It is then easy to see that any active vertex in $i$-th column are connected to any vertex in $i'$-th column if $i' \ge i + \Delta$. We call a path to have $1$ round if it starts from $i$-th column, and after moving only by connecting edges (the edges connecting  two \emph{connected} vertices) it comes across $i$-th column again. Clearly each round costs $\Theta(k)$, we want to know how many rounds do we need to cover all active vertices, which gives an upper bound of optimal a posteriori cost.
 
@@ -212,7 +212,7 @@ We prove the claim by contradiction. Suppose after $M$ rounds, there are still a
 
 We then need to bound $\E[M]$ and the optimal a posteriori cost would be bounded by $\E[M] \cdot k$.
 
-Define the cyclic window length $m := 2\Delta + 1$. Assume $X_1, \dots, X_k$ are independet and $X_i \sim \textbf{Bin}(k, 1/k)$. Define the cyclic window sums $S_i := \sum_{r=0}^{m-1} X_{i+r} \;\; (\text{indices mod } k)$. And the quantity of interest $M := \max_{1 \le i \le k} S_i$.
+Define the cyclic window length $m := 2\Delta + 1$. Assume $X_1, \dots, X_k$ are independent and $X_i \sim \textbf{Bin}(k, 1/k)$. Define the cyclic window sums $S_i := \sum_{r=0}^{m-1} X_{i+r} \;\; (\text{indices mod } k)$. And the quantity of interest $M := \max_{1 \le i \le k} S_i$.
 
 By the trick discussed, we know for any $T$:
 
@@ -220,13 +220,13 @@ By the trick discussed, we know for any $T$:
     \E[M] \le T + \sum_{i=1}^k \E[(S_i - T)^+]
 \end{align*}
 
-This is nice because we do not need independence here (we do not thave independence since intervals $S_i$ might be overlapping) and by symmetry, we have:
+This is nice because we do not need independence here (we do not have independence since intervals $S_i$ might be overlapping) and by symmetry, we have:
 
 \begin{align*}
     \E[M] \le T + k \E[(S_i - T)^+]
 \end{align*}
 
-Then we convert the $\E[S_1 - T)^+]$ into a tail sum. Since $S_i$ is integer-valued variable, so $\E[(S_1 - T)^+] = \sum_{u=1}^{\infty} \Pr[S_1 \ge T + u]$. So we have:
+Then we convert the $\E[(S_1 - T)^+]$ into a tail sum. Since $S_i$ is integer-valued variable, so $\E[(S_1 - T)^+] = \sum_{u=1}^{\infty} \Pr[S_1 \ge T + u]$. So we have:
 
 \begin{align*}
     \E[M] \le T + k \sum_{u=1}^{\infty} \Pr[S_1 \ge T + u]
