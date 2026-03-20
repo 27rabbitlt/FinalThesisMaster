@@ -2,7 +2,7 @@
 
 BUILD_DIR := build
 
-.PHONY: build clean run test test-random demo help
+.PHONY: build clean run test test-random demo viz viz-all help
 
 ## Build the solver
 build:
@@ -11,7 +11,7 @@ build:
 
 ## Remove build artifacts
 clean:
-	@rm -rf $(BUILD_DIR) test_random
+	@rm -rf $(BUILD_DIR)
 
 ## Run solver on a JSON file: make run F=examples/gap_demo.json
 run: build
@@ -27,13 +27,19 @@ demo: build
 
 ## Correctness test: DP vs brute-force on random instances
 test: build
-	@g++ -O2 -std=c++17 -o test_correctness test_correctness.cpp
-	@./test_correctness
+	@$(BUILD_DIR)/test_correctness
 
 ## Build and run the random gap search (100k trials, n=4)
 test-random: build
-	@g++ -O2 -std=c++17 -o test_random test_random.cpp
-	@./test_random
+	@$(BUILD_DIR)/test_random
+
+## Visualize a graph (interactive HTML): make viz F=examples/two_circles_k3.json
+viz: build
+	@python3 visualize.py $(F) --run-solver
+
+## Visualize all examples (tabbed HTML): make viz-all
+viz-all: build
+	@python3 visualize.py examples/*.json --run-solver
 
 ## Show this help
 help:
@@ -43,4 +49,6 @@ help:
 	@echo "  make demo         Run solver on all examples"
 	@echo "  make test         Correctness test (DP vs brute-force)"
 	@echo "  make test-random  Random instance gap search"
+	@echo "  make viz F=<file> Visualize a graph (interactive HTML)"
+	@echo "  make viz-all      Visualize all examples (tabbed HTML)"
 	@echo "  make clean        Remove build artifacts"

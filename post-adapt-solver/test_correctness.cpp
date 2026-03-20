@@ -2,13 +2,15 @@
 //
 // For a posteriori: brute-force enumerates all permutations per subset.
 // For adaptive: brute-force recursion over all decision trees (no memoization).
-// Both are independent implementations, so agreement is strong evidence of correctness.
+// For a priori: independent brute-force enumerates all tours × all subsets.
+// All are independent implementations, so agreement is strong evidence of correctness.
 
 #include "tsp_solver.h"
 
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <numeric>
 #include <vector>
 
 using namespace std;
@@ -62,6 +64,39 @@ double brute_adaptive(int pos, int mask, int n,
         best = min(best, val);
     }
     return best;
+}
+
+// Independent brute-force for a priori: enumerate all n! tours × all 2^n subsets.
+// For each (tour, subset) pair, compute the shortcut cost directly.
+// This is O(n! * 2^n * n) — independent of a_priori_tour_cost's formula.
+double brute_a_priori(int n, const vector<vector<double>>& d, const vector<double>& p) {
+    if (n == 0) return 0.0;
+    int full = (1 << n);
+    vector<int> perm(n);
+    iota(perm.begin(), perm.end(), 0);
+    double best_e = INF;
+    do {
+        double expected = 0.0;
+        for (int mask = 0; mask < full; ++mask) {
+            double prob = 1.0;
+            for (int i = 0; i < n; ++i)
+                prob *= (mask & (1 << i)) ? p[i + 1] : (1.0 - p[i + 1]);
+            // Compute shortcut cost: follow perm, skip inactive customers
+            double cost = 0.0;
+            int cur = 0;  // current vertex (depot)
+            for (int k = 0; k < n; ++k) {
+                int cust = perm[k] + 1;
+                if (mask & (1 << perm[k])) {
+                    cost += d[cur][cust];
+                    cur = cust;
+                }
+            }
+            cost += d[cur][0];  // return to depot
+            expected += prob * cost;
+        }
+        best_e = min(best_e, expected);
+    } while (next_permutation(perm.begin(), perm.end()));
+    return best_e;
 }
 
 // ==================== Test helpers ====================
@@ -118,9 +153,10 @@ void test_edge_cases() {
         vector<double> p = {0, 0, 0};
         assert(fabs(solve_a_posteriori(2, d, p)) < EPS);
         assert(fabs(solve_adaptive(2, d, p)) < EPS);
+        assert(fabs(solve_a_priori(2, d, p)) < EPS);
     }
 
-    // All p=1: both should equal deterministic TSP optimum
+    // All p=1: all three should equal deterministic TSP optimum
     {
         vector<vector<double>> d = {{0, 10, 15, 20},
                                     {10, 0, 35, 25},
@@ -130,16 +166,28 @@ void test_edge_cases() {
         vector<double> p = {0, 1, 1, 1};
         double ap = solve_a_posteriori(3, d, p);
         double ad = solve_adaptive(3, d, p);
+        double apr = solve_a_priori(3, d, p);
         assert(fabs(ap - 80.0) < EPS);
         assert(fabs(ad - 80.0) < EPS);
+        assert(fabs(apr - 80.0) < EPS);
     }
 
-    // a_posteriori <= adaptive always
+    // n=1: all three are identical
+    {
+        vector<vector<double>> d2 = {{0, 5}, {3, 0}};
+        vector<double> p2 = {0, 0.7};
+        double apr = solve_a_priori(1, d2, p2);
+        assert(fabs(apr - 5.6) < EPS);
+    }
+
+    // Ordering: a_posteriori <= adaptive <= a_priori
     {
         auto inst = random_instance(5);
-        double ap = solve_a_posteriori(inst.n, inst.d, inst.p);
-        double ad = solve_adaptive(inst.n, inst.d, inst.p);
+        double ap  = solve_a_posteriori(inst.n, inst.d, inst.p);
+        double ad  = solve_adaptive(inst.n, inst.d, inst.p);
+        double apr = solve_a_priori(inst.n, inst.d, inst.p);
         assert(ap <= ad + EPS);
+        assert(ad <= apr + EPS);
     }
 
     printf("PASS\n");
@@ -160,9 +208,37 @@ void test_random_vs_brute(int n, int trials) {
         double ad_brute = brute_adaptive(0, 0, inst.n, inst.d, inst.p);
         if (!check(ad_dp, ad_brute, "adapt", t)) return;
 
-        // Invariant: a_posteriori <= adaptive
+        // Invariant: a_posteriori <= adaptive <= a_priori
         if (ap_dp > ad_dp + EPS) {
             printf("FAIL: a_post (%.9f) > adaptive (%.9f) at trial %d\n", ap_dp, ad_dp, t);
+            return;
+        }
+        ++pass;
+    }
+    printf("PASS (%d/%d)\n", pass, trials);
+}
+
+// Test 4: a priori solver vs independent brute-force and ordering check
+void test_a_priori(int n, int trials) {
+    printf("Test 4: a priori solver vs brute-force, n=%d, %d trials ... ", n, trials);
+    int pass = 0;
+    for (int t = 0; t < trials; ++t) {
+        auto inst = random_instance(n);
+
+        double ap  = solve_a_posteriori(inst.n, inst.d, inst.p);
+        double ad  = solve_adaptive(inst.n, inst.d, inst.p);
+        double apr = solve_a_priori(inst.n, inst.d, inst.p);
+        double apr_brute = brute_a_priori(inst.n, inst.d, inst.p);
+
+        if (!check(apr, apr_brute, "a_priori", t)) return;
+
+        // Ordering: a_posteriori <= adaptive <= a_priori
+        if (ad > apr + EPS) {
+            printf("FAIL: adaptive (%.9f) > a_priori (%.9f) at trial %d\n", ad, apr, t);
+            return;
+        }
+        if (ap > apr + EPS) {
+            printf("FAIL: a_post (%.9f) > a_priori (%.9f) at trial %d\n", ap, apr, t);
             return;
         }
         ++pass;
@@ -194,7 +270,12 @@ void test_symmetric() {
     assert(fabs(ad - ad_brute) < EPS);
     assert(ap <= ad + EPS);
 
-    printf("PASS (a_post=%.4f, adaptive=%.4f)\n", ap, ad);
+    double apr = solve_a_priori(3, d, p);
+    double apr_brute = brute_a_priori(3, d, p);
+    assert(fabs(apr - apr_brute) < EPS);
+    assert(ad <= apr + EPS);
+
+    printf("PASS (a_post=%.4f, adaptive=%.4f, a_priori=%.4f)\n", ap, ad, apr);
 }
 
 int main() {
@@ -206,6 +287,8 @@ int main() {
     test_random_vs_brute(6, 500);    // n=6: brute-force still feasible
     test_random_vs_brute(8, 50);     // n=8: brute-force is slow, fewer trials
     test_symmetric();
+    test_a_priori(4, 200);           // n=4: brute a priori is O(n! * 2^n), feasible
+    test_a_priori(5, 20);            // n=5: brute a priori is slower, fewer trials
 
     printf("\nAll tests passed.\n");
     return 0;

@@ -178,8 +178,14 @@ int main(int argc, char* argv[]) {
     double ad = solve_adaptive(n, d, p);
     printf("Adaptive expected cost:     %.6f\n", ad);
 
+    double apr = solve_a_priori(n, d, p);
+    printf("A priori expected cost:     %.6f\n", apr);
+
     if (ap > 1e-12) {
-        printf("Ratio (adaptive / a_posteriori): %.6f\n", ad / ap);
+        printf("\nRatios (a_posteriori as baseline):\n");
+        printf("  adaptive  / a_posteriori = %.6f\n", ad / ap);
+        printf("  a_priori  / a_posteriori = %.6f\n", apr / ap);
+        printf("  a_priori  / adaptive     = %.6f\n", apr / ad);
     }
 
     return 0;

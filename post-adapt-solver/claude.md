@@ -4,8 +4,13 @@ This note is meant to give Claude enough context to write a **simple exact progr
 
 1. the optimal **a posteriori TSP** expected cost;
 2. the optimal **adaptive TSP** expected cost.
+2. the optimal **a priori TSP** expected cost.
 
-The definitions below follow the thesis draft in `main.pdf`: `a posteriori` means “after the active set is known, solve the best tour for that realization”; `adaptive` means “probe vertices one by one, and if a probed vertex is active you must move there immediately.”
+The definitions below follow the thesis draft in `main.pdf` (this pdf is in the parent folder but you do not need to read unless you feel necessary): `a posteriori` means “after the active set is known, solve the best tour for that realization”; `adaptive` means “probe vertices one by one, and if a probed vertex is active you must move there immediately.” `a priori` means you have to give a master tour (going from a depot, iterating over all vertices and go back to a depot) before you know anything about the realization.
+
+Note that TSP are considered on metrics, here we are only considering the graph induced metric, i.e., the metric is defined by the shortest path distance between two vertices. It can be proved that shortest path distance is a metric. And a directed graph induces a asymmetric metric, while undirected graph induces a symmetric metric. 
+
+In this problem we need to consider both.
 
 ---
 
@@ -19,18 +24,13 @@ Use the following conventions in code.
 - Only customers can be active.
 - Customer `i` is active independently with probability `p[i]`.
 - Distances are given by a matrix `d[u][v]` for all vertices `u, v in {0,1,...,n}`.
-- The program should support **directed / asymmetric** distances.
+- The program should support **directed / asymmetric** distances and undirected / symmetric distances. This doesnt matter too much because we can treat the graph to be directed and the user just provide the distance matrix (if the matrix is symmetric then its undirected).
 - The program should compute a **closed tour**: start at depot `0`, serve required customers, return to depot `0`.
 
 ### Important note on graph representation
 
-The input representation does **not** matter.
-
-Claude can accept either:
 - an all-pairs distance matrix directly; or
-- a raw weighted directed graph.
-
-If a raw graph is given, first run all-pairs shortest path and convert it into a distance matrix `d`. After that, the solver only needs `d[u][v]`.
+- an edge list
 
 ---
 
@@ -142,10 +142,6 @@ where
 
 ### Time complexity
 
-Held–Karp over all customer subsets:
-- time: `O(n^2 2^n)`
-- memory: `O(n 2^n)`
-
 This is much better than solving a separate TSP from scratch for each realized active set.
 
 ---
@@ -224,20 +220,23 @@ This is fully feasible for small `n` in C++.
 
 ---
 
-## 6. Relationship between the two objectives
+## 6. a priori TSP 
 
-These two values are **different**.
+We have to decide a tour before we know the activation. And Once the tour is determined, we cannot change the tour. When we are going along the tour, we shortcut these inactive vertices (for example, if the tour is 1 - 2 - 3 but 2 is inactive, then we skip 2 and directly go from 1 to 3, which is shorter than 1 2 3 because of triangle inequality).
 
-- `a posteriori` knows the entire active set in advance for each realization and then chooses the best whole tour.
-- `adaptive` only learns activity by probing customers one at a time, and if a probed customer is active then the next move is forced to that customer.
+The optimal priori TSP can be basically only calculated by brute force every permutation of vertices.
 
-So in general
+## 6. Relationship between the three objectives
+
+These three values are **different**, obviously.
+
+And in general
 
 ```text
-a_posteriori <= adaptive
+a_posteriori <= adaptive <= a priori
 ```
 
-The thesis question is about whether this gap can be large, especially in the asymmetric setting.
+The thesis question is about whether these gaps can be large.
 
 ---
 
@@ -351,7 +350,6 @@ Do one Held–Karp over **all** customer subsets once, then reuse the subset cos
 
 ### Mistake 5: forgetting the depot return
 
-Both objectives here are assumed to be **closed tours** returning to depot `0`.
 
 ---
 
@@ -367,6 +365,8 @@ double solve_a_posteriori(const vector<vector<double>>& d,
 
 double solve_adaptive(const vector<vector<double>>& d,
                       const vector<double>& p);
+double solve_a_priori(const vector<vector<double>>& d,
+                      const vector<double>& p);
 ```
 
 Where:
@@ -381,14 +381,6 @@ Where:
 - output exact expected costs
 
 ---
-
-## 11. One-line summary for Claude
-
-Implement two exact exponential DPs on a directed distance matrix with depot `0` and independent customer activation probabilities:
-
-- **a posteriori** = expected deterministic TSP optimum over all active subsets;
-- **adaptive** = exact DP over states `(current_position, probed_subset)`, with recurrence
-  `min_i (1-p_i)F(pos,next) + p_i(d[pos][i] + F(i,next))`.
 
 ## 12. Graph representation
 

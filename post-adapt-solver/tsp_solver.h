@@ -1,9 +1,10 @@
 #pragma once
-// Shared exact solvers for a posteriori TSP and adaptive TSP.
+// Shared exact solvers for a posteriori TSP, adaptive TSP, and a priori TSP.
 // See CLAUDE.md for definitions and algorithm details.
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <vector>
 
 static const double INF = 1e18;
@@ -80,4 +81,49 @@ inline double solve_adaptive(int n, const std::vector<std::vector<double>>& d,
         }
     }
     return F[0][0];
+}
+
+// Helper: expected shortcut cost of one fixed a priori tour.
+// perm[k] is the 0-based index of the (k+1)-th customer in the tour.
+// Tour visits: depot 0, customers perm[0]+1, ..., perm[n-1]+1, depot 0.
+// Inactive customers are skipped (shortcutted).
+static inline double a_priori_tour_cost(int n,
+                                        const std::vector<std::vector<double>>& d,
+                                        const std::vector<double>& p,
+                                        const std::vector<int>& perm) {
+    // Build tour array: u[0]=depot, u[1..n]=customers, u[n+1]=depot
+    std::vector<int> u(n + 2);
+    u[0] = 0;
+    for (int k = 0; k < n; ++k) u[k + 1] = perm[k] + 1;
+    u[n + 1] = 0;
+
+    double expected = 0.0;
+    for (int i = 0; i <= n; ++i) {
+        // Probability that u[i] is "present" (depot = always; customer = p[u[i]])
+        double p_i = (i == 0) ? 1.0 : p[u[i]];
+        if (p_i == 0.0) continue;
+        // absent_prod = product of (1-p[u[k]]) for k = i+1 .. j-1
+        double absent_prod = 1.0;
+        for (int j = i + 1; j <= n + 1; ++j) {
+            double p_j = (j == n + 1) ? 1.0 : p[u[j]];
+            expected += d[u[i]][u[j]] * p_i * absent_prod * p_j;
+            if (j <= n) absent_prod *= (1.0 - p[u[j]]);
+        }
+    }
+    return expected;
+}
+
+// Exact a priori expected cost: enumerate all n! master tours, return minimum.
+// For each tour, inactive customers are shortcutted; expected cost computed in O(n^2).
+// Overall time: O(n! * n^2).  Practical for n <= 11 or so.
+inline double solve_a_priori(int n, const std::vector<std::vector<double>>& d,
+                             const std::vector<double>& p) {
+    if (n == 0) return 0.0;
+    std::vector<int> perm(n);
+    std::iota(perm.begin(), perm.end(), 0);
+    double best = INF;
+    do {
+        best = std::min(best, a_priori_tour_cost(n, d, p, perm));
+    } while (std::next_permutation(perm.begin(), perm.end()));
+    return best;
 }
