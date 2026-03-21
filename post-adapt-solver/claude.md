@@ -1,6 +1,6 @@
 # CLAUDE.md — Background for exact `a posteriori` vs `adaptive` stochastic TSP solver
 
-This note is meant to give Claude enough context to write a **simple exact program** that takes a graph with distances and activation probabilities as input and outputs:
+This folder is meant to assist my research on Stochastic TSP using code to generate examples and intuition. We need a **simple exact program** that takes a graph with distances and activation probabilities as input and outputs:
 
 1. the optimal **a posteriori TSP** expected cost;
 2. the optimal **adaptive TSP** expected cost.
@@ -9,8 +9,6 @@ This note is meant to give Claude enough context to write a **simple exact progr
 The definitions below follow the thesis draft in `main.pdf` (this pdf is in the parent folder but you do not need to read unless you feel necessary): `a posteriori` means “after the active set is known, solve the best tour for that realization”; `adaptive` means “probe vertices one by one, and if a probed vertex is active you must move there immediately.” `a priori` means you have to give a master tour (going from a depot, iterating over all vertices and go back to a depot) before you know anything about the realization.
 
 Note that TSP are considered on metrics, here we are only considering the graph induced metric, i.e., the metric is defined by the shortest path distance between two vertices. It can be proved that shortest path distance is a metric. And a directed graph induces a asymmetric metric, while undirected graph induces a symmetric metric. 
-
-In this problem we need to consider both.
 
 ---
 
