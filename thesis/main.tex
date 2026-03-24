@@ -212,7 +212,13 @@ We prove the claim by contradiction. Suppose after $M$ rounds, there are still a
 
 We then need to bound $\E[M]$ and the optimal a posteriori cost would be bounded by $\E[M] \cdot k$.
 
-Define the cyclic window length $m := 2\Delta + 1$. Assume $X_1, \dots, X_k$ are independent and $X_i \sim \textbf{Bin}(k, 1/k)$. Define the cyclic window sums $S_i := \sum_{r=0}^{m-1} X_{i+r} \;\; (\text{indices mod } k)$. And the quantity of interest $M := \max_{1 \le i \le k} S_i$.
+Define the cyclic window length $m := 2\Delta + 1$.
+Assume $X_1, \dots, X_k$ are independent and
+$X_i \sim \textbf{Bin}(k, 1/k)$.
+Define the cyclic window sums
+$S_i := \sum_{r=0}^{m-1} X_{i+r}$
+(indices mod~$k$).
+The quantity of interest is $M := \max_{1 \le i \le k} S_i$.
 
 By the trick discussed, we know for any $T$:
 
@@ -264,6 +270,7 @@ So now the problem is that how to create a gap between adaptive and a post. The 
 \input{relevant-def}
 \input{stochastic-knapsack-notes}
 \input{adaptive-decision-tree-notes}
+\input{results-collection.tex}
 
 \printbibliography
 

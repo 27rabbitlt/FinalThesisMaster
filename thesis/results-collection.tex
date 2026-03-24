@@ -1,0 +1,422 @@
+\subsection{Collection of Existing Results on Stochastic TSP}\label{sec:results-collection}
+
+This section collects all known results on stochastic TSP variants (a posteriori, adaptive, a priori) from the literature.
+We use the notation from Section~2 of this thesis:
+$\optpost = \E_A[\opt(A)]$ (a posteriori),
+$\optadapt$ (optimal adaptive policy),
+$\optprior$ (optimal a priori master tour).
+The fundamental inequality is $\optpost \le \optadapt \le \optprior$.
+We define:
+\begin{itemize}
+    \item \textbf{Obliviousness gap}: $\sup_{\II} \f{\optprior}{\optpost}$ \quad (a priori vs.\ a posteriori)
+    \item \textbf{Adaptivity gap}: $\sup_{\II} \f{\optprior}{\optadapt}$ \quad (a priori vs.\ adaptive)
+    \item \textbf{Clairvoyance gap}: $\sup_{\II} \f{\optadapt}{\optpost}$ \quad (adaptive vs.\ a posteriori)
+\end{itemize}
+Note: The literature on a priori TSP (e.g., \cite{Christalla2025}) uses ``adaptivity gap'' to mean what we call the obliviousness gap. We follow the terminology of our thesis (Section~3).
+
+%% ============================================================
+\subsubsection{Symmetric Metrics}
+%% ============================================================
+
+\paragraph{Gap Bounds.}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c l}
+    \hline
+    \textbf{Gap} & \textbf{Lower bound} & \textbf{Upper bound} & \textbf{Source} \\
+    \hline
+    Obliviousness $\f{\optprior}{\optpost}$
+        & ---
+        & $\le 3$
+        & Shmoys--Talwar~\cite{Shmoys2008} \\[3pt]
+    Adaptivity $\f{\optprior}{\optadapt}$
+        & ---
+        & $\le 3$ (inherited)
+        & Since $\optadapt \ge \optpost$ \\[3pt]
+    Clairvoyance $\f{\optadapt}{\optpost}$
+        & ---
+        & $\le 3$ (inherited)
+        & Since $\optprior \ge \optadapt$ \\
+    \hline
+\end{tabular}%
+}
+\end{center}
+
+\begin{remark}
+    The obliviousness gap bound $\le 3$ from \cite{Shmoys2008} is the best known.
+    It follows from their sampling algorithm: draw a random active set~$S$,
+    build an MST on~$S$,
+    connect each non-sampled vertex to its nearest neighbor in~$S$,
+    and double the resulting tree.
+    The expected cost is bounded by
+    $2(\E[\text{MST}(S)] + \E[\sum_j D_j(S)])
+    \le 2(\optpost + \optpost)$.
+    Since for any master tour~$T$,
+    \[
+        \E[c(T|_A)] \le \E[\text{cost of sample-based tour}],
+    \]
+    the ratio $\optprior / \optpost \le 3$ follows from a
+    more refined analysis using LP lower bounds.
+    No non-trivial lower bounds on the obliviousness, adaptivity,
+    or clairvoyance gaps are known for symmetric metrics
+    (i.e., it is open whether any of these gaps can be $> 1 + \eps$
+    for some constant $\eps$).
+\end{remark}
+
+On tree metrics, the situation is completely resolved:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{l c l}
+    \hline
+    \textbf{Gap} & \textbf{Value} & \textbf{Source} \\
+    \hline
+    Obliviousness $\f{\optprior}{\optpost}$ on trees & $= 1$ & Schalekamp--Shmoys~\cite{SchalekampShmoys2008} \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{remark}
+    On tree metrics, any shortcutting of the Euler tour traversal of the tree gives an optimal tour for \emph{every} subset $S$ simultaneously (Theorem~2 in \cite{SchalekampShmoys2008}). Thus the universal TSP ratio is exactly~1, implying all three gaps equal~1 on tree metrics.
+\end{remark}
+
+\paragraph{Approximation Algorithms for A Priori TSP (Symmetric).}
+
+These algorithms compute a master tour $T$ and bound $\E[c(T|_A)]$ relative to $\optprior$.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c l}
+    \hline
+    \textbf{Result} & \textbf{Ratio vs.\ $\optprior$} & \textbf{Type} & \textbf{Source} \\
+    \hline
+    Sampling + MST doubling & $4$ & Randomized & Shmoys--Talwar~\cite{Shmoys2008}, Thm~10 \\
+    CFL + derandomization & $8$ & Deterministic & Shmoys--Talwar~\cite{Shmoys2008}, Thm~13 \\
+    Sampling, $\sigma\!=\!0.663$, $\al\!=\!1.5$ & $< 3.1$ & Randomized & Blauth et al.~\cite{Blauth2024}, Cor~4 \\
+    Master route + Karlin--Klein--OG & $5.9$ & Deterministic & Blauth et al.~\cite{Blauth2024}, Cor~7 \\
+    Tree embedding & $O(\log n)$ & Rand., dist.-free & Schalekamp--Shmoys~\cite{SchalekampShmoys2008}, Cor~4 \\
+    \hline
+\end{tabular}%
+}
+\end{center}
+
+\begin{remark}[Details on Shmoys--Talwar~\cite{Shmoys2008}]
+    The $4$-approximation works as follows: sample a random set $S$ from the activation distribution conditioned on $|A| \ge 2$; build MST on $S$; for each $j \notin S$, connect $j$ to its nearest neighbor in $S$; double the resulting tree. The key insight is Lemma~7: $\E_A[D_j(A)] \le \E_A[D_j(A) \mid j \in A]$, where $D_j(A)$ is the nearest-neighbor distance from $j$ in $A$. This uses Facts~3 and~4: $\optpost \ge \E[\text{MST}(A)]$ and $\optpost \ge \E[\sum_{j \in A} D_j(A)]$.
+
+    The $8$-approximation uses the same structure but derandomizes via a Connected Facility Location LP relaxation. The LP optimum is $\le \f{3}{2}\optprior$ (Lemma~11), and conditional expectations give a deterministic set $S$ with $2 \cdot c_{\mathrm{ST}}(S) + c_R(S) \le 4\optprior$; doubling gives $8\optprior$.
+\end{remark}
+
+\begin{remark}[Details on Blauth et al.~\cite{Blauth2024}]
+    Their approach uses a \emph{master route solution}: select a nonempty set $S$, compute a TSP tour on $S$, and connect each vertex in $V \setminus S$ to its nearest point in $S$ by a pair of parallel edges. The key results are:
+
+    \begin{itemize}
+        \item \textbf{Master route ratio} (Theorem~6): The supremum of $\min_S \text{MR}(S) / \optprior$ over all instances with depot is at least $1/(1 - e^{-1/2}) > 2.541$ and at most $2.584$. They conjecture the exact value is $1/(1 - e^{-1/2})$.
+
+        \item \textbf{Sampling lower bound} (Theorem~2): No matter how the sampling function $f$ is chosen, the sampling algorithm cannot achieve ratio better than $2.655$ (even with optimal TSP subroutine) or $3.049$ (with a $1.4999$-approximate TSP subroutine).
+
+        \item \textbf{Depot reduction} (Theorem~1): If there is a $\rho$-approximation for a priori TSP with depot (for $\rho \ge 3$), then there is a $(\rho + \eps)$-approximation for general instances. Loss is arbitrarily small.
+
+        \item \textbf{Deterministic algorithm} (Corollary~7): Combines the master route ratio $< 2.6$ with the deterministic $3/2$-approximation for TSP from Karlin--Klein--Oveis Gharan and van Zuylen's framework (Theorem~35: ratio $\le 2 + \al \cdot \rho$ where $\al = 3/2$, $\rho < 2.6$, giving $2 + 3.9 = 5.9$).
+    \end{itemize}
+\end{remark}
+
+\begin{remark}[Schalekamp--Shmoys {\cite{SchalekampShmoys2008}}]
+    Their $O(\log n)$ result is distribution-free: the same tour works
+    for \emph{any} distribution over active sets.
+    The algorithm uses FRT stochastic tree embeddings
+    with expected distortion~$O(\log n)$:
+    sample a random tree metric, compute the optimal tree
+    traversal (optimal for every subset by Theorem~2),
+    and shortcut back to the original metric.
+    The $O(\log n)$ bound cannot be improved using tree embedding
+    techniques (by a result of Leighton--Rao).
+\end{remark}
+
+\paragraph{Approximation Algorithms for Adaptive TSP (Symmetric).}
+
+These algorithms compute an adaptive policy and bound its expected cost relative to the optimal adaptive policy.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{l c c l}
+    \hline
+    \textbf{Result} & \textbf{Ratio vs.\ $\optadapt$} & \textbf{Model} & \textbf{Source} \\
+    \hline
+    Scenario-halving + GSO & $O(\log^2 n \cdot \log m)$ & Visit-to-reveal & GNR~\cite{GuptaNagarajanRavi2017}, Thm~2 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{remark}[Details on Gupta--Nagarajan--Ravi~\cite{GuptaNagarajanRavi2017}]
+    This paper studies a \emph{different} adaptive TSP model: the activation status of vertex $v$ is revealed only upon \emph{visiting} $v$ (not upon calling). This is a harder model than ours (the salesperson has strictly less information per unit of cost). The distribution is given explicitly with support size $m$.
+
+    The algorithm has the following structure:
+    \begin{enumerate}
+        \item Reduce Adaptive TSP to the \emph{Isolation Problem}: given $m$ scenarios, find a minimum-cost adaptive strategy that identifies which scenario is true.
+        \item Reduce Isolation to \emph{Group Steiner Orienteering (GSO)}: find a walk of bounded length that hits the maximum number of groups.
+        \item Solve GSO via LP relaxation and tree embeddings: $(4, O(\log^2 n))$-bicriteria approximation (Theorem~18).
+        \item The scenario-halving argument reduces live scenarios by factor $7/8$ per round, so $O(\log m)$ rounds suffice.
+    \end{enumerate}
+
+    The Isolation-to-AdapTSP reduction (Lemma~17) loses an additive $3/2$: use the $\al$-approximate isolation tree to identify the realized scenario, then traverse a $3/2$-approximate TSP tour on the active set, total cost $(\al + 3/2) \cdot \optadapt$.
+
+    \textbf{Hardness}: $\Omega(\log^{2-\eps} n)$ on tree metrics, by reduction from Group Steiner Tree (Theorem~27).
+
+    This paper does not bound any gap between adaptive and a priori/a posteriori costs. It approximates the optimal adaptive policy directly.
+\end{remark}
+
+%% ============================================================
+\subsubsection{Asymmetric Metrics}
+%% ============================================================
+
+\paragraph{Gap Bounds.}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c c l}
+    \hline
+    \textbf{Gap} & \textbf{Lower bound} & \textbf{Upper bound} & \textbf{Source} \\
+    \hline
+    Obliviousness $\f{\optprior}{\optpost}$
+        & $\Omega\!\left(\f{n^{1/4}}{\log n}\right)$
+        & $O(\sqrt{n})$
+        & CPT~\cite{Christalla2025}, Thms~1.1,~1.2 \\[6pt]
+    Adaptivity $\f{\optprior}{\optadapt}$
+        & $\Omega\!\left(\f{n^{1/4}}{\log n}\right)$
+        & $O(\sqrt{n})$
+        & Same LB instance; UB inherited \\[6pt]
+    Clairvoyance $\f{\optadapt}{\optpost}$
+        & ---
+        & $O(\sqrt{n})$ (inherited)
+        & \textbf{Open}: is this $O(1)$? \\
+    \hline
+\end{tabular}%
+}
+\end{center}
+
+\begin{remark}[Details on the $\Omega(n^{1/4} / \log n)$ lower bound~\cite{Christalla2025}]
+    The lower bound uses \emph{asymmetric grid instances} $G_k$: vertices are placed in a $k \times k$ grid, with $k^2$ vertices and activation probability $p(v) = 1/k$ for all $v$. The asymmetric distances are designed so that:
+    \begin{itemize}
+        \item The optimal a posteriori cost satisfies
+        $\E[\text{TSP}(A, c_k)] \le 5k \log k$
+        (Lemma~3.6, using Chernoff bounds on the maximum column occupancy;
+        Lemma~3.5 shows
+        $\text{TSP}(A, c_k) = k \cdot \max_j |A \cap C_j|$).
+        \item The optimal a priori tour satisfies (Lemma~3.4):
+        \[
+            \optprior(V_k, c_k, p_k) \ge \f{k^{3/2}}{2^9 \cdot e^4}.
+        \]
+    \end{itemize}
+    Thus for $n = k^2$ vertices, the obliviousness gap is at least
+    \[
+        \f{k^{3/2}/(2^9 e^4)}{5k \log k} = \Omega\!\left(\f{\sqrt{k}}{\log k}\right) = \Omega\!\left(\f{n^{1/4}}{\log n}\right).
+    \]
+    As noted in our thesis (Section~3), this construction also implies the adaptivity gap $\f{\optprior}{\optadapt} = \Omega(n^{1/4} / \log n)$ because $\optadapt \le \optprior$.
+\end{remark}
+
+\begin{remark}[Details on the $O(\sqrt{n})$ upper bound~\cite{Christalla2025}]
+    Theorem~1.1 gives a deterministic polynomial-time algorithm computing a tour $T$ with
+    \[
+        \E[c(T|_A)] \le O(\sqrt{n}) \cdot \E[\text{TSP}(A, c)].
+    \]
+    The algorithm splits vertices into high-probability
+    ($p(v) \ge 1/\sqrt{n}$) and low-probability
+    ($p(v) < 1/\sqrt{n}$) sets.
+    For high-probability vertices, it uses an $\al$-approximate ATSP tour
+    costing
+    $\al \cdot \cei{1/p_{\min}} \cdot \optpost \le \al\sqrt{n} \cdot \optpost$
+    (Proposition~4.7).
+    For low-probability vertices, any Hamiltonian cycle has expected cost
+    $\le 6 \cdot p(V) \cdot \optpost$ (Proposition~4.8).
+    Since $p(V_2) \le \sqrt{n}$, the combined cost is
+    $O(\sqrt{n}) \cdot \optpost$.
+\end{remark}
+
+\paragraph{Approximation Algorithms for A Priori TSP (Asymmetric).}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{l c c l}
+    \hline
+    \textbf{Result} & \textbf{Ratio} & \textbf{Compared to} & \textbf{Source} \\
+    \hline
+    High/low probability split & $O(\sqrt{n})$ & $\optpost$ & CPT~\cite{Christalla2025}, Thm~1.1 \\
+    Hop-ATSP reduction & $O(\log^8 n)$ & $\optprior$ & CPT~\cite{Christalla2025}, Thm~1.3 \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{remark}[Details on the $O(\log^8 n)$ quasi-polynomial-time algorithm~\cite{Christalla2025}]
+    Theorem~1.3 gives a randomized algorithm with running time
+    $n^{O(\log n)}$ that computes a tour~$T$ with
+    $\E[c(T|_A)] \le O(\log^8 n) \cdot \optprior$.
+    This is remarkable because it achieves an approximation ratio
+    \emph{below} the obliviousness gap (which is $\Omega(n^{1/4}/\log n)$).
+    The algorithm works through a chain of reductions:
+    \begin{enumerate}
+        \item Reduce a priori TSP to \emph{Hop-ATSP} via uniform
+        activation probabilities (Theorem~2.2):
+        an $\al(n)$-approx\-imation for Hop-ATSP yields an
+        $O(\al(5n^2))$-approx\-imation for a priori TSP.
+        \item Reduce Hop-ATSP to hierarchically ordered
+        instances via directed low-diameter
+        decompositions (Thm~2.3; loss
+        $O(\log n \cdot \log\log n)$,
+        depth $L = O(\log n)$).
+        \item Reduce hierarchically ordered Hop-ATSP to a \emph{Path Covering}
+        problem (Theorem~6.1): loss $O(\log^6 n) \cdot \al(n)$.
+        \item Solve Path Covering in quasi-polynomial time via dynamic programming (Theorem~7.1): $O(\log^2 n)$-approximation in time $n^{O(\log n)}$.
+    \end{enumerate}
+    Combining: $O(\log^2 n) \cdot O(\log^6 n) = O(\log^8 n)$. The exponent $8$ is not optimized.
+
+    A key technical result (Theorem~4.16) shows that for uniform activation
+    probability~$\delta$, the expected a priori cost $\E[c(T|_A)]$ and
+    $\delta^2 \cdot c^{(k)}(T)$ (the $k$-hop cost with $k = \flr{1/\delta}$)
+    differ by at most a constant factor.
+\end{remark}
+
+%% ============================================================
+\subsubsection{Open Problems and Gaps in Knowledge}
+%% ============================================================
+
+The main open questions for stochastic TSP are:
+
+\begin{enumerate}
+    \item \textbf{Clairvoyance gap for asymmetric metrics}: Is $\f{\optadapt}{\optpost} = O(1)$? Or does it grow with $n$? This is the central question of this thesis.
+
+    \item \textbf{Tightening asymmetric obliviousness gap}: Currently $\Omega(n^{1/4}/\log n) \le \f{\optprior}{\optpost} \le O(\sqrt{n})$. The exact growth rate is unknown.
+
+    \item \textbf{Symmetric gap lower bounds}: No non-trivial lower bounds are known for any of the three gaps on symmetric metrics. Is there an instance family where $\f{\optprior}{\optpost} > 1 + \eps$ for some constant $\eps > 0$?
+
+    \item \textbf{Polynomial-time algorithm below the obliviousness gap (asymmetric)}: The $O(\log^8 n)$-approximation of~\cite{Christalla2025} runs in quasi-polynomial time $n^{O(\log n)}$. Can this be made polynomial?
+\end{enumerate}
+
+%% ============================================================
+\subsubsection{Results on Related Stochastic Optimization Problems}
+%% ============================================================
+
+The following results on related problems provide context, techniques, and analogies for stochastic TSP.
+
+\paragraph{Stochastic $k$-TSP.}
+
+In Stochastic $k$-TSP, each vertex has a random reward; the salesperson must collect total reward $\ge k$ while minimizing expected travel cost.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{l c l}
+    \hline
+    \textbf{Result} & \textbf{Bound} & \textbf{Source} \\
+    \hline
+    Adaptivity gap lower bound & $\ge e$ & Ene--Nagarajan--Saket~\cite{EneNagarajanSaket2017} \\
+    Adaptivity gap upper bound & $O(1)$ & Jiang--Li--Liu--Singla~\cite{JiangLiLiuSingla2020} \\
+    Adaptive $O(\log k)$-approx & $O(\log k)$ vs.\ $\optadapt$ & Ene--Nagarajan--Saket~\cite{EneNagarajanSaket2017} \\
+    Nonadaptive $O(1)$-approx & $O(1)$ vs.\ $\optadapt$ & Jiang--Li--Liu--Singla~\cite{JiangLiLiuSingla2020} \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{remark}
+    The adaptivity gap for Stochastic $k$-TSP is $O(1)$, meaning adaptivity provides at most a constant-factor benefit. This contrasts with stochastic TSP on asymmetric metrics where the obliviousness gap grows with $n$.
+\end{remark}
+
+\paragraph{Stochastic Probing.}
+
+In the stochastic probing framework~\cite{GuptaNagarajan2013}, elements have random activation; probing reveals status. Solutions must satisfy inner (selected) and outer (probed) constraints.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c l}
+    \hline
+    \textbf{Constraint type} & \textbf{Adaptivity gap} & \textbf{Source} \\
+    \hline
+    Matroid inner + matroid outer, submod.\ obj. & $O(1)$ & Gupta--Nagarajan--Singla~\cite{GuptaNagarajanSingla2017} \\
+    Matroid inner + prefix-closed outer & $O(\log n)$ & Gupta--Nagarajan--Singla~\cite{GuptaNagarajanSingla2016} \\
+    Single matroid inner, submod.\ obj. & $= 2$ & Bradac--Singla--Zuzic~\cite{BradacSinglaZuzic2019} \\
+    \hline
+\end{tabular}%
+}
+\end{center}
+
+\paragraph{Stochastic Knapsack.}
+
+In stochastic knapsack, items have random sizes; the knapsack has capacity~1. The adaptivity gap measures the benefit of choosing items dynamically vs.\ committing to a fixed order.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{l c c l}
+    \hline
+    \textbf{Variant} & \textbf{Lower bound} & \textbf{Upper bound} & \textbf{Source} \\
+    \hline
+    Non-Risky SK & $1.37$ & $4$ & DGV~\cite{DeanGoemansVondrak2008}, BTC~\cite{BarakTalgamCohen2026} \\
+    Risky SK (All-or-None) & $2$ & $8.47$ & BTC~\cite{BarakTalgamCohen2026} \\
+    $0$-$1$ semi-adaptivity (Risky) & \multicolumn{2}{c}{$= 1 + \ln 2 \approx 1.69$} & BTC~\cite{BarakTalgamCohen2026} \\
+    \hline
+\end{tabular}
+\end{center}
+
+\begin{remark}
+    Key results from Dean--Goemans--Vondr\'{a}k~\cite{DeanGoemansVondrak2008}:
+    \begin{itemize}
+        \item Martingale argument (Lemma~3.1): for any adaptive policy, the expected total truncated mass of items attempted is $\le 2$, giving the LP bound $\text{ADAPT} \le \Phi(2)$.
+        \item $4$-approximation nonadaptive algorithm using polymatroid LP bound $\Psi(2)$.
+        \item Adaptivity gap $\le 4$ for Non-Risky SK.
+    \end{itemize}
+
+    Key results from Barak--Talgam-Cohen~\cite{BarakTalgamCohen2026}:
+    \begin{itemize}
+        \item Introduction of \emph{semi-adaptivity}: a $k$-semi-adaptive policy makes at most $k$ adaptive queries. Provides smooth interpolation between nonadaptive ($k=0$) and fully adaptive ($k=n$).
+        \item With $\tilde{O}(1/\eps)$ adaptive queries, achieves a $(6.44 + \sqrt{\eps})$-approximation for Risky SK, improving on the best known fully adaptive $8$-approximation.
+        \item The $0$-$1$ semi-adaptivity gap is \emph{exactly} $1 + \ln 2 \approx 1.69$ for Risky SK: even a single observation of remaining capacity gives a provable constant-factor improvement.
+    \end{itemize}
+\end{remark}
+
+%% ============================================================
+\subsubsection{Classical TSP Hardness and Approximation (Background)}
+%% ============================================================
+
+For context, we list the key results for deterministic TSP that underlie the stochastic results.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c l}
+    \hline
+    \textbf{Result} & \textbf{Bound} & \textbf{Source} \\
+    \hline
+    TSP is NP-hard & --- & Karp~\cite{Karp1972} \\
+    TSP is APX-hard & --- & Karpinski--Lampis--Schmied~\cite{Karpinski2015} \\
+    Sym.\ TSP: $3/2$-approx (Christofides) & $3/2$ & Christofides~\cite{Christofides1973} \\
+    Sym.\ TSP: $(3/2 - 10^{-36})$-approx & $< 3/2$ & Karlin--Klein--OG~\cite{Karlin2021} \\
+    Asym.\ TSP: $O(1)$-approx & $O(1)$ & Svensson--Tarnawski--V\'{e}gh~\cite{Svensson2020} \\
+    \hline
+\end{tabular}%
+}
+\end{center}
+
+%% ============================================================
+\subsubsection{Summary Table: All Stochastic TSP Gap Bounds}
+%% ============================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.5}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l c c c}
+    \hline
+    \textbf{Metric} & \textbf{Gap} & \textbf{Ratio} & \textbf{Best Known Bounds} & \textbf{Source} \\
+    \hline
+    Symmetric & Obliviousness $\f{\optprior}{\optpost}$ & a priori / a posteriori & $\le 3$ & \cite{Shmoys2008} \\
+    Symmetric & Adaptivity $\f{\optprior}{\optadapt}$ & a priori / adaptive & $\le 3$ (inherited) & \cite{Shmoys2008} \\
+    Symmetric & Clairvoyance $\f{\optadapt}{\optpost}$ & adaptive / a posteriori & $\le 3$ (inherited) & \cite{Shmoys2008} \\
+    Sym.\ tree & All gaps & --- & $= 1$ & \cite{SchalekampShmoys2008} \\[4pt]
+    Asymmetric & Obliviousness $\f{\optprior}{\optpost}$ & a priori / a posteriori & $\Omega\!\left(\f{n^{1/4}}{\log n}\right)$, $O(\sqrt{n})$ & \cite{Christalla2025} \\
+    Asymmetric & Adaptivity $\f{\optprior}{\optadapt}$ & a priori / adaptive & $\Omega\!\left(\f{n^{1/4}}{\log n}\right)$, $O(\sqrt{n})$ & \cite{Christalla2025} \\
+    Asymmetric & Clairvoyance $\f{\optadapt}{\optpost}$ & adaptive / a posteriori & $O(\sqrt{n})$; \textbf{open if $O(1)$} & --- \\
+    \hline
+\end{tabular}%
+}
+\end{center}
