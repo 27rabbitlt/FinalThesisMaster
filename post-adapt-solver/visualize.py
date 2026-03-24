@@ -201,14 +201,17 @@ def build_html(instances):
                 })
             else:
                 color = prob_to_color(prob[i])
+                is_dark = prob[i] > 0.55
+                font_color = "#fff" if is_dark else "#222"
                 vis_nodes.append({
                     "id": i,
                     "label": f"{i}  (p={prob[i]:.2g})",
                     "color": {"background": color, "border": "#333333",
-                              "highlight": {"background": color, "border": "#000"}},
+                              "highlight": {"background": color, "border": "#000"},
+                              "hover": {"background": color, "border": "#000"}},
                     "shape": "circle",
                     "size": 20,
-                    "font": {"size": 13, "face": "monospace", "color": "#222"},
+                    "font": {"size": 13, "face": "monospace", "color": font_color},
                 })
 
         # Apply positions
@@ -226,7 +229,7 @@ def build_html(instances):
             edge = {
                 "from": u, "to": v,
                 "label": label,
-                "font": {"size": 10, "color": "#666", "strokeWidth": 0, "align": "middle"},
+                "font": {"size": 14, "color": "#333", "strokeWidth": 3, "strokeColor": "#ffffff", "align": "middle"},
                 "color": {"color": "#999", "highlight": "#333"},
                 "width": 1.5,
             }
