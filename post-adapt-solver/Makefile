@@ -6,8 +6,8 @@ BUILD_DIR := build
 
 ## Build the solver
 build:
-	@cmake -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release -S . > /dev/null 2>&1
-	@cmake --build $(BUILD_DIR)
+	cmake -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release -S . > /dev/null 2>&1
+	cmake --build $(BUILD_DIR)
 
 ## Remove build artifacts
 clean:

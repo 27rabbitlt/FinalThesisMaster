@@ -6,6 +6,8 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
+#include <iostream>
+using namespace std;
 
 static const double INF = 1e18;
 
@@ -120,10 +122,17 @@ inline double solve_a_priori(int n, const std::vector<std::vector<double>>& d,
                              const std::vector<double>& p) {
     if (n == 0) return 0.0;
     std::vector<int> perm(n);
+    std::vector<int> bestperm(n);
     std::iota(perm.begin(), perm.end(), 0);
     double best = INF;
     do {
-        best = std::min(best, a_priori_tour_cost(n, d, p, perm));
+        if (best > a_priori_tour_cost(n, d, p, perm)) {
+            best = a_priori_tour_cost(n, d, p, perm);
+            bestperm = perm;
+        }
     } while (std::next_permutation(perm.begin(), perm.end()));
+    for (auto &v: bestperm) {
+        cout << v << " ";
+    } cout << endl;
     return best;
 }

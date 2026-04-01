@@ -29,7 +29,7 @@ def load_instance(path):
         data = json.load(f)
 
     n = data["n"]
-    V = n + 1
+    V = n
     prob = data["prob"]
 
     edges_raw = None
@@ -42,7 +42,7 @@ def load_instance(path):
             dist[i][i] = 0
         edges_raw = data["edges"]
         for e in edges_raw:
-            u, v, w = e["from"], e["to"], e["weight"]
+            u, v, w = e["s"], e["t"], e["w"]
             if w < dist[u][v]:
                 dist[u][v] = w
         # Floyd-Warshall
@@ -60,11 +60,11 @@ def load_instance(path):
 
 def check_symmetric(n, dist, edges_raw):
     """Check if the graph is symmetric."""
-    V = n + 1
+    V = n
     if edges_raw is not None:
         edge_set = {}
         for e in edges_raw:
-            edge_set[(e["from"], e["to"])] = e["weight"]
+            edge_set[(e["s"], e["t"])] = e["w"]
         for (u, v), w in list(edge_set.items()):
             if (v, u) not in edge_set or abs(edge_set[(v, u)] - w) > 1e-9:
                 return False
@@ -79,14 +79,14 @@ def check_symmetric(n, dist, edges_raw):
 
 def get_display_edges(n, dist, edges_raw, is_symmetric):
     """Get edges for display. For edge-list inputs use explicit edges; for matrix use all pairs."""
-    V = n + 1
+    V = n
     INF = 1e15
     edges = []
 
     if edges_raw is not None:
         seen = set()
         for e in edges_raw:
-            u, v, w = e["from"], e["to"], e["weight"]
+            u, v, w = e["s"], e["t"], e["w"]
             if is_symmetric:
                 key = (min(u, v), max(u, v))
                 if key in seen:
@@ -110,7 +110,7 @@ def get_display_edges(n, dist, edges_raw, is_symmetric):
 
 def auto_positions(n, edges_raw, meta):
     """Compute initial node positions. Returns dict {id: {x, y}} or None for physics layout."""
-    V = n + 1
+    V = n
 
     # Two-circle graph
     if "Two-circle" in meta or "two_circle" in meta.lower():
@@ -184,7 +184,7 @@ def build_html(instances):
         positions = inst["positions"]
         solver_output = inst.get("solver_output", "")
         meta = inst.get("meta", "")
-        V = n + 1
+        V = n
 
         # Build vis.js nodes
         vis_nodes = []

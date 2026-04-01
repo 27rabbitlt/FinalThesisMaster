@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
     JsonValue root = parse_value(content, pos);
 
     int n = (int)root["n"].num;
-    int V = n + 1; // total vertices including depot
+    int V = n;  // total vertices including depot
 
     // Read probabilities
     vector<double> p(V, 0.0);
@@ -146,16 +146,27 @@ int main(int argc, char* argv[]) {
     vector<vector<double>> d(V, vector<double>(V, INF));
     for (int i = 0; i < V; ++i) d[i][i] = 0;
 
+    bool sym = false;
+    if (root.has("sym"))
+        sym = true;
+
     if (root.has("dist")) {
         for (int i = 0; i < V; ++i)
             for (int j = 0; j < V; ++j)
                 d[i][j] = root["dist"].arr[i].arr[j].num;
     } else if (root.has("edges")) {
         for (auto& e : root["edges"].arr) {
-            int u = (int)e["from"].num;
-            int v = (int)e["to"].num;
-            double w = e["weight"].num;
+            int u = (int)e["s"].num;
+            int v = (int)e["t"].num;
+            double w = 1;
+            if (e.has("w"))
+                w = e["w"].num;
+            else 
+                w = 1;
             d[u][v] = w;
+            if (sym) {
+                d[v][u] = w;
+            }
         }
         floyd_warshall(V, d);
     } else {
@@ -169,16 +180,16 @@ int main(int argc, char* argv[]) {
 
     printf("n = %d customers + depot\n", n);
     printf("Probabilities: ");
-    for (int i = 1; i <= n; ++i) printf("p[%d]=%.4f ", i, p[i]);
+    for (int i = 0; i < n; ++i) printf("p[%d]=%.4f ", i, p[i]);
     printf("\n\n");
 
-    double ap = solve_a_posteriori(n, d, p);
+    double ap = solve_a_posteriori(n - 1, d, p);
     printf("A posteriori expected cost: %.6f\n", ap);
 
-    double ad = solve_adaptive(n, d, p);
+    double ad = solve_adaptive(n - 1, d, p);
     printf("Adaptive expected cost:     %.6f\n", ad);
 
-    double apr = solve_a_priori(n, d, p);
+    double apr = solve_a_priori(n - 1, d, p);
     printf("A priori expected cost:     %.6f\n", apr);
 
     if (ap > 1e-12) {

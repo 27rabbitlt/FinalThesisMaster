@@ -265,6 +265,195 @@ The example graph shown in section \ref{sec:gridexample} has small a post optima
 
 So now the problem is that how to create a gap between adaptive and a post. The issue of this grid example is that we cannot punish adaptive policy when it picks a vertex to call. If we want to create a gap, we should be able to punish adaptive policy, i.e., when policy picks some vertex $v$, we need to be able to construct the following graph with remaining uncalled vertices that the policy's choice is globally a bad choice.
 
+\section{Clairvoyance gap lower bound example and proof}
+\begin{lemma}\label{lem:matching-subdivision-gap}
+For every integer $n \ge 3$, there exists a symmetric stochastic TSP instance
+$\mathcal{I}_n = (\{r\}\cup V,d,\{p_v\}_{v \in V})$ such that
+\[
+\optprior(\mathcal{I}_n)=3n
+\qquad\text{and}\qquad
+\optpost(\mathcal{I}_n)=\frac{5n}{2}.
+\]
+Consequently,
+\[
+\frac{\optprior(\mathcal{I}_n)}{\optpost(\mathcal{I}_n)}=\frac{6}{5},
+\]
+and hence the obliviousness gap is at least $6/5$.
+\end{lemma}
+
+\begin{proof}
+Fix $n \ge 3$.  We define the instance $\mathcal{I}_n$ as follows.
+
+\medskip
+\noindent
+\textbf{The metric.}
+Let
+\[
+U:=\{u_1,\ldots,u_n,v_1,\ldots,v_n\},
+\]
+where we identify the depot with $u_1$, i.e.\ $u_1=r$.
+Consider the graph $G_n$ on the vertex set
+\[
+U \cup \{x_1,\ldots,x_n\}
+\]
+obtained as follows:
+\begin{itemize}
+    \item for each $i\in[n]$, add the two edges $u_i x_i$ and $x_i v_i$, each of length $1$;
+    \item for every two distinct vertices $z,z' \in U$ with $\{z,z'\}\neq \{u_i,v_i\}$ for all $i\in[n]$, add the edge $zz'$ of length $1$.
+\end{itemize}
+The graph is essentially a complete graph on $2n$ vertices and then we find a perfect mathcing(with $n$ edges) and subvide the edges in the matching.
+Let $d$ be the shortest-path metric of $G_n$.  In particular,
+\begin{align*}
+d(u_i,v_i)&=2 \qquad &&\text{for every } i\in[n],\\
+d(z,z')&=1 \qquad &&\text{for distinct } z,z' \in U \text{ with } \{z,z'\}\neq \{u_i,v_i\}\ \forall i,\\
+d(x_i,z)&=2 \qquad &&\text{for every } i\in[n] \text{ and every } z\in U\setminus\{u_i,v_i\},\\
+d(x_i,x_j)&=3 \qquad &&\text{for every distinct } i,j\in[n].
+\end{align*}
+Since $d$ is a shortest-path metric, it is symmetric and satisfies the triangle inequality.
+
+\medskip
+\noindent
+\textbf{The activation probabilities.}
+Every original vertex is always active:
+\[
+p_z=1 \qquad \text{for every } z\in U
+\]
+and every subdividing vertex is active independently with probability $1/2$:
+\[
+p_{x_i}=\frac12 \qquad \text{for every } i\in[n].
+\]
+
+\textbf{Computation of $\optpost(\mathcal{I}_n)$.}
+Fix a realization $A\subseteq V$, and write $S:=S(A)$, where $S(A)$
+is defined as $S(A):=\{i\in[n]:x_i\in A\}$.
+
+We first prove the lower bound
+\[
+\opt(A)\ge 2n+|S|.
+\]
+Indeed, any tour visiting $\{r\}\cup A$ uses exactly $2n+|S|$ edges, and every edge of the metric has length at least $1$.
+
+We now prove the matching upper bound.
+Consider contracting the subdivided edges in $G$ if the corresponding subdividing vertex
+is active and then delete the inactive subdividing vertices. We denote this graph
+as $G_A$.
+It is clear that when $G_A$ has a Hamiltonian cycle, we can also find a tour in 
+$G$ visiting all active vertices using only edges of length $1$.
+So now the goal is to show $G_A$ is Hamiltonian and we consider Dirac's condition.
+We prove $\delta(G_A) \ge \frac{1}{2} |V(G_A)| = \frac{1}{2} (2n - |S|)$, where 
+$\delta(G_A)$ denotes the minimum degree.
+For contracted vertices, the degree is $|V(G_A)| - 1$; for non-contracted vertices,
+the degree is $|V(G_A)| - 2$ since these vertices lose 1 more degree because of 
+deletion of inactive subdividing vertices.
+Then we know when $n \ge 4, |V(G_A) - 2| \ge \frac{1}{2} |V(G_A)$ always holds.
+For $n = 3$, we only need to consider the case when $|S| = 3$. In this special 
+case, the resulting graph $G_A$ is simply $K_3$ so obviously it is Hamiltonian.
+Hence for all cases we can always find a tour visiting all realised vertices
+which has total length equal to its number of edges, namely $2n+|S|$.
+Therefore
+\[
+\opt(A)=2n+|S|.
+\]
+
+Taking expectation over the random set $A$, we obtain
+\[
+\optpost(\mathcal{I}_n)
+=
+\E_{A\sim\mu}[\opt(A)]
+=
+2n+\E_{A\sim\mu}[|S(A)|]
+=
+2n+\frac{n}{2}
+=
+\frac{5n}{2}.
+\]
+
+\textbf{Lower bound on $\optprior(\mathcal{I}_n)$.}
+Let $T$ be an arbitrary master tour. Delete all vertices $x_1,\ldots,x_n$ from $T$.
+The resulting tour $\pi$ visits exactly the original vertices in $U$.
+Let
+\[
+m:=\bigl|\{i\in[n]: u_i \text{ and } v_i \text{ are consecutive in } \pi\}\bigr|.
+\]
+Since $\pi$ has exactly $2n$ edges, each of length $1$ or $2$, and the edges of length $2$ are precisely the matched edges $u_iv_i$, we have
+\[
+c(\pi)=2n+m.
+\]
+
+For each $t\in\{0,1,\ldots,n\}$, let $T_t$ be the random tour obtained from $T$ by keeping
+$x_1,\ldots,x_t$ whenever they are active and deleting $x_{t+1},\ldots,x_n$.
+Thus $T_0=\pi$, and $T_n=T\vert_A$.
+
+For $i\in[n]$.
+In the current tour $T_{i-1}$, the vertex $x_i$ would be inserted between two consecutive vertices,
+say $p_i$ and $q_i$, if $x_i$ is active.
+Hence the increment in tour length caused by revealing $x_i$ is
+\[
+\Delta_i=
+\begin{cases}
+d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i), & \text{if } x_i\in A,\\[0.5ex]
+0, & \text{if } x_i\notin A.
+\end{cases}
+\]
+Since $p_{x_i}=1/2$, we obtain
+\[
+\E[\Delta_i \mid x_1,\ldots,x_{i-1}]
+=
+\frac12\Bigl(d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i)\Bigr).
+\]
+
+We claim that
+\[
+d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i)=0
+\quad\Longleftrightarrow\quad
+\{p_i,q_i\}=\{u_i,v_i\},
+\]
+and otherwise
+\[
+d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i)\ge 2.
+\]
+This follows directly from the explicit distance values listed above:
+the value is $1+1-2=0$ when $\{p_i,q_i\}=\{u_i,v_i\}$, while in every other case the minimum possible value is $2$.
+
+Now suppose that $u_i$ and $v_i$ are \emph{not} consecutive in $\pi$.
+Deleting or re-inserting vertices $x_j$ never changes the cyclic order of the original vertices.
+Hence $x_i$ can never be inserted between $u_i$ and $v_i$, and therefore
+\[
+\{p_i,q_i\}\neq \{u_i,v_i\}.
+\]
+Thus we have:
+\[
+\E[\Delta_i \mid x_1,\ldots,x_{i-1}] \ge 1.
+\]
+Consequently,
+\[
+\E[\Delta_i]\ge 1
+\qquad\text{for at least } n-m \text{ indices } i.
+\]
+For the remaining $m$ indices we use the trivial bound $\E[\Delta_i]\ge 0$.
+
+Summing over $i\in[n]$, we obtain
+\[
+\E_{A\sim\mu}[c(T\vert_A)]
+=
+c(\pi)+\sum_{i=1}^n \E[\Delta_i]
+\ge
+(2n+m)+(n-m)
+=
+3n.
+\]
+Since $T$ was arbitrary, this shows that
+\[
+\optprior(\mathcal{I}_n)\ge 3n.
+\]
+
+Together with the upper bound of a posteriori optimimum, we conclude that
+\[
+\frac{\optprior(\mathcal{I}_n)}{\optpost(\mathcal{I}_n)}=\frac{3n}{5n/2}=\frac65.
+\]
+This completes the proof.
+\end{proof}
+
 
 \section{Notes}
 \input{relevant-def}

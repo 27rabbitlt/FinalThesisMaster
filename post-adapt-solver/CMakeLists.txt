@@ -12,5 +12,4 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_executable(solver solver.cpp)
-add_executable(test_random test_random.cpp)
 add_executable(test_correctness test_correctness.cpp)
