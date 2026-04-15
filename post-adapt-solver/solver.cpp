@@ -104,6 +104,10 @@ static JsonValue parse_value(const string& s, size_t& i) {
         ++i; // }
     } else if (s[i] == 'n') {
         i += 4; // null
+    } else if (s[i] == 't') {
+        v.type = JsonValue::NUM; v.num = 1; i += 4; // true
+    } else if (s[i] == 'f') {
+        v.type = JsonValue::NUM; v.num = 0; i += 5; // false
     } else {
         // number
         v.type = JsonValue::NUM;
@@ -118,37 +122,44 @@ static JsonValue parse_value(const string& s, size_t& i) {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        cerr << "Usage: " << argv[0] << " input.json" << endl;
+        cerr << "Usage: " << argv[0] << " input.json [--no-apriori]\n"
+             << "  --no-apriori  skip a priori computation (fast for large n)\n";
         return 1;
     }
 
-    // Read entire file
-    ifstream fin(argv[1]);
-    if (!fin) { cerr << "Cannot open " << argv[1] << endl; return 1; }
+    bool skip_apriori = false;
+    string json_path;
+    for (int i = 1; i < argc; ++i) {
+        string arg = argv[i];
+        if (arg == "--no-apriori") skip_apriori = true;
+        else json_path = arg;
+    }
+    if (json_path.empty()) { cerr << "No input file given.\n"; return 1; }
+
+    // Auto-skip a priori for large instances (nc > 10 => 11! ops = too slow)
+    ifstream fin(json_path);
+    if (!fin) { cerr << "Cannot open " << json_path << endl; return 1; }
     string content((istreambuf_iterator<char>(fin)), istreambuf_iterator<char>());
     fin.close();
 
     size_t pos = 0;
     JsonValue root = parse_value(content, pos);
 
-    int n = (int)root["n"].num;
-    int V = n;  // total vertices including depot
+    int n = (int)root["n"].num;  // total vertices including depot (depot = vertex 0)
+    int V = n;
 
-    // Read probabilities
+    // Read probabilities: prob[0] = 1.0 (depot always present), prob[i] for customers
     vector<double> p(V, 0.0);
     if (root.has("prob")) {
-        for (int i = 0; i < V && i < (int)root["prob"].arr.size(); ++i) {
+        for (int i = 0; i < V && i < (int)root["prob"].arr.size(); ++i)
             p[i] = root["prob"].arr[i].num;
-        }
     }
 
-    // Read distance matrix
+    // Read distance matrix (V x V)
     vector<vector<double>> d(V, vector<double>(V, INF));
     for (int i = 0; i < V; ++i) d[i][i] = 0;
 
-    bool sym = false;
-    if (root.has("sym"))
-        sym = true;
+    bool sym = root.has("sym") && root["sym"].num != 0;
 
     if (root.has("dist")) {
         for (int i = 0; i < V; ++i)
@@ -178,25 +189,34 @@ int main(int argc, char* argv[]) {
     // so d[u][v] should be the shortest-path distance between u and v.
     floyd_warshall(V, d);
 
-    printf("n = %d customers + depot\n", n);
+    int nc = V - 1;  // number of customers
+    printf("n = %d vertices (depot=0, customers=1..%d)\n", V, nc);
     printf("Probabilities: ");
-    for (int i = 0; i < n; ++i) printf("p[%d]=%.4f ", i, p[i]);
+    for (int i = 0; i < V; ++i) printf("p[%d]=%.4g ", i, p[i]);
     printf("\n\n");
 
-    double ap = solve_a_posteriori(n - 1, d, p);
+    double ap = solve_a_posteriori(nc, d, p);
     printf("A posteriori expected cost: %.6f\n", ap);
 
-    double ad = solve_adaptive(n - 1, d, p);
+    double ad = solve_adaptive(nc, d, p);
     printf("Adaptive expected cost:     %.6f\n", ad);
 
-    double apr = solve_a_priori(n - 1, d, p);
-    printf("A priori expected cost:     %.6f\n", apr);
+    if (nc > 10) skip_apriori = true;  // auto-skip: 11! is already ~40M permutations
+    double apr = -1;
+    if (!skip_apriori) {
+        apr = solve_a_priori(nc, d, p);
+        printf("A priori expected cost:     %.6f\n", apr);
+    } else {
+        printf("A priori expected cost:     (skipped, nc=%d)\n", nc);
+    }
 
     if (ap > 1e-12) {
         printf("\nRatios (a_posteriori as baseline):\n");
-        printf("  adaptive  / a_posteriori = %.6f\n", ad / ap);
-        printf("  a_priori  / a_posteriori = %.6f\n", apr / ap);
-        printf("  a_priori  / adaptive     = %.6f\n", apr / ad);
+        printf("  adaptive / a_posteriori = %.6f\n", ad / ap);
+        if (!skip_apriori && apr >= 0) {
+            printf("  a_priori / a_posteriori = %.6f\n", apr / ap);
+            printf("  a_priori / adaptive     = %.6f\n", apr / ad);
+        }
     }
 
     return 0;

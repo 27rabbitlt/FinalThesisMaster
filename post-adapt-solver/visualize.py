@@ -24,13 +24,15 @@ import webbrowser
 
 
 def load_instance(path):
-    """Load a JSON instance and return (n, dist, prob, edges_raw, meta)."""
+    """Load a JSON instance and return (n, dist, prob, edges_raw, sym_flag, meta)."""
     with open(path) as f:
         data = json.load(f)
 
-    n = data["n"]
+    n = data["n"]  # total vertices including depot (depot = vertex 0)
     V = n
     prob = data["prob"]
+    # Explicit sym flag from JSON; None means auto-detect later.
+    sym_flag = data.get("sym", None)
 
     edges_raw = None
     if "dist" in data:
@@ -45,6 +47,8 @@ def load_instance(path):
             u, v, w = e["s"], e["t"], e["w"]
             if w < dist[u][v]:
                 dist[u][v] = w
+            if sym_flag and w < dist[v][u]:
+                dist[v][u] = w
         # Floyd-Warshall
         for k in range(V):
             for i in range(V):
@@ -55,7 +59,7 @@ def load_instance(path):
         raise ValueError("JSON must have 'dist' or 'edges'")
 
     meta = data.get("_comment", "")
-    return n, dist, prob, edges_raw, meta
+    return n, dist, prob, edges_raw, sym_flag, meta
 
 
 def check_symmetric(n, dist, edges_raw):
@@ -148,17 +152,15 @@ def prob_to_color(p):
 
 def run_solver(json_path):
     """Run the C++ solver and return stdout."""
-    solver_dir = os.path.dirname(os.path.abspath(json_path))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     for solver_path in [
-        os.path.join(solver_dir, "build", "solver"),
-        os.path.join(solver_dir, "solver"),
-        "./build/solver",
-        "./solver",
+        os.path.join(script_dir, "build", "solver"),
+        os.path.join(script_dir, "solver"),
     ]:
         if os.path.isfile(solver_path) and os.access(solver_path, os.X_OK):
             try:
                 result = subprocess.run(
-                    [solver_path, json_path],
+                    [solver_path, json_path, "--no-apriori"],
                     capture_output=True, text=True, timeout=60
                 )
                 return result.stdout.strip()
@@ -376,8 +378,8 @@ def main():
 
     instances = []
     for path in args.files:
-        n, dist, prob, edges_raw, meta = load_instance(path)
-        is_sym = check_symmetric(n, dist, edges_raw)
+        n, dist, prob, edges_raw, sym_flag, meta = load_instance(path)
+        is_sym = sym_flag if sym_flag is not None else check_symmetric(n, dist, edges_raw)
         display_edges = get_display_edges(n, dist, edges_raw, is_sym)
         positions = auto_positions(n, edges_raw, meta)
 

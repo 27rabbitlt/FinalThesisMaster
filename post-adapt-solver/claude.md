@@ -12,6 +12,95 @@ Note that TSP are considered on metrics, here we are only considering the graph 
 
 ---
 
+## Existing files — always reuse, do not recreate
+
+| File | Purpose |
+|------|---------|
+| `tsp_solver.h` | Shared header: exact DP solvers for a posteriori, adaptive, and a priori TSP. All solver logic lives here. |
+| `solver.cpp` | Main CLI binary. Reads a JSON instance, calls solvers from `tsp_solver.h`, prints results. |
+| `search_ratio.cpp` | Random instance sampler that maximises a chosen ratio (e.g. adaptive/a posteriori). Useful for finding hard examples. |
+| `test_correctness.cpp` | Correctness tests: compares DP solvers against brute-force on small random instances. |
+| `visualize.py` | Python script to generate an interactive HTML graph visualisation (vis.js). |
+| `gen_two_circles.py` | Python script to generate a two-circle graph instance as a JSON file. |
+| `examples/` | Example JSON instance files. Add new example instances here; do not scatter `.json` files in the root. |
+
+**Rule:** before writing any new file, check this table. If the task fits an existing file, extend it rather than creating a new one.
+
+---
+
+## Usage
+
+### `solver` — solve a single instance
+
+```
+./build/solver input.json [--no-apriori]
+```
+
+- `--no-apriori` — skip a priori computation (auto-applied when `nc > 10`).
+
+**JSON input — full distance matrix:**
+```json
+{
+  "n": 4,
+  "dist": [[0,1,2,3],[1,0,2,3],[2,2,0,1],[3,3,1,0]],
+  "prob": [1.0, 0.5, 0.5, 0.5]
+}
+```
+
+**JSON input — edge list (Floyd–Warshall fills shortest paths):**
+```json
+{
+  "n": 4,
+  "edges": [{"s":0,"t":1,"w":2}, {"s":1,"t":2,"w":3}],
+  "prob": [1.0, 0.5, 0.5, 0.5],
+  "sym": true
+}
+```
+
+- `"n"` = total vertices **including** depot (depot = 0).
+- `"prob"[0]` = `1.0` (depot); `prob[i]` = activation probability of customer `i`.
+- `"sym": true` makes edges bidirectional.
+- `"w"` defaults to 1 if omitted.
+
+### `search_ratio` — random search for large-ratio instances
+
+```
+./build/search_ratio [options]
+```
+
+| Option | Default | Meaning |
+|--------|---------|---------|
+| `--sym` | off | Symmetric distances |
+| `--ratio TYPE` | `adapt/apost` | Ratio to maximise: `adapt/apost`, `apriori/adapt`, `apriori/apost` |
+| `-n N` | `7` | Max total vertices including depot |
+| `-d D` | `20` | Max integer edge distance |
+| `-i ITERS` | `2000000` | Number of random trials |
+| `-s SEED` | `42` | RNG seed |
+| `--probs P` | `0.5,1.0` | Comma-separated probabilities to sample for customers |
+| `-o FILE` | `examples/best_ratio_found.json` | Output file for best instance found |
+
+If the ratio involves a priori and `-n > 9`, n is automatically capped at 9.
+
+**Examples:**
+```bash
+./build/search_ratio --sym --ratio adapt/apost -n 7 -d 10 -o examples/sym_gap.json
+./build/search_ratio --ratio apriori/apost -n 5 --probs 0.3,0.5,0.7 -i 500000
+```
+
+---
+
+## Build system
+
+This project uses **CMake**. Always add new executables to `CMakeLists.txt`. Do not use raw `g++` or `clang++` commands to build. To build:
+
+```bash
+cmake -B build && cmake --build build
+```
+
+All `add_executable` targets must be listed in `CMakeLists.txt`.
+
+---
+
 ## 1. Problem setting and conventions
 
 Use the following conventions in code.

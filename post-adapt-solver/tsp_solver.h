@@ -108,7 +108,8 @@ static inline double a_priori_tour_cost(int n,
         double absent_prod = 1.0;
         for (int j = i + 1; j <= n + 1; ++j) {
             double p_j = (j == n + 1) ? 1.0 : p[u[j]];
-            expected += d[u[i]][u[j]] * p_i * absent_prod * p_j;
+            double added = d[u[i]][u[j]] * p_i * absent_prod * p_j;
+            expected += added;
             if (j <= n) absent_prod *= (1.0 - p[u[j]]);
         }
     }
@@ -126,13 +127,8 @@ inline double solve_a_priori(int n, const std::vector<std::vector<double>>& d,
     std::iota(perm.begin(), perm.end(), 0);
     double best = INF;
     do {
-        if (best > a_priori_tour_cost(n, d, p, perm)) {
-            best = a_priori_tour_cost(n, d, p, perm);
-            bestperm = perm;
-        }
+        double cost = a_priori_tour_cost(n, d, p, perm);
+        if (cost < best) { best = cost; bestperm = perm; }
     } while (std::next_permutation(perm.begin(), perm.end()));
-    for (auto &v: bestperm) {
-        cout << v << " ";
-    } cout << endl;
     return best;
 }

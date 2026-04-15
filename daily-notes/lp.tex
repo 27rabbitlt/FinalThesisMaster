@@ -1,0 +1,244 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\title{A Proposed LP Relaxation for the A Priori Traveling Salesman Path Problem}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem setting}
+We consider LP for a priori TSP.
+
+\section*{Decision variables}
+We use the following variables.
+
+\begin{itemize}[leftmargin=1.5em]
+    \item $x_{v,i} \in [0,1]$ for each $v \in V$ and $i \in [n] := \{1,2,\dots,n\}$. Intuitively, $x_{v,i}$ is the weight that vertex $v$ occupies position $i$.
+    \item $y_{v,i,u,j} \in [0,1]$ for each distinct positions $i,j \in [n]$ and distinct vertices $u,v \in V$. Intuitively, $y_{v,i,u,j}$ is the joint weight that $v$ is in position $i$ and $u$ is in position $j$.
+    \item $t_i \ge 0$ for each $i=0,1,\dots,n$. Intuitively, $t_i$ is the expected arrival time at the vertex in position $i$, with the convention that if the vertex in position $i$ is inactive, then $t_i=t_{i-1}$.
+\end{itemize}
+
+\section*{Proposed LP relaxation}
+The proposed LP is:
+
+\begin{alignat}{2}
+\min \quad & t_n \label{obj}\\
+\text{s.t.}\quad
+& \sum_{i=1}^n x_{v,i} = 1 && \forall v \in V, \label{assign-vertex}\\
+& \sum_{v \in V} x_{v,i} = 1 && \forall i \in [n], \label{assign-position}\\
+& y_{v,i,u,j} = y_{u,j,v,i} && \forall v \neq u \in V, i \neq j \in [n], \label{ysym}\\
+& \sum_{u \in V \setminus \{v\}} y_{v,i,u,j} = x_{v,i} && \forall v \in V,\ \forall i,j \in [n],\ i \neq j, \label{for-u}\\
+& \sum_{j \in [n] \setminus \{i\}} y_{v, i, u, j} = x_{v, i} && \forall v,u \in V,\ v \neq u,\ \forall i \in [n], \label{for-j}\\
+& \sum_{v \in V} \sum_{u \in V \setminus \{v\}} y_{v,i,u,j} = 1 && \forall i,j \in [n],\ i \neq j, \label{pair-total-uv}\\
+& \sum_{i \in [n]} \sum_{j \in [n] \setminus \{i\}} y_{v,i,u,j} = 1 && \forall v,u \in V,\ v \neq u, \label{pair-total-ij}\\
+& t_0 = 0, \label{t0}\\
+& t_i = t_{i-1} + p(1-p)^{i-1}\sum_{v \in V} d(r,v)x_{v,i} 
+   && \forall i \in [n], \label{ti-main}\\
+& \hspace{4em} + \sum_{j=1}^{i-1} p^2(1-p)^{i-j-1}
+   \sum_{v \in V}\sum_{u \in V \setminus \{v\}} d(u,v)\, y_{v,i,u,j}
+   && \forall i \in [n], \notag\\
+& x_{v,i} \ge 0 && \forall v \in V,\ \forall i \in [n], \label{xnonneg}\\
+& y_{v,i,u,j} \ge 0 && \forall u,v \in V,\ u \neq v,\ \forall i,j \in [n],\ i \neq j. \label{ynonneg}
+\end{alignat}
+
+
+\section*{Interpretation of the recurrence}
+For a fixed position $i$, the term
+\[
+p(1-p)^{i-1}\sum_{v \in V} d(r,v)x_{v,i}
+\]
+represents the expected contribution when the vertex in position $i$ is the first active vertex among positions $1,2,\dots,i$.
+
+For each $j < i$, the term
+\[
+p^2(1-p)^{i-j-1}
+\sum_{v \in V}\sum_{u \in V \setminus \{v\}} d(u,v)\, y_{v,i,u,j}
+\]
+represents the expected contribution when the vertex in position $j$ is the most recent active predecessor of the vertex in position $i$, that is:
+\begin{itemize}[leftmargin=1.5em]
+    \item the vertex at position $j$ is active,
+    \item the vertex at position $i$ is active, and
+    \item all positions strictly between $j$ and $i$ are inactive.
+\end{itemize}
+The probability of this event is exactly $p^2(1-p)^{i-j-1}$ under identical independent activation.
+
+\section*{Deterministic special case: $p=1$}
+When $p=1$, the recurrence collapses to
+\[
+t_1 = \sum_{v \in V} d(r,v)x_{v,1},
+\]
+and for every $i \ge 2$,
+\[
+t_i = t_{i-1} + \sum_{v \in V}\sum_{u \in V \setminus \{v\}} d(u,v)\, y_{v,i,u,i-1}.
+\]
+Thus, for an integral solution corresponding to a permutation $\sigma$,
+\[
+t_n = d(r,\sigma(1)) + \sum_{i=2}^n d\bigl(\sigma(i-1),\sigma(i)\bigr),
+\]
+which is exactly the cost of the Hamiltonian path starting at the depot and following the ordering $\sigma$ without returning to $r$.
+
+\section*{A fractional counterexample to the MST lower bound}
+In this section we show that the present LP does not satisfy the lower bound
+\[
+\operatorname{OPT}_{\mathrm{LP}} \ge \operatorname{MST}(\{r\}\cup V)
+\]
+even in the deterministic special case $p=1$.
+
+\begin{proposition}
+There exists a metric instance for which the LP \eqref{obj}--\eqref{ynonneg} has a feasible fractional solution of value strictly smaller than $\operatorname{MST}(\{r\}\cup V)$. Consequently, the inequality
+\[
+\operatorname{OPT}_{\mathrm{LP}} \ge \operatorname{MST}(\{r\}\cup V)
+\]
+is false for the current relaxation.
+\end{proposition}
+
+\begin{proof}
+Take $n=6$, and let
+\[
+V=\{a_0,a_1,a_2,b_0,b_1,b_2\},
+\]
+where all indices are read modulo $3$. Fix a parameter $\varepsilon$ with $0<\varepsilon<1$, and define a metric $d$ on $\{r\}\cup V$ by
+\begin{align*}
+d(r,v)&=1 && \text{for every } v\in V,\\
+d(a_s,a_t)&=\varepsilon && \text{for all distinct } s,t\in\{0,1,2\},\\
+d(b_s,b_t)&=\varepsilon && \text{for all distinct } s,t\in\{0,1,2\},\\
+d(a_s,b_t)&=1 && \text{for all } s,t\in\{0,1,2\}.
+\end{align*}
+Symmetry is immediate. The triangle inequality also holds: every distance is either $\varepsilon$ or $1$, and because $0<\varepsilon<1$, one always has
+\[
+\varepsilon \le 1+1,
+\qquad
+1 \le \varepsilon+1,
+\qquad
+1 \le 1+1.
+\]
+Hence $d$ is a metric.
+
+We first compute the spanning-tree value. Consider the tree consisting of two edges inside the $a$-block, two edges inside the $b$-block, one edge joining $r$ to some $a_s$, and one edge joining an $a$-vertex to a $b$-vertex. Its total cost is
+\[
+2+4\varepsilon.
+\]
+Thus
+\[
+\operatorname{MST}(\{r\}\cup V) \le 2+4\varepsilon.
+\]
+For the reverse inequality, let $T$ be any spanning tree on $\{r\}\cup V$. Contract the set $\{a_0,a_1,a_2\}$ to one supervertex $A$ and the set $\{b_0,b_1,b_2\}$ to one supervertex $B$. The image of $T$ is then a connected acyclic graph on the three vertices $\{r,A,B\}$, hence has exactly two edges. Therefore exactly four edges of $T$ are internal to the two contracted blocks. Each such internal edge has cost at least $\varepsilon$, while each of the remaining two edges has cost at least $1$. It follows that
+\[
+\operatorname{cost}(T)\ge 4\varepsilon+2.
+\]
+Hence
+\[
+\operatorname{MST}(\{r\}\cup V)=2+4\varepsilon.
+\]
+
+We now construct a feasible fractional LP solution. Set
+\[
+x_{v,i}=\frac16
+\qquad \forall v\in V,\ \forall i\in [6].
+\]
+Define five permutations $\sigma_1,\dots,\sigma_5$ of $V$ by
+\begin{align*}
+\sigma_1(a_t)&=a_{t+1}, & \sigma_1(b_t)&=b_{t+1},\\
+\sigma_5(a_t)&=a_{t-1}, & \sigma_5(b_t)&=b_{t-1},\\
+\sigma_3(a_t)&=b_t,     & \sigma_3(b_t)&=a_t,\\
+\sigma_2(a_t)&=b_{t+1}, & \sigma_2(b_t)&=a_{t+1},\\
+\sigma_4(a_t)&=b_{t-1}, & \sigma_4(b_t)&=a_{t-1},
+\end{align*}
+again with indices modulo $3$. For each ordered pair $(j,i)$ with $i\neq j$, let $\delta(j,i)\in\{1,2,3,4,5\}$ be the residue class of $j-i$ modulo $6$, represented in $\{1,2,3,4,5\}$. Define
+\[
+y_{v,i,u,j}=
+\begin{cases}
+\frac16, & \text{if } u=\sigma_{\delta(j,i)}(v),\\
+0, & \text{otherwise.}
+\end{cases}
+\]
+We verify feasibility.
+
+First, \eqref{assign-vertex} and \eqref{assign-position} hold because all $x_{v,i}$ are equal to $1/6$.
+
+Next, for every fixed $v$ and every fixed $k\in\{1,2,3,4,5\}$, the value $\sigma_k(v)$ is a vertex distinct from $v$, and as $k$ ranges over $\{1,2,3,4,5\}$ the five vertices $\sigma_k(v)$ are exactly the five elements of $V\setminus\{v\}$. Therefore, for fixed $v,i,j$ with $i\neq j$, there is exactly one choice of $u\in V\setminus\{v\}$ such that $y_{v,i,u,j}=1/6$, and so
+\[
+\sum_{u\in V\setminus\{v\}} y_{v,i,u,j}=\frac16=x_{v,i}.
+\]
+Thus \eqref{for-u} holds.
+
+Similarly, fix distinct vertices $v,u$ and a position $i$. Since $u\in V\setminus\{v\}$, there is a unique $k\in\{1,2,3,4,5\}$ such that $u=\sigma_k(v)$. There is then a unique position $j\in [6]\setminus\{i\}$ satisfying $\delta(j,i)=k$. For this unique $j$ one has $y_{v,i,u,j}=1/6$, and for all other $j\neq i$ one has $y_{v,i,u,j}=0$. Hence
+\[
+\sum_{j\in [6]\setminus\{i\}} y_{v,i,u,j}=\frac16=x_{v,i},
+\]
+so \eqref{for-j} holds.
+
+We next prove symmetry. For $k\in\{1,2,3,4,5\}$, one checks directly from the definition that
+\[
+\sigma_5=\sigma_1^{-1},
+\qquad
+\sigma_4=\sigma_2^{-1},
+\qquad
+\sigma_3=\sigma_3^{-1}.
+\]
+Equivalently,
+\[
+\sigma_{6-k}=\sigma_k^{-1}
+\qquad \forall k\in\{1,2,3,4,5\},
+\]
+where $6-k$ is interpreted in $\{1,2,3,4,5\}$. Now fix distinct positions $i,j$. If $\delta(j,i)=k$, then $\delta(i,j)=6-k$. Therefore
+\[
+u=\sigma_{\delta(j,i)}(v)
+\iff
+v=\sigma_{\delta(i,j)}(u).
+\]
+This implies
+\[
+y_{v,i,u,j}=y_{u,j,v,i},
+\]
+so \eqref{ysym} holds. Finally, \eqref{xnonneg} and \eqref{ynonneg} are immediate.
+
+It remains to evaluate the LP objective when $p=1$. By the deterministic specialization written above,
+\[
+t_1=\sum_{v\in V} d(r,v)x_{v,1}=\sum_{v\in V} 1\cdot \frac16=1.
+\]
+For every $i\in\{2,3,4,5,6\}$, the recurrence uses only the slice $y_{v,i,u,i-1}$. Since
+\[
+\delta(i-1,i)=5,
+\]
+we have $u=\sigma_5(v)$ whenever $y_{v,i,u,i-1}=1/6$. By definition of $\sigma_5$, the vertices $u$ and $v$ always lie in the same block, so
+\[
+d(u,v)=\varepsilon.
+\]
+Hence for each $i\ge 2$,
+\[
+\sum_{v\in V}\sum_{u\in V\setminus\{v\}} d(u,v)\,y_{v,i,u,i-1}
+=\sum_{v\in V} \varepsilon\cdot \frac16
+=\varepsilon.
+\]
+Therefore
+\[
+t_6=1+5\varepsilon.
+\]
+We have thus exhibited a feasible LP solution of value $1+5\varepsilon$. Since $0<\varepsilon<1$,
+\[
+1+5\varepsilon < 2+4\varepsilon = \operatorname{MST}(\{r\}\cup V).
+\]
+It follows that
+\[
+\operatorname{OPT}_{\mathrm{LP}} \le 1+5\varepsilon < \operatorname{MST}(\{r\}\cup V),
+\]
+which proves the claim.
+\end{proof}
+
+\end{document}
+

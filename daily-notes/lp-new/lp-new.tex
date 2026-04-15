@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\title{A Proposed LP Relaxation for the A Priori Traveling Salesman Path Problem}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Problem setting}
+We consider LP for a priori TSP.
+
+\section*{Decision variables}
+We use the following variables.
+
+\begin{itemize}[leftmargin=1.5em]
+    \item $x_{v,i} \in [0,1]$ for each $v \in V$ and $i \in [n] := \{1,2,\dots,n\}$. Intuitively, $x_{v,i}$ is the weight that vertex $v$ occupies position $i$.
+    \item $y_{v,i,u,j} \in [0,1]$: vertex v is at rank i in $\sigma$, vertex u is at rank j < i in $\sigma$, and at some point we would be interested in going from u to v in this particular order. Intuitively(but not rigorously), $y_{v,i,u,j}$ is the joint weight that $v$ is in position $i$ and $u$ is in position $j$.
+    \item $t_i \ge 0$ for each $i=0,1,\dots,n$. Intuitively, $t_i$ is the expected arrival time at the vertex in position $i$, with the convention that if the vertex in position $i$ is inactive, then $t_i=t_{i-1}$.
+\end{itemize}
+
+\section*{Proposed LP relaxation}
+The proposed LP is:
+
+\begin{alignat}{2}
+\min \quad & t_n \label{obj}\\
+\text{s.t.}\quad
+& \sum_{i=1}^n x_{v,i} = 1 && \forall v \in V, \label{assign-vertex}\\
+& \sum_{v \in V} x_{v,i} = 1 && \forall i \in [n], \label{assign-position}\\
+& y_{v,i,u,j} \le x_{v_i} \\
+& y_{v,i,u,j} \le x_{u,j} \\
+& 
+& \sum_{v} \sum_{u \neq v} y_{v,i,u,j} = 1 && \forall i,j \in [n], j < i, \label{forallij}\\
+& \sum_{i} \sum_{j < i} y_{v,i,u,j}  + y_{v,j,u,i} && \forall u,v \in V, u \neq v, \label{foralluv}\\
+& t_0 = 0, \label{t0}\\
+& t_i = t_{i-1} + p(1-p)^{i-1}\sum_{v \in V} d(r,v)x_{v,i} 
+   && \forall i \in [n], \label{ti-main}\\
+& \hspace{4em} + \sum_{j=1}^{i-1} p^2(1-p)^{i-j-1}
+   \sum_{v \in V}\sum_{u \in V \setminus \{v\}} d(u,v)\, y_{v,i,u,j}
+   && \forall i \in [n], \notag\\
+& x_{v,i} \ge 0 && \forall v \in V,\ \forall i \in [n], \label{xnonneg}\\
+& y_{v,i,u,j} \ge 0 && \forall u,v \in V,\ u \neq v,\ \forall i,j \in [n],\ i \neq j. \label{ynonneg}
+\end{alignat}
+
+
+\section*{Interpretation of the recurrence}
+For a fixed position $i$, the term
+\[
+p(1-p)^{i-1}\sum_{v \in V} d(r,v)x_{v,i}
+\]
+represents the expected contribution when the vertex in position $i$ is the first active vertex among positions $1,2,\dots,i$.
+
+For each $j < i$, the term
+\[
+p^2(1-p)^{i-j-1}
+\sum_{v \in V}\sum_{u \in V \setminus \{v\}} d(u,v)\, y_{v,i,u,j}
+\]
+represents the expected contribution when the vertex in position $j$ is the most recent active predecessor of the vertex in position $i$, that is:
+\begin{itemize}[leftmargin=1.5em]
+    \item the vertex at position $j$ is active,
+    \item the vertex at position $i$ is active, and
+    \item all positions strictly between $j$ and $i$ are inactive.
+\end{itemize}
+The probability of this event is exactly $p^2(1-p)^{i-j-1}$ under identical independent activation.
+
+\section*{Deterministic special case: $p=1$}
+When $p=1$, the recurrence collapses to
+\[
+t_1 = \sum_{v \in V} d(r,v)x_{v,1},
+\]
+and for every $i \ge 2$,
+\[
+t_i = t_{i-1} + \sum_{v \in V}\sum_{u \in V \setminus \{v\}} d(u,v)\, y_{v,i,u,i-1}.
+\]
+Thus, for an integral solution corresponding to a permutation $\sigma$,
+\[
+t_n = d(r,\sigma(1)) + \sum_{i=2}^n d\bigl(\sigma(i-1),\sigma(i)\bigr),
+\]
+which is exactly the cost of the Hamiltonian path starting at the depot and following the ordering $\sigma$ without returning to $r$.
+
+
+\end{document}
