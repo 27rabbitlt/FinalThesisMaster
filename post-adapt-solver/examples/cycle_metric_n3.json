@@ -1,0 +1,26 @@
+{
+  "_comment": "Cycle metric n=3: adjacent=2, non-adjacent=3, prob=0.5",
+  "n": 3,
+  "dist": [
+    [
+      0,
+      2,
+      2
+    ],
+    [
+      2,
+      0,
+      2
+    ],
+    [
+      2,
+      2,
+      0
+    ]
+  ],
+  "prob": [
+    1.0,
+    0.5,
+    0.5
+  ]
+}
