@@ -91,23 +91,24 @@ def get_display_edges(n, dist, edges_raw, is_symmetric):
         seen = set()
         for e in edges_raw:
             u, v, w = e["s"], e["t"], e["w"]
+            color = e.get("c", None)  # optional edge color
             if is_symmetric:
                 key = (min(u, v), max(u, v))
                 if key in seen:
                     continue
                 seen.add(key)
-            edges.append((u, v, w))
+            edges.append((u, v, w, color))
     else:
         if is_symmetric:
             for i in range(V):
                 for j in range(i + 1, V):
                     if dist[i][j] < INF:
-                        edges.append((i, j, dist[i][j]))
+                        edges.append((i, j, dist[i][j], None))
         else:
             for i in range(V):
                 for j in range(V):
                     if i != j and dist[i][j] < INF:
-                        edges.append((i, j, dist[i][j]))
+                        edges.append((i, j, dist[i][j], None))
 
     return edges
 
@@ -150,7 +151,7 @@ def prob_to_color(p):
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-def run_solver(json_path):
+def run_solver(json_path, apriori=False):
     """Run the C++ solver and return stdout."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     for solver_path in [
@@ -158,10 +159,12 @@ def run_solver(json_path):
         os.path.join(script_dir, "solver"),
     ]:
         if os.path.isfile(solver_path) and os.access(solver_path, os.X_OK):
+            cmd = [solver_path, json_path]
+            if not apriori:
+                cmd.append("--no-apriori")
             try:
                 result = subprocess.run(
-                    [solver_path, json_path, "--no-apriori"],
-                    capture_output=True, text=True, timeout=60
+                    cmd, capture_output=True, text=True, timeout=60
                 )
                 return result.stdout.strip()
             except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -226,13 +229,14 @@ def build_html(instances):
 
         # Build vis.js edges
         vis_edges = []
-        for u, v, w in display_edges:
+        for u, v, w, edge_color in display_edges:
             label = f"{w:.4g}" if w != int(w) else str(int(w))
+            color_val = edge_color if edge_color else "#999"
             edge = {
                 "from": u, "to": v,
                 "label": label,
                 "font": {"size": 14, "color": "#333", "strokeWidth": 3, "strokeColor": "#ffffff", "align": "middle"},
-                "color": {"color": "#999", "highlight": "#333"},
+                "color": {"color": color_val, "highlight": "#333"},
                 "width": 1.5,
             }
             if not is_symmetric:
@@ -371,6 +375,8 @@ def main():
     parser.add_argument("files", nargs="+", help="JSON input file(s)")
     parser.add_argument("--run-solver", action="store_true",
                         help="Run the C++ solver and show results")
+    parser.add_argument("--apriori", action="store_true",
+                        help="Include a priori calculation when running the solver")
     parser.add_argument("-o", "--output", type=str, default=None,
                         help="Output HTML file path (default: open in browser)")
 
@@ -385,7 +391,7 @@ def main():
 
         solver_output = ""
         if args.run_solver:
-            out = run_solver(path)
+            out = run_solver(path, apriori=args.apriori)
             if out:
                 solver_output = out
                 print(f"--- {path} ---")

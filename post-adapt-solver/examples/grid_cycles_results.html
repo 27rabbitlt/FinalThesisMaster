@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>G_{m,r} Grid-Cycle Stochastic TSP Results</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f7fa; color: #333; padding: 24px; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+  .controls { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .controls label { font-weight: 600; font-size: 0.85rem; }
+  .controls select { padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.85rem; }
+  .table-wrap { overflow-x: auto; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.85rem; }
+  thead { background: #2c3e50; color: #fff; }
+  th { padding: 10px 12px; text-align: right; white-space: nowrap; font-weight: 600; position: sticky; top: 0; }
+  th:first-child, td:first-child { text-align: center; }
+  td { padding: 8px 12px; text-align: right; border-bottom: 1px solid #eee; white-space: nowrap; }
+  tr:hover td { background: #f0f4ff; }
+  tr.group-start td { border-top: 2px solid #bbb; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; color: #fff; }
+  .tag-22 { background: #3498db; }
+  .tag-32 { background: #2ecc71; }
+  .tag-42 { background: #e67e22; }
+  .tag-23 { background: #9b59b6; }
+  .na { color: #bbb; font-style: italic; }
+  /* ratio cells: color scale */
+  .ratio-cell { font-weight: 600; }
+  .charts { display: flex; gap: 24px; margin-top: 28px; flex-wrap: wrap; }
+  .chart-box { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); padding: 16px; flex: 1; min-width: 420px; }
+  .chart-box h2 { font-size: 1rem; margin-bottom: 12px; }
+  canvas { width: 100% !important; }
+  .legend { display: flex; gap: 16px; margin-top: 24px; justify-content: center; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+
+<h1>G<sub>m,r</sub> Grid-Cycle Graph &mdash; Stochastic TSP Results</h1>
+<p class="subtitle">
+  V = &Zopf;<sub>m</sub><sup>r</sup>, edges = unit moves &pm;1 in each coordinate (weight 1, symmetric).
+  Depot = (0,&hellip;,0). All customers have uniform activation probability p.
+</p>
+
+<div class="controls">
+  <label>Filter graph:</label>
+  <select id="graphFilter">
+    <option value="all">All graphs</option>
+    <option value="2,2">m=2, r=2 (n=4)</option>
+    <option value="3,2">m=3, r=2 (n=9)</option>
+    <option value="4,2">m=4, r=2 (n=16)</option>
+    <option value="2,3">m=2, r=3 (n=8)</option>
+  </select>
+  <label>Highlight ratio &gt;</label>
+  <select id="ratioThresh">
+    <option value="1.05">1.05</option>
+    <option value="1.10" selected>1.10</option>
+    <option value="1.15">1.15</option>
+    <option value="1.20">1.20</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+<table id="resultsTable">
+  <thead>
+    <tr>
+      <th>Graph</th><th>m</th><th>r</th><th>n</th><th>nc</th><th>diam</th>
+      <th>p</th><th>E[k]</th>
+      <th>E[OPT<sub>post</sub>]</th>
+      <th>E[OPT<sub>adapt</sub>]</th>
+      <th>E[OPT<sub>apriori</sub>]</th>
+      <th>OPT<sub>post</sub>/k</th>
+      <th>adapt/post</th>
+      <th>apriori/post</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="charts">
+  <div class="chart-box">
+    <h2>E[OPT<sub>post</sub>] / E[k]  vs  p</h2>
+    <canvas id="chartRatio"></canvas>
+  </div>
+  <div class="chart-box">
+    <h2>E[OPT] vs E[k] (all three objectives)</h2>
+    <canvas id="chartAbsolute"></canvas>
+  </div>
+</div>
+
+<div class="legend" id="legendArea"></div>
+
+<script>
+const RAW = [
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.2,ek:0.60,post:1.440000,adapt:1.440000,apr:1.440000,postk:2.4000,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.3,ek:0.90,post:2.040000,adapt:2.040000,apr:2.040000,postk:2.2667,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.4,ek:1.20,post:2.560000,adapt:2.560000,apr:2.560000,postk:2.1333,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.5,ek:1.50,post:3.000000,adapt:3.000000,apr:3.000000,postk:2.0000,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.6,ek:1.80,post:3.360000,adapt:3.360000,apr:3.360000,postk:1.8667,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.7,ek:2.10,post:3.640000,adapt:3.640000,apr:3.640000,postk:1.7333,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.8,ek:2.40,post:3.840000,adapt:3.840000,apr:3.840000,postk:1.6000,adpost:1.0000,aprpost:1.0000},
+  {m:2,r:2,n:4,nc:3,diam:2,p:0.9,ek:2.70,post:3.960000,adapt:3.960000,apr:3.960000,postk:1.4667,adpost:1.0000,aprpost:1.0000},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.1,ek:0.80,post:2.021674,adapt:2.023182,apr:2.033487,postk:2.5271,adpost:1.0007,aprpost:1.0058},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.2,ek:1.60,post:3.436895,adapt:3.450711,apr:3.514688,postk:2.1481,adpost:1.0040,aprpost:1.0226},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.3,ek:2.40,post:4.438412,adapt:4.486170,apr:4.649283,postk:1.8493,adpost:1.0108,aprpost:1.0475},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.4,ek:3.20,post:5.180191,adapt:5.288878,apr:5.571072,postk:1.6188,adpost:1.0210,aprpost:1.0755},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.5,ek:4.00,post:5.781250,adapt:5.968750,apr:6.359375,postk:1.4453,adpost:1.0324,aprpost:1.1000},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.6,ek:4.80,post:6.330309,adapt:6.590477,apr:7.054272,postk:1.3188,adpost:1.0411,aprpost:1.1144},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.7,ek:5.60,post:6.892047,adapt:7.194902,apr:7.669683,postk:1.2307,adpost:1.0439,aprpost:1.1128},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.8,ek:6.40,post:7.512556,adapt:7.797146,apr:8.204288,postk:1.1738,adpost:1.0379,aprpost:1.0921},
+  {m:3,r:2,n:9,nc:8,diam:2,p:0.9,ek:7.20,post:8.218340,adapt:8.399365,apr:8.650287,postk:1.1414,adpost:1.0220,aprpost:1.0526},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.1,ek:1.50,post:4.606038,adapt:4.613414,apr:null,postk:3.0707,adpost:1.0016,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.2,ek:3.00,post:7.007778,adapt:7.061776,apr:null,postk:2.3359,adpost:1.0077,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.3,ek:4.50,post:8.519096,adapt:8.665991,apr:null,postk:1.8931,adpost:1.0172,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.4,ek:6.00,post:9.729021,adapt:9.977718,apr:null,postk:1.6215,adpost:1.0256,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.5,ek:7.50,post:10.846863,adapt:11.174805,apr:null,postk:1.4462,adpost:1.0302,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.6,ek:9.00,post:11.944033,adapt:12.300218,apr:null,postk:1.3271,adpost:1.0298,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.7,ek:10.50,post:13.066465,adapt:13.372392,apr:null,postk:1.2444,adpost:1.0234,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.8,ek:12.00,post:14.231814,adapt:14.417270,apr:null,postk:1.1860,adpost:1.0130,aprpost:null},
+  {m:4,r:2,n:16,nc:15,diam:4,p:0.9,ek:13.50,post:15.348897,adapt:15.408726,apr:null,postk:1.1370,adpost:1.0039,aprpost:null},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.1,ek:0.70,post:2.065600,adapt:2.065778,apr:2.074078,postk:2.9509,adpost:1.0001,aprpost:1.0041},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.2,ek:1.40,post:3.561574,adapt:3.564032,apr:3.618432,postk:2.5440,adpost:1.0007,aprpost:1.0160},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.3,ek:2.10,post:4.629163,adapt:4.639482,apr:4.787982,postk:2.2044,adpost:1.0022,aprpost:1.0343},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.4,ek:2.80,post:5.398323,adapt:5.424128,apr:5.705728,postk:1.9280,adpost:1.0048,aprpost:1.0569},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.5,ek:3.50,post:5.984375,adapt:6.031250,apr:6.468750,postk:1.7098,adpost:1.0078,aprpost:1.0809},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.6,ek:4.20,post:6.481613,adapt:6.547968,apr:7.031808,postk:1.5432,adpost:1.0102,aprpost:1.0849},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.7,ek:4.90,post:6.952891,adapt:7.026362,apr:7.458542,postk:1.4190,adpost:1.0106,aprpost:1.0727},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.8,ek:5.60,post:7.414170,adapt:7.473152,apr:7.759872,postk:1.3240,adpost:1.0080,aprpost:1.0466},
+  {m:2,r:3,n:8,nc:7,diam:3,p:0.9,ek:6.30,post:7.813006,adapt:7.837938,apr:7.939998,postk:1.2402,adpost:1.0032,aprpost:1.0163},
+];
+
+const COLORS = {'2,2':'#3498db','3,2':'#2ecc71','4,2':'#e67e22','2,3':'#9b59b6'};
+const LABELS = {'2,2':'Z₂² (n=4)','3,2':'Z₃² (n=9)','4,2':'Z₄² (n=16)','2,3':'Z₂³ (n=8)'};
+
+function fmt(v, d=4) { return v == null ? '' : v.toFixed(d); }
+
+function render() {
+  const filter = document.getElementById('graphFilter').value;
+  const thresh = parseFloat(document.getElementById('ratioThresh').value);
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  let prev = '';
+  const filtered = RAW.filter(r => filter === 'all' || `${r.m},${r.r}` === filter);
+
+  filtered.forEach(r => {
+    const key = `${r.m},${r.r}`;
+    const tr = document.createElement('tr');
+    if (key !== prev) { tr.classList.add('group-start'); prev = key; }
+
+    const tagClass = `tag-${r.m}${r.r}`;
+    const aprCell = r.apr != null ? fmt(r.apr, 6) : '<span class="na">n/a (nc=15)</span>';
+    const aprRatio = r.aprpost != null ? fmt(r.aprpost, 4) : '<span class="na">—</span>';
+    const aprHighlight = r.aprpost != null && r.aprpost > thresh ? 'color:#c0392b;font-weight:700' : '';
+    const adHighlight = r.adpost > thresh ? 'color:#c0392b;font-weight:700' : '';
+
+    tr.innerHTML = `
+      <td><span class="tag ${tagClass}">${LABELS[key]}</span></td>
+      <td>${r.m}</td><td>${r.r}</td><td>${r.n}</td><td>${r.nc}</td><td>${r.diam}</td>
+      <td>${r.p.toFixed(1)}</td><td>${r.ek.toFixed(2)}</td>
+      <td>${fmt(r.post, 6)}</td>
+      <td>${fmt(r.adapt, 6)}</td>
+      <td>${aprCell}</td>
+      <td class="ratio-cell">${fmt(r.postk, 4)}</td>
+      <td class="ratio-cell" style="${adHighlight}">${fmt(r.adpost, 4)}</td>
+      <td class="ratio-cell" style="${aprHighlight}">${aprRatio}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderCharts(filtered);
+}
+
+let chart1, chart2;
+
+function renderCharts(data) {
+  // Chart 1: E[OPT_post]/E[k] vs p, one line per graph
+  const groups = {};
+  data.forEach(r => {
+    const k = `${r.m},${r.r}`;
+    if (!groups[k]) groups[k] = [];
+    groups[k].push(r);
+  });
+
+  const datasets1 = Object.entries(groups).map(([k, rows]) => ({
+    label: LABELS[k],
+    data: rows.map(r => ({x: r.p, y: r.postk})),
+    borderColor: COLORS[k],
+    backgroundColor: COLORS[k] + '33',
+    tension: 0.3, pointRadius: 4, borderWidth: 2,
+  }));
+
+  if (chart1) chart1.destroy();
+  chart1 = new Chart(document.getElementById('chartRatio'), {
+    type: 'line',
+    data: { datasets: datasets1 },
+    options: {
+      scales: {
+        x: { type: 'linear', title: { display: true, text: 'p (activation probability)' }, min: 0, max: 1 },
+        y: { title: { display: true, text: 'E[OPT_post] / E[k]' }, min: 1 }
+      },
+      plugins: { legend: { position: 'bottom' } },
+      interaction: { mode: 'nearest', intersect: false },
+    }
+  });
+
+  // Chart 2: E[OPT] vs E[k], three lines per graph (post, adapt, apriori)
+  const datasets2 = [];
+  Object.entries(groups).forEach(([k, rows]) => {
+    const c = COLORS[k];
+    datasets2.push({
+      label: `${LABELS[k]} post`,
+      data: rows.map(r => ({x: r.ek, y: r.post})),
+      borderColor: c, backgroundColor: c + '33',
+      tension: 0.3, pointRadius: 4, borderWidth: 2,
+    });
+    datasets2.push({
+      label: `${LABELS[k]} adapt`,
+      data: rows.map(r => ({x: r.ek, y: r.adapt})),
+      borderColor: c, backgroundColor: c + '33',
+      borderDash: [6, 3], tension: 0.3, pointRadius: 3, borderWidth: 1.5,
+    });
+    const aprRows = rows.filter(r => r.apr != null);
+    if (aprRows.length) {
+      datasets2.push({
+        label: `${LABELS[k]} apriori`,
+        data: aprRows.map(r => ({x: r.ek, y: r.apr})),
+        borderColor: c, backgroundColor: c + '33',
+        borderDash: [2, 2], tension: 0.3, pointRadius: 3, pointStyle: 'triangle', borderWidth: 1.5,
+      });
+    }
+  });
+
+  if (chart2) chart2.destroy();
+  chart2 = new Chart(document.getElementById('chartAbsolute'), {
+    type: 'line',
+    data: { datasets: datasets2 },
+    options: {
+      scales: {
+        x: { type: 'linear', title: { display: true, text: 'E[k] (expected active customers)' }, min: 0 },
+        y: { title: { display: true, text: 'E[OPT]' }, min: 0 }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(4)}` } }
+      },
+      interaction: { mode: 'nearest', intersect: false },
+    }
+  });
+}
+
+document.getElementById('graphFilter').addEventListener('change', render);
+document.getElementById('ratioThresh').addEventListener('change', render);
+render();
+</script>
+</body>
+</html>

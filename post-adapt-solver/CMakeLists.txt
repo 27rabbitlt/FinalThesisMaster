@@ -12,6 +12,6 @@ endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_executable(solver solver.cpp)
-add_executable(test_correctness test_correctness.cpp)
 add_executable(search_ratio search_ratio.cpp)
 add_executable(search_ratio_graph search_ratio_graph.cpp)
+add_executable(search_ratio_exhaustive search_ratio_exhaustive.cpp)

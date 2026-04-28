@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Solve the a priori TSP LP relaxation from lp.tex using SciPy + HiGHS.
 
 Input format (JSON):

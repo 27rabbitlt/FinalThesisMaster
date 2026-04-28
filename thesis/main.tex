@@ -1,12 +1,12 @@
   %! TeX program = lualatex
 \documentclass[12pt]{amsart}
 
-\input{usepackages}
-\input{theoremenv}
-\input{title}
-\input{mathdefs}
+\input{preamble/usepackages}
+\input{preamble/theoremenv}
+\input{preamble/title}
+\input{preamble/mathdefs}
 
-\addbibresource{ref.bib}
+\addbibresource{preamble/ref.bib}
 
 \begin{document}
 \maketitle
@@ -265,203 +265,521 @@ The example graph shown in section \ref{sec:gridexample} has small a post optima
 
 So now the problem is that how to create a gap between adaptive and a post. The issue of this grid example is that we cannot punish adaptive policy when it picks a vertex to call. If we want to create a gap, we should be able to punish adaptive policy, i.e., when policy picks some vertex $v$, we need to be able to construct the following graph with remaining uncalled vertices that the policy's choice is globally a bad choice.
 
-\section{Clairvoyance gap lower bound example and proof}
-\begin{lemma}\label{lem:matching-subdivision-gap}
-For every integer $n \ge 3$, there exists a symmetric stochastic TSP instance
-$\mathcal{I}_n = (\{r\}\cup V,d,\{p_v\}_{v \in V})$ such that
+\section{Clairvoyance gap lower bound: cycle-subdivision instance}
+
+\begin{theorem}[Cycle-subdivision gap]\label{thm:cycle-subdivision}
+For every $\varepsilon>0$, there exists a symmetric stochastic TSP instance such that both
 \[
-\optprior(\mathcal{I}_n)=3n
+\frac{\optprior}{\optpost}\ge \frac54-\varepsilon
 \qquad\text{and}\qquad
-\optpost(\mathcal{I}_n)=\frac{5n}{2}.
+\frac{\optprior}{\optadapt}\ge \frac54-\varepsilon.
+\]
+More precisely, consider the following family of instances.
+Let $n\ge 7$ be odd. Start with the complete graph on vertices $v_1,\dots,v_n$, with every edge of length $1$, and fix the Hamiltonian cycle
+\[
+v_1v_2\cdots v_nv_1,
+\]
+where indices are taken modulo $n$. For each $i\in[n]$, replace the cycle edge $v_iv_{i+1}$ by a path $v_i x_i v_{i+1}$ of two unit edges; let $d$ be the shortest-path metric of the resulting graph. Let $r:=v_1$ be the depot, and let the client set be
+\[
+V:=\{v_2,\dots,v_n,x_1,\dots,x_n\}.
+\]
+Assume that every original client $v_2,\dots,v_n$ is active with probability $1$, and every subdividing vertex $x_i$ is active independently with probability $1/2$.
+
+Then
+\[
+\optprior=\frac{15}{8}n,
+\qquad
+\optpost\le \frac32 n+3,
+\qquad
+\optadapt\le \frac32 n+18.
 \]
 Consequently,
 \[
-\frac{\optprior(\mathcal{I}_n)}{\optpost(\mathcal{I}_n)}=\frac{6}{5},
+\frac{\optprior}{\optpost}
+\ge
+\frac{(15/8)n}{(3/2)n+3}
+\xrightarrow[n\to\infty]{} \frac54
+\qquad\text{and}\qquad
+\frac{\optprior}{\optadapt}
+\ge
+\frac{(15/8)n}{(3/2)n+18}
+\xrightarrow[n\to\infty]{} \frac54.
 \]
-and hence the obliviousness gap is at least $6/5$.
-\end{lemma}
+\end{theorem}
+
+The proof is split into three parts: the exact a priori value (Proposition~\ref{prop:cycle-prior}), the a posteriori upper bound (Proposition~\ref{prop:cycle-post}), and the adaptive upper bound (Proposition~\ref{prop:cycle-adapt}).
+
+\subsection*{The a priori value}
+
+\begin{proposition}\label{prop:cycle-prior}
+For every odd $n\ge 7$, the cycle-subdivision instance satisfies
+\[
+\optprior=\frac{15}{8}n.
+\]
+\end{proposition}
 
 \begin{proof}
-Fix $n \ge 3$.  We define the instance $\mathcal{I}_n$ as follows.
+Fix an arbitrary master tour $T$. We shall prove that its expected realized length is at least $15n/8$, and then exhibit a tour attaining this value.
 
 \medskip
-\noindent
-\textbf{The metric.}
-Let
+\noindent\textbf{1. Metric structure.}
+For later use we record the relevant distances in the metric completion.
+For original vertices,
 \[
-U:=\{u_1,\ldots,u_n,v_1,\ldots,v_n\},
+d(v_i,v_{i+1})=2,
+\qquad
+ d(v_i,v_j)=1 \quad \text{if } j\not\equiv i\pm 1 \pmod n.
 \]
-where we identify the depot with $u_1$, i.e.\ $u_1=r$.
-Consider the graph $G_n$ on the vertex set
+For subdividing vertices,
 \[
-U \cup \{x_1,\ldots,x_n\}
+d(x_i,v_i)=d(x_i,v_{i+1})=1,
+\qquad
+ d(x_i,v_j)=2 \quad \text{if } j\notin\{i,i+1\}.
 \]
-obtained as follows:
-\begin{itemize}
-    \item for each $i\in[n]$, add the two edges $u_i x_i$ and $x_i v_i$, each of length $1$;
-    \item for every two distinct vertices $z,z' \in U$ with $\{z,z'\}\neq \{u_i,v_i\}$ for all $i\in[n]$, add the edge $zz'$ of length $1$.
-\end{itemize}
-The graph is essentially a complete graph on $2n$ vertices and then we find a perfect mathcing(with $n$ edges) and subvide the edges in the matching.
-Let $d$ be the shortest-path metric of $G_n$.  In particular,
-\begin{align*}
-d(u_i,v_i)&=2 \qquad &&\text{for every } i\in[n],\\
-d(z,z')&=1 \qquad &&\text{for distinct } z,z' \in U \text{ with } \{z,z'\}\neq \{u_i,v_i\}\ \forall i,\\
-d(x_i,z)&=2 \qquad &&\text{for every } i\in[n] \text{ and every } z\in U\setminus\{u_i,v_i\},\\
-d(x_i,x_j)&=3 \qquad &&\text{for every distinct } i,j\in[n].
-\end{align*}
-Since $d$ is a shortest-path metric, it is symmetric and satisfies the triangle inequality.
-
-\medskip
-\noindent
-\textbf{The activation probabilities.}
-Every original vertex is always active:
+Finally, for $i\neq j$,
 \[
-p_z=1 \qquad \text{for every } z\in U
-\]
-and every subdividing vertex is active independently with probability $1/2$:
-\[
-p_{x_i}=\frac12 \qquad \text{for every } i\in[n].
-\]
-
-\textbf{Computation of $\optpost(\mathcal{I}_n)$.}
-Fix a realization $A\subseteq V$, and write $S:=S(A)$, where $S(A)$
-is defined as $S(A):=\{i\in[n]:x_i\in A\}$.
-
-We first prove the lower bound
-\[
-\opt(A)\ge 2n+|S|.
-\]
-Indeed, any tour visiting $\{r\}\cup A$ uses exactly $2n+|S|$ edges, and every edge of the metric has length at least $1$.
-
-We now prove the matching upper bound.
-Consider contracting the subdivided edges in $G$ if the corresponding subdividing vertex
-is active and then delete the inactive subdividing vertices. We denote this graph
-as $G_A$.
-It is clear that when $G_A$ has a Hamiltonian cycle, we can also find a tour in 
-$G$ visiting all active vertices using only edges of length $1$.
-So now the goal is to show $G_A$ is Hamiltonian and we consider Dirac's condition.
-We prove $\delta(G_A) \ge \frac{1}{2} |V(G_A)| = \frac{1}{2} (2n - |S|)$, where 
-$\delta(G_A)$ denotes the minimum degree.
-For contracted vertices, the degree is $|V(G_A)| - 1$; for non-contracted vertices,
-the degree is $|V(G_A)| - 2$ since these vertices lose 1 more degree because of 
-deletion of inactive subdividing vertices.
-Then we know when $n \ge 4, |V(G_A) - 2| \ge \frac{1}{2} |V(G_A)$ always holds.
-For $n = 3$, we only need to consider the case when $|S| = 3$. In this special 
-case, the resulting graph $G_A$ is simply $K_3$ so obviously it is Hamiltonian.
-Hence for all cases we can always find a tour visiting all realised vertices
-which has total length equal to its number of edges, namely $2n+|S|$.
-Therefore
-\[
-\opt(A)=2n+|S|.
-\]
-
-Taking expectation over the random set $A$, we obtain
-\[
-\optpost(\mathcal{I}_n)
-=
-\E_{A\sim\mu}[\opt(A)]
-=
-2n+\E_{A\sim\mu}[|S(A)|]
-=
-2n+\frac{n}{2}
-=
-\frac{5n}{2}.
-\]
-
-\textbf{Lower bound on $\optprior(\mathcal{I}_n)$.}
-Let $T$ be an arbitrary master tour. Delete all vertices $x_1,\ldots,x_n$ from $T$.
-The resulting tour $\pi$ visits exactly the original vertices in $U$.
-Let
-\[
-m:=\bigl|\{i\in[n]: u_i \text{ and } v_i \text{ are consecutive in } \pi\}\bigr|.
-\]
-Since $\pi$ has exactly $2n$ edges, each of length $1$ or $2$, and the edges of length $2$ are precisely the matched edges $u_iv_i$, we have
-\[
-c(\pi)=2n+m.
-\]
-
-For each $t\in\{0,1,\ldots,n\}$, let $T_t$ be the random tour obtained from $T$ by keeping
-$x_1,\ldots,x_t$ whenever they are active and deleting $x_{t+1},\ldots,x_n$.
-Thus $T_0=\pi$, and $T_n=T\vert_A$.
-
-For $i\in[n]$.
-In the current tour $T_{i-1}$, the vertex $x_i$ would be inserted between two consecutive vertices,
-say $p_i$ and $q_i$, if $x_i$ is active.
-Hence the increment in tour length caused by revealing $x_i$ is
-\[
-\Delta_i=
+d(x_i,x_j)=
 \begin{cases}
-d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i), & \text{if } x_i\in A,\\[0.5ex]
-0, & \text{if } x_i\notin A.
+2, & \text{if the cycle edges } v_iv_{i+1} \text{ and } v_jv_{j+1} \text{ are adjacent},\\
+3, & \text{otherwise.}
 \end{cases}
 \]
-Since $p_{x_i}=1/2$, we obtain
+
+\medskip
+\noindent\textbf{2. Decomposition into segments.}
+Deleting all subdividing vertices from $T$ leaves a cyclic ordering
 \[
-\E[\Delta_i \mid x_1,\ldots,x_{i-1}]
-=
-\frac12\Bigl(d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i)\Bigr).
+(r=u_1,u_2,\dots,u_n,r)
+\]
+of the original vertices $v_1,\dots,v_n$. For each $j\in[n]$, let
+\[
+Y_j=(y_{j,1},\dots,y_{j,k_j})
+\]
+be the ordered list (possibly empty) of subdividing vertices appearing on $T$ between $u_j$ and $u_{j+1}$, where $u_{n+1}:=r$. Then
+\[
+\sum_{j=1}^n k_j=n,
+\]
+since every subdividing vertex appears in exactly one such segment.
+
+Given original vertices $u,v$ and an ordered sequence $Y=(y_1,\dots,y_k)$ of distinct subdividing vertices, write
+\[
+\Phi(u;Y;v)
+\]
+for the expected length of the realized path obtained from the segment
+\[
+(u,y_1,\dots,y_k,v)
+\]
+after deleting inactive subdividing vertices. Because all original vertices are always active, the realized tour decomposes into these segment contributions, and therefore
+\[
+\E[c(T|_A)] = \sum_{j=1}^n \Phi(u_j;Y_j;u_{j+1}).
+\]
+Thus it is enough to derive a lower bound on $\Phi(u;Y;v)$ in terms of $k:=|Y|$.
+
+\medskip
+\noindent\textbf{3. Short segments.}
+We first treat the cases $k\le 3$.
+
+\begin{claim}
+For every segment $(u;Y;v)$ with $k=|Y|\le 3$,
+\[
+\Phi(u;Y;v)\ge
+\begin{cases}
+1, & k=0,\\
+2, & k=1,\\
+\dfrac{11}{4}, & k=2,\\
+\dfrac{29}{8}, & k=3.
+\end{cases}
+\]
+Moreover, equality is attained for $k=2$ by $(v_i,x_i,x_{i+1},v_{i+1})$, and for $k=3$ by $(v_{i+1},x_{i+1},x_i,x_{i-1},v_i)$.
+\end{claim}
+
+\begin{proof}
+If $k=0$, then the segment contributes the single edge $uv$, so $\Phi(u;\varnothing;v)=d(u,v)\ge 1$.
+
+If $k=1$, say $Y=(y)$, then
+\[
+\Phi(u;y;v)=\tfrac12 d(u,v)+\tfrac12\bigl(d(u,y)+d(y,v)\bigr).
+\]
+If $u$ and $v$ are consecutive on the original cycle, then $d(u,v)=2$ and also $d(u,y)+d(y,v)\ge 2$. If they are not consecutive, then $d(u,v)=1$, and no subdividing vertex is incident with both $u$ and $v$, so $d(u,y)+d(y,v)\ge 3$. In either case $\Phi(u;y;v)\ge 2$.
+
+Now let $k=2$, say $Y=(y_1,y_2)$. There are four realizations.
+If $d(u,v)=1$, then neither $y_1$ nor $y_2$ is incident with both $u$ and $v$, so each singleton realization has cost at least $3$, while the realization with both active has cost at least $4$. Hence
+\[
+\Phi(u;Y;v)\ge \frac{1+3+3+4}{4}=\frac{11}{4}.
+\]
+If $d(u,v)=2$, then exactly one subdividing vertex is incident with both $u$ and $v$, so at most one singleton realization has cost $2$; the two singleton costs therefore sum to at least $5$, and the realization with both active has cost at least $4$. Thus
+\[
+\Phi(u;Y;v)\ge \frac{2+5+4}{4}=\frac{11}{4}.
+\]
+Equality is attained, for example, by $(v_i,x_i,x_{i+1},v_{i+1})$, whose four realization costs are $2,2,3,4$.
+
+Finally let $k=3$, say $Y=(y_1,y_2,y_3)$.
+Suppose first that $d(u,v)=1$. Then each singleton realization has cost at least $3$. A two-vertex realization can have cost $4$ only if one active subdivider is incident with $u$, the other is incident with $v$, and the corresponding cycle edges are adjacent. For fixed nonconsecutive $u$ and $v$, there is at most one unordered pair of subdividing vertices with this property. Hence among the three two-vertex realizations, at most one has cost $4$, and the other two have cost at least $5$. The realization with all three active has cost at least $6$. Therefore
+\[
+\Phi(u;Y;v)\ge \frac{1+9+14+6}{8}=\frac{15}{4}>\frac{29}{8}.
 \]
 
-We claim that
+Now suppose that $d(u,v)=2$. Then exactly one subdividing vertex is incident with both $u$ and $v$, so among the three singleton realizations at most one has cost $2$. Hence the sum of the singleton costs is at least $2+3+3=8$. A two-vertex realization can have cost $4$ only if one active subdivider is the unique subdivider of the edge $uv$ and the other comes from one of the two cycle edges adjacent to $uv$. Thus among the three two-vertex realizations, at most two have cost $4$, and the remaining one has cost at least $5$; the sum of these three costs is therefore at least $13$. The realization with all three active has cost at least $6$. Consequently,
 \[
-d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i)=0
-\quad\Longleftrightarrow\quad
-\{p_i,q_i\}=\{u_i,v_i\},
+\Phi(u;Y;v)\ge \frac{2+8+13+6}{8}=\frac{29}{8}.
 \]
-and otherwise
+Equality is attained, for example, by $(v_{i+1},x_{i+1},x_i,x_{i-1},v_i)$, whose eight realization costs are
 \[
-d(p_i,x_i)+d(x_i,q_i)-d(p_i,q_i)\ge 2.
+2,\ 3,\ 2,\ 3,\ 4,\ 5,\ 4,\ 6.
 \]
-This follows directly from the explicit distance values listed above:
-the value is $1+1-2=0$ when $\{p_i,q_i\}=\{u_i,v_i\}$, while in every other case the minimum possible value is $2$.
+\end{proof}
 
-Now suppose that $u_i$ and $v_i$ are \emph{not} consecutive in $\pi$.
-Deleting or re-inserting vertices $x_j$ never changes the cyclic order of the original vertices.
-Hence $x_i$ can never be inserted between $u_i$ and $v_i$, and therefore
+\medskip
+\noindent\textbf{4. Long segments.}
+We now consider a segment
 \[
-\{p_i,q_i\}\neq \{u_i,v_i\}.
+(u;y_1,\dots,y_k;v)
 \]
-Thus we have:
+with $k\ge 4$. Set
 \[
-\E[\Delta_i \mid x_1,\ldots,x_{i-1}] \ge 1.
+z_0:=u,\qquad z_t:=y_t\ (1\le t\le k),\qquad z_{k+1}:=v.
+\]
+Two retained vertices $z_i,z_j$ become consecutive after shortcutting precisely when every vertex strictly between them is deleted. Since each $y_t$ is retained independently with probability $1/2$, we obtain the exact expansion
+\begin{align*}
+\Phi(u;Y;v)
+&=2^{-k}d(u,v)
+ +\sum_{t=1}^k 2^{-t}d(u,y_t)
+ +\sum_{t=1}^k 2^{-(k-t+1)}d(y_t,v) \\
+&\qquad
+ +\sum_{1\le i<j\le k}2^{-(j-i+1)}d(y_i,y_j).
+\end{align*}
+Introduce the indicators
+\[
+\alpha_t:=\1_{\{y_t \text{ is incident with } u\}},
+\qquad
+\beta_t:=\1_{\{y_t \text{ is incident with } v\}},
+\]
+and, for $1\le i<j\le k$,
+\[
+\gamma_{ij}:=\1_{\{y_i,y_j \text{ correspond to adjacent cycle edges}\}}.
+\]
+By the distance formulas above,
+\begin{align*}
+d(u,v)&=1+\1_{\{u,v \text{ are consecutive on the original cycle}\}},\\
+d(u,y_t)&=2-\alpha_t,\\
+d(y_t,v)&=2-\beta_t,\\
+d(y_i,y_j)&=3-\gamma_{ij}.
+\end{align*}
+Substituting these identities into the preceding formula yields
+\[
+\Phi(u;Y;v)=1+\frac{3k}{2}+2^{-k}\1_{\{u,v\text{ consecutive}\}}-D,
+\]
+where
+\[
+D:=\sum_{t=1}^k 2^{-t}\alpha_t
+ +\sum_{t=1}^k 2^{-(k-t+1)}\beta_t
+ +\sum_{1\le i<j\le k}2^{-(j-i+1)}\gamma_{ij}.
+\]
+We now estimate $D$.
+Since an original vertex is incident with exactly two subdividing vertices,
+\[
+\sum_{t=1}^k 2^{-t}\alpha_t\le 2^{-1}+2^{-2}=\frac34,
+\qquad
+\sum_{t=1}^k 2^{-(k-t+1)}\beta_t\le \frac34.
+\]
+For the last sum, consider the graph on vertex set $\{y_1,\dots,y_k\}$ in which two vertices are adjacent when the corresponding subdividing vertices arise from adjacent edges of the original cycle. This graph is a subgraph of a cycle, hence has maximum degree at most $2$ and therefore at most $k$ edges. Every edge contributes weight at most $1/4$, so
+\[
+\sum_{1\le i<j\le k}2^{-(j-i+1)}\gamma_{ij}\le \frac{k}{4}.
+\]
+Therefore
+\[
+D\le \frac34+\frac34+\frac{k}{4}=\frac32+\frac{k}{4},
+\]
+and hence
+\[
+\Phi(u;Y;v)\ge 1+\frac{3k}{2}-\left(\frac32+\frac{k}{4}\right)=\frac54 k-\frac12.
+\]
+Since $k\ge 4$,
+\[
+\frac54 k-\frac12\ge 1+\frac{7k}{8},
+\]
+so every segment with $k\ge 4$ satisfies
+\[
+\Phi(u;Y;v)\ge 1+\frac{7k}{8}.
+\]
+Combining this with the previous claim, we conclude that every segment with $k$ subdividing vertices satisfies
+\[
+\Phi(u;Y;v)\ge
+\begin{cases}
+1, & k=0,\\
+1+\dfrac{7k}{8}, & k\ge 1.
+\end{cases}
+\]
+
+\medskip
+\noindent\textbf{5. Global lower bound.}
+Applying the segment bound to the decomposition of $T$, we obtain
+\begin{align*}
+\E[c(T|_A)]
+&=\sum_{j=1}^n \Phi(u_j;Y_j;u_{j+1})\\
+&\ge \sum_{j:k_j=0} 1+\sum_{j:k_j\ge 1}\left(1+\frac{7k_j}{8}\right)\\
+&=n+\frac78\sum_{j=1}^n k_j\\
+&=n+\frac78 n = \frac{15}{8}n.
+\end{align*}
+Since $T$ was arbitrary, this shows that
+\[
+\optprior\ge \frac{15}{8}n.
+\]
+
+\medskip
+\noindent\textbf{6. Matching constructions.}
+It remains to exhibit master tours attaining this value.
+
+\smallskip
+\noindent\emph{Even $n$.}
+Write $n=2m$. Consider the tour
+\begin{align*}
+T^{\mathrm{even}}
+:=(&v_1,x_1,x_2,v_2,
+   v_4,x_4,x_3,v_3,
+   v_6,x_6,x_5,v_5,
+   \dots,\\
+  &v_{2m},x_{2m},x_{2m-1},v_{2m-1},v_1).
+\end{align*}
+This tour has $m$ nonempty segments, namely
+\[
+(v_1,x_1,x_2,v_2)
+\quad\text{and}\quad
+(v_{2t},x_{2t},x_{2t-1},v_{2t-1})\qquad (2\le t\le m),
+\]
+each with expected contribution $11/4$, together with $m$ direct edges between original vertices, each of length $1$. Hence
+\[
+\E[c(T^{\mathrm{even}}|_A)] = m\left(\frac{11}{4}+1\right)=\frac{15}{8}n.
+\]
+
+\smallskip
+\noindent\emph{Odd $n$.}
+Write $n=2m+1$ with $m\ge 2$. Consider the tour
+\begin{align*}
+T^{\mathrm{odd}}
+:=(&v_n,v_2,x_2,x_1,x_n,v_1,
+   v_4,x_4,x_3,v_3,
+   v_6,x_6,x_5,v_5,
+   \dots,\\
+  &v_{2m},x_{2m},x_{2m-1},v_{2m-1},v_n).
+\end{align*}
+This tour has one $3$-segment,
+\[
+(v_2,x_2,x_1,x_n,v_1),
+\]
+with expected contribution $29/8$, together with $m-1$ segments
+\[
+(v_{2t},x_{2t},x_{2t-1},v_{2t-1})\qquad (2\le t\le m),
+\]
+each contributing $11/4$, and $m+1$ direct edges between original vertices, each of length $1$. Therefore
+\begin{align*}
+\E[c(T^{\mathrm{odd}}|_A)]
+&=\frac{29}{8}+(m-1)\cdot \frac{11}{4}+(m+1)\\
+&=\frac{15}{8}(2m+1)=\frac{15}{8}n.
+\end{align*}
+
+In both parity cases we have constructed a master tour of expected cost $15n/8$. Combined with the lower bound, this proves
+\[
+\optprior=\frac{15}{8}n.
+\]
+\end{proof}
+
+\subsection*{The a posteriori upper bound}
+
+For a realization $A$, let
+\[
+S(A):=\{i\in[n]: x_i\text{ is active in }A\}
+\]
+and write $m:=|S(A)|$.
+
+\begin{proposition}\label{prop:cycle-post}
+For every realization $A$ of the cycle-subdivision instance,
+\[
+\opt(A)\le n+|S(A)|+3.
 \]
 Consequently,
 \[
-\E[\Delta_i]\ge 1
-\qquad\text{for at least } n-m \text{ indices } i.
+\optpost\le \frac32 n+3.
 \]
-For the remaining $m$ indices we use the trivial bound $\E[\Delta_i]\ge 0$.
+\end{proposition}
 
-Summing over $i\in[n]$, we obtain
-\[
-\E_{A\sim\mu}[c(T\vert_A)]
-=
-c(\pi)+\sum_{i=1}^n \E[\Delta_i]
-\ge
-(2n+m)+(n-m)
-=
-3n.
-\]
-Since $T$ was arbitrary, this shows that
-\[
-\optprior(\mathcal{I}_n)\ge 3n.
-\]
+\begin{proof}
+Fix a realization $A$, and set $S:=S(A)$ and $m:=|S|$.
 
-Together with the upper bound of a posteriori optimimum, we conclude that
+If $m=n$, then every subdivider is active, and the full subdivided cycle
 \[
-\frac{\optprior(\mathcal{I}_n)}{\optpost(\mathcal{I}_n)}=\frac{3n}{5n/2}=\frac65.
+v_1,x_1,v_2,x_2,\dots,v_n,x_n,v_1
 \]
-This completes the proof.
+is a feasible tour of cost $2n=n+m\le n+m+3$. So we may assume $m<n$.
+
+Contract every active edge $v_iv_{i+1}$ of the base cycle $C$; equivalently, contract every maximal active run on $C$ into a single block. The resulting quotient is again a cycle, now on
+\[
+q:=n-m
+\]
+blocks. Each block is either a single original vertex or a path of the form
+\[
+v_a,x_a,v_{a+1},x_{a+1},\dots,x_b,v_{b+1}
+\]
+coming from a maximal consecutive active run. Traversing such a block from one end to the other costs exactly $2\ell$, where $\ell$ is the number of active subdividers in the block, and summing over all blocks gives total internal cost exactly $2m$.
+
+Now consider only the movement \emph{between} blocks. Label the $q$ blocks cyclically by $w_1,\dots,w_q$. If two blocks are consecutive on this quotient cycle, then the distance between the corresponding boundary vertices is at most $2$. If they are not consecutive, then the corresponding boundary originals are nonconsecutive on the original cycle $C$, so their distance is exactly $1$. Thus the inter-block metric is dominated by the standard $q$-vertex cycle metric in which consecutive pairs have distance $2$ and all other pairs have distance $1$.
+
+Let $\tau(q)$ denote the optimal TSP value in that standard $q$-vertex cycle metric. Then the discussion above shows that
+\[
+\opt(A)\le 2m+\tau(q).
+\]
+We now bound $\tau(q)$. For $q\ge 5$, there is a Hamiltonian cycle using only nonconsecutive pairs, hence $\tau(q)=q$. Indeed:
+\begin{itemize}
+    \item if $q$ is odd, the step-$2$ cycle
+    \[
+    1,3,5,\dots,q,2,4,\dots,q-1,1
+    \]
+    has total cost $q$;
+    \item if $q$ is even, the cycle
+    \[
+    1,3,5,\dots,q-1,2,q,q-2,\dots,4,1
+    \]
+    also has total cost $q$.
+\end{itemize}
+For the small cases, one checks directly that
+\[
+\tau(1)\le 2,\qquad \tau(2)=4,\qquad \tau(3)=6,\qquad \tau(4)=6.
+\]
+In particular,
+\[
+\tau(q)\le q+3 \qquad \text{for every } q\ge 1.
+\]
+Therefore
+\[
+\opt(A)\le 2m+(q+3)=2m+(n-m)+3=n+m+3.
+\]
+Since $m=|S(A)|$, this proves the first claim.
+
+Taking expectation and using $\E[|S(A)|]=n/2$, we obtain
+\[
+\optpost
+=\E_A[\opt(A)]
+\le
+\E_A[n+|S(A)|+3]
+=
+ n+\frac n2+3
+=
+\frac32 n+3.
+\]
 \end{proof}
 
+\subsection*{The adaptive upper bound}
 
-\input{single-cycle-gap}
+\begin{proposition}\label{prop:cycle-adapt}
+For every odd $n\ge 7$, the cycle-subdivision instance satisfies
+\[
+\optadapt\le \frac32 n+18.
+\]
+\end{proposition}
 
-\section{Notes}
-\input{relevant-def}
-\input{stochastic-knapsack-notes}
-\input{adaptive-decision-tree-notes}
-\input{results-collection.tex}
+\begin{proof}
+We define an explicit adaptive policy $\pi$ and bound its expected cost.
+
+Let
+\[
+M:=\{v_3,\dots,v_{n-1},x_3,\dots,x_{n-2}\}
+\]
+be the set of \emph{middle} clients, and let
+\[
+B:=V\setminus M=\{v_2,v_n,x_1,x_2,x_{n-1},x_n\}
+\]
+be the set of \emph{boundary} clients.
+
+\medskip
+\noindent\textbf{Step 1: visit all boundary clients first.}
+The policy first calls all six vertices of $B$ in an arbitrary fixed order, and then returns to the depot $r$.
+
+Every distance in this metric is at most $3$, so this boundary phase has cost at most
+\[
+7\cdot 3=21,
+\]
+independently of the realization.
+
+\medskip
+\noindent\textbf{Step 2: the alternating middle policy.}
+After finishing the boundary phase, the policy is back at $r$. It then calls $v_3$, moves to $v_3$, and from that point on works only on the middle path
+\[
+P:=v_3,x_3,v_4,\dots,x_{n-2},v_{n-1}.
+\]
+
+At every stage, the uncalled middle clients form a subpath of $P$. The current position is one of the two endpoint originals of this remaining subpath. If the current position is the left endpoint original, the policy probes rightward: it calls the adjacent subdividing vertex. If that subdividing vertex is active, then the policy immediately calls the next original vertex and continues in the same direction. If that subdividing vertex is inactive, then the policy jumps to the right endpoint original of the remaining subpath and proceeds symmetrically leftward. The same rule is applied when the current position is the right endpoint original.
+
+Equivalently, the policy keeps moving along the current side of the remaining subpath for as long as the encountered middle subdividing vertices are active, and each time it meets an inactive middle subdividing vertex it switches to the opposite side of the remaining subpath.
+
+\medskip
+\noindent\textbf{Step 3: deterministic cost of the middle phase.}
+Fix a realization $A$, and let
+\[
+a_M:=|A\cap\{x_3,\dots,x_{n-2}\}|
+\]
+be the number of active middle subdividing vertices. Since there are exactly $n-4$ middle subdividing vertices, the number of inactive middle subdividing vertices is
+\[
+(n-4)-a_M.
+\]
+
+We claim that the total cost of the middle phase, including the initial move from $r$ to $v_3$ and the final return to $r$, is at most
+\[
+n+a_M-1.
+\]
+Indeed:
+
+\begin{itemize}
+    \item The initial move from $r=v_1$ to $v_3$ costs $1$.
+    \item Each active middle subdividing vertex contributes exactly $2$: one unit to move from an endpoint original to that subdividing vertex, and one unit to move from there to the next original. Hence all active middle subdividing vertices together contribute exactly
+    \[
+    2a_M.
+    \]
+    \item Each inactive middle subdividing vertex causes one switch from one end of the remaining middle subpath to the other. Such a switch costs $1$, except that the very last switch may cost $2$ when only one middle original vertex remains uncalled. Therefore all switches together cost at most
+    \[
+    ((n-4)-a_M)+1.
+    \]
+    \item After all middle clients have been called, the salesperson is at some original vertex, and returning from any original vertex to $r$ costs at most $1$.
+\end{itemize}
+
+Summing these contributions gives
+\[
+1+2a_M+\bigl((n-4)-a_M+1\bigr)+1=n+a_M-1.
+\]
+This proves the claim.
+
+\medskip
+\noindent\textbf{Step 4: expectation.}
+For every realization $A$, the total cost of $\pi$ is at most
+\[
+21+(n+a_M-1)=n+a_M+20.
+\]
+Taking expectation and using $\E[a_M]=(n-4)/2$, we obtain
+\[
+\E[c(T(A;\pi))]
+\le n+\frac{n-4}{2}+20
+=\frac32 n+18.
+\]
+Hence
+\[
+\optadapt\le \frac32 n+18.
+\]
+\end{proof}
+
+\subsection*{Proof of Theorem~\ref{thm:cycle-subdivision}}
+
+Proposition~\ref{prop:cycle-prior} gives $\optprior=\frac{15}{8}n$. Proposition~\ref{prop:cycle-post} gives $\optpost\le \frac32 n+3$. Proposition~\ref{prop:cycle-adapt} gives $\optadapt\le \frac32 n+18$. Hence
+\[
+\frac{\optprior}{\optpost}
+\ge
+\frac{(15/8)n}{(3/2)n+3}
+\xrightarrow[n\to\infty]{} \frac54
+\qquad\text{and}\qquad
+\frac{\optprior}{\optadapt}
+\ge
+\frac{(15/8)n}{(3/2)n+18}
+\xrightarrow[n\to\infty]{} \frac54.
+\]
+Given any $\varepsilon>0$, choosing odd $n$ large enough yields both ratios at least $5/4-\varepsilon$. \qed
 
 \printbibliography
 
