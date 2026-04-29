@@ -1,0 +1,279 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\HK}{\mathrm{HK}}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\Agg}{\mathrm{Agg}}
+
+\title{Scenario-Based and Aggregate LPs for A Posteriori TSP}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The a posteriori TSP model}
+
+Let $r$ be a depot that is always present, and let $V$ be a set of stochastic vertices. Each vertex $v\in V$ is activated independently with probability $p_v$. For an activation set $A\subseteq V$, the realized vertex set is
+\[
+R_A := A\cup\{r\}.
+\]
+We assume that the distances are given by a symmetric metric $d$ on $V\cup\{r\}$. Thus
+\[
+d(u,v)=d(v,u), \qquad d(u,u)=0,
+\]
+and the triangle inequality holds. For a set $W\subseteq V\cup\{r\}$, let $E(W)$ denote the edge set of the complete graph on $W$. For $S\subseteq W$, let $\delta_W(S)$ denote the set of edges of $E(W)$ with exactly one endpoint in $S$. When the underlying vertex set is clear, we simply write $\delta(S)$.
+
+For each $A\subseteq V$, define
+\[
+q_A := \Prb[\text{the active set is }A]
+= \prod_{v\in A}p_v \prod_{v\in V\setminus A}(1-p_v).
+\]
+
+\section{The scenario-wise Held--Karp relaxation}
+
+For a fixed active set $A\subseteq V$, the Held--Karp relaxation for the TSP instance on $R_A=A\cup\{r\}$ is
+\[
+\begin{aligned}
+\HK(A):=\min \quad
+& \sum_{e\in E(R_A)} d_e x^A_e \\
+\text{s.t.}\quad
+& x^A(\delta_{R_A}(v)) = 2
+&& \forall v\in R_A, \\
+& x^A(\delta_{R_A}(S)) \ge 2
+&& \forall \emptyset\neq S\subsetneq R_A, \\
+& x^A_e\ge 0
+&& \forall e\in E(R_A).
+\end{aligned}
+\]
+Here $d_e=d(u,v)$ for $e=uv$.
+
+The expected scenario-wise Held--Karp value is
+\[
+\E_A[\HK(A)] = \sum_{A\subseteq V} q_A\HK(A).
+\]
+
+\section{An LP for the average of the scenario-wise Held--Karp solutions}
+
+The following extended LP computes the average of the scenario-wise Held--Karp relaxations. It has a separate Held--Karp vector $x^A$ for every activation set $A\subseteq V$.
+\[
+\begin{aligned}
+\min \quad
+& \sum_{A\subseteq V} q_A \sum_{e\in E(R_A)} d_e x^A_e \\
+\text{s.t.}\quad
+& x^A(\delta_{R_A}(v)) = 2
+&& \forall A\subseteq V,\ \forall v\in R_A, \\
+& x^A(\delta_{R_A}(S)) \ge 2
+&& \forall A\subseteq V,\ \forall \emptyset\neq S\subsetneq R_A, \\
+& x^A_e\ge 0
+&& \forall A\subseteq V,\ \forall e\in E(R_A).
+\end{aligned}
+\tag{SCEN}
+\]
+This LP is just the probability-weighted sum of the Held--Karp LPs for the individual scenarios. Therefore its optimum value is exactly
+\[
+\sum_{A\subseteq V}q_A\HK(A).
+\]
+
+If one wants to explicitly record the average edge-vector, introduce variables $y_e$ for $e\in E(V\cup\{r\})$ and add the equations
+\[
+y_e=\sum_{A:e\in E(R_A)}q_A x^A_e
+\qquad \forall e\in E(V\cup\{r\}).
+\]
+The vector $y$ is then the expected Held--Karp solution:
+\[
+y=\E_A[x^A].
+\]
+
+\section{The aggregate cut LP}
+
+A natural attempt is to describe the average vector $y$ directly using only averaged degree and cut constraints. This gives the following aggregate LP.
+
+For $\emptyset\neq S\subsetneq V\cup\{r\}$, define
+\[
+T(S):=
+\begin{cases}
+S, & r\notin S,\\
+(V\cup\{r\})\setminus S, & r\in S.
+\end{cases}
+\]
+Then $T(S)\subseteq V$, and the cut $S$ is crossed by the realized vertex set $R_A=A\cup\{r\}$ if and only if $A\cap T(S)\neq\emptyset$. Hence define
+\[
+\rho(S):=2\Prb[A\cap T(S)\neq\emptyset]
+=2\left(1-\prod_{v\in T(S)}(1-p_v)\right).
+\]
+
+The aggregate LP is
+\[
+\begin{aligned}
+\min \quad
+& \sum_{e\in E(V\cup\{r\})} d_e y_e \\
+\text{s.t.}\quad
+& y(\delta(v))=2p_v
+&& \forall v\in V, \\
+& y(\delta(r))=2\Prb[A\neq\emptyset]
+=2\left(1-\prod_{v\in V}(1-p_v)\right), \\
+& y(\delta(S))\ge \rho(S)
+&& \forall \emptyset\neq S\subsetneq V\cup\{r\}, \\
+& y_e\ge 0
+&& \forall e\in E(V\cup\{r\}).
+\end{aligned}
+\tag{AGG}
+\]
+
+Every average of scenario-wise Held--Karp solutions is feasible for \((\mathrm{AGG})\). Indeed, if
+\[
+y_e=\sum_{A:e\in E(R_A)}q_Ax^A_e,
+\]
+where $x^A$ is feasible for $\HK(A)$, then the degree equations and the aggregate cut inequalities follow by taking expectations of the corresponding scenario-wise Held--Karp constraints.
+
+However, \((\mathrm{AGG})\) is not an exact description of the projection of \((\mathrm{SCEN})\). It only keeps the averaged cut inequalities and forgets the requirement that the vector $y$ must decompose into scenario-wise feasible Held--Karp vectors.
+
+\section{A counterexample}
+
+We now give an explicit counterexample showing that \((\mathrm{AGG})\) can be strictly weaker than the scenario-indexed LP \((\mathrm{SCEN})\).
+
+Let the depot be $0$, and let the stochastic vertex set be
+\[
+V=\{1,2,3,4\}.
+\]
+Each stochastic vertex is independently active with probability $1/2$. Hence every scenario has probability $1/16$.
+
+Use the following symmetric integral metric $d$ on $\{0,1,2,3,4\}$:
+\[
+\begin{array}{c|ccccc}
+ & 0 & 1 & 2 & 3 & 4 \\
+\hline
+0 & 0 & 14 & 13 & 8 & 7 \\
+1 & 14 & 0 & 16 & 6 & 10 \\
+2 & 13 & 16 & 0 & 10 & 12 \\
+3 & 8 & 6 & 10 & 0 & 11 \\
+4 & 7 & 10 & 12 & 11 & 0
+\end{array}
+\]
+
+\subsection{The aggregate LP solution}
+
+The following vector is feasible for \((\mathrm{AGG})\):
+\[
+\begin{array}{c|cccccccccc}
+e & 01&02&03&04&12&13&14&23&24&34\\
+\hline
+y_e
+& \frac{5}{16}
+& \frac{7}{16}
+& \frac{9}{16}
+& \frac{9}{16}
+& \frac{3}{16}
+& \frac{4}{16}
+& \frac{4}{16}
+& \frac{3}{16}
+& \frac{3}{16}
+& \frac{0}{16}
+\end{array}
+\]
+The degree constraints for the stochastic vertices are all tight:
+\[
+y(\delta(v))=1=2\cdot \frac12
+\qquad \forall v\in\{1,2,3,4\}.
+\]
+The depot degree constraint is also tight:
+\[
+y(\delta(0))
+=\frac{5+7+9+9}{16}
+=\frac{30}{16}
+=\frac{15}{8}
+=2\left(1-\frac1{16}\right).
+\]
+The aggregate cut inequalities are also satisfied. Its objective value is
+\[
+\begin{aligned}
+d\cdot y
+&=14\cdot\frac{5}{16}
++13\cdot\frac{7}{16}
++8\cdot\frac{9}{16}
++7\cdot\frac{9}{16} \\
+&\qquad
++16\cdot\frac{3}{16}
++6\cdot\frac{4}{16}
++10\cdot\frac{4}{16}
++10\cdot\frac{3}{16}
++12\cdot\frac{3}{16}
++11\cdot\frac{0}{16} \\
+&=29.625
+=\frac{237}{8}.
+\end{aligned}
+\]
+In fact this vector is optimal for \((\mathrm{AGG})\), so
+\[
+\OPT_{\Agg}=\frac{237}{8}.
+\]
+
+\subsection{The scenario-wise Held--Karp values}
+
+The scenario-wise Held--Karp values are as follows.
+\[
+\begin{array}{c|c|c}
+A & \HK(A) & \text{one optimal tour} \\
+\hline
+\emptyset & 0 & (0) \\
+\{1\} & 28 & 0-1-0 \\
+\{2\} & 26 & 0-2-0 \\
+\{3\} & 16 & 0-3-0 \\
+\{4\} & 14 & 0-4-0 \\
+\{1,2\} & 43 & 0-1-2-0 \\
+\{1,3\} & 28 & 0-1-3-0 \\
+\{1,4\} & 31 & 0-1-4-0 \\
+\{2,3\} & 31 & 0-2-3-0 \\
+\{2,4\} & 32 & 0-2-4-0 \\
+\{3,4\} & 26 & 0-3-4-0 \\
+\{1,2,3\} & 43 & 0-1-3-2-0 \\
+\{1,2,4\} & 46 & 0-2-1-4-0 \\
+\{1,3,4\} & 31 & 0-3-1-4-0 \\
+\{2,3,4\} & 37 & 0-3-2-4-0 \\
+\{1,2,3,4\} & 46 & 0-2-3-1-4-0
+\end{array}
+\]
+Therefore
+\[
+\sum_{A\subseteq V}q_A\HK(A)
+=\frac1{16}\sum_{A\subseteq V}\HK(A)
+=29.875
+=\frac{239}{8}.
+\]
+Thus the scenario-indexed LP has value
+\[
+\OPT_{\mathrm{SCEN}}=\frac{239}{8}.
+\]
+
+On the other hand, the aggregate LP has value
+\[
+\OPT_{\Agg}=\frac{237}{8}.
+\]
+Consequently,
+\[
+\OPT_{\Agg}<\OPT_{\mathrm{SCEN}}.
+\]
+This proves that the aggregate cut LP is not an exact description of the average of the scenario-based Held--Karp LPs.
+
+\begin{remark}
+The reason for the failure is structural. The aggregate LP retains only inequalities obtained by averaging individual Held--Karp cut constraints. It does not enforce that the aggregate vector $y$ decomposes as
+\[
+y=\sum_{A\subseteq V}q_Ax^A
+\]
+with each $x^A$ feasible for the Held--Karp relaxation on $A\cup\{r\}$. Thus the aggregate LP can combine cut-capacity mass in a way that is feasible after averaging but cannot be realized scenario by scenario.
+\end{remark}
+
+\end{document}
