@@ -1,0 +1,19 @@
+{
+  "_comment": "Symmetric weighted graph achieving adapt/apost = 12/11 = 1.0909. Found by SA optimization. Graph edges: {0-6,1-6,3-6,1-7,3-7} at w=1, {0-2,0-5,1-2,2-5,3-4,4-5} at w=2. Only vertex 4 is stochastic (p=0.5), all others deterministic. OPT(all active)=12, OPT(minus 4)=10, adapt=12.",
+  "n": 8,
+  "sym": true,
+  "edges": [
+    {"s": 0, "t": 6, "w": 1},
+    {"s": 1, "t": 6, "w": 1},
+    {"s": 3, "t": 6, "w": 1},
+    {"s": 1, "t": 7, "w": 1},
+    {"s": 3, "t": 7, "w": 1},
+    {"s": 0, "t": 2, "w": 2},
+    {"s": 0, "t": 5, "w": 2},
+    {"s": 1, "t": 2, "w": 2},
+    {"s": 2, "t": 5, "w": 2},
+    {"s": 3, "t": 4, "w": 2},
+    {"s": 4, "t": 5, "w": 2}
+  ],
+  "prob": [1.0, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0]
+}

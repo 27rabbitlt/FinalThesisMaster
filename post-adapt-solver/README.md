@@ -4,11 +4,17 @@ Exact solver for **a posteriori**, **adaptive**, and **a priori** stochastic TSP
 
 ## Build
 
+**With CMake** (recommended):
 ```bash
 cmake -B build && cmake --build build
 ```
+Requires C++17 and CMake ≥ 3.10. Executables are placed in `build/`.
 
-Requires C++17 and CMake ≥ 3.10.
+**Without CMake** (macOS — uses the built-in clang):
+```bash
+g++ -std=c++17 -O2 -o build/solver solver.cpp
+```
+Create the `build/` directory first if it doesn't exist: `mkdir -p build`.
 
 ## `solver` — solve a single instance
 
@@ -96,6 +102,28 @@ If the ratio involves a priori and `-n > 9`, n is automatically capped at 9.
 | File | Purpose |
 |------|---------|
 | `test_correctness` | Correctness tests: DP vs brute-force on small random instances |
-| `visualize.py` | Generate interactive HTML graph visualisation (vis.js) |
+| `visualize.py` | Generate interactive HTML graph visualisation (vis.js, see below) |
 | `gen_two_circles.py` | Generate a two-circle graph instance as JSON |
 | `examples/` | Example JSON instance files |
+
+---
+
+## `visualize.py` — interactive graph visualizer
+
+Generates a standalone HTML page (using vis.js) that shows the graph with draggable nodes. Optionally calls the solver and displays costs/ratios. Requires Python 3 (pre-installed on macOS).
+
+```bash
+# Visualize a single instance (opens in default browser)
+python3 visualize.py examples/diamond8_mixed.json
+
+# Visualize + run solver to show expected costs and ratios
+python3 visualize.py examples/diamond8_mixed.json --run-solver
+
+# Visualize multiple instances as tabs
+python3 visualize.py examples/*.json --run-solver
+
+# Save HTML to a file instead of opening the browser
+python3 visualize.py examples/diamond8_mixed.json --run-solver -o output.html
+```
+
+**Note:** `--run-solver` requires the solver binary at `build/solver` (or `./solver`). Compile it first (see Build above).

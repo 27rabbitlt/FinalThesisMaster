@@ -1,0 +1,12 @@
+{
+  "_comment": "Smallest symmetric unit-weight graph with adapt/apost > 1. Ratio=1.0204. All customers p=0.5.",
+  "n": 5,
+  "sym": true,
+  "edges": [
+    {"s": 0, "t": 1, "w": 1}, {"s": 0, "t": 2, "w": 1},
+    {"s": 0, "t": 3, "w": 1}, {"s": 0, "t": 4, "w": 1},
+    {"s": 1, "t": 3, "w": 1}, {"s": 1, "t": 4, "w": 1},
+    {"s": 2, "t": 3, "w": 1}, {"s": 2, "t": 4, "w": 1}
+  ],
+  "prob": [1.0, 0.5, 0.5, 0.5, 0.5]
+}

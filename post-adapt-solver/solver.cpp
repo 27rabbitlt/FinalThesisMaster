@@ -122,16 +122,19 @@ static JsonValue parse_value(const string& s, size_t& i) {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        cerr << "Usage: " << argv[0] << " input.json [--no-apriori]\n"
-             << "  --no-apriori  skip a priori computation (fast for large n)\n";
+        cerr << "Usage: " << argv[0] << " input.json [--no-apriori] [--sample N]\n"
+             << "  --no-apriori  skip a priori computation (fast for large n)\n"
+             << "  --sample N    Monte Carlo: sample N realizations instead of full enumeration\n";
         return 1;
     }
 
     bool skip_apriori = false;
+    int sample_count = 0;
     string json_path;
     for (int i = 1; i < argc; ++i) {
         string arg = argv[i];
         if (arg == "--no-apriori") skip_apriori = true;
+        else if (arg == "--sample" && i + 1 < argc) sample_count = atoi(argv[++i]);
         else json_path = arg;
     }
     if (json_path.empty()) { cerr << "No input file given.\n"; return 1; }
@@ -195,11 +198,34 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < V; ++i) printf("p[%d]=%.4g ", i, p[i]);
     printf("\n\n");
 
-    double ap = solve_a_posteriori(nc, d, p);
-    printf("A posteriori expected cost: %.6f\n", ap);
+    // Decide solver: use large-instance solver when standard HK would exceed memory
+    bool use_large = false;
+    int ns = 0; // stochastic customer count
+    if (nc > 24) {
+        for (int i = 1; i < V; ++i)
+            if (p[i] > 1e-12 && p[i] < 1.0 - 1e-12) ns++;
+        if (ns <= 20) {
+            use_large = true;
+        } else {
+            printf("ERROR: %d customers with %d stochastic (max 20 for large solver).\n", nc, ns);
+            return 1;
+        }
+    }
 
-    double ad = solve_adaptive(nc, d, p);
-    printf("Adaptive expected cost:     %.6f\n", ad);
+    double ap, ad;
+    if (use_large) {
+        ap = solve_a_posteriori_large(V, d, p, sample_count);
+        printf("A posteriori expected cost: %.6f\n", ap);
+
+        ad = solve_adaptive_large(V, d, p);
+        printf("Adaptive expected cost:     %.6f  (upper bound, probe-first policy)\n", ad);
+    } else {
+        ap = solve_a_posteriori(nc, d, p);
+        printf("A posteriori expected cost: %.6f\n", ap);
+
+        ad = solve_adaptive(nc, d, p);
+        printf("Adaptive expected cost:     %.6f\n", ad);
+    }
 
     if (nc > 10) skip_apriori = true;  // auto-skip: 11! is already ~40M permutations
     double apr = -1;

@@ -1,0 +1,21 @@
+{
+  "_comment": "Symmetric weighted graph achieving adapt/apost = 11/10 = 1.1. Found by SA + integer cleaning. Weight-1 edges: {0-8,1-6,2-3,2-5,4-6,7-8}. Weight-4 edges: {0-4,0-5,1-7,1-9,3-4,3-7,5-9}. Vertex 9 stochastic (p=0.5), all others deterministic. E[apost]=20, E[adapt]=22.",
+  "n": 10,
+  "sym": true,
+  "edges": [
+    {"s": 0, "t": 8, "w": 1},
+    {"s": 1, "t": 6, "w": 1},
+    {"s": 2, "t": 3, "w": 1},
+    {"s": 2, "t": 5, "w": 1},
+    {"s": 4, "t": 6, "w": 1},
+    {"s": 7, "t": 8, "w": 1},
+    {"s": 0, "t": 4, "w": 4},
+    {"s": 0, "t": 5, "w": 4},
+    {"s": 1, "t": 7, "w": 4},
+    {"s": 1, "t": 9, "w": 4},
+    {"s": 3, "t": 4, "w": 4},
+    {"s": 3, "t": 7, "w": 4},
+    {"s": 5, "t": 9, "w": 4}
+  ],
+  "prob": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5]
+}

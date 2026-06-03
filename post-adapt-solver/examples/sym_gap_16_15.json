@@ -1,0 +1,17 @@
+{
+  "_comment": "Symmetric graph achieving adapt/apost = 16/15. Depot=0, stochastic vertex 1 (p=0.5). Arms: {2,5}(w=2), {3,4}(w=2), bridge {4,5}(w=4). E[adapt]=16, E[apost]=15.",
+  "n": 6,
+  "sym": true,
+  "edges": [
+    {"s": 0, "t": 2, "w": 3},
+    {"s": 0, "t": 3, "w": 3},
+    {"s": 0, "t": 4, "w": 3},
+    {"s": 0, "t": 5, "w": 3},
+    {"s": 1, "t": 2, "w": 3},
+    {"s": 1, "t": 3, "w": 3},
+    {"s": 2, "t": 5, "w": 2},
+    {"s": 3, "t": 4, "w": 2},
+    {"s": 4, "t": 5, "w": 4}
+  ],
+  "prob": [1.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+}
