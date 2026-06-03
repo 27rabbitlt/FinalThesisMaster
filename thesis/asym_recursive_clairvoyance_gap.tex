@@ -1,0 +1,158 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\OPT}{\operatorname{OPT}}
+\newcommand{\optpost}{\operatorname{OPT}_{\mathrm{post}}}
+\newcommand{\optadapt}{\operatorname{OPT}_{\mathrm{adapt}}}
+
+\title{A Recursive Triangle-like Asymmetric Instance with Clairvoyance Gap Tending to $4/3$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The construction}
+
+We define a family of asymmetric stochastic TSP instances.  Distances are taken to be the directed shortest-path metric induced by the directed edges described below.  The depot is always present.  The client vertices are independent, with probabilities $1/2$.
+
+For every integer $l\geq 0$, define a directed recursive block $B_l$.  Each block has a set of permanent vertices, denoted $P_l$.  These permanent vertices will be deterministic.  For $l=0$, the block $B_0$ consists of a single permanent vertex.
+
+For $l\geq 1$, the block $B_l$ is obtained from two disjoint copies of $B_{l-1}$, denoted $B_{l-1}^{\mathrm L}$ and $B_{l-1}^{\mathrm R}$, together with a new midpoint vertex $m_l$.  
+
+Let $w_l := 2^{l-1}$, then for every permanent vertex $u \in P(B_{l-1}^{\mathrm L})$ and every permanent vertex $v\in P(B_{l-1}^{\mathrm R})$, add a directed edge
+$u \to v$ of length $w_l$.
+For every $v \in P(B_{l-1}^{\mathrm R})$, add a directed edge $v\to m_l $ of length $w_l$.  
+For every $u \in P(B_{l-1}^{\mathrm L})$, add a directed edge $m_l \to u$ of length $w_l$. 
+Thus, after contracting the two child blocks, the top level of $B_l$ is the directed triangle
+\[
+    B_{l-1}^{\mathrm L}
+    \longrightarrow
+    B_{l-1}^{\mathrm R}
+    \longrightarrow
+    m_l
+    \longrightarrow
+    B_{l-1}^{\mathrm L},
+\]
+where each displayed arc has length $w_l$.
+
+The permanent set of $B_l$ is
+\[
+    P_l := P(B_{l-1}^{\mathrm L})\cup P(B_{l-1}^{\mathrm R}).
+\]
+Thus $|P_l|=2^l$.  All permanent vertices are active with probability $1$.  Every midpoint vertex is active independently with probability $1/2$.
+
+The full rooted instance $I_l$ is obtained by adding a depot $r$.  For every permanent vertex $u \in P_l$, add directed edges
+\[
+    r \to u,
+    \qquad
+    u \to r,
+\]
+each of length $w_l=2^{l-1}$.
+
+\section{Statement}
+
+\begin{theorem}\label{thm:recursive-gap}
+For every $l\geq 1$, the instance $I_l$ satisfies
+\[
+    \optpost(I_l) \le (3l+4)2^{l-2},
+\]
+and
+\[
+    \optadapt(I_l) \ge (l+1)2^l.
+\]
+Consequently,
+\[
+    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    =
+    \frac{4(l+1)}{3l+4}
+    \longrightarrow
+    \frac43.
+\]
+\end{theorem}
+
+The rest of the note proves the theorem.
+
+\section{A posteriori cost}
+
+We explicitly give an a posteriori solution. The solution works in a recursive way. Since a posteriori algorithm knows
+certain vertices would be active or not, we can make recursive decisions based on this.
+
+For a block $B_l$, if the midpoint $m_l$ is active, then we first recursively traverse $B_{l-1}^R$, then we visit $m_l$, finally we 
+recursively traverse $B_{l-1}^L$; if the midpoint $m_l$ is inactive, then we first traverse $B_{l-1}^L$, then we traverse $B_{l-1}^R$.
+If we denote the cost of such recursive algorithm traversing $B_l$, excluding the cost of the first step goes from root $r$ and the last step
+goes back to $r$, to be $T_l$, then we have the recurrence equation:
+
+\begin{align*}
+    T_l = 2 T_{l-1} + \frac{3}{2} 2^{l-1} 
+\end{align*}
+
+Together with the initial condition that $T_1 = 3/2$, we have $T_l = \frac{3}{4} l 2^l$. Adding the cost of root, we have that for 
+such a posteriori solution, the expected cost is $(\frac{3}{4}l+1) 2^l$. Thus we have:
+
+\begin{align*}
+   \optpost \le  (\frac{3}{4}l+1) 2^l
+\end{align*}
+
+
+\section{Adaptive cost}
+
+We now analyze the optimal adaptive policy.  
+
+
+
+\section{The ratio}
+
+Combining the two formulas,
+\[
+    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    =
+    \frac{(l+1)2^l}{(3l+4)2^{l-2}}
+    =
+    \frac{4(l+1)}{3l+4}.
+\]
+Therefore
+\[
+    \lim_{l\to\infty}
+    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    =
+    \frac43.
+\]
+For example, when $l=3$,
+\[
+    \optpost(I_3)=26,
+    \qquad
+    \optadapt(I_3)=32,
+\]
+and hence
+\[
+    \frac{\optadapt(I_3)}{\optpost(I_3)}
+    =
+    \frac{32}{26}
+    =
+    \frac{16}{13}
+    \approx 1.23077.
+\]
+For $l=4$, the formulas give
+\[
+    \optpost(I_4)=64,
+    \qquad
+    \optadapt(I_4)=80,
+\]
+so the ratio is $5/4$.
+
+\begin{remark}
+In the implementation, the depot should be treated as always present.  Thus, if the list of activation probabilities includes the depot as vertex $0$, its probability should be $1$, not $1/2$.  The midpoint probabilities are $1/2$, and the permanent leaves have probability $1$.
+\end{remark}
+
+\end{document}

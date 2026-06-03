@@ -13,103 +13,102 @@
 \maketitle
 
 \section{Background}
-Many real-world routing and scheduling problems are subject to uncertainty. Take delivery service as an example, a courier has several customers located at different cities and it needs to plan a route that visits the customers. The delivery person may find that 
-a household might not have packages to deliver today, or customer requests can be canceled, etc..
+Many real-world routing and scheduling problems are subject to uncertainty. In a delivery service, for example, a courier must plan a route through several customer locations, yet some customers may have no packages to receive, or their requests may be canceled.
 A classical abstraction is the stochastic
 traveling salesperson problem (stochastic TSP), where each vertex $v$ comes with a specified probability $p_v$ and becomes \textit{active} (requires service) independently with probability $p_v$. The goal is to find a tour that visits all active vertices and minimizes the expected travel cost, where the cost comes from the underlying metric on vertices.
 
-An important modeling choice is whether the salesperson is allowed to adapt their future decisions based on information revealed during the execution of the tour. In the nonadaptive (a priori) setting, the salesperson commits to a master tour that only depends on the underlying metric and activation probabilities and not the actual realizations. During the actual execution of the tour, i.e., once the set of active vertices is realized, the salesperson follows the tour while shortcutting inactive vertices. In the adaptive setting, decisions may depend on observations revealed along the way, allowing the tour to be adjusted on the fly. 
+An important modeling choice is whether the salesperson is allowed to adapt their future decisions based on information revealed during the execution of the tour. In the nonadaptive (a priori) setting, the salesperson commits to a fixed tour before observing the realization; during execution the salesperson follows this tour while shortcutting inactive vertices. In the adaptive setting, decisions may depend on observations revealed along the way, allowing the tour to be adjusted on the fly.
 
-A fundamental analysis question is how much adaptivity can improve performance relative to an optimal nonadaptive tour.
+A fundamental question is how much adaptivity can improve performance relative to an optimal nonadaptive tour.
 A related algorithmic question is whether we can design provably good adaptive policies using limited computational resources.
-Note that computing an optimal adaptive policy (or a nonadaptive master tour) for stochastic TSP is computationally hard, since the setting with $p_v = 1$ for all $v \in V$ corresponds to the classical TSP which is known to be APX-hard\cite{Karpinski2015}. 
-Also, describing an optimal adaptive policy might require exponential space. 
-Thus, we will be interested in designing adaptive policies that can be implemented efficiently 
-and its expected cost can be provably bounded in terms of the optimal cost within some small factor $\alpha \geq 1$.  
+Note that computing an optimal adaptive policy (or an optimal a priori tour) for stochastic TSP is computationally hard, since the setting with $p_v = 1$ for all $v \in V$ corresponds to the classical TSP which is known to be APX-hard\cite{Karpinski2015}.
+Also, describing an optimal adaptive policy might require exponential space.
+Thus, we will be interested in designing adaptive policies that can be implemented efficiently
+and whose expected cost can be provably bounded in terms of the optimal cost within some small factor $\alpha \geq 1$.
 
 \section{Notations and Definitions}
-Let $(\{r\}\cup V,d)$ be a finite metric space on $n+1$ vertices (a depot vertex $r$ and $n$ clients) equipped with a distance function $d$. 
-That is, $d$ satisfies the triangle inequality: for any three vertices $u,v,w \in V$, $d(u,v) \leq d(u,w) + d(w,v)$ holds. 
-A metric is said to be \emph{symmetric} if $d(x, y) = d(y, x)$ for any $x, y$.
+Let $(\{r\}\cup V,d)$ be a finite metric space on $n+1$ vertices (a depot vertex $r$ and $n$ clients) equipped with a distance function $d$.
+That is, $d$ satisfies the triangle inequality: for any three vertices $u,v,w$, $d(u,v) \leq d(u,w) + d(w,v)$.
+A metric is said to be \emph{symmetric} if $d(x, y) = d(y, x)$ for all $x, y$.
 
-For classical TSP, we want to find a tour $T = (r,v_1,v_2,\ldots,v_n,r)$ that starts and ends at the depot, visits all vertices exactly once, and minimizes the total distance traversed, $c(T) := d(r,v_1) + d(v_1,v_2) + \cdots + d(v_{n-1},v_n) + d(v_n,r)$. 
+A \emph{tour} on a subset $S \subseteq \{r\}\cup V$ containing the depot is a cyclic sequence $T=(r,u_1,u_2,\ldots,u_{|S|-1},r)$ that visits every vertex in $S$ exactly once. Its \emph{cost} is
+\[
+\cost(T) := d(r,u_1) + d(u_1,u_2) + \cdots + d(u_{|S|-2},u_{|S|-1}) + d(u_{|S|-1},r).
+\]
+For a subset $A\subseteq V$, we write $\opt(A)$ for the minimum cost of a tour on $\{r\}\cup A$.
 
-In the stochastic setting, the set of active vertices is a subset $A \subseteq V$ generated by independent activations: each vertex $v \in V$ is active (i.e., $v \in A$) independently with probability $p_v$.
-% It precisely models a delivery planning the delivery route for customers located at different places and each customer needs delivery with a specified probability independently.
-% 
-We consider three different benchmarks for stochastic TSP depending on how much the tour is allowed to depend on the realization of the set of active vertices:
+In the stochastic setting, the set of active vertices is a subset $A \subseteq V$ generated by independent activations: each vertex $v \in V$ is active (i.e., $v \in A$) independently with probability $p_v$. We denote by $q$ the resulting product distribution on $2^V$, so $q(A) = \prod_{v \in A}p_v \cdot \prod_{v \notin A}(1 - p_v)$.
+
+We consider three benchmarks for stochastic TSP, distinguished by how much the solution may depend on the realization of the active set. In each case we define the cost of a feasible solution via an overloaded function $\cost(\cdot)$.
 \begin{enumerate}
-    \item \textbf{A posteriori TSP:} %\texorpdfstring{\cite{Shmoys2008}}{}} 
-        Here, the salesperson knows the set $A$ of active vertices. 
-        Let $\opt(A)$ denote the cost of an optimal TSP tour that visits $\{r\} \cup A$. (Note that this is simply an instance of the classical TSP.) 
-        The cost of a posteriori TSP is defined to be 
-        $\optpost := \E_{A \sim \mu} [\opt(A)]$, where $\mu$ is the probability distribution over the set of active vertices. 
-        Note $\mu(A) = \Pi_{v \in A}p_v \cdot \Pi_{v \notin A}(1 - p_v)$ for any $A \subseteq V$.  
-        
-    \item \textbf{A priori (nonadaptive) TSP:} 
-        Here, the salesperson only knows the metric and the activation probabilities and they are required to compute a master tour $T = (r, v_1,\ldots,v_n,r)$ that visits all vertices while starting and ending at $r$. 
-        For any set $A$ of active vertices, the tour $T\vert_A$ traversed by the salesperson (for that $A$) is obtained by shortcutting $T$ to include only vertices in $A$. 
-        More precisely, if $1 \leq i_1 < i_2 < \cdots < i_{|A|} \leq n$ are such that $\{v_{i_k} : 1 \leq k \leq |A|\} = A$, then $T\vert_A = (r,v_{i_1},v_{i_2},\ldots,v_{i_{|A|}},r)$.  
-        We overload the notation $c$ and define the cost of $T$ to be $\E_{A \sim \mu} [c(T\vert_A)]$. 
-        We define $\optprior$ to be the cost of an optimal master tour.  
-        
-    \item \textbf{Adaptive TSP:} 
-        In this case the salesperson knows all the activation probabilities but not the realization of the set of active vertices $A$. 
-        However, on the day of the execution of the tour, the salesperson calls all the customers one by one in some order. 
-        If the customer $v$ that they call is in $A$, then the salesperson \emph{must} visit $v$ right away from their current position before calling any other customer. 
-        On the other hand, if $v$ is not in $A$, then the salesperson remains at the current position. 
-        In an adaptive policy, the salesperson is allowed to use the revealed information about the customers that they have called to decide which customer to call next.    
-        
-        Formally, the decision tree of an adaptive policy can be represented as a function $\pi: (\{r\} \cup V) \times 2^V \rightarrow \{r\} \cup V \cup \{\bot\}$, where $\pi(u,S)$ denotes the vertex that should be called next given that the salesperson is currently at $u$ and the set of vertices that have never been called is exactly $S$. 
-        We require that $\pi$ is a well-defined policy.
-        That is: (a)~$\pi(u,S) := \bot$ whenever $u \in S$, which models invalid input to the policy; (b)~$\pi(u,S) = r$ iff $S = \emptyset$, which models that the salesperson must return to the depot only when there are no other vertices to call; and (c)~$\pi(u,S) \in S$ iff $S \neq \emptyset$, which models that the salesperson must call one of the vertices that have not been called yet. 
+    \item \textbf{A posteriori TSP.}
+        An \emph{a posteriori solution} is a family $\mathcal{S}=(T_A)_{A\subseteq V}$, where $T_A$ is a tour on $\{r\}\cup A$ for each activation set $A$.
+        We define
+        \[
+        \cost(\mathcal{S}) := \E_{A\sim q}\bigl[\cost(T_A)\bigr].
+        \]
+        Since each $T_A$ can be chosen independently, the optimum is
+        \[
+        \optpost := \min_{\mathcal{S}}\,\cost(\mathcal{S}) = \E_{A\sim q}\bigl[\opt(A)\bigr].
+        \]
 
-        We now describe the (random) tour $T(A;\pi)$ traversed by an adaptive policy $\pi$ when the set of active vertices is $A$.  
-        We drop the argument $\pi$ when it is clear from the context. 
-        Note that $A$ is unknown to $\pi$. 
-        Initially, $u \leftarrow r$ and $S \leftarrow V$, which models that the salesperson starts at the depot vertex and they have not called any vertex so far.  
-        As long as $S \neq \emptyset$ or $u \neq r$, the salesperson computes $v = \pi(u,S)$. 
-        If $S \neq \emptyset$, the salesperson calls $v$. 
-        (Note that $v \in S$ since $\pi$ is well-defined.) 
-        If $v \in A$, then the salesperson travels from $u$ to $v$. 
-        Otherwise, the salesperson remains at $u$. 
-        In the former case, we update $u \leftarrow v$.
-        In both cases, we update $S \leftarrow S \setminus \{v\}$.
-        If $S = \emptyset$, then $v = r$ holds.
-        As all vertices have been called by now, the salesperson simply returns to $r$. 
-        This is modeled by setting $u \leftarrow r$.
-        
-        Observe that $T(A;\pi)$ corresponds to a random tour $(r,v_1,\ldots,v_{|A|},r)$ on $\{r\} \cup A$, where $v_i$ is the $i$th among $A$ to be called. 
-        We again overload the cost function and define $c(\pi) := \E_{A \sim \mu}[c(T(A;\pi))]$.   
-        
+    \item \textbf{A priori (nonadaptive) TSP.}
+        An \emph{a priori tour} is a tour $T=(r,v_1,\ldots,v_n,r)$ on the full vertex set $\{r\}\cup V$.
+        For a realization $A$, the \emph{shortcut} $T\vert_A$ is obtained by retaining only the vertices in $\{r\}\cup A$ in the cyclic order prescribed by $T$.
+        More precisely, if $1 \leq i_1 < i_2 < \cdots < i_{|A|} \leq n$ are such that $\{v_{i_k} : 1 \leq k \leq |A|\} = A$, then $T\vert_A = (r,v_{i_1},v_{i_2},\ldots,v_{i_{|A|}},r)$.
+        We overload:
+        \[
+        \cost(T) := \E_{A\sim q}\bigl[\cost(T\vert_A)\bigr].
+        \]
+        The optimum is $\optprior := \min_{T}\,\cost(T)$, where the minimum is over all a priori tours.
+
+    \item \textbf{Adaptive TSP.}
+        The salesperson knows all the activation probabilities but not the realization $A$.
+        During execution, the salesperson calls clients one by one:
+        if the called client $v$ is in $A$, the salesperson \emph{must} travel to $v$ immediately; otherwise the salesperson remains in place.
+        The order of calls may depend on the outcomes observed so far.
+
+        Formally, an adaptive policy is a function $\pi: (\{r\} \cup V) \times 2^V \rightarrow \{r\} \cup V \cup \{\bot\}$, where $\pi(u,S)$ denotes the next vertex to call when the salesperson is at $u$ and the set of uncalled vertices is $S$.
+        We require: (a)~$\pi(u,S) := \bot$ whenever $u \in S$ (invalid input); (b)~$\pi(u,S) = r$ iff $S = \emptyset$ (return to depot only when done); (c)~$\pi(u,S) \in S$ iff $S \neq \emptyset$ (must call an uncalled vertex).
+
+        Given a realization $A$, the policy induces a random tour $T(A;\pi)$ on $\{r\}\cup A$ as follows.
+        Initialize $u \leftarrow r$, $S \leftarrow V$.
+        While $S \neq \emptyset$: compute $v = \pi(u,S)$; if $v \in A$ then travel to $v$ and set $u\leftarrow v$; set $S \leftarrow S \setminus \{v\}$.
+        Finally, return to $r$.
+        We overload:
+        \[
+        \cost(\pi) := \E_{A\sim q}\bigl[\cost(T(A;\pi))\bigr].
+        \]
+        The optimum is $\optadapt := \min_{\pi}\,\cost(\pi)$, where the minimum is over all adaptive policies.
+
 \end{enumerate}
 
 \section{Research Question}
-A priori TSP is the most nonadaptive policy, since we cannot adjust our strategy at all.
-A posteriori TSP is the most adaptive policy where we can always know which vertices would be active and then make our decision.
-Adaptive TSP lies in between, because we are allowed to use the revealed information about the vertices that they have called to adjust the next decision.
+Among the three benchmarks, a posteriori TSP has the most information (the full realization $A$), a priori TSP has the least (only the metric and probabilities), and adaptive TSP lies in between.
 
-We define $\mathcal{I} := (V \cup \{r\}, d, \{p_v\})$ to be an instance of a stochastic TSP then clearly for any instance $\mathcal{I}$ we have:
+We define an \emph{instance} $\mathcal{I} := (V \cup \{r\}, d, \{p_v\})$ of stochastic TSP. For any instance $\mathcal{I}$,
 \begin{equation}\label{eq:optineq}
-\optpost \le \optadapt \le \optprior    
+\optpost \le \optadapt \le \optprior
 \end{equation}
-since from left to right we have less adaptivity and information, thus end up getting worse optimal cost.
+since from left to right the solution has less information about the realization, resulting in higher optimal cost.
 
-We define \emph{adaptivity gap} to be $\sup_{\mathcal{I}} \f{\optprior}{\optadapt}$, which measures the worst-case ratio over all instances of problem between the cost of an optimal a priori solution vs. an optimal adaptive policy. We also define \emph{clairvoyance gap} to be $\sup_{\mathcal{I}} \f{\optadapt}{\optpost}$ and \emph{obliviousness gap} to be $\sup_{\mathcal{I}} \f{\optprior}{\optpost}$. The clairvoyance gap measures the benefits that an a posteriori solution can get by having clairvoyance, i.e., knowledge of the future. The obliviousness gap measures the gap between being completely oblivious (nonadaptive) to the realizations vs. the a posteriori solution. We remark that literature on a priori TSP uses the term adaptivity gap for the obliviousness gap that we defined above. We deviate from the terminology used in the literature \cite{Christalla2025} for the sake of clarity. The terminology that we use is more standard in stochastic optimization.
+We define the following gap measures:
+\begin{itemize}
+    \item \emph{Adaptivity gap}: $\sup_{\mathcal{I}} \f{\optprior}{\optadapt}$ — the worst-case benefit of adaptivity over a fixed a priori tour.
+    \item \emph{Clairvoyance gap}: $\sup_{\mathcal{I}} \f{\optadapt}{\optpost}$ — the benefit of full clairvoyance (knowing $A$ upfront) over the best adaptive policy.
+    \item \emph{Obliviousness gap}: $\sup_{\mathcal{I}} \f{\optprior}{\optpost}$ — combines both effects.
+\end{itemize}
+We remark that the literature on a priori TSP uses the term adaptivity gap for what we call the obliviousness gap; we deviate from this convention following \cite{Christalla2025} for the sake of clarity.
 
-For symmetric metrics, the obliviousness gap is known to be at most $O(1)$; in particular obliviousness gap $\le 3$ is known in \cite{Shmoys2008}. 
-The same upper bound carries over to clairvoyance gap and adaptivity gap because of Eq~\eqref{eq:optineq}. 
-One of the objectives of this project is to obtain better upper and lower bound on clairvoyance gap and adaptivity gap.
-% note that the lower bound of prior/post is not clear (to show that prior solution cannot not be very good to some extent). in paper "Improved guarantees for the a priori TSP" we have lower bound for master tour ratio, which means if we use algorithm with this pattern: sample a set, construct best tsp, then connect edges; this scheme will give you no good than 2.6** than optimal a priori in some instance
+For symmetric metrics, the obliviousness gap is known to be at most $O(1)$; in particular, $\optprior/\optpost \le 3$ is shown in \cite{Shmoys2008}.
+The same upper bound carries over to the clairvoyance gap and the adaptivity gap by~\eqref{eq:optineq}.
+One of the objectives of this project is to obtain better upper and lower bounds on the clairvoyance gap and the adaptivity gap.
 
-For asymmetric metrics, Christalla, Puhlmann and Traub \cite{Christalla2025} show that the obliviousness gap is known to be $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$. 
-Moreover, it is not hard to show that the construction in Section~3.1 in \cite{Christalla2025} also implies that adaptivity gap = $\Omega(n^{1/4} \cdot \log^{-1}n)$. 
-Another key objective of my project is to prove or disprove that the clairvoyance gap for asymmetric metrics is $O(1)$. In case of a positive resolution, a further goal would be to design an adaptive policy matching this gap up to constant factors. If not, my aim is to construct an infinite family of instances for which the clairvoyance gap grows to infinity as $n$ goes to infinity.
+For asymmetric metrics, Christalla, Puhlmann and Traub \cite{Christalla2025} show that the obliviousness gap is $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$.
+Moreover, the construction in Section~3.1 of \cite{Christalla2025} also implies an adaptivity gap of $\Omega(n^{1/4} \cdot \log^{-1}n)$.
+Another key objective of this project is to determine whether the clairvoyance gap for asymmetric metrics is $O(1)$. In case of a positive resolution, a further goal is to design an adaptive policy matching this gap up to constant factors. Otherwise, the aim is to construct an infinite family of instances for which the clairvoyance gap grows without bound.
 
-% Finally, beyond purely analysis questions, we also study algorithmic questions:
-% can one compute efficiently an optimal or near-optimal adaptive policy, and what approximation
-% guarantees are provable?
-
+\iffalse  % Sections 4–6 commented out (no real results yet)
 \section{Proof of epsilon normalization equivalence}
 We call an instance $I = (V, c, p)$ $\varepsilon$-normalized if there exists a depot $d \in V$ with $p(d) = 1$ and $p(v) = \varepsilon$ for all $v \in V \setminus \{d\}$.
 
@@ -197,7 +196,7 @@ With Lemma \ref{lem:param}, we can now prove Lemma \ref{lem:transform}.
         (1-\lambda)\optpost(I) \le \optpost(I')  \le \optpost(I) 
     $$  
 
-    Under a priori setting, we need to prove another helping claim that the optimal a priori master tour will always visit all vertices within the cluster $s(v)$ consecutively. This is true because starting from some vertex in $s(v)$, we cannot gain benefits from visiting another vertex in $s(v')$ next, instead of visiting the remaining vertices in $s(v)$ and then visit that vertex in $s(v')$, since going between vertices in $s(v)$ cost $0$. Then it is easy to see that any a priori master tour $T = (v_1, v_2, \cdots, v_{|V|})$ of $V$ has a corresponding a priori master tour $T'$ of $V'$ which firstly visits all vertices in $s(v_1)$, and then visit all vertices in $s(v_2)$ and so on. It is also easy to see the cost of any a priori master tour $T$ is the same as the corresponding  a priori master tour $T'$ since going between vertices in $s(v)$ cost $0$.
+    Under a priori setting, we need to prove another helping claim that the optimal a priori a priori tour will always visit all vertices within the cluster $s(v)$ consecutively. This is true because starting from some vertex in $s(v)$, we cannot gain benefits from visiting another vertex in $s(v')$ next, instead of visiting the remaining vertices in $s(v)$ and then visit that vertex in $s(v')$, since going between vertices in $s(v)$ cost $0$. Then it is easy to see that any a priori a priori tour $T = (v_1, v_2, \cdots, v_{|V|})$ of $V$ has a corresponding a priori a priori tour $T'$ of $V'$ which firstly visits all vertices in $s(v_1)$, and then visit all vertices in $s(v_2)$ and so on. It is also easy to see the cost of any a priori a priori tour $T$ is the same as the corresponding  a priori a priori tour $T'$ since going between vertices in $s(v)$ cost $0$.
     
 \end{proof}
 
@@ -265,62 +264,51 @@ So we know $\E[M] = \Theta\left(\frac{\log k}{\log \log \log k}\right)$ which me
 The example graph shown in section \ref{sec:gridexample} has small a post optimal cost, however the optimal adaptive cost is also small. In fact, it is easy to give a policy which achieves the same bound.
 
 So now the problem is that how to create a gap between adaptive and a post. The issue of this grid example is that we cannot punish adaptive policy when it picks a vertex to call. If we want to create a gap, we should be able to punish adaptive policy, i.e., when policy picks some vertex $v$, we need to be able to construct the following graph with remaining uncalled vertices that the policy's choice is globally a bad choice.
+\fi  % End of commented-out sections 4–6
 
-\section{Clairvoyance gap lower bound: cycle-subdivision instance}
+\section{Adaptivity gap lower bound: cycle-subdivision instance}
+
+Our main result in this section is a lower bound of $5/4$ on the adaptivity gap for symmetric stochastic TSP. We show that there exists a family of instances obtained by subdividing the edges of a cycle in a complete graph for which the ratio $\optprior/\optadapt$ tends to $5/4$ as the number of vertices grows. Since $\optpost \le \optadapt$, the same lower bound applies to the obliviousness gap $\optprior/\optpost$. 
 
 \begin{theorem}[Cycle-subdivision gap]\label{thm:cycle-subdivision}
-For every $\varepsilon>0$, there exists a symmetric stochastic TSP instance such that both
-\[
-\frac{\optprior}{\optpost}\ge \frac54-\varepsilon
-\qquad\text{and}\qquad
-\frac{\optprior}{\optadapt}\ge \frac54-\varepsilon.
-\]
-More precisely, consider the following family of instances.
+The adaptivity gap for symmetric stochastic TSP is at least $\frac54$.
+Since $\optpost\le\optadapt$ (cf.\ \eqref{eq:optineq}), the same lower bound holds for the obliviousness gap.
+\end{theorem}
+
+We prove this by exhibiting a family of instances and establishing a matching pair of bounds. Consider the following construction.
+
+\begin{definition}[Cycle-subdivision instance]\label{def:cycle-sub}
 Let $n\ge 7$ be odd. Start with the complete graph on vertices $v_1,\dots,v_n$, with every edge of length $1$, and fix the Hamiltonian cycle
 \[
 v_1v_2\cdots v_nv_1,
 \]
-where indices are taken modulo $n$. For each $i\in[n]$, replace the cycle edge $v_iv_{i+1}$ by a path $v_i x_i v_{i+1}$ of two unit edges; let $d$ be the shortest-path metric of the resulting graph. Let $r:=v_1$ be the depot, and let the client set be
+where indices are taken modulo $n$. For each $i\in[n]$, replace the cycle edge $v_iv_{i+1}$ by a path $v_i v_i' v_{i+1}$ of two unit edges; let $d$ be the shortest-path metric of the resulting graph. Let $r:=v_1$ be the depot, and let the client set be
 \[
-V:=\{v_2,\dots,v_n,x_1,\dots,x_n\}.
+V:=\{v_2,\dots,v_n,v_1',\dots,v_n'\}.
 \]
-Assume that every original client $v_2,\dots,v_n$ is active with probability $1$, and every subdividing vertex $x_i$ is active independently with probability $1/2$.
+Every original client $v_2,\dots,v_n$ is active with probability $1$, and every subdividing vertex $v_i'$ is active independently with probability $1/2$.
+\end{definition}
 
-Then
-\[
-\optprior=\frac{15}{8}n,
-\qquad
-\optpost\le \frac32 n+3,
-\qquad
-\optadapt\le \frac32 n+18.
-\]
-Consequently,
-\[
-\frac{\optprior}{\optpost}
-\ge
-\frac{(15/8)n}{(3/2)n+3}
-\xrightarrow[n\to\infty]{} \frac54
-\qquad\text{and}\qquad
-\frac{\optprior}{\optadapt}
-\ge
-\frac{(15/8)n}{(3/2)n+18}
-\xrightarrow[n\to\infty]{} \frac54.
-\]
-\end{theorem}
+Theorem~\ref{thm:cycle-subdivision} follows from the next two lemmas.
 
-The proof is split into three parts: the exact a priori value (Proposition~\ref{prop:cycle-prior}), the a posteriori upper bound (Proposition~\ref{prop:cycle-post}), and the adaptive upper bound (Proposition~\ref{prop:cycle-adapt}).
+\begin{lemma}\label{lem:cycle-prior}
+For every odd $n\ge 7$, the cycle-subdivision instance satisfies $\optprior=\frac{15}{8}n$.
+\end{lemma}
 
-\subsection*{The a priori value}
+\begin{lemma}\label{lem:cycle-adapt}
+For every odd $n\ge 7$, the cycle-subdivision instance satisfies $\optadapt\le \frac32 n+6$.
+\end{lemma}
 
-\begin{proposition}\label{prop:cycle-prior}
-For every odd $n\ge 7$, the cycle-subdivision instance satisfies
-\[
-\optprior=\frac{15}{8}n.
-\]
-\end{proposition}
+\begin{proof}[Proof of Theorem~\ref{thm:cycle-subdivision}]
+By Lemma~\ref{lem:cycle-prior}, $\optprior=\frac{15}{8}n$, and by Lemma~\ref{lem:cycle-adapt}, $\optadapt\le \frac32 n+6$.
+Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
+Since $\optpost\le\optadapt$, the same lower bound holds for the obliviousness gap.
+\end{proof}
 
-\begin{proof}
-Fix an arbitrary master tour $T$. We shall prove that its expected realized length is at least $15n/8$, and then exhibit a tour attaining this value.
+We now prove the two lemmas in turn.
+
+\begin{proof}[Proof of Lemma~\ref{lem:cycle-prior}]
+Fix an arbitrary a priori tour $T=(r,s_1,s_2,\dots,s_{2n-1},r)$ on $\{r\}\cup V$, where $s_1,\dots,s_{2n-1}$ is a permutation of $\{v_2,\dots,v_n,v_1',\dots,v_n'\}$. We shall prove that its expected realized length is at least $15n/8$, and then exhibit a tour attaining this value.
 
 \medskip
 \noindent\textbf{1. Metric structure.}
@@ -333,13 +321,13 @@ d(v_i,v_{i+1})=2,
 \]
 For subdividing vertices,
 \[
-d(x_i,v_i)=d(x_i,v_{i+1})=1,
+d(v_i',v_i)=d(v_i',v_{i+1})=1,
 \qquad
- d(x_i,v_j)=2 \quad \text{if } j\notin\{i,i+1\}.
+ d(v_i',v_j)=2 \quad \text{if } j\notin\{i,i+1\}.
 \]
 Finally, for $i\neq j$,
 \[
-d(x_i,x_j)=
+d(v_i',v_j')=
 \begin{cases}
 2, & \text{if the cycle edges } v_iv_{i+1} \text{ and } v_jv_{j+1} \text{ are adjacent},\\
 3, & \text{otherwise.}
@@ -354,7 +342,7 @@ Deleting all subdividing vertices from $T$ leaves a cyclic ordering
 \]
 of the original vertices $v_1,\dots,v_n$. For each $j\in[n]$, let
 \[
-Y_j=(y_{j,1},\dots,y_{j,k_j})
+W_j=(w_{j,1},\dots,w_{j,k_j})
 \]
 be the ordered list (possibly empty) of subdividing vertices appearing on $T$ between $u_j$ and $u_{j+1}$, where $u_{n+1}:=r$. Then
 \[
@@ -362,28 +350,28 @@ be the ordered list (possibly empty) of subdividing vertices appearing on $T$ be
 \]
 since every subdividing vertex appears in exactly one such segment.
 
-Given original vertices $u,v$ and an ordered sequence $Y=(y_1,\dots,y_k)$ of distinct subdividing vertices, write
+Given original vertices $u,v$ and an ordered sequence $W=(w_1,\dots,w_k)$ of distinct subdividing vertices, write
 \[
-\Phi(u;Y;v)
+\Phi(u;W;v)
 \]
 for the expected length of the realized path obtained from the segment
 \[
-(u,y_1,\dots,y_k,v)
+(u,w_1,\dots,w_k,v)
 \]
 after deleting inactive subdividing vertices. Because all original vertices are always active, the realized tour decomposes into these segment contributions, and therefore
 \[
-\E[c(T|_A)] = \sum_{j=1}^n \Phi(u_j;Y_j;u_{j+1}).
+\E[\cost(T|_A)] = \sum_{j=1}^n \Phi(u_j;W_j;u_{j+1}).
 \]
-Thus it is enough to derive a lower bound on $\Phi(u;Y;v)$ in terms of $k:=|Y|$.
+Thus it is enough to derive a lower bound on $\Phi(u;W;v)$ in terms of $k:=|W|$.
 
 \medskip
 \noindent\textbf{3. Short segments.}
 We first treat the cases $k\le 3$.
 
 \begin{claim}
-For every segment $(u;Y;v)$ with $k=|Y|\le 3$,
+For every segment $(u;W;v)$ with $k=|W|\le 3$,
 \[
-\Phi(u;Y;v)\ge
+\Phi(u;W;v)\ge
 \begin{cases}
 1, & k=0,\\
 2, & k=1,\\
@@ -391,40 +379,40 @@ For every segment $(u;Y;v)$ with $k=|Y|\le 3$,
 \dfrac{29}{8}, & k=3.
 \end{cases}
 \]
-Moreover, equality is attained for $k=2$ by $(v_i,x_i,x_{i+1},v_{i+1})$, and for $k=3$ by $(v_{i+1},x_{i+1},x_i,x_{i-1},v_i)$.
+Moreover, equality is attained for $k=2$ by $(v_i,v_i',v_{i+1}',v_{i+1})$, and for $k=3$ by $(v_{i+1},v_{i+1}',v_i',v_{i-1}',v_i)$.
 \end{claim}
 
 \begin{proof}
 If $k=0$, then the segment contributes the single edge $uv$, so $\Phi(u;\varnothing;v)=d(u,v)\ge 1$.
 
-If $k=1$, say $Y=(y)$, then
+If $k=1$, say $W=(w)$, then
 \[
-\Phi(u;y;v)=\tfrac12 d(u,v)+\tfrac12\bigl(d(u,y)+d(y,v)\bigr).
+\Phi(u;w;v)=\tfrac12 d(u,v)+\tfrac12\bigl(d(u,w)+d(w,v)\bigr).
 \]
-If $u$ and $v$ are consecutive on the original cycle, then $d(u,v)=2$ and also $d(u,y)+d(y,v)\ge 2$. If they are not consecutive, then $d(u,v)=1$, and no subdividing vertex is incident with both $u$ and $v$, so $d(u,y)+d(y,v)\ge 3$. In either case $\Phi(u;y;v)\ge 2$.
+If $u$ and $v$ are consecutive on the original cycle, then $d(u,v)=2$ and also $d(u,w)+d(w,v)\ge 2$. If they are not consecutive, then $d(u,v)=1$, and no subdividing vertex is incident with both $u$ and $v$, so $d(u,w)+d(w,v)\ge 3$. In either case $\Phi(u;w;v)\ge 2$.
 
-Now let $k=2$, say $Y=(y_1,y_2)$. There are four realizations.
-If $d(u,v)=1$, then neither $y_1$ nor $y_2$ is incident with both $u$ and $v$, so each singleton realization has cost at least $3$, while the realization with both active has cost at least $4$. Hence
+Now let $k=2$, say $W=(w_1,w_2)$. There are four realizations.
+If $d(u,v)=1$, then neither $w_1$ nor $w_2$ is incident with both $u$ and $v$, so each singleton realization has cost at least $3$, while the realization with both active has cost at least $4$. Hence
 \[
-\Phi(u;Y;v)\ge \frac{1+3+3+4}{4}=\frac{11}{4}.
+\Phi(u;W;v)\ge \frac{1+3+3+4}{4}=\frac{11}{4}.
 \]
 If $d(u,v)=2$, then exactly one subdividing vertex is incident with both $u$ and $v$, so at most one singleton realization has cost $2$; the two singleton costs therefore sum to at least $5$, and the realization with both active has cost at least $4$. Thus
 \[
-\Phi(u;Y;v)\ge \frac{2+5+4}{4}=\frac{11}{4}.
+\Phi(u;W;v)\ge \frac{2+5+4}{4}=\frac{11}{4}.
 \]
-Equality is attained, for example, by $(v_i,x_i,x_{i+1},v_{i+1})$, whose four realization costs are $2,2,3,4$.
+Equality is attained, for example, by $(v_i,v_i',v_{i+1}',v_{i+1})$, whose four realization costs are $2,2,3,4$.
 
-Finally let $k=3$, say $Y=(y_1,y_2,y_3)$.
+Finally let $k=3$, say $W=(w_1,w_2,w_3)$.
 Suppose first that $d(u,v)=1$. Then each singleton realization has cost at least $3$. A two-vertex realization can have cost $4$ only if one active subdivider is incident with $u$, the other is incident with $v$, and the corresponding cycle edges are adjacent. For fixed nonconsecutive $u$ and $v$, there is at most one unordered pair of subdividing vertices with this property. Hence among the three two-vertex realizations, at most one has cost $4$, and the other two have cost at least $5$. The realization with all three active has cost at least $6$. Therefore
 \[
-\Phi(u;Y;v)\ge \frac{1+9+14+6}{8}=\frac{15}{4}>\frac{29}{8}.
+\Phi(u;W;v)\ge \frac{1+9+14+6}{8}=\frac{15}{4}>\frac{29}{8}.
 \]
 
 Now suppose that $d(u,v)=2$. Then exactly one subdividing vertex is incident with both $u$ and $v$, so among the three singleton realizations at most one has cost $2$. Hence the sum of the singleton costs is at least $2+3+3=8$. A two-vertex realization can have cost $4$ only if one active subdivider is the unique subdivider of the edge $uv$ and the other comes from one of the two cycle edges adjacent to $uv$. Thus among the three two-vertex realizations, at most two have cost $4$, and the remaining one has cost at least $5$; the sum of these three costs is therefore at least $13$. The realization with all three active has cost at least $6$. Consequently,
 \[
-\Phi(u;Y;v)\ge \frac{2+8+13+6}{8}=\frac{29}{8}.
+\Phi(u;W;v)\ge \frac{2+8+13+6}{8}=\frac{29}{8}.
 \]
-Equality is attained, for example, by $(v_{i+1},x_{i+1},x_i,x_{i-1},v_i)$, whose eight realization costs are
+Equality is attained, for example, by $(v_{i+1},v_{i+1}',v_i',v_{i-1}',v_i)$, whose eight realization costs are
 \[
 2,\ 3,\ 2,\ 3,\ 4,\ 5,\ 4,\ 6.
 \]
@@ -434,41 +422,41 @@ Equality is attained, for example, by $(v_{i+1},x_{i+1},x_i,x_{i-1},v_i)$, whose
 \noindent\textbf{4. Long segments.}
 We now consider a segment
 \[
-(u;y_1,\dots,y_k;v)
+(u;w_1,\dots,w_k;v)
 \]
 with $k\ge 4$. Set
 \[
-z_0:=u,\qquad z_t:=y_t\ (1\le t\le k),\qquad z_{k+1}:=v.
+z_0:=u,\qquad z_t:=w_t\ (1\le t\le k),\qquad z_{k+1}:=v.
 \]
-Two retained vertices $z_i,z_j$ become consecutive after shortcutting precisely when every vertex strictly between them is deleted. Since each $y_t$ is retained independently with probability $1/2$, we obtain the exact expansion
+Two retained vertices $z_i,z_j$ become consecutive after shortcutting precisely when every vertex strictly between them is deleted. Since each $w_t$ is retained independently with probability $1/2$, we obtain the exact expansion
 \begin{align*}
-\Phi(u;Y;v)
+\Phi(u;W;v)
 &=2^{-k}d(u,v)
- +\sum_{t=1}^k 2^{-t}d(u,y_t)
- +\sum_{t=1}^k 2^{-(k-t+1)}d(y_t,v) \\
+ +\sum_{t=1}^k 2^{-t}d(u,w_t)
+ +\sum_{t=1}^k 2^{-(k-t+1)}d(w_t,v) \\
 &\qquad
- +\sum_{1\le i<j\le k}2^{-(j-i+1)}d(y_i,y_j).
+ +\sum_{1\le i<j\le k}2^{-(j-i+1)}d(w_i,w_j).
 \end{align*}
 Introduce the indicators
 \[
-\alpha_t:=\1_{\{y_t \text{ is incident with } u\}},
+\alpha_t:=\1_{\{w_t \text{ is incident with } u\}},
 \qquad
-\beta_t:=\1_{\{y_t \text{ is incident with } v\}},
+\beta_t:=\1_{\{w_t \text{ is incident with } v\}},
 \]
 and, for $1\le i<j\le k$,
 \[
-\gamma_{ij}:=\1_{\{y_i,y_j \text{ correspond to adjacent cycle edges}\}}.
+\gamma_{ij}:=\1_{\{w_i,w_j \text{ correspond to adjacent cycle edges}\}}.
 \]
 By the distance formulas above,
 \begin{align*}
 d(u,v)&=1+\1_{\{u,v \text{ are consecutive on the original cycle}\}},\\
-d(u,y_t)&=2-\alpha_t,\\
-d(y_t,v)&=2-\beta_t,\\
-d(y_i,y_j)&=3-\gamma_{ij}.
+d(u,w_t)&=2-\alpha_t,\\
+d(w_t,v)&=2-\beta_t,\\
+d(w_i,w_j)&=3-\gamma_{ij}.
 \end{align*}
 Substituting these identities into the preceding formula yields
 \[
-\Phi(u;Y;v)=1+\frac{3k}{2}+2^{-k}\1_{\{u,v\text{ consecutive}\}}-D,
+\Phi(u;W;v)=1+\frac{3k}{2}+2^{-k}\1_{\{u,v\text{ consecutive}\}}-D,
 \]
 where
 \[
@@ -483,7 +471,7 @@ Since an original vertex is incident with exactly two subdividing vertices,
 \qquad
 \sum_{t=1}^k 2^{-(k-t+1)}\beta_t\le \frac34.
 \]
-For the last sum, consider the graph on vertex set $\{y_1,\dots,y_k\}$ in which two vertices are adjacent when the corresponding subdividing vertices arise from adjacent edges of the original cycle. This graph is a subgraph of a cycle, hence has maximum degree at most $2$ and therefore at most $k$ edges. Every edge contributes weight at most $1/4$, so
+For the last sum, consider the graph on vertex set $\{w_1,\dots,w_k\}$ in which two vertices are adjacent when the corresponding subdividing vertices arise from adjacent edges of the original cycle. This graph is a subgraph of a cycle, hence has maximum degree at most $2$ and therefore at most $k$ edges. Every edge contributes weight at most $1/4$, so
 \[
 \sum_{1\le i<j\le k}2^{-(j-i+1)}\gamma_{ij}\le \frac{k}{4}.
 \]
@@ -493,7 +481,7 @@ D\le \frac34+\frac34+\frac{k}{4}=\frac32+\frac{k}{4},
 \]
 and hence
 \[
-\Phi(u;Y;v)\ge 1+\frac{3k}{2}-\left(\frac32+\frac{k}{4}\right)=\frac54 k-\frac12.
+\Phi(u;W;v)\ge 1+\frac{3k}{2}-\left(\frac32+\frac{k}{4}\right)=\frac54 k-\frac12.
 \]
 Since $k\ge 4$,
 \[
@@ -501,11 +489,11 @@ Since $k\ge 4$,
 \]
 so every segment with $k\ge 4$ satisfies
 \[
-\Phi(u;Y;v)\ge 1+\frac{7k}{8}.
+\Phi(u;W;v)\ge 1+\frac{7k}{8}.
 \]
 Combining this with the previous claim, we conclude that every segment with $k$ subdividing vertices satisfies
 \[
-\Phi(u;Y;v)\ge
+\Phi(u;W;v)\ge
 \begin{cases}
 1, & k=0,\\
 1+\dfrac{7k}{8}, & k\ge 1.
@@ -516,8 +504,8 @@ Combining this with the previous claim, we conclude that every segment with $k$ 
 \noindent\textbf{5. Global lower bound.}
 Applying the segment bound to the decomposition of $T$, we obtain
 \begin{align*}
-\E[c(T|_A)]
-&=\sum_{j=1}^n \Phi(u_j;Y_j;u_{j+1})\\
+\E[\cost(T|_A)]
+&=\sum_{j=1}^n \Phi(u_j;W_j;u_{j+1})\\
 &\ge \sum_{j:k_j=0} 1+\sum_{j:k_j\ge 1}\left(1+\frac{7k_j}{8}\right)\\
 &=n+\frac78\sum_{j=1}^n k_j\\
 &=n+\frac78 n = \frac{15}{8}n.
@@ -529,28 +517,28 @@ Since $T$ was arbitrary, this shows that
 
 \medskip
 \noindent\textbf{6. Matching constructions.}
-It remains to exhibit master tours attaining this value.
+It remains to exhibit a priori tours attaining this value.
 
 \smallskip
 \noindent\emph{Even $n$.}
 Write $n=2m$. Consider the tour
 \begin{align*}
 T^{\mathrm{even}}
-:=(&v_1,x_1,x_2,v_2,
-   v_4,x_4,x_3,v_3,
-   v_6,x_6,x_5,v_5,
+:=(&v_1,v_1',v_2',v_2,
+   v_4,v_4',v_3',v_3,
+   v_6,v_6',v_5',v_5,
    \dots,\\
-  &v_{2m},x_{2m},x_{2m-1},v_{2m-1},v_1).
+  &v_{2m},v_{2m}',v_{2m-1}',v_{2m-1},v_1).
 \end{align*}
 This tour has $m$ nonempty segments, namely
 \[
-(v_1,x_1,x_2,v_2)
+(v_1,v_1',v_2',v_2)
 \quad\text{and}\quad
-(v_{2t},x_{2t},x_{2t-1},v_{2t-1})\qquad (2\le t\le m),
+(v_{2t},v_{2t}',v_{2t-1}',v_{2t-1})\qquad (2\le t\le m),
 \]
 each with expected contribution $11/4$, together with $m$ direct edges between original vertices, each of length $1$. Hence
 \[
-\E[c(T^{\mathrm{even}}|_A)] = m\left(\frac{11}{4}+1\right)=\frac{15}{8}n.
+\E[\cost(T^{\mathrm{even}}|_A)] = m\left(\frac{11}{4}+1\right)=\frac{15}{8}n.
 \]
 
 \smallskip
@@ -558,229 +546,857 @@ each with expected contribution $11/4$, together with $m$ direct edges between o
 Write $n=2m+1$ with $m\ge 2$. Consider the tour
 \begin{align*}
 T^{\mathrm{odd}}
-:=(&v_n,v_2,x_2,x_1,x_n,v_1,
-   v_4,x_4,x_3,v_3,
-   v_6,x_6,x_5,v_5,
+:=(&v_n,v_2,v_2',v_1',v_n',v_1,
+   v_4,v_4',v_3',v_3,
+   v_6,v_6',v_5',v_5,
    \dots,\\
-  &v_{2m},x_{2m},x_{2m-1},v_{2m-1},v_n).
+  &v_{2m},v_{2m}',v_{2m-1}',v_{2m-1},v_n).
 \end{align*}
 This tour has one $3$-segment,
 \[
-(v_2,x_2,x_1,x_n,v_1),
+(v_2,v_2',v_1',v_n',v_1),
 \]
 with expected contribution $29/8$, together with $m-1$ segments
 \[
-(v_{2t},x_{2t},x_{2t-1},v_{2t-1})\qquad (2\le t\le m),
+(v_{2t},v_{2t}',v_{2t-1}',v_{2t-1})\qquad (2\le t\le m),
 \]
 each contributing $11/4$, and $m+1$ direct edges between original vertices, each of length $1$. Therefore
 \begin{align*}
-\E[c(T^{\mathrm{odd}}|_A)]
+\E[\cost(T^{\mathrm{odd}}|_A)]
 &=\frac{29}{8}+(m-1)\cdot \frac{11}{4}+(m+1)\\
 &=\frac{15}{8}(2m+1)=\frac{15}{8}n.
 \end{align*}
 
-In both parity cases we have constructed a master tour of expected cost $15n/8$. Combined with the lower bound, this proves
+In both parity cases we have constructed an a priori tour of expected cost $15n/8$. Combined with the lower bound, this proves
 \[
 \optprior=\frac{15}{8}n.
 \]
 \end{proof}
 
-\subsection*{The a posteriori upper bound}
+\begin{proof}[Proof of Lemma~\ref{lem:cycle-adapt}]
+We exhibit an adaptive policy $\pi$.
+Let $P:=v_2,v_2',v_3,\dots,v_{n-1}',v_n$. First call $v_1'$ and $v_n'$ (the only clients outside~$P$), then return to the depot $r=v_1$. In the worst case both are active, costing $d(r,v_1')+d(v_1',v_n')+d(v_n',r)=1+2+1=4$.
+Next, move from $r$ to $v_2$ (cost~$2$) and process~$P$.
+At each step the uncalled clients on~$P$ form a contiguous subpath, and the salesperson sits at one of its two endpoint originals. The policy probes the adjacent subdividing vertex: if it is active, traverse it and the next original (cost~$2$) and continue in the same direction; if it is inactive, jump to the opposite endpoint original of the remaining subpath (cost~$1$, since nonconsecutive originals are at distance~$1$) and proceed symmetrically.
 
-For a realization $A$, let
+Let $a:=|A\cap\{v_2',\dots,v_{n-1}'\}|$. The $a$ active subdividers on~$P$ each contribute cost~$2$. Each of the $(n-2)-a$ inactive ones triggers a switch of cost~$1$, except possibly the last, which may cost~$2$. Including the return to~$r$ (cost at most~$2$), the middle phase costs at most $2+2a+((n-2)-a+1)+2=n+a+3$.
+The total cost per realization is therefore at most $4+(n+a+3)=n+a+7$, and taking expectation with $\E[a]=(n-2)/2$ gives $\E[\cost(\pi)]\le \frac32 n+6$.
+\end{proof}
+
+\section{Clairvoyance gap lower bound: asymmetric recursive instance}\label{sec:asym-recursive}
+
+We now turn to asymmetric (directed) metrics and exhibit a family of instances
+for which the clairvoyance gap $\optadapt/\optpost$ tends to~$4/3$.
+
+\subsection*{The construction}
+
+We define a family of asymmetric stochastic TSP instances.  Distances are taken to be the directed shortest-path metric induced by the directed edges described below.  The depot is always present.  The client vertices are independent, with probabilities specified below.
+
+For every integer $l\geq 0$, define a directed recursive block $B_l$.  Each block has a distinguished set of permanent vertices, denoted $P_l$.  These permanent vertices will be deterministic clients.  For $l=0$, the block $B_0$ consists of a single permanent vertex.
+
+For $l\geq 1$, the block $B_l$ is obtained from two disjoint copies of $B_{l-1}$, denoted $B_{l-1}^{\mathrm L}$ and $B_{l-1}^{\mathrm R}$, together with a new midpoint vertex $m_l$.  Let
 \[
-S(A):=\{i\in[n]: x_i\text{ is active in }A\}
+    w_l := 2^{l-1}.
 \]
-and write $m:=|S(A)|$.
-
-\begin{proposition}\label{prop:cycle-post}
-For every realization $A$ of the cycle-subdivision instance,
+For every permanent vertex $\ell\in P(B_{l-1}^{\mathrm L})$ and every permanent vertex $r\in P(B_{l-1}^{\mathrm R})$, add a directed edge
 \[
-\opt(A)\le n+|S(A)|+3.
+    \ell \to r
+\]
+of length $w_l$.  For every $r\in P(B_{l-1}^{\mathrm R})$, add a directed edge
+\[
+    r\to m_l
+\]
+of length $w_l$.  For every $\ell\in P(B_{l-1}^{\mathrm L})$, add a directed edge
+\[
+    m_l\to \ell
+\]
+of length $w_l$.  Thus, after contracting the two child blocks, the top level of $B_l$ is the directed triangle
+\[
+    B_{l-1}^{\mathrm L}
+    \longrightarrow
+    B_{l-1}^{\mathrm R}
+    \longrightarrow
+    m_l
+    \longrightarrow
+    B_{l-1}^{\mathrm L},
+\]
+where each displayed arc has length $w_l$.
+
+The permanent set of $B_l$ is
+\[
+    P_l := P(B_{l-1}^{\mathrm L})\cup P(B_{l-1}^{\mathrm R}).
+\]
+Thus $|P_l|=2^l$.  All permanent vertices are active with probability $1$.  Every midpoint vertex is active independently with probability $1/2$.
+
+The full rooted instance $I_l$ is obtained by adding a depot $r$.  For every permanent vertex $\ell\in P_l$, add directed edges
+\[
+    r\to \ell,
+    \qquad
+    \ell\to r,
+\]
+each of length $w_l=2^{l-1}$.
+
+Let $M_l$ be the set of midpoint vertices in $B_l$.  A midpoint of local depth $k$ has weight $w_k=2^{k-1}$.  There are $2^{l-k}$ midpoint vertices of local depth $k$ inside $B_l$.
+
+\subsection*{Statement}
+
+\begin{theorem}\label{thm:recursive-gap}
+For every $l\geq 1$, the instance $I_l$ satisfies
+\[
+    \optpost(I_l)=(3l+4)2^{l-2},
+\]
+and
+\[
+    \optadapt(I_l)=(l+1)2^l.
 \]
 Consequently,
 \[
-\optpost\le \frac32 n+3.
+    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    =
+    \frac{4(l+1)}{3l+4}
+    \longrightarrow
+    \frac43.
 \]
-\end{proposition}
+\end{theorem}
+
+The rest of this section proves the theorem.
+
+\subsection*{A posteriori cost}
+
+We first analyze an open version of the block.  For a realization $A\subseteq M_l$ of the active midpoint vertices, let $P_l(A)$ be the minimum internal cost of a directed path that serves all deterministic permanent vertices of $B_l$ and all midpoint vertices in $A$, with free choice of the first and last permanent vertices of $B_l$.  The cost of entering the block from outside and leaving the block is not included in $P_l(A)$.
+
+For $l=0$, there is only one deterministic permanent vertex, so
+\[
+    P_0(A)=0.
+\]
+
+\begin{lemma}\label{lem:post-rec}
+For $l\geq 1$,
+\[
+    P_l(A)
+    =
+    P_{l-1}(A_{\mathrm L})
+    +
+    P_{l-1}(A_{\mathrm R})
+    +
+    w_l\bigl(1+\1_{\{m_l\in A\}}\bigr),
+\]
+where $A_{\mathrm L}$ and $A_{\mathrm R}$ are the active midpoint sets inside the left and right child blocks.
+\end{lemma}
 
 \begin{proof}
-Fix a realization $A$, and set $S:=S(A)$ and $m:=|S|$.
+All permanent vertices are deterministic, so any feasible path inside $B_l$ must serve both child blocks $B_{l-1}^{\mathrm L}$ and $B_{l-1}^{\mathrm R}$.  By induction, the internal cost required inside the two child blocks is at least
+\[
+    P_{l-1}(A_{\mathrm L})+P_{l-1}(A_{\mathrm R}).
+\]
+It remains to determine the minimum top-level cost needed to move among the two child blocks and the midpoint $m_l$.
 
-If $m=n$, then every subdivider is active, and the full subdivided cycle
+If $m_l\notin A$, then the path only needs to pass between the two child blocks.  The cheapest such top-level transition is
 \[
-v_1,x_1,v_2,x_2,\dots,v_n,x_n,v_1
+    B_{l-1}^{\mathrm L}\to B_{l-1}^{\mathrm R},
 \]
-is a feasible tour of cost $2n=n+m\le n+m+3$. So we may assume $m<n$.
+which costs $w_l$.  Therefore the top-level contribution is at least $w_l$, and this is achievable.
 
-Contract every active edge $v_iv_{i+1}$ of the base cycle $C$; equivalently, contract every maximal active run on $C$ into a single block. The resulting quotient is again a cycle, now on
+If $m_l\in A$, then the path must visit all three top-level objects
 \[
-q:=n-m
+    B_{l-1}^{\mathrm L},
+    \qquad
+    B_{l-1}^{\mathrm R},
+    \qquad
+    m_l.
 \]
-blocks. Each block is either a single original vertex or a path of the form
+Since the path starts and ends at permanent vertices of $B_l$, it starts and ends in one of the two child blocks.  The cheapest top-level order is
 \[
-v_a,x_a,v_{a+1},x_{a+1},\dots,x_b,v_{b+1}
+    B_{l-1}^{\mathrm R}\to m_l\to B_{l-1}^{\mathrm L},
 \]
-coming from a maximal consecutive active run. Traversing such a block from one end to the other costs exactly $2\ell$, where $\ell$ is the number of active subdividers in the block, and summing over all blocks gives total internal cost exactly $2m$.
+which costs $2w_l$.  No smaller top-level cost is possible, because visiting the midpoint and both child blocks requires at least two nonzero top-level transitions, and every such transition has length at least $w_l$ in the directed shortest-path metric.  Hence the top-level contribution is exactly $2w_l$.
 
-Now consider only the movement \emph{between} blocks. Label the $q$ blocks cyclically by $w_1,\dots,w_q$. If two blocks are consecutive on this quotient cycle, then the distance between the corresponding boundary vertices is at most $2$. If they are not consecutive, then the corresponding boundary originals are nonconsecutive on the original cycle $C$, so their distance is exactly $1$. Thus the inter-block metric is dominated by the standard $q$-vertex cycle metric in which consecutive pairs have distance $2$ and all other pairs have distance $1$.
+Combining the child-block costs and the top-level cost gives the recurrence.
+\end{proof}
 
-Let $\tau(q)$ denote the optimal TSP value in that standard $q$-vertex cycle metric. Then the discussion above shows that
+Taking expectation in Lemma~\ref{lem:post-rec}, and using $\Pr[m_l\in A]=1/2$, gives
 \[
-\opt(A)\le 2m+\tau(q).
+    \E[P_l(A)]
+    =
+    2\E[P_{l-1}(A)]+\frac32 w_l.
 \]
-We now bound $\tau(q)$. For $q\ge 5$, there is a Hamiltonian cycle using only nonconsecutive pairs, hence $\tau(q)=q$. Indeed:
-\begin{itemize}
-    \item if $q$ is odd, the step-$2$ cycle
-    \[
-    1,3,5,\dots,q,2,4,\dots,q-1,1
-    \]
-    has total cost $q$;
-    \item if $q$ is even, the cycle
-    \[
-    1,3,5,\dots,q-1,2,q,q-2,\dots,4,1
-    \]
-    also has total cost $q$.
-\end{itemize}
-For the small cases, one checks directly that
+Equivalently, by iterating over all midpoint vertices,
 \[
-\tau(1)\le 2,\qquad \tau(2)=4,\qquad \tau(3)=6,\qquad \tau(4)=6.
+    P_l(A)
+    =
+    \sum_{x\in M_l}w(x)
+    +
+    \sum_{x\in A}w(x),
 \]
-In particular,
+where $w(x)$ denotes the local weight of midpoint $x$.  Hence
 \[
-\tau(q)\le q+3 \qquad \text{for every } q\ge 1.
+    \E[P_l(A)]
+    =
+    \frac32\sum_{x\in M_l}w(x).
+\]
+Now
+\[
+    \sum_{x\in M_l}w(x)
+    =
+    \sum_{k=1}^l 2^{l-k}2^{k-1}
+    =
+    \sum_{k=1}^l 2^{l-1}
+    =
+    l2^{l-1}.
 \]
 Therefore
 \[
-\opt(A)\le 2m+(q+3)=2m+(n-m)+3=n+m+3.
+    \E[P_l(A)]
+    =
+    \frac32 l2^{l-1}
+    =
+    3l2^{l-2}.
 \]
-Since $m=|S(A)|$, this proves the first claim.
 
-Taking expectation and using $\E[|S(A)|]=n/2$, we obtain
+In the rooted instance $I_l$, the a posteriori tour must enter the block from the depot and return to the depot.  The cheapest edge from the depot to the block has length $w_l$, and the cheapest edge from the block back to the depot also has length $w_l$.  Thus the depot contribution is
 \[
-\optpost
-=\E_A[\opt(A)]
-\le
-\E_A[n+|S(A)|+3]
-=
- n+\frac n2+3
-=
-\frac32 n+3.
+    2w_l=2^l.
 \]
-\end{proof}
-
-\subsection*{The adaptive upper bound}
-
-\begin{proposition}\label{prop:cycle-adapt}
-For every odd $n\ge 7$, the cycle-subdivision instance satisfies
+It follows that
 \[
-\optadapt\le \frac32 n+18.
+    \optpost(I_l)
+    =
+    2^l+3l2^{l-2}
+    =
+    (3l+4)2^{l-2}.
 \]
-\end{proposition}
+
+\subsection*{Adaptive cost}
+
+We now analyze the optimal adaptive policy.  Again we first consider an open block.  Let $Q_l$ be the minimum expected internal cost of an adaptive policy for $B_l$, where the policy may choose the first permanent vertex of $B_l$ for free and, after serving/calling all clients in the block, may exit for free from any permanent vertex of $B_l$.  In particular, if the policy ends at a midpoint, it must still pay the distance from that midpoint to a permanent vertex before exiting the block.
+
+Clearly
+\[
+    Q_0=0.
+\]
+
+The following elementary three-state lemma is the key point.
+
+\begin{lemma}\label{lem:three-state}
+Consider three top-level objects $L,R,M$.  The objects $L$ and $R$ are deterministic, while $M$ is active independently with probability $1/2$.  The directed distances are the shortest-path metric induced by the directed cycle
+\[
+    L\to R\to M\to L,
+\]
+where every displayed arc has length $w$.  The policy starts for free at either $L$ or $R$, with that object already served, and must serve the other deterministic object and call $M$.  If $M$ is active, it must be visited immediately when called.  The policy may exit for free from $L$ or $R$ after all required calls have been made.  Then the minimum expected cost is exactly $2w$.
+\end{lemma}
 
 \begin{proof}
-We define an explicit adaptive policy $\pi$ and bound its expected cost.
+By scaling, assume $w=1$.
+
+First, there is a policy of expected cost $2$.  Start at $L$, serve $R$, and then call $M$.  The move $L\to R$ costs $1$.  If $M$ is inactive, the policy is already at a permanent point and exits.  If $M$ is active, the policy travels $R\to M$, costing $1$, and then returns from $M$ to a permanent point, costing $1$ via $M\to L$.  Thus the expected cost is
+\[
+    1+\frac12(1+1)=2.
+\]
+
+It remains to prove the lower bound.  Suppose first that the policy starts at $L$.  If it serves $R$ before calling $M$, then it already pays $d(L,R)=1$.  If $M$ is active when called from $R$, it must pay $d(R,M)=1$ and then must return from $M$ to a permanent point, which costs at least $1$.  Hence this case has expected cost at least
+\[
+    1+\frac12(1+1)=2.
+\]
+If instead the policy calls $M$ before serving $R$, then if $M$ is inactive it must still move from $L$ to $R$, costing $1$.  If $M$ is active, it must move from $L$ to $M$, whose directed distance is $2$, and then still reach $R$ before exiting, whose directed distance from $M$ is $2$.  Hence this case has expected cost at least
+\[
+    \frac12\cdot 1+\frac12\cdot(2+2)>2.
+\]
+Thus every policy starting at $L$ has expected cost at least $2$.
+
+Now suppose the policy starts at $R$.  If it calls $M$ before serving $L$, then if $M$ is active it pays $d(R,M)+d(M,L)=1+1=2$, while if $M$ is inactive it must still move from $R$ to $L$, whose directed distance is $2$.  Therefore the expected cost is at least $2$.  If it serves $L$ before calling $M$, then it already pays $d(R,L)=2$, and all further expected cost is nonnegative.  Hence every policy starting at $R$ also has expected cost at least $2$.
+
+The lower bound and upper bound coincide.  Rescaling gives the value $2w$.
+\end{proof}
+
+\begin{lemma}\label{lem:adapt-rec}
+For every $l\geq 1$,
+\[
+    Q_l=2Q_{l-1}+2w_l.
+\]
+\end{lemma}
+
+\begin{proof}
+Contract the left child block to $L$, the right child block to $R$, and the midpoint $m_l$ to $M$.  The top-level geometry is exactly the three-state instance of Lemma~\ref{lem:three-state}, with $w=w_l$.
+
+For the upper bound, use an optimal policy from Lemma~\ref{lem:three-state} at the top level.  Whenever the policy enters one of the two child blocks, execute an optimal adaptive policy for that child block.  The two child blocks are independent copies of $B_{l-1}$, and the midpoint $m_l$ is independent of both of them.  This gives expected cost
+\[
+    2Q_{l-1}+2w_l.
+\]
+
+For the lower bound, consider any adaptive policy for $B_l$.  The restriction of the policy to each child block is an adaptive policy for that child block.  Since the random activations in the two child blocks are independent of all information outside the corresponding block, the expected internal cost incurred in each child block is at least $Q_{l-1}$.  Moreover, after contracting each child block to a top-level object, the projected policy must solve the three-state problem of Lemma~\ref{lem:three-state}.  Therefore its expected top-level cost is at least $2w_l$.  Hence every adaptive policy has expected cost at least
+\[
+    2Q_{l-1}+2w_l.
+\]
+The upper and lower bounds match.
+\end{proof}
+
+Using $Q_0=0$ and $w_l=2^{l-1}$, Lemma~\ref{lem:adapt-rec} gives
+\[
+    Q_l
+    =
+    2Q_{l-1}+2^l.
+\]
+Solving the recurrence,
+\[
+    Q_l
+    =
+    \sum_{k=1}^l 2^{l-k}2^k
+    =
+    \sum_{k=1}^l 2^l
+    =
+    l2^l.
+\]
+
+In the rooted instance $I_l$, the policy must enter the block from the depot and finally return to the depot.  These two movements contribute $2w_l=2^l$.  Therefore
+\[
+    \optadapt(I_l)
+    =
+    2^l+Q_l
+    =
+    2^l+l2^l
+    =
+    (l+1)2^l.
+\]
+
+\subsection*{The ratio}
+
+Combining the two formulas,
+\[
+    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    =
+    \frac{(l+1)2^l}{(3l+4)2^{l-2}}
+    =
+    \frac{4(l+1)}{3l+4}.
+\]
+Therefore
+\[
+    \lim_{l\to\infty}
+    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    =
+    \frac43.
+\]
+For example, when $l=3$,
+\[
+    \optpost(I_3)=26,
+    \qquad
+    \optadapt(I_3)=32,
+\]
+and hence
+\[
+    \frac{\optadapt(I_3)}{\optpost(I_3)}
+    =
+    \frac{32}{26}
+    =
+    \frac{16}{13}
+    \approx 1.23077.
+\]
+For $l=4$, the formulas give
+\[
+    \optpost(I_4)=64,
+    \qquad
+    \optadapt(I_4)=80,
+\]
+so the ratio is $5/4$.
+
+This completes the proof of Theorem~\ref{thm:recursive-gap}. \qed
+
+\section{A survival-local packet DP for directed a priori TSP}\label{sec:survival-dp}
+
+In this section we present a $(1+\varepsilon)$-approximation algorithm for the rooted a priori TSP on directed metrics, running in time $c_\varepsilon^n \poly(n)$.  The approach combines survival-window locality with a packet decomposition, resulting in a surrogate objective that can be minimized exactly by dynamic programming.
+
+\subsection*{Setup}
 
 Let
 \[
-M:=\{v_3,\dots,v_{n-1},x_3,\dots,x_{n-2}\}
+    \pi=(r,v_1,\dots,v_n,r)
 \]
-be the set of \emph{middle} clients, and let
+be a rooted a priori permutation.  Put $v_0=v_{n+1}=r$ and
+$p_{v_0}=p_{v_{n+1}}=1$.  The distance function $d$ is a directed metric.  For
+notational brevity write
 \[
-B:=V\setminus M=\{v_2,v_n,x_1,x_2,x_{n-1},x_n\}
+    p_i:=p_{v_i},
+    \qquad
+    d_{ij}:=d(v_i,v_j).
 \]
-be the set of \emph{boundary} clients.
-
-\medskip
-\noindent\textbf{Step 1: visit all boundary clients first.}
-The policy first calls all six vertices of $B$ in an arbitrary fixed order, and then returns to the depot $r$.
-
-Every distance in this metric is at most $3$, so this boundary phase has cost at most
+For a client $v_i$, define
 \[
-7\cdot 3=21,
+    \ell_i:=-\log(1-p_i)\in[0,\infty],
 \]
-independently of the realization.
-
-\medskip
-\noindent\textbf{Step 2: the alternating middle policy.}
-After finishing the boundary phase, the policy is back at $r$. It then calls $v_3$, moves to $v_3$, and from that point on works only on the middle path
+with the convention $\ell_i=\infty$ when $p_i=1$.  For $i<j$, put
 \[
-P:=v_3,x_3,v_4,\dots,x_{n-2},v_{n-1}.
+    L(i,j):=\sum_{i<k<j}\ell_k,
+    \qquad
+    Q(i,j):=\e^{-L(i,j)}=\prod_{i<k<j}(1-p_k).
 \]
-
-At every stage, the uncalled middle clients form a subpath of $P$. The current position is one of the two endpoint originals of this remaining subpath. If the current position is the left endpoint original, the policy probes rightward: it calls the adjacent subdividing vertex. If that subdividing vertex is active, then the policy immediately calls the next original vertex and continues in the same direction. If that subdividing vertex is inactive, then the policy jumps to the right endpoint original of the remaining subpath and proceeds symmetrically leftward. The same rule is applied when the current position is the right endpoint original.
-
-Equivalently, the policy keeps moving along the current side of the remaining subpath for as long as the encountered middle subdividing vertices are active, and each time it meets an inactive middle subdividing vertex it switches to the opposite side of the remaining subpath.
-
-\medskip
-\noindent\textbf{Step 3: deterministic cost of the middle phase.}
-Fix a realization $A$, and let
+Thus $Q(i,j)$ is exactly the probability that all vertices strictly between
+$v_i$ and $v_j$ are inactive.  The a priori cost of $\pi$ is
 \[
-a_M:=|A\cap\{x_3,\dots,x_{n-2}\}|
-\]
-be the number of active middle subdividing vertices. Since there are exactly $n-4$ middle subdividing vertices, the number of inactive middle subdividing vertices is
-\[
-(n-4)-a_M.
+    \cost(\pi)
+    =
+    \sum_{0\le i<j\le n+1}w_{ij}d_{ij},
+    \qquad
+    w_{ij}:=p_i p_j Q(i,j).
 \]
 
-We claim that the total cost of the middle phase, including the initial move from $r$ to $v_3$ and the final return to $r$, is at most
+\begin{definition}[Survival-local cost]\label{def:survival-local}
+For $\Gamma>0$, define
 \[
-n+a_M-1.
+    \cost^{\loc}_{\Gamma}(\pi)
+    :=
+    \sum_{\substack{0\le i<j\le n+1\\ L(i,j)<\Gamma}}
+    w_{ij}d_{ij}.
 \]
-Indeed:
+Equivalently, the retained terms are those for which
+$Q(i,j)>\e^{-\Gamma}$.
+\end{definition}
 
-\begin{itemize}
-    \item The initial move from $r=v_1$ to $v_3$ costs $1$.
-    \item Each active middle subdividing vertex contributes exactly $2$: one unit to move from an endpoint original to that subdividing vertex, and one unit to move from there to the next original. Hence all active middle subdividing vertices together contribute exactly
-    \[
-    2a_M.
-    \]
-    \item Each inactive middle subdividing vertex causes one switch from one end of the remaining middle subpath to the other. Such a switch costs $1$, except that the very last switch may cost $2$ when only one middle original vertex remains uncalled. Therefore all switches together cost at most
-    \[
-    ((n-4)-a_M)+1.
-    \]
-    \item After all middle clients have been called, the salesperson is at some original vertex, and returning from any original vertex to $r$ costs at most $1$.
-\end{itemize}
+\subsection*{Survival-window locality}
 
-Summing these contributions gives
-\[
-1+2a_M+\bigl((n-4)-a_M+1\bigr)+1=n+a_M-1.
-\]
-This proves the claim.
+We first prove that the full a priori cost is well approximated by its
+survival-local part.  The proof uses only a local pivot window and deterministic
+first-active weights.
 
-\medskip
-\noindent\textbf{Step 4: expectation.}
-For every realization $A$, the total cost of $\pi$ is at most
+\begin{lemma}[One-sided survival tails]\label{lem:survival-tail}
+Let $\lambda>0$ and $\eta:=\e^{-\lambda}$.
+\begin{enumerate}[label=(\roman*)]
+\item For every fixed $z$,
 \[
-21+(n+a_M-1)=n+a_M+20.
+    \sum_{\substack{j>z\\ \ell_z+L(z,j)\ge\lambda}}
+    p_j\e^{-(\ell_z+L(z,j))}
+    \le \eta,
 \]
-Taking expectation and using $\E[a_M]=(n-4)/2$, we obtain
+where the terminal depot $j=n+1$ is included with $p_{n+1}=1$.
+
+\item For every fixed $z$,
 \[
-\E[c(T(A;\pi))]
-\le n+\frac{n-4}{2}+20
-=\frac32 n+18.
+    \sum_{\substack{i<z\\ L(i,z)+\ell_z\ge\lambda}}
+    p_i\e^{-(L(i,z)+\ell_z)}
+    \le \eta,
 \]
+where the initial depot $i=0$ is included with $p_0=1$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We prove (i); the proof of (ii) is the same in the reversed order.  Put
+\[
+    T_j:=\ell_z+L(z,j)=\sum_{z\le k<j}\ell_k.
+\]
+The set of indices $j$ with $T_j\ge\lambda$ is a suffix.  If $j_0$ is its first
+index, then telescoping gives
+\[
+    \sum_{j\ge j_0} p_j\e^{-T_j}=\e^{-T_{j_0}},
+\]
+where the final depot term is included by $p_{n+1}=1$.  Since
+$T_{j_0}\ge\lambda$, the sum is at most $\e^{-\lambda}$.
+\end{proof}
+
+\begin{lemma}[Survival-window locality]\label{lem:survival-window-locality}
+Let $\lambda\ge1$, set $\eta:=\e^{-\lambda}$, and put
+\[
+    \Gamma:=3\lambda.
+\]
+Then every a priori permutation $\pi$ satisfies
+\[
+    \cost(\pi)
+    \le
+    \bigl(1+O(\eta)\bigr)\cost^{\loc}_{\Gamma}(\pi),
+\]
+where the hidden constant is universal.
+\end{lemma}
+
+\begin{proof}
+Let
+\[
+    C_{\loc}:=\cost^{\loc}_{\Gamma}(\pi),
+    \qquad
+    H:=\cost(\pi)-\cost^{\loc}_{\Gamma}(\pi).
+\]
+We shall prove the stronger explicit inequality
+\[
+    H\le \frac{\eta}{1-\eta}(2C_{\loc}+H).
+\]
+Since $\lambda\ge1$, we have $\eta<1/2$, and this will imply
+\[
+    H\le \frac{2\eta}{1-2\eta}C_{\loc}=O(\eta)C_{\loc}.
+\]
+
+Fix a left endpoint $i$.  Define the pivot window
+\[
+    W_i
+    :=
+    \{z\in\{i+1,\dots,n\}: L(i,z)<2\lambda
+       \text{ and } L(i,z)+\ell_z\ge\lambda\}.
+\]
+If $(i,j)$ is nonlocal, i.e.\ $L(i,j)\ge3\lambda$, then $W_i$ lies before $j$ and
+has total log-survival length at least $\lambda$:
+\[
+    \sum_{z\in W_i}\ell_z\ge\lambda.
+\]
+Indeed, scanning rightward from $i$, the cumulative log-survival length must
+cross the whole interval $[\lambda,2\lambda]$ before reaching $j$.
+
+For $z\in W_i$, define the deterministic first-active weight
+\[
+    a_i(z)
+    :=
+    p_z\prod_{\substack{u\in W_i\\ u<_\pi z}}(1-p_u).
+\]
+Then
+\[
+    A_i:=\sum_{z\in W_i}a_i(z)
+    =1-\prod_{z\in W_i}(1-p_z)
+    \ge 1-\e^{-\lambda}=1-\eta.
+\]
+For every nonlocal pair $(i,j)$ and every $z\in W_i$, the directed triangle
+inequality gives
+\[
+    d_{ij}\le d_{iz}+d_{zj}.
+\]
+Averaging this deterministic inequality with weights $a_i(z)/A_i$, multiplying
+by $w_{ij}$, and summing over all nonlocal pairs gives
+\[
+    H\le \frac{1}{1-\eta}(S_1+S_2),
+\]
+where $S_1$ and $S_2$ are the resulting sums with distances $d_{iz}$ and
+$d_{zj}$, respectively.
+
+We bound $S_1$.  Fix $i$ and $z\in W_i$.  Since $L(i,z)<2\lambda<\Gamma$, the
+pair $(i,z)$ is local.  For every nonlocal $j>z$,
+\[
+    L(i,j)=L(i,z)+\ell_z+L(z,j)\ge3\lambda,
+\]
+and therefore $\ell_z+L(z,j)\ge\lambda$.  Using the definition of $a_i(z)$ and
+discarding a factor at most $1$,
+\[
+    \sum_{\substack{j>z\\L(i,j)\ge3\lambda}}
+    w_{ij}a_i(z)
+    \le
+    w_{iz}
+    \sum_{\substack{j>z\\\ell_z+L(z,j)\ge\lambda}}
+    p_j\e^{-(\ell_z+L(z,j))}.
+\]
+By Lemma~\ref{lem:survival-tail}, the last sum is at most $\eta$.  Hence
+\[
+    S_1\le \eta C_{\loc}.
+\]
+
+We bound $S_2$.  Fix $z<j$.  For every $i$ with $z\in W_i$, we have
+$L(i,z)+\ell_z\ge\lambda$.  Again, from the definition of $a_i(z)$ and by
+discarding a factor at most $1$,
+\[
+    \sum_{\substack{i<z\\ z\in W_i\\ L(i,j)\ge3\lambda}}
+    w_{ij}a_i(z)
+    \le
+    w_{zj}
+    \sum_{\substack{i<z\\L(i,z)+\ell_z\ge\lambda}}
+    p_i\e^{-(L(i,z)+\ell_z)}.
+\]
+By Lemma~\ref{lem:survival-tail}, the last sum is at most $\eta$.  Therefore
+\[
+    S_2\le \eta\cost(\pi)=\eta(C_{\loc}+H).
+\]
+Combining the two estimates,
+\[
+    H\le \frac{\eta}{1-\eta}(2C_{\loc}+H).
+\]
+As noted at the beginning of the proof, this gives $H\le O(\eta)C_{\loc}$.
 Hence
 \[
-\optadapt\le \frac32 n+18.
+    \cost(\pi)=C_{\loc}+H
+    \le
+    \bigl(1+O(\eta)\bigr)\cost^{\loc}_{\Gamma}(\pi).
 \]
 \end{proof}
 
-\subsection*{Proof of Theorem~\ref{thm:cycle-subdivision}}
+\begin{remark}\label{rmk:no-block}
+No global block decomposition is used.  The weights $a_i(z)$ are not an
+auxiliary random sample; they are deterministic first-active weights on the
+pivot window and provide exactly the endpoint factor $p_z$ needed in the
+coefficient comparison.
+\end{remark}
 
-Proposition~\ref{prop:cycle-prior} gives $\optprior=\frac{15}{8}n$. Proposition~\ref{prop:cycle-post} gives $\optpost\le \frac32 n+3$. Proposition~\ref{prop:cycle-adapt} gives $\optadapt\le \frac32 n+18$. Hence
+\subsection*{Packets}
+
+Fix $0<\delta<1/4$ and set $\theta:=\delta/2$.  A client is \emph{large} if
+$p_v>\theta$ and \emph{small} otherwise.  A unit is either a large singleton or
+a nonempty packet of small clients.
+
+For a unit $U$, define
 \[
-\frac{\optprior}{\optpost}
-\ge
-\frac{(15/8)n}{(3/2)n+3}
-\xrightarrow[n\to\infty]{} \frac54
-\qquad\text{and}\qquad
-\frac{\optprior}{\optadapt}
-\ge
-\frac{(15/8)n}{(3/2)n+18}
-\xrightarrow[n\to\infty]{} \frac54.
+    \mu(U):=\sum_{v\in U}p_v,
+    \qquad
+    q(U):=\prod_{v\in U}(1-p_v),
+    \qquad
+    \ell(U):=-\log q(U)=\sum_{v\in U}\ell(v).
 \]
-Given any $\varepsilon>0$, choosing odd $n$ large enough yields both ratios at least $5/4-\varepsilon$. \qed
+
+\begin{definition}[Admissibility]\label{def:admissible}
+A packet sequence $\UU=(U_1,\dots,U_m)$ is $\delta$-admissible if it
+partitions the client set, every large client is a singleton unit, every small
+packet $B$ satisfies
+\[
+    \mu(B)\le\delta,
+\]
+and every small packet immediately preceded by another small packet satisfies
+\[
+    \mu(B)\ge\delta/2.
+\]
+Thus a tiny small packet is allowed only as the first packet of a maximal run of
+small packets.
+\end{definition}
+
+\begin{lemma}[Consecutive admissible packetization]\label{lem:existence}
+Every a priori permutation $\pi$ admits a consecutive $\delta$-admissible
+packetization.
+\end{lemma}
+
+\begin{proof}
+Keep each large client as a singleton.  This splits the remaining clients into
+maximal runs of small clients.  In each run, scan from right to left, closing a
+packet as soon as its mass reaches $\delta/2$.  Since each small client has
+probability at most $\delta/2$, every closed packet has mass in
+$[\delta/2,\delta]$.  The only possible leftover is the leftmost packet of the
+run, and it may have mass below $\delta/2$.
+\end{proof}
+
+\subsection*{The packet surrogate}
+
+For a small packet $B$ and an ordering $\sigma$ of $B$, define
+\[
+    P_B(\sigma)
+    :=
+    \sum_{x<_\sigma y}p_xp_y d(x,y),
+    \qquad
+    I(B):=\min_\sigma P_B(\sigma).
+\]
+For a large singleton and for the depot unit $\{r\}$, set $I=0$.  Fix one
+minimizing order for every small packet.  Given a packet sequence $\UU$,
+let $\pi(\UU)$ be the a priori permutation obtained by replacing each
+small packet by its chosen minimizing order.
+
+For units $U,W$, define
+\[
+    C(U,W):=\sum_{x\in U}\sum_{y\in W}p_xp_y d(x,y),
+\]
+where $p_r=1$ if one of the units is the depot.  Put $U_0=U_{m+1}=\{r\}$.  The
+survival-local packet surrogate is
+\[
+\widetilde\cost_\Gamma(\UU)
+:=
+\sum_{i=1}^m I(U_i)
++
+\sum_{\substack{0\le i<j\le m+1\\
+        \sum_{i<t<j}\ell(U_t)<\Gamma}}
+\left(\prod_{i<t<j}q(U_t)\right) C(U_i,U_j).
+\]
+The surrogate uses the same survival-local condition at the unit level and
+drops the survival factors lying inside the two endpoint units.
+
+\begin{lemma}[Upper envelope]\label{lem:envelope}
+For every $\delta$-admissible packet sequence $\UU$,
+\[
+    \cost_\Gamma^{\loc}(\pi(\UU))
+    \le
+    \widetilde\cost_\Gamma(\UU).
+\]
+\end{lemma}
+
+\begin{proof}
+Consider a local exact term with endpoints $x\in U_i$ and $y\in U_j$, $i<j$.
+Its intermediate survival product equals
+\[
+\left(\prod_{\substack{z\in U_i\\ z\text{ after }x}}(1-p_z)\right)
+\left(\prod_{i<t<j}q(U_t)\right)
+\left(\prod_{\substack{z\in U_j\\ z\text{ before }y}}(1-p_z)\right).
+\]
+Dropping the two endpoint factors can only increase the coefficient.  Moreover,
+if the exact pair is $\Gamma$-local, then the complete intermediate units
+between $U_i$ and $U_j$ have total $\ell$-length below $\Gamma$, so the
+surrogate includes this inter-unit contribution.
+
+If $x,y$ lie in the same small packet $B$, then the exact coefficient is at most
+$p_xp_y$, and the chosen internal order contributes at most $I(B)$.  Large
+singletons have no internal pairs.  Summing all terms proves the claim.
+\end{proof}
+
+\begin{lemma}[Comparison with a fixed order]\label{lem:comparison}
+Let $\UU$ be a consecutive packetization of a a priori permutation $\pi$,
+with every large client singleton and every small packet of mass at most
+$\delta$.  Then
+\[
+    \widetilde\cost_\Gamma(\UU)
+    \le
+    \frac{1}{(1-\delta)^2}\cost(\pi).
+\]
+\end{lemma}
+
+\begin{proof}
+Every surrogate inter-unit term corresponds to an exact term of $\cost(\pi)$.
+The only difference is that the surrogate omits survival factors inside the left
+and right endpoint units.  Such a factor is $1$ for a depot or large singleton,
+and is at least $1-\delta$ for a small packet, by the union bound.  Hence every
+inter-unit surrogate coefficient is at most $(1-\delta)^{-2}$ times the
+corresponding exact coefficient.
+
+For a small packet $B$, let $\sigma_\pi$ be its order inside $\pi$, and let
+$T_B(\sigma_\pi)$ be its exact internal contribution to $\cost(\pi)$.  Since
+$\mu(B)\le\delta$, every internal survival factor is at least $1-\delta$.  Thus
+\[
+    I(B)
+    \le P_B(\sigma_\pi)
+    \le \frac{1}{1-\delta}T_B(\sigma_\pi)
+    \le \frac{1}{(1-\delta)^2}T_B(\sigma_\pi).
+\]
+Summing the inter-unit and internal comparisons proves the lemma.
+\end{proof}
+
+\subsection*{Exact minimization of the surrogate}
+
+The internal value $I(B)$ of each small candidate packet $B$ with
+$\mu(B)\le\delta$ is precomputed by
+\[
+    I(B)=\min_{y\in B}\left(I(B\setminus\{y\})+
+    \sum_{x\in B\setminus\{y\}}p_xp_y d(x,y)\right),
+    \qquad I(\emptyset)=0.
+\]
+This is the usual last-vertex recurrence.
+
+A prefix state consists of the placed set $S\subseteq V$ and the remembered
+suffix $\Omega$ of the current unit sequence, where the initial depot is treated
+as the first unit.  If the whole prefix has client $\ell$-length below $\Gamma$,
+then $\Omega$ is the whole prefix.  Otherwise $\Omega$ is the shortest suffix
+whose total client $\ell$-length is at least $\Gamma$.
+
+A feasible next unit is either an unplaced large singleton, or a nonempty subset
+of unplaced small clients of mass at most $\delta$.  If the current last unit is
+a small packet, then a new small packet must have mass at least $\delta/2$.  When
+a feasible unit $U$ is appended, the DP adds
+\[
+    I(U)+
+    \sum_{W\in\Omega:\,\ell(W,U)<\Gamma}
+    \e^{-\ell(W,U)}C(W,U),
+\]
+where $\ell(W,U)$ is the total $\ell$-length of the complete units strictly
+between $W$ and the new unit $U$ in the current prefix.  After the transition,
+the remembered suffix is trimmed by the same rule.  At the end, the terminal
+depot is appended once, with internal cost zero.
+
+\begin{lemma}[DP exactness]\label{lem:dp-exact}
+The dynamic program returns a $\delta$-admissible packet sequence minimizing
+$\widetilde\cost_\Gamma$.
+\end{lemma}
+
+\begin{proof}
+When a new unit $U$ is appended, the only newly determined surrogate terms are
+$I(U)$ and the inter-unit terms whose right endpoint is $U$.  Such a term from a
+previous unit $W$ is present exactly when the complete units between $W$ and
+$U$ have total $\ell$-length below $\Gamma$, and then its coefficient is
+$\e^{-\ell(W,U)}C(W,U)$.
+
+A forgotten unit has, by definition of the remembered suffix, at least $\Gamma$
+client $\ell$-length between itself and the current end.  Future append
+operations only increase this intervening length.  Hence a forgotten unit can
+never again participate in a surrogate term.  Therefore the state contains
+precisely the history relevant to all future costs, and the recurrence is an
+exact shortest-path computation over all admissible prefixes.  The terminal
+depot is handled by the same argument.
+\end{proof}
+
+\begin{lemma}[State count]\label{lem:state-count}
+For fixed $\delta$ and $\Gamma$, the DP has running time
+$c_{\delta,\Gamma}^n\poly(n)$.
+\end{lemma}
+
+\begin{proof}
+The remembered suffix has total activation mass below $\Gamma+1$.  If it is the
+whole prefix, this follows from $p_v\le\ell(v)$.  Otherwise, removing its first
+unit leaves client $\ell$-length below $\Gamma$, hence activation mass below
+$\Gamma$, and the first unit has activation mass at most $1$.
+
+Every remembered large singleton has mass greater than $\delta/2$.  Every
+remembered small packet except the first packet of a small run has mass at
+least $\delta/2$.  A tiny first packet of a small run can be charged to the
+preceding large singleton, except possibly for the first remembered unit.  Thus
+the number of remembered units is
+\[
+    K=O\!\left(\frac{\Gamma+1}{\delta}\right).
+\]
+A state is encoded by assigning each client one of the labels ``unplaced'',
+``placed and forgotten'', or ``remembered position $1,\dots,K$''.  This gives at
+most $(K+2)^n$ states.  Including choices of the next unit gives at most
+$(K+3)^n$ transition incidences up to polynomial factors.  Since $K$ depends
+only on $\delta$ and $\Gamma$, the claimed bound follows.
+\end{proof}
+
+\subsection*{Approximation theorem}
+
+\begin{theorem}\label{thm:survival-dp}
+For every fixed $0<\varepsilon\le1$, the rooted a priori TSP on directed metrics
+has a deterministic algorithm running in time $c_\varepsilon^n\poly(n)$ and
+returning a a priori permutation $\hat\pi$ with
+\[
+    \cost(\hat\pi)\le(1+\varepsilon)\opt.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $c_0$ be the universal constant implicit in
+Lemma~\ref{lem:survival-window-locality}; thus
+\[
+    \cost(\pi)\le(1+c_0\e^{-\lambda})\cost_\Gamma^{\loc}(\pi)
+    \qquad(\Gamma=3\lambda).
+\]
+Choose
+\[
+    \delta:=\varepsilon/16,
+    \qquad
+    \lambda:=\log(4c_0/\varepsilon),
+    \qquad
+    \Gamma:=3\lambda.
+\]
+Let $\pi^*$ be an optimum a priori permutation.  By
+Lemma~\ref{lem:existence}, $\pi^*$ has a consecutive $\delta$-admissible
+packetization $\UU^*$.  By Lemma~\ref{lem:comparison},
+\[
+    \widetilde\cost_\Gamma(\UU^*)
+    \le
+    (1-\delta)^{-2}\opt.
+\]
+Let $\widehat{\UU}$ be the DP minimizer and put
+$\hat\pi:=\pi(\widehat{\UU})$.  By DP optimality and
+Lemma~\ref{lem:envelope},
+\[
+    \cost_\Gamma^{\loc}(\hat\pi)
+    \le
+    \widetilde\cost_\Gamma(\widehat{\UU})
+    \le
+    \widetilde\cost_\Gamma(\UU^*)
+    \le
+    (1-\delta)^{-2}\opt.
+\]
+Using survival-window locality,
+\[
+    \cost(\hat\pi)
+    \le
+    (1+c_0\e^{-\lambda})(1-\delta)^{-2}\opt.
+\]
+By the choice of $\lambda$, $c_0\e^{-\lambda}\le\varepsilon/4$.  Also, for
+$0<\varepsilon\le1$,
+\[
+    (1-\delta)^{-2}\le 1+4\delta\le 1+\varepsilon/4.
+\]
+Therefore
+\[
+    \cost(\hat\pi)
+    \le
+    (1+\varepsilon/4)^2\opt
+    \le
+    (1+\varepsilon)\opt.
+\]
+The running time follows from Lemma~\ref{lem:state-count}, since $\delta$ and
+$\Gamma$ depend only on $\varepsilon$.
+\end{proof}
 
 \printbibliography
 

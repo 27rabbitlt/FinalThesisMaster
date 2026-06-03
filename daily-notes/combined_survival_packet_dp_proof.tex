@@ -1,0 +1,521 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\loc}{\operatorname{loc}}
+\newcommand{\mass}{\operatorname{mass}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\e}{\mathrm e}
+
+\title{A simplified survival-local packet DP proof for directed a priori TSP}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+Let
+\[
+    \pi=(r,v_1,\dots,v_n,r)
+\]
+be a rooted master permutation.  Put $v_0=v_{n+1}=r$ and
+$p_{v_0}=p_{v_{n+1}}=1$.  The distance function $d$ is a directed metric.  For
+notational brevity write
+\[
+    p_i:=p_{v_i},
+    \qquad
+    d_{ij}:=d(v_i,v_j).
+\]
+For a client $v_i$, define
+\[
+    \ell_i:=-\log(1-p_i)\in[0,\infty],
+\]
+with the convention $\ell_i=\infty$ when $p_i=1$.  For $i<j$, put
+\[
+    L(i,j):=\sum_{i<k<j}\ell_k,
+    \qquad
+    Q(i,j):=\e^{-L(i,j)}=\prod_{i<k<j}(1-p_k).
+\]
+Thus $Q(i,j)$ is exactly the probability that all vertices strictly between
+$v_i$ and $v_j$ are inactive.  The a priori cost of $\pi$ is
+\[
+    \cost(\pi)
+    =
+    \sum_{0\le i<j\le n+1}w_{ij}d_{ij},
+    \qquad
+    w_{ij}:=p_i p_j Q(i,j).
+\]
+
+\begin{definition}[Survival-local cost]
+For $\Gamma>0$, define
+\[
+    \cost^{\loc}_{\Gamma}(\pi)
+    :=
+    \sum_{\substack{0\le i<j\le n+1\\ L(i,j)<\Gamma}}
+    w_{ij}d_{ij}.
+\]
+Equivalently, the retained terms are those for which
+$Q(i,j)>\e^{-\Gamma}$.
+\end{definition}
+
+\section{Survival-window locality}
+
+We first prove that the full a priori cost is well approximated by its
+survival-local part.  The proof uses only a local pivot window and deterministic
+first-active weights.
+
+\begin{lemma}[One-sided survival tails]\label{lem:survival-tail}
+Let $\lambda>0$ and $\eta:=\e^{-\lambda}$.
+\begin{enumerate}[label=(\roman*)]
+\item For every fixed $z$,
+\[
+    \sum_{\substack{j>z\\ \ell_z+L(z,j)\ge\lambda}}
+    p_j\e^{-(\ell_z+L(z,j))}
+    \le \eta,
+\]
+where the terminal depot $j=n+1$ is included with $p_{n+1}=1$.
+
+\item For every fixed $z$,
+\[
+    \sum_{\substack{i<z\\ L(i,z)+\ell_z\ge\lambda}}
+    p_i\e^{-(L(i,z)+\ell_z)}
+    \le \eta,
+\]
+where the initial depot $i=0$ is included with $p_0=1$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We prove (i); the proof of (ii) is the same in the reversed order.  Put
+\[
+    T_j:=\ell_z+L(z,j)=\sum_{z\le k<j}\ell_k.
+\]
+The set of indices $j$ with $T_j\ge\lambda$ is a suffix.  If $j_0$ is its first
+index, then telescoping gives
+\[
+    \sum_{j\ge j_0} p_j\e^{-T_j}=\e^{-T_{j_0}},
+\]
+where the final depot term is included by $p_{n+1}=1$.  Since
+$T_{j_0}\ge\lambda$, the sum is at most $\e^{-\lambda}$.
+\end{proof}
+
+\begin{lemma}[Survival-window locality]\label{lem:survival-window-locality}
+Let $\lambda\ge1$, set $\eta:=\e^{-\lambda}$, and put
+\[
+    \Gamma:=3\lambda.
+\]
+Then every master permutation $\pi$ satisfies
+\[
+    \cost(\pi)
+    \le
+    \bigl(1+O(\eta)\bigr)\cost^{\loc}_{\Gamma}(\pi),
+\]
+where the hidden constant is universal.
+\end{lemma}
+
+\begin{proof}
+Let
+\[
+    C_{\loc}:=\cost^{\loc}_{\Gamma}(\pi),
+    \qquad
+    H:=\cost(\pi)-\cost^{\loc}_{\Gamma}(\pi).
+\]
+We shall prove the stronger explicit inequality
+\[
+    H\le \frac{\eta}{1-\eta}(2C_{\loc}+H).
+\]
+Since $\lambda\ge1$, we have $\eta<1/2$, and this will imply
+\[
+    H\le \frac{2\eta}{1-2\eta}C_{\loc}=O(\eta)C_{\loc}.
+\]
+
+Fix a left endpoint $i$.  Define the pivot window
+\[
+    W_i
+    :=
+    \{z\in\{i+1,\dots,n\}: L(i,z)<2\lambda
+       \text{ and } L(i,z)+\ell_z\ge\lambda\}.
+\]
+If $(i,j)$ is nonlocal, i.e. $L(i,j)\ge3\lambda$, then $W_i$ lies before $j$ and
+has total log-survival length at least $\lambda$:
+\[
+    \sum_{z\in W_i}\ell_z\ge\lambda.
+\]
+Indeed, scanning rightward from $i$, the cumulative log-survival length must
+cross the whole interval $[\lambda,2\lambda]$ before reaching $j$.
+
+For $z\in W_i$, define the deterministic first-active weight
+\[
+    a_i(z)
+    :=
+    p_z\prod_{\substack{u\in W_i\\ u<_\pi z}}(1-p_u).
+\]
+Then
+\[
+    A_i:=\sum_{z\in W_i}a_i(z)
+    =1-\prod_{z\in W_i}(1-p_z)
+    \ge 1-\e^{-\lambda}=1-\eta.
+\]
+For every nonlocal pair $(i,j)$ and every $z\in W_i$, the directed triangle
+inequality gives
+\[
+    d_{ij}\le d_{iz}+d_{zj}.
+\]
+Averaging this deterministic inequality with weights $a_i(z)/A_i$, multiplying
+by $w_{ij}$, and summing over all nonlocal pairs gives
+\[
+    H\le \frac{1}{1-\eta}(S_1+S_2),
+\]
+where $S_1$ and $S_2$ are the resulting sums with distances $d_{iz}$ and
+$d_{zj}$, respectively.
+
+We bound $S_1$.  Fix $i$ and $z\in W_i$.  Since $L(i,z)<2\lambda<\Gamma$, the
+pair $(i,z)$ is local.  For every nonlocal $j>z$,
+\[
+    L(i,j)=L(i,z)+\ell_z+L(z,j)\ge3\lambda,
+\]
+and therefore $\ell_z+L(z,j)\ge\lambda$.  Using the definition of $a_i(z)$ and
+discarding a factor at most $1$,
+\[
+    \sum_{\substack{j>z\\L(i,j)\ge3\lambda}}
+    w_{ij}a_i(z)
+    \le
+    w_{iz}
+    \sum_{\substack{j>z\\\ell_z+L(z,j)\ge\lambda}}
+    p_j\e^{-(\ell_z+L(z,j))}.
+\]
+By Lemma~\ref{lem:survival-tail}, the last sum is at most $\eta$.  Hence
+\[
+    S_1\le \eta C_{\loc}.
+\]
+
+We bound $S_2$.  Fix $z<j$.  For every $i$ with $z\in W_i$, we have
+$L(i,z)+\ell_z\ge\lambda$.  Again, from the definition of $a_i(z)$ and by
+discarding a factor at most $1$,
+\[
+    \sum_{\substack{i<z\\ z\in W_i\\ L(i,j)\ge3\lambda}}
+    w_{ij}a_i(z)
+    \le
+    w_{zj}
+    \sum_{\substack{i<z\\L(i,z)+\ell_z\ge\lambda}}
+    p_i\e^{-(L(i,z)+\ell_z)}.
+\]
+By Lemma~\ref{lem:survival-tail}, the last sum is at most $\eta$.  Therefore
+\[
+    S_2\le \eta\cost(\pi)=\eta(C_{\loc}+H).
+\]
+Combining the two estimates,
+\[
+    H\le \frac{\eta}{1-\eta}(2C_{\loc}+H).
+\]
+As noted at the beginning of the proof, this gives $H\le O(\eta)C_{\loc}$.
+Hence
+\[
+    \cost(\pi)=C_{\loc}+H
+    \le
+    \bigl(1+O(\eta)\bigr)\cost^{\loc}_{\Gamma}(\pi).
+\]
+\end{proof}
+
+\begin{remark}
+No global block decomposition is used.  The weights $a_i(z)$ are not an
+auxiliary random sample; they are deterministic first-active weights on the
+pivot window and provide exactly the endpoint factor $p_z$ needed in the
+coefficient comparison.
+\end{remark}
+
+\section{Packets}
+
+Fix $0<\delta<1/4$ and set $\theta:=\delta/2$.  A client is \emph{large} if
+$p_v>\theta$ and \emph{small} otherwise.  A unit is either a large singleton or
+a nonempty packet of small clients.
+
+For a unit $U$, define
+\[
+    \mu(U):=\sum_{v\in U}p_v,
+    \qquad
+    q(U):=\prod_{v\in U}(1-p_v),
+    \qquad
+    \ell(U):=-\log q(U)=\sum_{v\in U}\ell(v).
+\]
+
+\begin{definition}[Admissibility]
+A packet sequence $\mathcal U=(U_1,\dots,U_m)$ is $\delta$-admissible if it
+partitions the client set, every large client is a singleton unit, every small
+packet $B$ satisfies
+\[
+    \mu(B)\le\delta,
+\]
+and every small packet immediately preceded by another small packet satisfies
+\[
+    \mu(B)\ge\delta/2.
+\]
+Thus a tiny small packet is allowed only as the first packet of a maximal run of
+small packets.
+\end{definition}
+
+\begin{lemma}[Consecutive admissible packetization]\label{lem:existence}
+Every master permutation $\pi$ admits a consecutive $\delta$-admissible
+packetization.
+\end{lemma}
+
+\begin{proof}
+Keep each large client as a singleton.  This splits the remaining clients into
+maximal runs of small clients.  In each run, scan from right to left, closing a
+packet as soon as its mass reaches $\delta/2$.  Since each small client has
+probability at most $\delta/2$, every closed packet has mass in
+$[\delta/2,\delta]$.  The only possible leftover is the leftmost packet of the
+run, and it may have mass below $\delta/2$.
+\end{proof}
+
+\section{The packet surrogate}
+
+For a small packet $B$ and an ordering $\sigma$ of $B$, define
+\[
+    P_B(\sigma)
+    :=
+    \sum_{x<_\sigma y}p_xp_y d(x,y),
+    \qquad
+    I(B):=\min_\sigma P_B(\sigma).
+\]
+For a large singleton and for the depot unit $\{r\}$, set $I=0$.  Fix one
+minimizing order for every small packet.  Given a packet sequence $\mathcal U$,
+let $\pi(\mathcal U)$ be the master permutation obtained by replacing each
+small packet by its chosen minimizing order.
+
+For units $U,W$, define
+\[
+    C(U,W):=\sum_{x\in U}\sum_{y\in W}p_xp_y d(x,y),
+\]
+where $p_r=1$ if one of the units is the depot.  Put $U_0=U_{m+1}=\{r\}$.  The
+survival-local packet surrogate is
+\[
+\widetilde\cost_\Gamma(\mathcal U)
+:=
+\sum_{i=1}^m I(U_i)
++
+\sum_{\substack{0\le i<j\le m+1\\
+        \sum_{i<t<j}\ell(U_t)<\Gamma}}
+\left(\prod_{i<t<j}q(U_t)\right) C(U_i,U_j).
+\]
+The surrogate uses the same survival-local condition at the unit level and
+drops the survival factors lying inside the two endpoint units.
+
+\begin{lemma}[Upper envelope]\label{lem:envelope}
+For every $\delta$-admissible packet sequence $\mathcal U$,
+\[
+    \cost_\Gamma^{\loc}(\pi(\mathcal U))
+    \le
+    \widetilde\cost_\Gamma(\mathcal U).
+\]
+\end{lemma}
+
+\begin{proof}
+Consider a local exact term with endpoints $x\in U_i$ and $y\in U_j$, $i<j$.
+Its intermediate survival product equals
+\[
+\left(\prod_{\substack{z\in U_i\\ z\text{ after }x}}(1-p_z)\right)
+\left(\prod_{i<t<j}q(U_t)\right)
+\left(\prod_{\substack{z\in U_j\\ z\text{ before }y}}(1-p_z)\right).
+\]
+Dropping the two endpoint factors can only increase the coefficient.  Moreover,
+if the exact pair is $\Gamma$-local, then the complete intermediate units
+between $U_i$ and $U_j$ have total $\ell$-length below $\Gamma$, so the
+surrogate includes this inter-unit contribution.
+
+If $x,y$ lie in the same small packet $B$, then the exact coefficient is at most
+$p_xp_y$, and the chosen internal order contributes at most $I(B)$.  Large
+singletons have no internal pairs.  Summing all terms proves the claim.
+\end{proof}
+
+\begin{lemma}[Comparison with a fixed order]\label{lem:comparison}
+Let $\mathcal U$ be a consecutive packetization of a master permutation $\pi$,
+with every large client singleton and every small packet of mass at most
+$\delta$.  Then
+\[
+    \widetilde\cost_\Gamma(\mathcal U)
+    \le
+    \frac{1}{(1-\delta)^2}\cost(\pi).
+\]
+\end{lemma}
+
+\begin{proof}
+Every surrogate inter-unit term corresponds to an exact term of $\cost(\pi)$.
+The only difference is that the surrogate omits survival factors inside the left
+and right endpoint units.  Such a factor is $1$ for a depot or large singleton,
+and is at least $1-\delta$ for a small packet, by the union bound.  Hence every
+inter-unit surrogate coefficient is at most $(1-\delta)^{-2}$ times the
+corresponding exact coefficient.
+
+For a small packet $B$, let $\sigma_\pi$ be its order inside $\pi$, and let
+$T_B(\sigma_\pi)$ be its exact internal contribution to $\cost(\pi)$.  Since
+$\mu(B)\le\delta$, every internal survival factor is at least $1-\delta$.  Thus
+\[
+    I(B)
+    \le P_B(\sigma_\pi)
+    \le \frac{1}{1-\delta}T_B(\sigma_\pi)
+    \le \frac{1}{(1-\delta)^2}T_B(\sigma_\pi).
+\]
+Summing the inter-unit and internal comparisons proves the lemma.
+\end{proof}
+
+\section{Exact minimization of the surrogate}
+
+The internal value $I(B)$ of each small candidate packet $B$ with
+$\mu(B)\le\delta$ is precomputed by
+\[
+    I(B)=\min_{y\in B}\left(I(B\setminus\{y\})+
+    \sum_{x\in B\setminus\{y\}}p_xp_y d(x,y)\right),
+    \qquad I(\emptyset)=0.
+\]
+This is the usual last-vertex recurrence.
+
+A prefix state consists of the placed set $S\subseteq V$ and the remembered
+suffix $\Omega$ of the current unit sequence, where the initial depot is treated
+as the first unit.  If the whole prefix has client $\ell$-length below $\Gamma$,
+then $\Omega$ is the whole prefix.  Otherwise $\Omega$ is the shortest suffix
+whose total client $\ell$-length is at least $\Gamma$.
+
+A feasible next unit is either an unplaced large singleton, or a nonempty subset
+of unplaced small clients of mass at most $\delta$.  If the current last unit is
+a small packet, then a new small packet must have mass at least $\delta/2$.  When
+a feasible unit $U$ is appended, the DP adds
+\[
+    I(U)+
+    \sum_{W\in\Omega:\,\ell(W,U)<\Gamma}
+    \e^{-\ell(W,U)}C(W,U),
+\]
+where $\ell(W,U)$ is the total $\ell$-length of the complete units strictly
+between $W$ and the new unit $U$ in the current prefix.  After the transition,
+the remembered suffix is trimmed by the same rule.  At the end, the terminal
+depot is appended once, with internal cost zero.
+
+\begin{lemma}[DP exactness]\label{lem:dp-exact}
+The dynamic program returns a $\delta$-admissible packet sequence minimizing
+$\widetilde\cost_\Gamma$.
+\end{lemma}
+
+\begin{proof}
+When a new unit $U$ is appended, the only newly determined surrogate terms are
+$I(U)$ and the inter-unit terms whose right endpoint is $U$.  Such a term from a
+previous unit $W$ is present exactly when the complete units between $W$ and
+$U$ have total $\ell$-length below $\Gamma$, and then its coefficient is
+$\e^{-\ell(W,U)}C(W,U)$.
+
+A forgotten unit has, by definition of the remembered suffix, at least $\Gamma$
+client $\ell$-length between itself and the current end.  Future append
+operations only increase this intervening length.  Hence a forgotten unit can
+never again participate in a surrogate term.  Therefore the state contains
+precisely the history relevant to all future costs, and the recurrence is an
+exact shortest-path computation over all admissible prefixes.  The terminal
+depot is handled by the same argument.
+\end{proof}
+
+\begin{lemma}[State count]\label{lem:state-count}
+For fixed $\delta$ and $\Gamma$, the DP has running time
+$c_{\delta,\Gamma}^n\poly(n)$.
+\end{lemma}
+
+\begin{proof}
+The remembered suffix has total activation mass below $\Gamma+1$.  If it is the
+whole prefix, this follows from $p_v\le\ell(v)$.  Otherwise, removing its first
+unit leaves client $\ell$-length below $\Gamma$, hence activation mass below
+$\Gamma$, and the first unit has activation mass at most $1$.
+
+Every remembered large singleton has mass greater than $\delta/2$.  Every
+remembered small packet except the first packet of a small run has mass at
+least $\delta/2$.  A tiny first packet of a small run can be charged to the
+preceding large singleton, except possibly for the first remembered unit.  Thus
+the number of remembered units is
+\[
+    K=O\!\left(\frac{\Gamma+1}{\delta}\right).
+\]
+A state is encoded by assigning each client one of the labels ``unplaced'',
+``placed and forgotten'', or ``remembered position $1,\dots,K$''.  This gives at
+most $(K+2)^n$ states.  Including choices of the next unit gives at most
+$(K+3)^n$ transition incidences up to polynomial factors.  Since $K$ depends
+only on $\delta$ and $\Gamma$, the claimed bound follows.
+\end{proof}
+
+\section{Approximation theorem}
+
+\begin{theorem}\label{thm:main}
+For every fixed $0<\varepsilon\le1$, the rooted a priori TSP on directed metrics
+has a deterministic algorithm running in time $c_\varepsilon^n\poly(n)$ and
+returning a master permutation $\hat\pi$ with
+\[
+    \cost(\hat\pi)\le(1+\varepsilon)\OPT.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $c_0$ be the universal constant implicit in
+Lemma~\ref{lem:survival-window-locality}; thus
+\[
+    \cost(\pi)\le(1+c_0\e^{-\lambda})\cost_\Gamma^{\loc}(\pi)
+    \qquad(\Gamma=3\lambda).
+\]
+Choose
+\[
+    \delta:=\varepsilon/16,
+    \qquad
+    \lambda:=\log(4c_0/\varepsilon),
+    \qquad
+    \Gamma:=3\lambda.
+\]
+Let $\pi^*$ be an optimum master permutation.  By
+Lemma~\ref{lem:existence}, $\pi^*$ has a consecutive $\delta$-admissible
+packetization $\mathcal U^*$.  By Lemma~\ref{lem:comparison},
+\[
+    \widetilde\cost_\Gamma(\mathcal U^*)
+    \le
+    (1-\delta)^{-2}\OPT.
+\]
+Let $\widehat{\mathcal U}$ be the DP minimizer and put
+$\hat\pi:=\pi(\widehat{\mathcal U})$.  By DP optimality and
+Lemma~\ref{lem:envelope},
+\[
+    \cost_\Gamma^{\loc}(\hat\pi)
+    \le
+    \widetilde\cost_\Gamma(\widehat{\mathcal U})
+    \le
+    \widetilde\cost_\Gamma(\mathcal U^*)
+    \le
+    (1-\delta)^{-2}\OPT.
+\]
+Using survival-window locality,
+\[
+    \cost(\hat\pi)
+    \le
+    (1+c_0\e^{-\lambda})(1-\delta)^{-2}\OPT.
+\]
+By the choice of $\lambda$, $c_0\e^{-\lambda}\le\varepsilon/4$.  Also, for
+$0<\varepsilon\le1$,
+\[
+    (1-\delta)^{-2}\le 1+4\delta\le 1+\varepsilon/4.
+\]
+Therefore
+\[
+    \cost(\hat\pi)
+    \le
+    (1+\varepsilon/4)^2\OPT
+    \le
+    (1+\varepsilon)\OPT.
+\]
+The running time follows from Lemma~\ref{lem:state-count}, since $\delta$ and
+$\Gamma$ depend only on $\varepsilon$.
+\end{proof}
+
+\end{document}

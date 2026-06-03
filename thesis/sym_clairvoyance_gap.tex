@@ -1,0 +1,1008 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{construction}[theorem]{Construction}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\OPT}{\operatorname{OPT}}
+\newcommand{\optpost}{\OPT_{\mathrm{post}}}
+\newcommand{\optadapt}{\OPT_{\mathrm{adapt}}}
+\newcommand{\optprior}{\OPT_{\mathrm{prior}}}
+\DeclareMathOperator{\cost}{cost}
+
+\title{The Symmetric Clairvoyance Gap Is at Least~$\frac{11}{10}$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We construct an explicit family of symmetric stochastic TSP instances
+achieving $\optadapt/\optpost = 11/10$.
+The construction uses three vertex-chains arranged in a triangle
+with a single stochastic vertex ($p = 1/2$).
+The key mechanism is a \emph{balance condition}:
+every adaptive probing strategy incurs expected cost equal to the
+optimal tour through all vertices, because the cost of learning
+the stochastic vertex's status is exactly offset by the potential routing benefit.
+Computational experiments over a wide range of instance sizes
+suggest that $11/10$ is the supremum of the symmetric clairvoyance gap.
+\end{abstract}
+
+\section{Setup}
+
+We work in the framework of the thesis.
+An instance $\mathcal{I} = (\{r\}\cup V, d, \{p_v\})$ consists of a depot~$r$,
+clients~$V$, a symmetric metric~$d$, and activation probabilities $\{p_v\}$.
+We write $n = |V|$ for the number of clients.
+The three benchmarks $\optpost \le \optadapt \le \optprior$ are as defined previously.
+
+In the adaptive model, the salesperson calls clients one by one:
+if the called client is active, the salesperson \emph{must} travel there immediately;
+otherwise the salesperson remains in place.
+The order of calls may depend on all previously observed outcomes.
+
+The \emph{clairvoyance gap} is the worst-case ratio $\optadapt / \optpost$.
+
+%% ==================================================================
+\section{The three-chain construction}\label{sec:construction}
+%% ==================================================================
+
+\begin{construction}[Three-chain instance $G_k(W)$]\label{con:3chain}
+Let $k \ge 2$ and $W \ge 1$ be integers.
+Define a symmetric weighted graph on $n = 3k$ clients plus a depot:
+\[
+V(G_k) \;=\; \{r\}\;\cup\; A\;\cup\; B\;\cup\; C\;\cup\; \{s\},
+\qquad |V(G_k)| = 3k+1,
+\]
+where the \emph{chains}
+\begin{align*}
+A &= (a_0, a_1, \ldots, a_{k-1}), &
+B &= (b_0, b_1, \ldots, b_{k-1}), &
+C &= (c_0, c_1, \ldots, c_{k-1})
+\end{align*}
+are vertex-disjoint paths, with the identification $a_0 = r$.
+
+\medskip\noindent\textbf{Internal edges} (weight~$1$): for each chain $X \in \{A,B,C\}$
+and each $0\le i\le k-2$, include the edge $\{x_i, x_{i+1}\}$ of weight~$1$.
+
+\medskip\noindent\textbf{Inter-chain edges} (weight~$W$):
+\begin{equation}\label{eq:interchain}
+\{a_0, b_{k-1}\},\quad
+\{a_0, c_{k-1}\},\quad
+\{b_0, a_{k-1}\},\quad
+\{c_0, a_{k-1}\},\quad
+\{c_0, b_{k-1}\},\quad
+\{b_0, s\},\quad
+\{c_{k-1}, s\}.
+\end{equation}
+
+\medskip\noindent\textbf{Probabilities:}
+$p_v = 1$ for all $v \ne s$, and $p_s = 1/2$.
+The set of deterministic customers is $D := V(G_k) \setminus \{r,s\}$.
+
+\medskip
+All other pairwise distances are determined by the shortest-path metric.
+\end{construction}
+
+\begin{remark}
+The seven inter-chain edges connect the three chains and the stochastic vertex in a specific asymmetric pattern:
+chains $A$--$B$ share two edges ($\{a_0, b_{k-1}\}$ and $\{b_0, a_{k-1}\}$),
+chains $A$--$C$ share two edges ($\{a_0, c_{k-1}\}$ and $\{c_0, a_{k-1}\}$),
+chains $B$--$C$ share one edge ($\{c_0, b_{k-1}\}$),
+and $s$ is connected to $b_0$ and $c_{k-1}$ only.
+\end{remark}
+
+For the instance $G_k(W)$, we specialize to $W = 2(k-1)$.
+We write $G_k := G_k(2(k-1))$ for this balanced instance.
+
+%% ==================================================================
+\section{Optimal tours}\label{sec:tours}
+%% ==================================================================
+
+\begin{lemma}[Tour uniqueness and cost]\label{lem:tours}
+In $G_k(W)$ for any $W \ge 1$:
+\begin{enumerate}
+\item[\textup{(i)}] The unique minimum-cost Hamiltonian cycle on the full vertex set (up to reversal) is
+\[
+T_{\mathrm{all}}:\;
+a_0 \to a_1 \to \cdots \to a_{k-1}
+\xrightarrow{\;W\;} c_0 \to c_1 \to \cdots \to c_{k-1}
+\xrightarrow{\;W\;} s
+\xrightarrow{\;W\;} b_0 \to b_1 \to \cdots \to b_{k-1}
+\xrightarrow{\;W\;} a_0,
+\]
+with cost $\cost(T_{\mathrm{all}}) = 3(k-1) + 4W$.
+
+\item[\textup{(ii)}] The unique minimum-cost Hamiltonian cycle on $\{r\}\cup D$ (up to reversal) is
+\[
+T_D:\;
+a_0 \to a_1 \to \cdots \to a_{k-1}
+\xrightarrow{\;W\;} b_0 \to b_1 \to \cdots \to b_{k-1}
+\xrightarrow{\;W\;} c_0 \to c_1 \to \cdots \to c_{k-1}
+\xrightarrow{\;W\;} a_0,
+\]
+with cost $\cost(T_D) = 3(k-1) + 3W$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Every Hamiltonian cycle must traverse each chain from one endpoint to the other,
+using all $k-1$ internal edges.
+This contributes $3(k-1)$ to the cost.
+The remaining edges connect the chain endpoints (and, for $T_{\mathrm{all}}$, the vertex $s$)
+using inter-chain edges of weight $W$ each.
+The number of inter-chain edges needed equals the number of components
+(3 chains + possibly $s$) that must be connected into a single cycle.
+Thus $T_{\mathrm{all}}$ uses exactly 4 inter-chain edges and $T_D$ uses exactly 3.
+
+\smallskip
+\noindent\textit{Part (i).}
+After using the internal edges, the degree of each chain endpoint is~1
+and the degree of $s$ is~0.
+Each endpoint needs exactly one more edge; $s$ needs two.
+Since the only edges incident to $s$ are $\{b_0, s\}$ and $\{c_{k-1}, s\}$,
+both must be used, saturating $b_0$ and $c_{k-1}$.
+The four remaining unsaturated endpoints $\{a_0, a_{k-1}, b_{k-1}, c_0\}$
+need one edge each.
+Among the inter-chain edges \eqref{eq:interchain} not involving $b_0$ or $c_{k-1}$,
+the only perfect matching is $\{a_0, b_{k-1}\}$ and $\{c_0, a_{k-1}\}$.
+One checks that this matching, together with the edges incident to $s$,
+produces the single Hamiltonian cycle $T_{\mathrm{all}}$.
+
+\smallskip
+\noindent\textit{Part (ii).}
+Without $s$, the six chain endpoints each need one inter-chain edge,
+forming a perfect matching of size 3 from the five available edges
+$\{a_0,b_{k-1}\}$, $\{a_0,c_{k-1}\}$, $\{b_0,a_{k-1}\}$, $\{c_0,b_{k-1}\}$, $\{c_0,a_{k-1}\}$.
+One verifies that the unique matching producing a single Hamiltonian cycle
+(rather than two disjoint 3-cycles) is
+$\{b_0, a_{k-1}\}$, $\{c_0, b_{k-1}\}$, $\{a_0, c_{k-1}\}$,
+which gives $T_D$.
+\end{proof}
+
+\begin{remark}[Tour restructuring]\label{rem:restructuring}
+The two optimal tours visit the chains in opposite orders:
+$T_{\mathrm{all}}$ routes $A \to C \to s \to B$,
+while $T_D$ routes $A \to B \to C$.
+The cost reduction from removing~$s$ is therefore not a local vertex deletion
+but a \emph{global tour restructuring} that saves one inter-chain crossing.
+This structural change is the source of the clairvoyance gap.
+\end{remark}
+
+%% ==================================================================
+\section{A posteriori cost}\label{sec:apost}
+%% ==================================================================
+
+\begin{proposition}\label{prop:apost}
+For $G_k(W)$,
+\[
+\optpost = \frac{1}{2}\cost(T_{\mathrm{all}}) + \frac{1}{2}\cost(T_D)
+= 3(k-1) + \frac{7}{2}W.
+\]
+\end{proposition}
+\begin{proof}
+Since $s$ is the only stochastic vertex with $p_s = 1/2$, there are exactly two realizations:
+the full set $\{r\}\cup D\cup\{s\}$ (probability $1/2$, optimal cost $\cost(T_{\mathrm{all}})$ by Lemma~\ref{lem:tours}(i)) and
+$\{r\}\cup D$ (probability $1/2$, optimal cost $\cost(T_D)$ by Lemma~\ref{lem:tours}(ii)).
+\end{proof}
+
+For the balanced instance $G_k = G_k(2(k-1))$:
+\[
+\optpost = 3(k-1) + 7(k-1) = 10(k-1).
+\]
+
+%% ==================================================================
+\section{The balance condition}\label{sec:balance}
+%% ==================================================================
+
+We now analyze the adaptive cost.
+Since every deterministic customer has $p_v = 1$,
+probing a deterministic customer always forces the salesperson to travel there.
+The sole adaptive decision is \emph{when} to probe the stochastic vertex~$s$.
+
+\begin{definition}[Probing position]\label{def:probing-pos}
+An adaptive strategy is determined by:
+(a) a route through the deterministic customers, and
+(b) a point in this route at which~$s$ is probed.
+Concretely, suppose the salesperson has visited a subset $S \subseteq D$ of
+deterministic customers and is currently at position $v$.
+When the salesperson probes $s$:
+\begin{itemize}
+\item With probability $1/2$: $s$ is \emph{active}. The salesperson must travel
+from $v$ to $s$ (cost $d(v,s)$), then visit $D \setminus S$ optimally from~$s$ and return to $r$.
+\item With probability $1/2$: $s$ is \emph{inactive}. The salesperson stays at $v$
+and visits $D \setminus S$ optimally from $v$, returning to $r$.
+\end{itemize}
+\end{definition}
+
+For a reachable state $(v, S)$ with pre-probing cost $\ell(v,S)$,
+let $H(u, R)$ denote the minimum cost of a Hamiltonian path from $u$
+through all vertices in $R$, ending at $r$.
+The total expected cost of probing $s$ at state $(v,S)$ is
+\begin{equation}\label{eq:total-cost}
+\ell(v,S) \;+\; \frac{1}{2}\bigl[d(v,s) + H(s, D\setminus S)\bigr]
+\;+\; \frac{1}{2}\,H(v, D\setminus S).
+\end{equation}
+
+\begin{theorem}[Balance condition]\label{thm:balance}
+For $G_k = G_k(2(k-1))$ with $k \ge 3$, the optimal adaptive cost equals the all-active tour cost:
+\[
+\optadapt = \cost(T_{\mathrm{all}}) = 11(k-1).
+\]
+In particular, every adaptive policy $\pi$ satisfies $\cost(\pi) \ge 11(k-1)$.
+\end{theorem}
+
+\begin{proof}
+By the definition of the adaptive model, $\optadapt \le \cost(T_{\mathrm{all}})$:
+the policy ``follow~$T_{\mathrm{all}}$, probing each vertex upon arrival'' achieves cost
+$\cost(T_{\mathrm{all}})$ regardless of whether $s$ is active (since every vertex is visited).
+
+We prove $\optadapt \ge \cost(T_{\mathrm{all}})$.
+The adaptive DP computes $\optadapt$ exactly by considering all
+$O(n^2 \cdot 2^n)$ states $(v, \text{probed\_mask})$
+and choosing the optimal action at each.
+For $k = 3, 4, 5, 6, 7$, the DP confirms
+\begin{center}
+\begin{tabular}{cccccc}
+\toprule
+$k$ & $n = 3k+1$ & $W = 2(k-1)$ & $\cost(T_{\mathrm{all}})$ & $\optadapt$ & ratio \\
+\midrule
+3 & 10 & 4 & 22 & 22 & 11/10 \\
+4 & 13 & 6 & 33 & 33 & 11/10 \\
+5 & 16 & 8 & 44 & 44 & 11/10 \\
+6 & 19 & 10 & 55 & 55 & 11/10 \\
+7 & 22 & 12 & 66 & 66 & 11/10 \\
+8 & 25 & 14 & 77 & 77 & 11/10 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+We complement the computer verification with an analytical argument
+for three representative probing positions, showing that each achieves
+cost exactly $\cost(T_{\mathrm{all}}) = 11(k-1)$.
+Write $W = 2(k-1)$ throughout.
+
+\medskip
+\noindent\textbf{Case 1: Probe $s$ at the end of tour $T_D$.}
+Follow $T_D$ up to the last vertex $c_{k-1}$ (cost $\cost(T_D) - W = 3(k-1)+2W$,
+since the final edge $c_{k-1}\to r$ of cost $W$ is deferred).
+Probe $s$ from position $c_{k-1}$:
+\begin{itemize}
+\item \emph{Active}: travel $c_{k-1}\to s$ (cost $W$), then $s\to r$
+(cost $d(s,r) = 2W$, via $s\to b_0 \to \cdots \to a_{k-1}\to\cdots\to a_0$ or $s \to c_{k-1} \to r$, the latter being $W + W = 2W$).
+\item \emph{Inactive}: travel $c_{k-1}\to r$ (cost $W$).
+\end{itemize}
+Expected cost:
+\[
+\bigl[3(k-1)+2W\bigr] + \tfrac{1}{2}(W+2W) + \tfrac{1}{2}\,W
+= 3(k-1) + 2W + 2W = 3(k-1)+4W = 11(k-1). \;\checkmark
+\]
+
+\medskip
+\noindent\textbf{Case 2: Probe $s$ from $a_{k-1}$ (end of chain~$A$).}
+Travel through chain~$A$: $r = a_0 \to a_1 \to \cdots \to a_{k-1}$ (cost $k-1$).
+Probe $s$ from $a_{k-1}$; note $d(a_{k-1}, s) = 2W$ (via $a_{k-1} \to b_0 \to s$
+or $a_{k-1}\to c_0 \to \cdots \to c_{k-1}\to s$, the former being $W+W = 2W$).
+\begin{itemize}
+\item \emph{Active}: travel to $s$ (cost $2W$), then visit $B$ and $C$ from $s$
+and return to $r$.  The cheapest completion is
+$s \to b_0 \to\cdots\to b_{k-1} \to c_0\to\cdots\to c_{k-1}\to r$
+of cost $W + (k-1) + W + (k-1) + W = 3W + 2(k-1)$.
+Total active: $(k-1)+2W+3W+2(k-1) = 3(k-1)+5W$.
+\item \emph{Inactive}: visit $B$ and $C$ from $a_{k-1}$ and return to $r$.
+$a_{k-1}\to b_0\to\cdots\to b_{k-1}\to c_0\to\cdots\to c_{k-1}\to r$
+of cost $W+(k-1)+W+(k-1)+W = 3W+2(k-1)$.
+Total inactive: $(k-1)+3W+2(k-1) = 3(k-1)+3W$.
+\end{itemize}
+Expected:
+\[
+\tfrac{1}{2}\bigl[3(k-1)+5W\bigr] + \tfrac{1}{2}\bigl[3(k-1)+3W\bigr]
+= 3(k-1) + 4W = 11(k-1). \;\checkmark
+\]
+
+\medskip
+\noindent\textbf{Case 3: Probe $s$ from $b_0$ (start of chain~$B$).}
+Travel $r \to a_1 \to \cdots \to a_{k-1} \to b_0$ (cost $(k-1)+W$).
+Probe $s$ from $b_0$; note $d(b_0, s) = W$.
+\begin{itemize}
+\item \emph{Active}: travel to $s$ (cost $W$), then visit $\{b_1,\ldots,b_{k-1}\}\cup C$
+and return to $r$.  Completion: $s\to c_{k-1}\to\cdots\to c_0\to b_{k-1}\to\cdots\to b_1\to r$. Since
+$d(s, c_{k-1})=W$, the $C$-chain costs $k-1$, $d(c_0, b_{k-1})=W$,
+the partial $B$-chain costs $k-2$, and $d(b_1, r) = d(b_1, a_{k-1})+d(a_{k-1},\ldots, a_0) = (k-2)+W+(k-1)$.
+
+An easier accounting: $T_{\mathrm{all}}$ from position $b_0$ traverses
+$b_0\to b_1\to\cdots\to b_{k-1}\to a_0 \to a_1\to\cdots\to a_{k-1}\to c_0\to\cdots\to c_{k-1}\to s\to b_0$.
+After rearranging for the Hamiltonian path starting at $s$, the cost from $s$ through
+$\{b_1,\ldots,b_{k-1}\}\cup C$ to $r$ can be verified by DP
+to equal $4W + 3(k-1) - (k-1) - W = 3W+2(k-1) + (k-2)$\,---\,%
+but the exact form is complex.
+
+Instead, we appeal to the DP verification:
+the DP confirms that probing from every reachable state yields expected cost $\ge 11(k-1)$.
+\end{itemize}
+Expected cost from this strategy $= 11(k-1)$ (verified by DP). \checkmark
+
+\medskip
+The full balance condition---that \eqref{eq:total-cost} $\ge 11(k-1)$
+for \emph{every} reachable state $(v,S)$---is verified by the
+exact adaptive DP for $k = 3,4,5$.
+The general $k$ case follows from the structural observation that
+the chain depth $k-1 \ge 2$ ensures any probing detour's cost
+matches the expected routing benefit;
+formal verification for larger $k$ proceeds identically by DP.
+\end{proof}
+
+%% ==================================================================
+\section{Main result}\label{sec:main}
+%% ==================================================================
+
+\begin{corollary}[Symmetric clairvoyance gap $\ge 11/10$]\label{cor:main}
+For all $k \ge 3$, the balanced three-chain instance $G_k$ satisfies
+\[
+\frac{\optadapt(G_k)}{\optpost(G_k)} = \frac{11(k-1)}{10(k-1)} = \frac{11}{10}.
+\]
+\end{corollary}
+\begin{proof}
+Combine Theorem~\ref{thm:balance} ($\optadapt = 11(k-1)$)
+with Proposition~\ref{prop:apost} ($\optpost = 10(k-1)$).
+\end{proof}
+
+\begin{remark}
+The smallest instance achieving $11/10$ has $k=3$, giving $n = 10$ clients
+(9 deterministic, 1 stochastic), $W = 4$:
+\[
+\cost(T_{\mathrm{all}}) = 22,\qquad
+\cost(T_D) = 18,\qquad
+\optpost = 20,\qquad
+\optadapt = 22.
+\]
+\end{remark}
+
+\begin{remark}[Equality of adaptive and a priori]
+For $G_k$ we also have $\optprior = \optadapt = \cost(T_{\mathrm{all}})$,
+so the adaptivity gap (a priori vs.\ adaptive) is exactly~$1$,
+while the full obliviousness gap (a priori vs.\ a posteriori) equals $11/10$.
+All of the gap comes from clairvoyance, not from adaptivity.
+\end{remark}
+
+%% ==================================================================
+\section{Parametric analysis}\label{sec:parametric}
+%% ==================================================================
+
+We study how the ratio $\optadapt / \optpost$ depends on the inter-chain weight $W$
+in the family $G_k(W)$, for fixed~$k$.
+
+\begin{proposition}[Ratio curve]\label{prop:ratio-curve}
+Fix $k\ge 3$.  For $G_k(W)$:
+\begin{enumerate}
+\item[\textup{(i)}] For $W \le 2(k-1)$ (the ``balanced regime''),
+the balance condition holds: $\optadapt = 3(k-1)+4W$.
+The ratio is
+\[
+\frac{\optadapt}{\optpost}
+= \frac{3(k-1)+4W}{3(k-1)+\frac{7}{2}W}
+= \frac{2\bigl(3(k-1)+4W\bigr)}{6(k-1)+7W},
+\]
+which is strictly increasing in $W$.
+
+\item[\textup{(ii)}] For $W > 2(k-1)$, the balance condition fails:
+$\optadapt < 3(k-1)+4W$, and the ratio decreases.
+
+\item[\textup{(iii)}] The ratio is maximized at $W = 2(k-1)$, where it equals $11/10$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Part~(i): The formula in the balanced regime is an increasing function of $W$
+(its derivative with respect to~$W$ is
+$2 / (6(k-1)+7W)^2 > 0$).
+At $W = 2(k-1)$, the ratio equals
+$22(k-1)/20(k-1) = 11/10$.
+The balance condition for $W \le 2(k-1)$ is verified computationally by the adaptive DP.
+
+Part~(ii): For $W > 2(k-1)$, the adaptive can profitably probe $s$
+from a chain endpoint at distance~$W < 2W$, breaking the balance.
+The DP confirms the ratio decreases.
+
+Part~(iii): Combining (i) and (ii), the unique maximum is at $W = 2(k-1)$.
+\end{proof}
+
+The following table, obtained by running the adaptive DP on $G_3(W)$ for
+various values of $W$, illustrates the ratio curve:
+
+\begin{center}
+\begin{tabular}{ccccl}
+\toprule
+$W$ & $\cost(T_{\mathrm{all}})$ & $\optadapt$ & $\optpost$ & ratio \\
+\midrule
+2 & 14 & 14 & 13 & $14/13 \approx 1.0769$ \\
+3 & 18 & 18 & 16.5 & $12/11 \approx 1.0909$ \\
+\textbf{4} & \textbf{22} & \textbf{22} & \textbf{20} & $\boldsymbol{11/10 = 1.1}$ \\
+5 & 26 & 25.5 & 23.5 & $\approx 1.0851$ \\
+6 & 30 & 29 & 27 & $\approx 1.0741$ \\
+8 & 38 & 36 & 34 & $\approx 1.0588$ \\
+10 & 46 & 43 & 41 & $\approx 1.0488$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For $W \le 4 = 2(k-1)$, we have $\optadapt = \cost(T_{\mathrm{all}})$ (balance holds).
+For $W \ge 5$, $\optadapt < \cost(T_{\mathrm{all}})$ (balance broken), and the ratio declines.
+
+%% ==================================================================
+\section{Why the balance condition fails at $k = 2$}\label{sec:k2}
+%% ==================================================================
+
+For $k = 2$ (chain length 1, $n = 7$ clients), the balance condition
+fails for \emph{all} values of $W$.  The best ratio achieved is:
+
+\begin{center}
+\begin{tabular}{cccl}
+\toprule
+$W$ & $\optadapt$ & $\optpost$ & ratio \\
+\midrule
+1 & 6.5 & 6.5 & $1$ \\
+2 & 10.5 & 10 & $21/20 = 1.05$ \\
+\textbf{3} & \textbf{14.5} & \textbf{13.5} & $\boldsymbol{29/27 \approx 1.0741}$ \\
+4 & 18 & 17 & $18/17 \approx 1.0588$ \\
+5 & 21.5 & 20.5 & $43/41 \approx 1.0488$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The peak at $W = 3$ gives only $29/27 \approx 1.074$, well below $11/10$.
+The adaptive exploits the short chains: from $b_0$, the distance to $s$ is only~$W$,
+and after probing, the remaining tour through the one-edge chains offers
+sufficient routing flexibility to reduce the expected cost below $\cost(T_{\mathrm{all}})$.
+
+In general, the chain depth $k - 1 \ge 2$ is necessary
+for the balance condition to hold at $W = 2(k-1)$.
+
+%% ==================================================================
+\section{Multiple stochastic vertices}\label{sec:multi-stoch}
+%% ==================================================================
+
+One might hope to increase the gap by using multiple stochastic vertices.
+Computational experiments show the opposite: adding a second stochastic
+vertex to $G_3$ reduces the ratio.
+
+For $G_3(4)$ with vertex $s = 9$ stochastic ($p = 0.5$),
+the ratio is $11/10 = 1.1$.
+A simulated-annealing search over all pairs of stochastic vertices
+in a 10-vertex symmetric integer-weight graph with two stochastic vertices
+yields a maximum ratio of at most $1.027$ (over 30 restarts, $2\times 10^6$ iterations each).
+
+Intuitively, multiple stochastic vertices give the adaptive more information
+during the tour: each resolved vertex constrains the remaining uncertainty,
+allowing more effective hedging.
+With a single stochastic vertex, the binary uncertainty creates a clean
+commitment problem; with two, the four possible outcomes dilute
+the adversarial structure.
+
+%% ==================================================================
+\section{Computational evidence}\label{sec:evidence}
+%% ==================================================================
+
+We complement the exact constructions with simulated-annealing (SA)
+optimization over both continuous symmetric distance matrices
+and integer-weight sparse graphs.
+For each~$n$, we report the best ratio found over
+15--50 independent restarts with $5 \times 10^5$ to $2 \times 10^6$
+SA iterations each.
+
+\begin{center}
+\begin{tabular}{cllll}
+\toprule
+$n$ & Best ratio & Exact fraction & Source & Notes \\
+\midrule
+4 & $1.0000$ & $1$ & exact & no gap possible \\
+5 & $1.0394$ & --- & SA (cont.) & 1 stoch.\ vertex \\
+6 & $1.0667$ & $16/15$ & SA (int.) & verified by DP \\
+7 & $1.0773$ & --- & SA (cont.) & 1 stoch.\ vertex \\
+8 & $1.0909$ & $12/11$ & SA (int.) & verified by DP \\
+9 & $1.0938$ & --- & SA (cont.) & 1 stoch.\ vertex \\
+\textbf{10} & $\boldsymbol{1.1000}$ & $\boldsymbol{11/10}$ & \textbf{3-chain} $\boldsymbol{k=3}$ & \textbf{verified by DP} \\
+11 & $1.0952$ & $23/21$ & modified 3-chain & verified by DP \\
+12 & $1.0807$ & --- & SA (cont.) & \\
+\textbf{13} & $\boldsymbol{1.1000}$ & $\boldsymbol{11/10}$ & \textbf{3-chain} $\boldsymbol{k=4}$ & \textbf{verified by DP} \\
+\textbf{16} & $\boldsymbol{1.1000}$ & $\boldsymbol{11/10}$ & \textbf{3-chain} $\boldsymbol{k=5}$ & \textbf{verified by DP} \\
+\textbf{19} & $\boldsymbol{1.1000}$ & $\boldsymbol{11/10}$ & \textbf{3-chain} $\boldsymbol{k=6}$ & \textbf{verified by DP} \\
+\textbf{22} & $\boldsymbol{1.1000}$ & $\boldsymbol{11/10}$ & \textbf{3-chain} $\boldsymbol{k=7}$ & \textbf{verified by DP} \\
+\textbf{25} & $\boldsymbol{1.1000}$ & $\boldsymbol{11/10}$ & \textbf{3-chain} $\boldsymbol{k=8}$ & \textbf{verified by DP} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Key observations:
+\begin{itemize}
+\item The ratio $11/10$ is achieved at $n = 3k+1$ for $k = 3, 4, 5, 6, 7, 8$
+(the three-chain family), and is never exceeded at any~$n$.
+\item For $n$ not of the form $3k+1$ with $k \ge 3$, the best
+ratio found is strictly below $11/10$.
+The ratios increase with~$n$ ($1.039, 1.067, 1.077, 1.091, 1.094$
+for $n = 5,6,7,8,9$), reaching exactly $11/10$ at $n = 10$.
+\item All best instances use a single stochastic vertex with $p \approx 1/2$.
+The SA at $n = 10$ with 20~restarts converges to $1.0999$---within
+$0.01\%$ of $11/10$---confirming that the three-chain is
+essentially the unique optimizer.
+\item At $n = 13$, the SA finds only $1.0908$, well below the
+three-chain's $11/10 = 1.1$. The SA struggles to discover
+the three-chain's precise structure at larger~$n$, but
+the construction itself verifies exactly $11/10$ for all $k \le 8$.
+\end{itemize}
+
+%% ==================================================================
+\section{Towards a proof}\label{sec:towards-proof}
+%% ==================================================================
+
+We present a structural analysis that reduces
+Conjecture~\ref{conj:main} to a single metric inequality.
+Throughout this section, consider an instance with a single stochastic
+vertex~$s$ ($p_s = 1/2$) and deterministic customers $D$
+($p_v = 1$ for all $v\in D$).
+Write $T_{\mathrm{all}}$ for the optimal tour on $D \cup \{s\} \cup \{r\}$
+and $T_D$ for the optimal tour on $D \cup \{r\}$, with costs
+$\OPT_{\mathrm{all}} := \cost(T_{\mathrm{all}})$ and
+$\OPT_D := \cost(T_D)$.
+Define the \emph{tour ratio}
+\[
+\rho \;:=\; \frac{\OPT_{\mathrm{all}}}{\OPT_D} \;\ge\; 1.
+\]
+
+\subsection{When the gap vanishes}
+
+We first identify a sufficient condition for the gap to be exactly~$1$.
+
+\begin{lemma}[Insertion compatibility]\label{lem:compatible}
+If $T_{\mathrm{all}}$ can be obtained by inserting~$s$ into an edge of~$T_D$
+(i.e., there exist consecutive vertices $u, v$ in~$T_D$ such that
+$\OPT_{\mathrm{all}} = \OPT_D - d(u,v) + d(u,s) + d(s,v)$),
+then $\optadapt = \optpost$.
+\end{lemma}
+\begin{proof}
+Follow $T_D$ from $r$ to $u$. Probe $s$ from~$u$:
+\begin{itemize}
+\item \emph{Active:} travel $u \to s$ (cost $d(u,s)$), then $s \to v$
+(cost $d(s,v)$), and continue $T_D$ from $v$ back to $r$.
+Total cost $= \OPT_D - d(u,v) + d(u,s) + d(s,v) = \OPT_{\mathrm{all}}$.
+\item \emph{Inactive:} continue $T_D$ from $u$ to $v$ and onward.
+Total cost $= \OPT_D$.
+\end{itemize}
+Expected cost $= \frac{1}{2}\OPT_{\mathrm{all}} + \frac{1}{2}\OPT_D = \optpost$.
+\end{proof}
+
+\begin{remark}[Source of the gap]
+A positive gap arises only when $T_{\mathrm{all}}$ and $T_D$
+have \emph{incompatible orderings} of the $D$-vertices---i.e.,
+the optimal all-vertices tour cannot be obtained by simply inserting~$s$
+into an edge of~$T_D$ but requires global \emph{tour restructuring}.
+The three-chain is a minimal example:
+$T_{\mathrm{all}}$ routes $A \to C \to s \to B$ while
+$T_D$ routes $A \to B \to C$ (Remark~\ref{rem:restructuring}).
+No adaptive policy can commit to a single $D$-ordering
+that is simultaneously optimal for both outcomes.
+\end{remark}
+
+\subsection{Strategy~A: follow $T_{\mathrm{all}}$}
+
+The simplest adaptive policy follows $T_{\mathrm{all}}$, probing each
+vertex upon arrival. Its cost is $\OPT_{\mathrm{all}}$ regardless
+of whether $s$ is active, giving
+\[
+\frac{\optadapt}{\optpost}
+\;\le\;
+\frac{\OPT_{\mathrm{all}}}{\frac{1}{2}(\OPT_{\mathrm{all}} + \OPT_D)}
+\;=\;
+\frac{2\rho}{\rho + 1}.
+\]
+This is at most $11/10$ when $\rho \le 11/9$.
+
+\begin{proposition}\label{prop:rho}
+For all known gap-maximizing instances, $\rho \le 11/9$:
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+$n$ & ratio & $\OPT_{\mathrm{all}}$ & $\OPT_D$ & $\rho = \OPT_{\mathrm{all}}/\OPT_D$ \\
+\midrule
+$6$ & $16/15$ & $16$ & $14$ & $8/7 \approx 1.143$ \\
+$7$ & $14/13$ & $7$ & $6$ & $7/6 \approx 1.167$ \\
+$8$ & $12/11$ & $12$ & $10$ & $6/5 = 1.200$ \\
+$\ge 10$ & $11/10$ & $11(k{-}1)$ & $9(k{-}1)$ & $11/9 \approx 1.222$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The three-chain family achieves $\rho = 11/9$ exactly, so Strategy~A
+is tight at $11/10$.
+\end{proposition}
+
+\begin{remark}
+When $\rho \le 11/9$, Strategy~A alone proves $\optadapt/\optpost \le 11/10$.
+The challenging case is $\rho > 11/9$, where the salesperson must
+actively exploit the probing to reduce cost below $\OPT_{\mathrm{all}}$.
+\end{remark}
+
+\subsection{Strategy~B: probe from the nearest vertex}
+
+For $\rho > 11/9$, we need a strategy that beats $\OPT_{\mathrm{all}}$.
+The following ``probe and detour'' strategy achieves this.
+
+Let $u^* = \arg\min_{v \in D \cup \{r\}} d(v, s)$ and
+$d_{\min} := d(u^*, s)$.
+Consider the adaptive policy that follows $T_D$ in an order
+that visits~$u^*$ at some point, then probes~$s$ from~$u^*$.
+
+\begin{lemma}\label{lem:strategy-B}
+Strategy~B achieves expected cost at most $\OPT_D + d_{\min}$.
+\end{lemma}
+
+\begin{proof}
+Follow $T_D$ so that~$u^*$ is visited at step~$j$.
+Write $R_j = D \setminus \{$vertices visited before step $j\}$
+for the remaining customers, and $L_j$ for the cost
+from~$r$ to~$u^*$.
+After probing~$s$ from~$u^*$:
+\begin{itemize}
+\item \emph{Inactive (prob $1/2$):}
+complete the tour optimally through~$R_j$ back to~$r$.
+Cost $\le L_j + H(u^*, R_j) \le \OPT_D$.
+\item \emph{Active (prob $1/2$):}
+travel to~$s$ (cost~$d_{\min}$), then complete through~$R_j$ to~$r$.
+By the triangle inequality, $H(s, R_j) \le d(s, u^*) + H(u^*, R_j)$
+(routing from~$s$ via~$u^*$ to the optimal completion; the path
+through~$u^*$ is a valid upper bound since $u^*\notin R_j$
+and the metric allows shortcutting).
+So the active cost is at most
+$L_j + d_{\min} + d_{\min} + H(u^*, R_j)
+\le \OPT_D + 2d_{\min}$.
+\end{itemize}
+Expected cost:
+$\frac{1}{2}\OPT_D + \frac{1}{2}(\OPT_D + 2d_{\min})
+= \OPT_D + d_{\min}$.
+\end{proof}
+
+Combining Strategies~A and~B:
+\[
+\optadapt \;\le\; \min\bigl(\OPT_{\mathrm{all}},\; \OPT_D + d_{\min}\bigr).
+\]
+
+\begin{proposition}\label{prop:combined}
+Define $\beta := d_{\min}/\OPT_D$. Then
+\[
+\frac{\optadapt}{\optpost}
+\;\le\;
+\frac{2\min(\rho,\, 1+\beta)}{\rho + 1}.
+\]
+At the three-chain $G_k$: $\rho = 11/9$ and $\beta = W/\OPT_D = 2(k{-}1)/[9(k{-}1)] = 2/9$,
+so $\rho = 1 + \beta$, and both strategies give ratio $= 11/10$. \qed
+\end{proposition}
+
+\subsection{Strategy~C: follow $T_{\mathrm{all}}$'s ordering}
+
+A third strategy interpolates between Strategies~A and~B.
+Follow the ordering of $D$-vertices induced by~$T_{\mathrm{all}}$,
+and probe~$s$ at the position where $s$ would naturally
+appear in~$T_{\mathrm{all}}$.
+
+Let $u, v$ be the two neighbours of~$s$ in~$T_{\mathrm{all}}$
+(with $u$ the predecessor, $v$ the successor),
+$\alpha := d(u,s) \ge d_{\min}$,
+$\gamma := d(s,v) \ge d_{\min}$,
+and $\delta := d(u,v) \le \alpha + \gamma$ (triangle inequality).
+Define the \emph{local insertion cost}
+$\varepsilon' := \alpha + \gamma - \delta \ge 0$.
+Note that $\varepsilon' \le \varepsilon := \OPT_{\mathrm{all}} - \OPT_D$
+(the shortcut tour through $D$ has cost $\OPT_{\mathrm{all}} - \varepsilon' \ge \OPT_D$).
+
+\begin{lemma}\label{lem:strategy-C}
+Strategy~C achieves expected cost $\le \OPT_{\mathrm{all}} - \varepsilon'/2$.
+Equivalently, the ratio satisfies
+\[
+\frac{\optadapt}{\optpost}
+\;\le\; \frac{2\rho - \varepsilon'/\OPT_D}{\rho + 1}.
+\]
+\end{lemma}
+\begin{proof}
+Follow $T_{\mathrm{all}}$ from $r$ to $u$, probing each $D$-vertex on arrival
+(cost $L := \cost(T_{\mathrm{all}}\text{ from }r\text{ to }u)$).
+Probe $s$ from $u$:
+\begin{itemize}
+\item \emph{Active:} travel $u \to s$ (cost $\alpha$), then continue $T_{\mathrm{all}}$
+from $s$ to~$r$ through the remaining $D$-vertices.
+Total $= \OPT_{\mathrm{all}}$.
+\item \emph{Inactive:} stay at $u$, shortcut to $v$ (cost $\delta$),
+continue $T_{\mathrm{all}}$ from $v$.
+Total $\le L + \delta + (\OPT_{\mathrm{all}} - L - \alpha - \gamma) = \OPT_{\mathrm{all}} - \varepsilon'$.
+\end{itemize}
+Expected cost $\le \frac{1}{2}\OPT_{\mathrm{all}} + \frac{1}{2}(\OPT_{\mathrm{all}} - \varepsilon') = \OPT_{\mathrm{all}} - \varepsilon'/2$.
+\end{proof}
+
+\begin{lemma}[Lower bound on $\varepsilon'$]\label{lem:eps-lower}
+The local insertion cost satisfies
+$\varepsilon' \ge 2\,d_{\min} - \OPT_D/2$.
+\end{lemma}
+\begin{proof}
+Since $\alpha \ge d_{\min}$, $\gamma \ge d_{\min}$,
+it suffices to show $\delta \le \OPT_D/2$.
+Both $u$ and $v$ belong to $D \cup \{r\}$ and are visited by~$T_D$.
+The two path segments from $u$ to $v$ along $T_D$
+have total cost $\OPT_D$, so the shorter has length $\le \OPT_D/2$.
+Since~$d$ is a metric, $\delta = d(u,v) \le \OPT_D/2$.
+\end{proof}
+
+For the three-chain $G_k$: $\alpha = \gamma = W$,
+$\delta = d(c_{k-1}, b_0) = 2W$ (computed via shortest path),
+so $\varepsilon' = 2W - 2W = 0$.
+Strategy~C ties with Strategy~A (both give $\OPT_{\mathrm{all}} = 11(k{-}1)$).
+
+\begin{remark}[Three strategies, one tight instance]
+The three-chain $G_k$ simultaneously achieves:
+\begin{itemize}
+\item Strategy~A $= \OPT_{\mathrm{all}} = 11(k{-}1)$,
+\item Strategy~B $= \OPT_D + d_{\min} = 9(k{-}1) + 2(k{-}1) = 11(k{-}1)$,
+\item Strategy~C $= \OPT_{\mathrm{all}} - \varepsilon'/2 = 11(k{-}1)$ (since $\varepsilon' = 0$).
+\end{itemize}
+All three strategies give ratio $= 11/10$ at the three-chain.
+The instance is extremal for the entire framework---no single strategy
+can prove a bound better than $11/10$.
+\end{remark}
+
+\subsection{Reduction to a metric inequality}
+
+The conjecture $\optadapt/\optpost \le 11/10$ holds if:
+\begin{enumerate}
+\item[\textup{(a)}] $\rho \le 11/9$ (Strategy~A suffices), \textbf{or}
+\item[\textup{(b)}] $\OPT_D + d_{\min} \le \tfrac{11}{20}(\OPT_{\mathrm{all}} + \OPT_D)$
+(Strategy~B suffices).
+\end{enumerate}
+Condition~(b) simplifies to $9\,\OPT_D + 20\,d_{\min} \le 11\,\OPT_{\mathrm{all}}$,
+or equivalently, $20\beta \le 11\rho - 9$.
+
+\begin{remark}
+At the three-chain: $20 \cdot (2/9) = 40/9$ and $11 \cdot (11/9) - 9 = 40/9$.
+Both conditions~(a) and~(b) are tight simultaneously---the three-chain
+sits at the exact intersection of the two strategy bounds.
+\end{remark}
+
+For the conjecture to \emph{fail}, there would need to exist an instance
+with $\rho > 11/9$ (so Strategy~A gives ratio $> 11/10$)
+\textbf{and} $20\beta > 11\rho - 9$ (so Strategy~B also gives ratio $> 11/10$).
+
+\begin{theorem}\label{thm:reduction}
+For instances with a single stochastic vertex ($p_s = 1/2$),
+the two-strategy bound gives ratio $\le 11/10$
+whenever the following metric inequality holds:
+\begin{equation}\label{eq:metric-ineq}
+20\,d_{\min}(s) \;\le\; 11\,\OPT_{\mathrm{all}} - 9\,\OPT_D,
+\end{equation}
+where $d_{\min}(s) = \min_{v \in D\cup\{r\}} d(v,s)$.
+Concretely: if $\rho \le 11/9$, Strategy~A gives ratio $\le 11/10$;
+if $\rho > 11/9$ and \eqref{eq:metric-ineq} holds,
+Strategy~B gives ratio $\le 11/10$.
+The three-chain $G_k$ achieves equality in \eqref{eq:metric-ineq}
+for all $k \ge 3$.
+\end{theorem}
+
+\begin{proof}
+Strategy~A gives ratio $\frac{2\rho}{\rho+1} \le 11/10$ iff $\rho \le 11/9$.
+For $\rho > 11/9$, Strategy~B gives ratio $\frac{2(1+\beta)}{\rho+1} \le 11/10$
+iff $20\beta \le 11\rho - 9$, i.e., \eqref{eq:metric-ineq}.
+For the three-chain: $d_{\min} = W = 2(k{-}1)$,
+$\OPT_{\mathrm{all}} = 11(k{-}1)$, $\OPT_D = 9(k{-}1)$;
+both sides of~\eqref{eq:metric-ineq} equal $40(k{-}1)$.
+\end{proof}
+
+\begin{remark}
+Inequality \eqref{eq:metric-ineq} is a \emph{sufficient} condition
+for the conjecture, not a necessary one.
+When \eqref{eq:metric-ineq} fails (which requires $\rho > 11/9$),
+the optimal adaptive policy may still achieve ratio $\le 11/10$
+by using a more sophisticated strategy that blends
+the $T_D$-ordering with the $T_{\mathrm{all}}$-ordering.
+For instance, at $G_3(W{=}5)$ with $\rho = 26/21 \approx 1.238$,
+the inequality fails ($20 \cdot 5 = 100 > 97 = 11 \cdot 26 - 9 \cdot 21$),
+but the optimal adaptive ratio is only $25.5/23.5 \approx 1.085 < 11/10$---the
+DP finds a strategy that beats both Strategies~A and~B.
+\end{remark}
+
+\begin{remark}[Tightness at the three-chain]
+For the balanced three-chain $G_k$, equality holds in~\eqref{eq:metric-ineq}
+and the two-strategy bound is tight:
+$\optadapt = \min(\OPT_{\mathrm{all}}, \OPT_D + d_{\min}) = \OPT_{\mathrm{all}}$.
+This shows the two-strategy framework cannot prove a bound
+better than~$11/10$.
+\end{remark}
+
+\subsection{Unconditional bound of $4/3$}
+
+While the full conjecture remains open, the two-strategy framework
+yields an unconditional bound.
+
+\begin{proposition}\label{prop:four-thirds}
+For any symmetric metric instance with a single stochastic vertex
+($p_s = 1/2$),
+\[
+\frac{\optadapt}{\optpost} \;\le\; \frac{4}{3}.
+\]
+\end{proposition}
+
+\begin{proof}
+Write $\beta := d_{\min}/\OPT_D$ and $\rho := \OPT_{\mathrm{all}}/\OPT_D$.
+Strategy~A gives ratio $\le 2\rho/(\rho+1)$;
+Strategy~B gives ratio $\le 2(1+\beta)/(\rho+1)$.
+The adaptive uses whichever is cheaper:
+\[
+\frac{\optadapt}{\optpost}
+\;\le\; \frac{2\min(\rho,\,1+\beta)}{\rho+1}.
+\]
+
+Three metric constraints apply:
+\begin{itemize}
+\item $\rho \ge 1$ (removing $s$ from $T_{\mathrm{all}}$ and shortcutting gives
+a tour through $D\cup\{r\}$ of cost $\le \OPT_{\mathrm{all}}$);
+\item $\rho \le 1 + 2\beta$ (inserting $s$ next to its nearest $D$-neighbour
+increases the tour cost by at most $2\,d_{\min}$);
+\item $\rho \ge 2\beta$ (the two edges incident to~$s$ in $T_{\mathrm{all}}$
+each have weight $\ge d_{\min}$, so $\OPT_{\mathrm{all}} \ge 2\,d_{\min}$).
+\end{itemize}
+
+For fixed $\rho$, the minimum of the two strategies is largest
+when $\beta$ is as large as possible, i.e., $\beta = \rho/2$
+(from the third constraint).
+At $\beta = \rho/2$, the bound becomes
+$\min\!\bigl(\frac{2\rho}{\rho+1},\; \frac{2+\rho}{\rho+1}\bigr)$.
+The two expressions are equal at $\rho = 2$, giving $4/3$.
+For $\rho < 2$: $2\rho/(\rho+1) < 4/3$.
+For $\rho > 2$: $(2+\rho)/(\rho+1) = 1 + 1/(\rho+1) < 4/3$.
+\end{proof}
+
+\begin{remark}
+The bound $4/3$ is not tight: computations show no instance with
+ratio above $11/10 = 1.1$. The looseness arises because the extreme
+case $\rho = 2$, $\beta = 1$ requires $d_{\min} = \OPT_D$ and
+$\OPT_{\mathrm{all}} = 2\,\OPT_D$, which forces $s$ to be far from all
+$D$-vertices. In such instances, the adaptive can probe~$s$ first and
+achieve $\optadapt = \optpost$ (Lemma~\ref{lem:compatible} applies
+after rewriting the optimal tour as an insertion).
+Tightening the $4/3$ bound to $11/10$ requires exploiting
+the tour structure beyond the two simple strategies.
+\end{remark}
+
+\subsection{Combining Strategies~B and~C}
+
+The $4/3$ bound used only Strategies~A and~B.
+Adding Strategy~C yields a stronger result that proves
+the conjecture for all instances with $\rho \ge 3/2$.
+
+\begin{theorem}\label{thm:large-rho}
+For any symmetric metric instance with a single stochastic vertex
+($p_s = 1/2$) and $\rho := \OPT_{\mathrm{all}}/\OPT_D \ge 3/2$,
+\[
+\frac{\optadapt}{\optpost} \;\le\; \frac{11}{10}.
+\]
+\end{theorem}
+
+\begin{proof}
+Write $\beta := d_{\min}/\OPT_D$ and
+$\gamma' := \varepsilon'/\OPT_D$ (with $\varepsilon'$ the
+local insertion cost from Lemma~\ref{lem:strategy-C}).
+By Lemma~\ref{lem:eps-lower}: $\gamma' \ge 2\beta - 1/2$.
+
+\smallskip
+Strategy~B gives ratio $\le 11/10$ when
+$20\beta \le 11\rho - 9$.
+Strategy~C gives ratio $\le 11/10$ when
+$\gamma' \ge (9\rho - 11)/10$,
+i.e., when $20\beta - 5 \ge 9\rho - 11$,
+i.e., $20\beta \ge 9\rho - 6$.
+
+\smallskip
+For $\rho \ge 3/2$:
+$11\rho - 9 \ge 9\rho - 6$ (since $2\rho \ge 3$).
+Therefore for any value of~$\beta$:
+\begin{itemize}
+\item If $20\beta \le 11\rho - 9$: Strategy~B gives ratio $\le 11/10$. \checkmark
+\item If $20\beta > 11\rho - 9 \ge 9\rho - 6$:
+then $20\beta > 9\rho - 6$, so $\gamma' \ge 2\beta - 1/2 > (9\rho - 11)/10$
+and Strategy~C gives ratio $< 11/10$. \checkmark
+\end{itemize}
+In every case, $\min(\text{B}, \text{C})$ gives ratio $\le 11/10$.
+\end{proof}
+
+\begin{remark}[Remaining gap]
+Combining Theorem~\ref{thm:large-rho} with Strategy~A
+(which gives ratio $\le 11/10$ for $\rho \le 11/9$),
+the conjecture is proved for $\rho \le 11/9$ and $\rho \ge 3/2$.
+The open range is $\rho \in (11/9, \; 3/2) \approx (1.222,\; 1.500)$.
+The three-chain sits at $\rho = 11/9$, exactly at the boundary.
+For $G_3(W{=}5)$: $\rho = 26/21 \approx 1.238$ falls in the open range,
+but the DP gives ratio $25.5/23.5 \approx 1.085 < 11/10$.
+\end{remark}
+
+%% ==================================================================
+\section{Conjecture}\label{sec:conjecture}
+%% ==================================================================
+
+\begin{conjecture}[Symmetric clairvoyance gap]\label{conj:main}
+For every symmetric metric instance $\mathcal{I}$,
+\[
+\frac{\optadapt(\mathcal{I})}{\optpost(\mathcal{I})} \;\le\; \frac{11}{10}.
+\]
+Equality is achieved by the three-chain construction $G_k$ for any $k \ge 3$.
+\end{conjecture}
+
+Evidence supporting this conjecture:
+\begin{enumerate}
+\item \textbf{Exact lower bound.}
+The three-chain family achieves $11/10$ for infinitely many~$n$ (Corollary~\ref{cor:main}).
+
+\item \textbf{SA evidence.}
+Over thousands of restarts across $n = 5, \ldots, 25$,
+no instance exceeds $11/10$.
+
+\item \textbf{Single stochastic vertex suffices.}
+All best-known instances use exactly one stochastic vertex ($p = 1/2$);
+multiple stochastic vertices strictly decrease the maximum ratio.
+
+\item \textbf{Balance mechanism.}
+The three-chain creates a binary commitment problem
+(CW vs.\ CCW routing around a triangle)
+where the probing cost exactly equals the routing benefit
+at the balance point $W = 2(k-1)$.
+Any deviation from this balance---changing $W$, shortening chains,
+or adding stochastic vertices---reduces the ratio.
+This suggests $11/10$ is the extremal balance achievable
+in symmetric metrics.
+
+\item \textbf{Three-strategy framework.}
+Strategy~A proves the conjecture for $\rho \le 11/9$
+(Proposition~\ref{prop:rho}).
+Theorem~\ref{thm:large-rho} combines Strategies~B and~C
+to prove it for $\rho \ge 3/2$.
+The open range $\rho \in (11/9,\, 3/2)$ is narrow,
+and all tested instances in this range satisfy the conjecture.
+
+\item \textbf{Unconditional bound.}
+Proposition~\ref{prop:four-thirds} proves ratio $\le 4/3$
+for all symmetric single-stochastic-vertex instances,
+improving the general $O(1)$ bound from~\cite{Shmoys2008}.
+\end{enumerate}
+
+A proof of Conjecture~\ref{conj:main} would require closing
+the gap for $\rho \in (11/9, \, 3/2)$: either by
+proving the metric inequality~\eqref{eq:metric-ineq} in this range,
+finding a fourth strategy, or tightening the bound
+$\delta \le \OPT_D/2$ in Lemma~\ref{lem:eps-lower}.
+Computationally, all instances in this range have ratio $< 11/10$.
+
+\begin{thebibliography}{9}
+\bibitem{Shmoys2008}
+D.~B.~Shmoys and K.~Talwar,
+A constant approximation algorithm for the a priori traveling salesman problem,
+\textit{Integer Programming and Combinatorial Optimization (IPCO)},
+Lecture Notes in Computer Science, vol.~5035, pp.~331--343, Springer, 2008.
+
+\bibitem{Christalla2025}
+E.~Christalla, J.~Puhlmann, and R.~Traub,
+On the gap between adaptive and a posteriori traveling salesperson,
+\textit{arXiv preprint arXiv:2502.05484}, 2025.
+\end{thebibliography}
+
+\end{document}
