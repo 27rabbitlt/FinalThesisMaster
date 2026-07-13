@@ -1,0 +1,447 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+
+\DeclareMathOperator{\OPT}{OPT}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\cost}{\operatorname{cost}}
+
+\title{A Degree-Constrained LP Witness for the Backbone Circulation}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Setting}
+
+Let $(\{r\}\cup V,d)$ be a directed metric, where $r$ is the depot.  Put
+$N:=\{r\}\cup V$ and $n:=\max\{|N|,3\}$, so that all logarithms below are
+at least a positive absolute constant.  Each
+$v\in V$ is active independently with probability $p_v$.  For an active set
+$A\subseteq V$, let $\OPT(A)$ denote the length of an optimal directed tour on
+$\{r\}\cup A$.  Define
+\[
+  \OPT_{\mathrm{post}} := \E_A[\OPT(A)].
+\]
+
+For a set $S\subseteq V$, write $U:=V\setminus S$.  We consider the following
+backbone circulation LP with an additional degree bound $D$ on the backbone:
+\[
+\begin{aligned}
+\min \quad & \sum_{u,v\in \{r\}\cup V} d(u,v)x_{uv} \\
+\text{s.t.}\quad
+& x(\delta^+(w))=x(\delta^-(w)) && \forall w\in \{r\}\cup V, \\
+& x(\delta^+(v))=x(\delta^-(v))\ge p_v && \forall v\in U, \\
+& x(\delta^+(s))=x(\delta^-(s))\le D && \forall s\in S\cup\{r\}, \\
+& x_{uv}=0 && \forall u,v\in U, \\
+& x_{uv}\ge 0 && \forall u,v.
+\end{aligned}
+\tag{$\mathrm{LP}_D(S)$}
+\]
+
+The goal of this note is to prove that the additional constraints
+\[
+  x(\delta^-(s))\le O(\log n), \qquad s\in S\cup\{r\},
+\]
+do not destroy the comparison with $\OPT_{\mathrm{post}}$.  More precisely,
+we prove that there exists a feasible solution satisfying the degree constraints
+whose cost is at most $O(\log n)\OPT_{\mathrm{post}}$.
+
+\section{The two-sample witness}
+
+Let $B\subseteq V$ be an ordinary active sample, i.e. each $v\in V$ is included
+in $B$ independently with probability $p_v$.  We always regard $r$ as part of
+the backbone, so the backbone is $B\cup\{r\}$.
+
+Let $A\subseteq V$ be an independent active sample, and define
+\[
+  C := A\cup B.
+\]
+For every possible set $C$, fix once and for all an optimal directed tour
+$T_C$ on $\{r\}\cup C$.  The tour $T_C$ depends only on $C$, not on the
+particular pair $(A,B)$ that generated $C$.
+
+Fix a pair $(A,B)$.  Cut $T_C$ at the vertices of $B\cup\{r\}$.  This gives
+cyclically ordered directed segments
+\[
+  P_j=(b_j,u_{j,1},u_{j,2},\ldots,u_{j,k_j},b_{j+1}),
+\]
+where $b_j,b_{j+1}\in B\cup\{r\}$ and all internal vertices
+$u_{j,t}$ lie in $A\setminus B$.  Let
+\[
+  M(A,B):=\max_j k_j.
+\]
+
+We now define a circulation $y^{A,B}$.  For every segment
+$P_j=(b_j,u_{j,1},\ldots,u_{j,k_j},b_{j+1})$:
+\begin{itemize}[leftmargin=2em]
+  \item for each internal vertex $u_{j,t}$, send one unit of flow on
+  $b_j\to u_{j,t}$ and one unit of flow on $u_{j,t}\to b_{j+1}$;
+  \item send $M(A,B)-k_j$ units of flow on the backbone arc
+  $b_j\to b_{j+1}$.
+\end{itemize}
+
+\begin{lemma}[Circulation and degrees for a fixed pair]
+For every fixed pair $(A,B)$, $y^{A,B}$ is a circulation.  Every vertex in
+$A\setminus B$ has one unit of incoming flow and one unit of outgoing flow.
+Every vertex in $B\cup\{r\}$ has $M(A,B)$ units of incoming flow and
+$M(A,B)$ units of outgoing flow.
+\end{lemma}
+
+\begin{proof}
+Fix a segment $P_j$.  The total flow leaving its first backbone endpoint
+$b_j$ through this segment is
+\[
+  k_j+(M(A,B)-k_j)=M(A,B).
+\]
+Similarly, the total flow entering the next backbone endpoint $b_{j+1}$ from
+this segment is also $M(A,B)$.  Since the segments form a cyclic decomposition
+of $T_C$, every backbone vertex has exactly $M(A,B)$ incoming flow and
+$M(A,B)$ outgoing flow.  Each internal vertex $u_{j,t}\in A\setminus B$ receives
+one unit from $b_j$ and sends one unit to $b_{j+1}$.  Hence all vertices are
+balanced.
+\end{proof}
+
+Now average over the independent sample $A$, while keeping $B$ fixed:
+\[
+  x^B := \E_A[y^{A,B}\mid B].
+\]
+
+\begin{lemma}[Feasibility before the degree bound]
+For every fixed $B$, the vector $x^B$ is feasible for the backbone LP on
+$B\cup\{r\}$ without the upper degree constraint.  Moreover, for every
+$v\notin B$,
+\[
+  x^B(\delta^+(v))=x^B(\delta^-(v))=p_v,
+\]
+and for every $b\in B\cup\{r\}$,
+\[
+  x^B(\delta^+(b))=x^B(\delta^-(b))=
+  Z(B),
+  \qquad
+  Z(B):=\E_A[M(A,B)\mid B].
+\]
+\end{lemma}
+
+\begin{proof}
+The average of circulations is a circulation.  No arc between two vertices of
+$V\setminus B$ is ever used: every used arc is either from $B\cup\{r\}$ to an
+internal vertex, from an internal vertex to $B\cup\{r\}$, or between two
+vertices of $B\cup\{r\}$.  Hence the support constraint is satisfied.
+
+Fix $v\notin B$.  For a given $A$, the vertex $v$ is internal in exactly one
+segment if $v\in A$, and is absent otherwise.  Thus $y^{A,B}$ gives $v$ one
+unit of incoming and outgoing flow exactly on the event $v\in A$.  Averaging
+over $A$ gives degree $p_v$ at $v$.
+
+The formula for backbone degrees follows directly from the previous lemma:
+for every fixed $A$, each backbone vertex has incoming and outgoing degree
+$M(A,B)$; averaging gives $Z(B)$.
+\end{proof}
+
+\section{The logarithmic degree bound}
+
+We next show that $Z(B)=O(\log n)$ with high probability over $B$.
+
+\begin{lemma}[Longest run bound]
+There is an absolute constant $c_0$ such that, for every $t\ge 1$,
+\[
+  \Prb[M(A,B)\ge t]\le n2^{-t}.
+\]
+Consequently,
+\[
+  \E[M(A,B)^q]^{1/q}\le c_0(\log n+q)
+\]
+for every integer $q\ge 1$.
+\end{lemma}
+
+\begin{proof}
+Condition on $C=A\cup B$.  Then the tour $T_C$ is fixed.  For each
+$v\in C$, the event that $v$ is an internal non-backbone vertex is the event
+$v\in A\setminus B$.  Conditional on $v\in A\cup B$, this probability is
+\[
+  \Prb[v\in A\setminus B\mid v\in A\cup B]
+  =\frac{p_v(1-p_v)}{1-(1-p_v)^2}
+  =\frac{1-p_v}{2-p_v}
+  \le \frac12.
+\]
+Moreover, these labels are independent over vertices, because the original
+samples are independent over vertices and the conditioning on $A\cup B=C$ is
+coordinate-wise.
+
+Thus, along the fixed cyclic order of $T_C$, the internal non-backbone labels
+are independent Bernoulli labels with probabilities at most $1/2$.  If
+$M(A,B)\ge t$, then some run of $t$ consecutive positions on the tour is labeled
+internal.  There are at most $n$ possible starting positions, so by a union
+bound,
+\[
+  \Prb[M(A,B)\ge t\mid C]\le n2^{-t}.
+\]
+Removing the conditioning gives the same bound.
+
+The moment estimate follows from the tail bound.  Indeed, a nonnegative random
+variable satisfying $\Prb[M\ge t]\le n2^{-t}$ has $q$-th moment bounded by
+$\bigl(c_0(\log n+q)\bigr)^q$ for a universal constant $c_0$.
+\end{proof}
+
+\begin{lemma}[Backbone degree bound]
+There is an absolute constant $C_D$ such that
+\[
+  \Prb_B[Z(B)>C_D\log n]\le n^{-10}.
+\]
+\end{lemma}
+
+\begin{proof}
+Let $q:=\lceil 20\log_2 n\rceil$.  By Jensen's inequality,
+\[
+  Z(B)^q
+  =\bigl(\E_A[M(A,B)\mid B]\bigr)^q
+  \le \E_A[M(A,B)^q\mid B].
+\]
+Taking expectation over $B$ and using the previous lemma,
+\[
+  \E_B[Z(B)^q]
+  \le \E[M(A,B)^q]
+  \le \bigl(c_0(\log n+q)\bigr)^q
+  \le \bigl(C'\log n\bigr)^q
+\]
+for an absolute constant $C'$.  Markov's inequality gives
+\[
+  \Prb_B[Z(B)>C_D\log n]
+  \le \left(\frac{C'}{C_D}\right)^q.
+\]
+Choosing $C_D$ sufficiently large makes the right-hand side at most
+$n^{-10}$.
+\end{proof}
+
+Therefore, with high probability over $B$, the averaged solution $x^B$ satisfies
+\[
+  x^B(\delta^+(b))=x^B(\delta^-(b))\le C_D\log n
+  \qquad \forall b\in B\cup\{r\}.
+\]
+
+\section{Cost bound}
+
+\begin{lemma}[Cost for a fixed pair]
+For every fixed pair $(A,B)$,
+\[
+  \cost(y^{A,B})\le M(A,B)\,\cost(T_{A\cup B}).
+\]
+\end{lemma}
+
+\begin{proof}
+Consider one segment
+\[
+  P_j=(b_j,u_{j,1},\ldots,u_{j,k_j},b_{j+1}),
+\]
+and let $\ell_j$ be its length as a subpath of $T_{A\cup B}$.  By the directed
+triangle inequality, for every internal vertex $u_{j,t}$,
+\[
+  d(b_j,u_{j,t})+d(u_{j,t},b_{j+1})\le \ell_j.
+\]
+Therefore the star arcs through the internal vertices of this segment have total
+cost at most $k_j\ell_j$.  Also,
+\[
+  d(b_j,b_{j+1})\le \ell_j,
+\]
+so the repair arc $b_j\to b_{j+1}$ has cost at most
+$(M(A,B)-k_j)\ell_j$.  Thus the total contribution of this segment is at most
+\[
+  k_j\ell_j+(M(A,B)-k_j)\ell_j=M(A,B)\ell_j.
+\]
+Summing over all segments gives
+\[
+  \cost(y^{A,B})\le M(A,B)\sum_j\ell_j=M(A,B)\cost(T_{A\cup B}).
+\]
+\end{proof}
+
+\begin{lemma}[Expected cost]
+There is an absolute constant $C_c$ such that
+\[
+  \E_B[\cost(x^B)]\le C_c\log n\cdot \OPT_{\mathrm{post}}.
+\]
+\end{lemma}
+
+\begin{proof}
+By the previous lemma,
+\[
+  \E_B[\cost(x^B)]
+  =\E_{A,B}[\cost(y^{A,B})]
+  \le \E_{A,B}\bigl[M(A,B)\cost(T_{A\cup B})\bigr].
+\]
+Condition on $C=A\cup B$.  The tour $T_C$ and its cost are fixed under this
+conditioning.  By the longest run bound,
+\[
+  \E[M(A,B)\mid C]\le C''\log n.
+\]
+Hence
+\[
+  \E_{A,B}\bigl[M(A,B)\cost(T_{A\cup B})\bigr]
+  \le C''\log n\cdot \E_{A,B}[\cost(T_{A\cup B})].
+\]
+Finally,
+\[
+  \cost(T_{A\cup B})\le \OPT(A)+\OPT(B),
+\]
+because one may concatenate optimal tours for $A$ and $B$ at the depot $r$ and
+then shortcut.  Therefore
+\[
+  \E_{A,B}[\cost(T_{A\cup B})]
+  \le 2\OPT_{\mathrm{post}}.
+\]
+Combining the inequalities proves the claim.
+\end{proof}
+
+\section{Conclusion for a boosted backbone}
+
+We now finish the argument for the actual backbone used by the algorithm.  The
+point is that the larger backbone must contain at least one ordinary active
+sample for which the two estimates above hold.
+
+First record the consequence of the preceding two sections.
+
+\begin{lemma}[A good ordinary sample]
+\label{lem:good-ordinary-sample}
+There are absolute constants $D_0,K_0>0$ such that, if $B$ is one ordinary
+active sample, then with probability at least $2/3$ over $B$, the vector $x^B$
+is feasible for $\mathrm{LP}_{D_0\log n}(B)$ and satisfies
+\[
+  \cost(x^B)\le K_0\log n\cdot \OPT_{\mathrm{post}}.
+\]
+\end{lemma}
+
+\begin{proof}
+By the backbone degree bound, after increasing the absolute constant if
+necessary,
+\[
+  \Prb_B\bigl[ Z(B)>D_0\log n\bigr]\le \frac1{12}.
+\]
+By the expected cost lemma and Markov's inequality, after increasing $K_0$ if
+necessary,
+\[
+  \Prb_B\bigl[\cost(x^B)>K_0\log n\cdot \OPT_{\mathrm{post}}\bigr]
+  \le \frac1{12}.
+\]
+Therefore both events fail with probability at most $1/6$, so both desired
+properties hold with probability at least $5/6$.  In particular they hold with
+probability at least $2/3$.
+\end{proof}
+
+Next we show that any larger backbone inherits feasibility from such a good
+ordinary sample.
+
+\begin{lemma}[Monotonicity under enlarging the backbone]
+\label{lem:monotonicity}
+Let $B\subseteq S\subseteq V$.  If $x^B$ is feasible for
+$\mathrm{LP}_{D}(B)$ and $D\ge 1$, then the same vector $x^B$ is feasible for
+$\mathrm{LP}_{D}(S)$.  Its cost is unchanged.
+\end{lemma}
+
+\begin{proof}
+Let $U_B:=V\setminus B$ and $U_S:=V\setminus S$.  Since $B\subseteq S$, we have
+$U_S\subseteq U_B$.  The support constraint for $\mathrm{LP}_{D}(B)$ says that
+$x^B_{uv}=0$ for all $u,v\in U_B$; hence certainly $x^B_{uv}=0$ for all
+$u,v\in U_S$.
+
+For every vertex $v\in U_S$, we also have $v\notin B$, so the construction of
+$x^B$ gives
+\[
+  x^B(\delta^+(v))=x^B(\delta^-(v))=p_v.
+\]
+Thus all outside-vertex lower degree constraints for $\mathrm{LP}_{D}(S)$ are
+satisfied.
+
+Now consider a backbone vertex $s\in S\cup\{r\}$.  If $s\in B\cup\{r\}$, then
+its degree is at most $D$ by feasibility for $\mathrm{LP}_{D}(B)$.  If
+$s\in S\setminus B$, then $s$ was an outside vertex with respect to the
+backbone $B$, and hence
+\[
+  x^B(\delta^+(s))=x^B(\delta^-(s))=p_s\le 1\le D.
+\]
+The global balance constraints are unchanged.  Therefore all constraints of
+$\mathrm{LP}_{D}(S)$ hold, and the objective value is the same vector cost.
+\end{proof}
+
+We now specify the boosted sampling.  Let $m$ be a positive integer.  Take
+independent ordinary active samples
+\[
+  B^1,B^2,\ldots,B^m,
+\]
+and define the boosted backbone by
+\[
+  S:=\bigcup_{i=1}^m B^i.
+\]
+Equivalently, the vertices of $S$ are included independently with probabilities
+\[
+  q_v=1-(1-p_v)^m.
+\]
+
+\begin{theorem}[Degree-constrained LP for the boosted backbone]
+\label{thm:boosted-backbone-lp}
+There are absolute constants $a,D_0,K_0>0$ such that the following holds.  Let
+$m\ge a\log n$, and let
+\[
+  S=\bigcup_{i=1}^m B^i
+\]
+be the union of $m$ independent ordinary active samples.  Then, with probability
+at least $1-n^{-10}$ over the boosted backbone $S$, the LP
+$\mathrm{LP}_{D_0\log n}(S)$ has a feasible solution $x$ satisfying
+\[
+  \cost(x)\le K_0\log n\cdot \OPT_{\mathrm{post}}.
+\]
+\end{theorem}
+
+\begin{proof}
+For each $i$, apply Lemma~\ref{lem:good-ordinary-sample} to $B^i$.  The events
+\[
+  G_i:=\{x^{B^i}\text{ is feasible for }\mathrm{LP}_{D_0\log n}(B^i)
+  \text{ and }\cost(x^{B^i})\le K_0\log n\cdot \OPT_{\mathrm{post}}\}
+\]
+are independent and each has probability at least $2/3$.  Hence
+\[
+  \Prb[\text{none of }G_1,\ldots,G_m\text{ occurs}]
+  \le \left(\frac13\right)^m.
+\]
+Choosing the absolute constant $a$ sufficiently large gives
+\[
+  \left(\frac13\right)^m\le n^{-10}.
+\]
+On the complementary event, choose an index $i$ for which $G_i$ occurs.  Since
+$B^i\subseteq S$, Lemma~\ref{lem:monotonicity} implies that the same vector
+$x^{B^i}$ is feasible for $\mathrm{LP}_{D_0\log n}(S)$ and has the same cost.
+This proves the theorem.
+\end{proof}
+
+\begin{remark}[Sampling with probabilities $\min\{1,mp_v\}$]
+The same conclusion also holds if the boosted backbone is sampled independently
+with probabilities
+\[
+  q'_v:=\min\{1,mp_v\}.
+\]
+Indeed,
+\[
+  1-(1-p_v)^m\le \min\{1,mp_v\}=q'_v,
+\]
+so this distribution stochastically dominates the union-of-$m$-samples
+distribution.  Using one uniform random variable per vertex, one may couple a
+set $S_0$ distributed as $\bigcup_{i=1}^m B^i$ and a set $S'$ distributed with
+marginals $q'_v$ so that $S_0\subseteq S'$ always.  Whenever
+$\mathrm{LP}_{D_0\log n}(S_0)$ has the good witness from
+Theorem~\ref{thm:boosted-backbone-lp}, Lemma~\ref{lem:monotonicity} transfers
+that same witness to $S'$.  Thus the theorem remains valid for the more common
+boosting rule $q'_v=\min\{1,mp_v\}$.
+\end{remark}
+
+\end{document}

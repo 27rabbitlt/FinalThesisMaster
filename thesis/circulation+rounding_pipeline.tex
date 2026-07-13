@@ -1,0 +1,295 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\DeclareMathOperator{\OPT}{OPT}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\polylog}{\operatorname{polylog}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\optpost}{\OPT_{\mathrm{post}}}
+
+\title{Boosted Backbone, Fractional Circulation, and Polylogarithmic Rounding}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note eventually gives an "integral" rounding of a circulation on a backbone 
+sampled on $V$. We hope  this integral circulation can be transformed into an 
+adaptive policy with bounded cost.
+\end{abstract}
+
+\section{Model and the circulation LP}
+
+Let $(\{r\}\cup V,d)$ be a directed metric, where $r$ is the depot.  Write
+$N:=\{r\}\cup V$ and let
+\(
+  n:=\max\{|N|,3\}.
+\)
+Each client $v\in V$ is active independently with probability $p_v$.  For an
+active set $A\subseteq V$, let $\OPT(A)$ be the length of an optimal directed
+TSP tour on $\{r\}\cup A$.  Define
+\(
+  \OPT_{\mathrm{post}}:=\E_A[\OPT(A)].
+\)
+
+A backbone is simply a subset of $V$. We use this concept inspired from Shmoys's
+paper, where a backbone is sampled with probability $p_v$ (the same
+as the activation probability) and then he constructs detour for every vertex 
+outside of the backbone. Obviously, the expected cost of backbone tour is the 
+same as $\optpost$. And he managed to prove the detour cost is also 
+bounded by a constant multiplicative factor of $\optpost$.
+
+We are hoping that we can have a similar algorithm. We first sample a backbone, 
+and then we try to create a detour. However, a detour in asymmetric case is not 
+as simple as connecting vertex to its closest neighbour in backbone. That's why 
+we need the circulation. A circulation doesn't directly provide a way to connect 
+all these outside vertices in a low-cost closed walk, even though the circulation 
+itself has low cost. This is the gap we need to solve.
+
+For a backbone set $S\subseteq V$, let
+\[
+  R:=S\cup\{r\},
+  \qquad
+  U:=V\setminus S.
+\]
+So here $R$ is the backbone vertices with root, and $U$ is the outside vertices.
+
+We consider the following directed circulation LP:
+% We consider the following directed circulation LP, with an additional degree
+% upper bound $D$ on the backbone:
+\[
+\begin{aligned}
+\min \quad & \sum_{u,v\in \{r\}\cup V} d(u,v)x_{uv} \\
+\text{s.t.}\quad
+& x(\delta^+(w))=x(\delta^-(w)) && \forall w\in \{r\}\cup V, \\
+& x(\delta^+(v))=x(\delta^-(v)) = p_v && \forall v\in U, \\
+% & x(\delta^+(s))=x(\delta^-(s))\le D && \forall s\in R, \\
+& x_{uv}=0 && \forall u,v\in U, \\
+& x_{uv}\ge 0 && \forall u,v.
+\end{aligned}
+% \tag{$\mathrm{LP}_D(S)$}
+\tag{$\mathrm{LP}(S)$}
+\]
+Here $x(\delta^+(w)):=\sum_z x_{wz}$ and
+$x(\delta^-(w)):=\sum_z x_{zw}$.
+
+We do not allow edges between two outside vertices, so this circulation gives 
+a fractional analogy of a detour for an outside vertex: we go from a backbone 
+vertex, visit the outside vertex, and then come back to another backbone vertex.
+
+\section{Circulation has low cost}
+
+In this section we prove the optimal solution to LP has expected low cost, 
+and since we are only considering analytic results, so as long as the expectation 
+is low, we are guaranteed to have at least one good choice of $S$. Indeed, we 
+can repeat the random sampling procedure of $S$ for $O(\log n)$ times and we 
+have a low-cost solution with $1-o(1)$ probability. We will omit this technicality 
+for now.
+
+
+The intuition is that, consider any realized active subset $A \subseteq V$, we 
+can divide the optimal TSP tour on $A \cup R$ by backbone vertices and connect 
+all middle vertices to its two surrounding backbone vertex. So if a segment of 
+optimal TSP tour on $A \cup R$ looks like $s_1, u_1, u_2, \dots, u_k, s_2$, where
+$s_1, s_2$ are the backbone vertices and $u_i$'s are outside vertices, then 
+we create flow $(s_1, u_1, s_2), \dots, (s_1, u_k, s_2)$ with weight $1$. Then 
+if we weighted-average over all $A$ we immediately satisfy the flow constraint 
+for outside vertex. And we can include auxiliary flow from $s_1$ to $s_2$ to 
+satisfy the flow constraint for $S$ vertices. 
+
+Formally speaking, we cut the tour $OPT(A \cup R)$ at the vertices from $R$. 
+This gives a list of directed segment $P_j = (s_j, u_{j,1}, \dots, u_{j, k_j}, s_{j+1})$ 
+where $s_j \in R$ and $u_{j, i} \in A - R$. 
+Define $M(A, R) := \max_j k_j$ to be the maximal number of outside vertices 
+between two consecutive backbone vertices under this realization $A$ and backbone $R$. 
+We create flow $(s_j, u_{j, 1}, s_{j+1}), \dots, (s_{j}, u_{j,k_j}, s_{j+1})$ with weight $1$.
+And we create flow $(s_{j}, s_{j+1})$ with weight $M(A,R) - k_j$.
+Denote the flow(edge) weight as $x^{A,R}$ then it is straightforward that 
+the cost $\cost(x^{A,R}) \le M(A,R) \cost(T_{A \cup R})$.
+We further denote $x^{R} = \E_A [x^{A,R}]$ to be averaged flow. Clearly the flow 
+satisfies circulation constraints and flow $p_v$ constraints.
+
+As for the cost of $x^{A,R}$, for each $u_i$, we pay weight 1 for $d(s_1, u_i) + d(u_i, s_2)$,
+which can be as large as the total length of $(s_1, u_1, \dots, u_k, s_2)$. 
+So to prove the circulation does not cost too much, we need to prove that we can
+control the cardinality of vertices between two backbone vertices. 
+
+
+\begin{remark}
+    For a pair $(A, R)$, we have $\cost(x^{A,R}) \le M(A,R) \cost(T_{A \cup R})$.
+\end{remark}
+
+The next idea is to bound $M(A, R)$ conditioned on $C := A \cup R$. Given 
+any subset $r \in C \subseteq V$ and denote $T_C$ to be the optimal tour for $C$.
+Then we prove $\E[M(A,R) | C = A \cup R]$ is bounded, thus $\E_{A,R}[M(A,R)] = \E_C [\E[M(A,R) | C = A \cup R]]$ 
+is also bounded.
+
+\begin{lemma}[Longest-run]
+    $\Prb[M(A,R) \ge t|C=A\cup R] \le n 2^{-t}$.
+\end{lemma}
+\begin{proof}
+    Condition on $C = A \cup R$, the tour $T_C$ is fixed. For each $v \in C$, 
+    the event $v$ is an outside vertex is $\Prb[v \in A - R | v \in A \cup R] = 
+    \frac{\Prb[v \in A - R]}{\Prb[v \in A \cup R|} = \frac{p_v(1-p_v)}{1-(1-p_v)^2} \le 1/2$.
+    So $\Prb[M(A,R) \ge t | C = A \cup R] \le n \; \text{position and contiguous} \; t \le n 2^{-t}$.
+\end{proof}
+\begin{corollary}
+    $\E[M(A,R)|C=A\cup R] \le O(\log n)$, thus
+    $\E[M(A,R)] \le O(\log n)$.
+\end{corollary}
+
+\begin{proof}
+    Let $L = \log n$ and we have
+    \begin{align*}
+        \E[M(A,R)|C=A \cup R] &\le L \cdot \Prb[M(A,R) \le L | C = A \cup R]  + \sum_{t=L}^{\infty} t \cdot \Prb[M(A,R) \ge t | C = A \cup R] \\
+                              &\le L \cdot 1 + \sum_{t=L}^{\infty} t n 2^{-t} \\ 
+                              &\le O(\log n)
+    \end{align*}
+    Then by total expectation 
+    \begin{align*}
+        \E[M(A,R)] = \E_{C} [\E[M(A,R) | C = A \cup R]] \le O(\log n)
+    \end{align*}
+\end{proof}
+
+
+Finally we can show that the expected cost is low.
+
+\begin{lemma}[Expected cost]
+\[
+    \E_{R} [\cost(x^R)] \le O(\log n) \OPT_{post}
+\]
+\end{lemma}
+\begin{proof}
+    \begin{align*}
+        \E_{R} [\cost(x^R)] &= \E_{A,R} [\cost(x^{A,R})] && \text{linearity of cost} \\
+                            &\le \E_{A,R} [M(A,R) \OPT(A \cup R)] \\ 
+                            &= \E_C[\OPT(C) \E_{A,R}[M(A,R) | C = A \cup R]] \\
+                            &\le \E_C[\OPT(C) O(\log n)] \\
+                            &= O(\log n) \E_{A,R}[\OPT(A \cup R)] \\ 
+                            &\le O(\log n) \cdot 2 \cdot \E_A[\OPT(A)] \\ 
+                            &= O(\log n) \OPT_{post}
+                            % &\le \E_{A,R}[M(A,R)] \E_{A,R}[\OPT(A \cup R)]
+    \end{align*}
+\end{proof}
+
+For simplicity, we assume we can simply find the best $R$ such that $\cost(x^R)$ 
+is minimized, since we are currently considering analytic problem.
+
+Also we can show that with high probability we can find a solution with bounded 
+cost together with bounded degree ($x(\delta^{out}(s)) \le O(\log n)$, where $s \in S$),
+we omit the proof for now and we do not need this bounded degree property.
+
+\section{Rounding the circulation}
+In the previous section, we have proved that for a good backbone $S$, we can 
+have a fractional circulation solution such that the cost is bounded by $O(\log n) \OPT_{post}$.
+In this section, we provide a way to \emph{round} this fractional solution. 
+Technically, this procedure is not a rounding procedure, because we do not round 
+solution to integer, instead, we round solution to either tight upper bound or 
+lower bound; also, after rounding, the solution is no longer a strict circulation,
+but the circulation constraint (incoming equals outgoing) would not be violated 
+very much.
+
+Firstly, consider a slightly different way of representing circulation variables.
+Previously, $x_{(u,v)}$ represents the flow of edge $(u,v)$, where $u, v$ can be 
+backbone vertices or outside vertices. Now we consider $x_{i,(u,v)}$ to be the flow 
+of path $u \rightarrow i \rightarrow v$, where $u, v$ are backbone vertices and $i$
+is outside vertex. So we are basically coupling the previous solution. 
+Notice that in previous solution, we can also have $x_{(u,v)}$ where $u, v$ are 
+both backbone vertices, which cannot be represented as $x_{i, (u,v)}$. So we introduce
+$y_{(u,v)}$ to be such variables.
+
+Secondly, we change the constraints a little bit. The outside vertices' flow constraints
+stay unchanged, we still have the \emph{outside constraints}:
+\begin{align*}
+    \sum_{e = (u,v)} x_{i,e} = p_i 
+\end{align*}
+But for backbone vertices, we divide the backbone $R$ using dyadic intervals, like 
+a segment tree style. And for every such dyadic interval, we have \emph{interval constraints}:
+\begin{align*}
+    x(I^{out}) + y(I^{out}) = x(I^{in}) + y(I^{in})
+\end{align*}
+
+Now we consider an iterative rounding procedure. Suppose $F$ to be the set of all 
+non-tight $x$ variables, i.e. these $x_{i,e}$ such that $0 < x_{i,e} < p_i$.
+We want to prove that during the iterative rounding procedure, we always have that 
+$|F|$ is larger than the number of tight constraints, thus we can always find two 
+directions to move. Then we move to either direction with certain probability 
+keeping the expectation cost unchanged.
+
+Suppose there are $c_1$ number of tight outside constraints and $c_2$ number of
+tight interval constraints. 
+Unfortunately, it is not true that we always have larger $|F|$ than 
+$c_1 + c_2$.
+To solve this problem, we need to delete some constraints alongside the procedure.
+we only consider the interval constraints when the constraints has at least 
+$8 \log n$ non-tight $x$ variables. 
+Then we know $c_2 \cdot 8 \log n \le |F| \cdot 2 \log n$ because each non-tight
+variable will touch at most $2 \log n$ intevals (we are considering only dyadic ones).
+Moreover, $2 c_1 \le |F|$ because if such constraint has one non-tight variable,
+it must have at least another non-tight variable.
+So it is now clear that $c_1 + c_2 < |F|$ always holds during the procedure, 
+which means we can find a direction to move and make at least one non-tight 
+variable tight. In the end we will have all $x$ variables being tight.
+
+Since we delete constraints alongside the procedure, the resulting solution is 
+no longer a strict circulation. But a constraint is deleted only when it touchs 
+at most $8 \log n$ non-tight variables, so the constraint will be off the track
+by at most $8 \log n$.
+
+Then for any interval (not necessarily dyadic), it can be splited into $O(\log n)$
+dyadic intevals thus the outgoing flow and incoming flow would be off by at most 
+$O(\log ^2 n)$.
+ 
+So in summary what does the output look like? Let the backbone $R$ be the chosen backbone equipped
+with optimal TSP tour $T = (r = s_0, s_1, \dots, s_{m-1}, s_m = r)$. Further let
+$B := \sum_{i=1}^{m-1} d(s_i, s_{i+1})$. After rounding, variables $x_{i, (u,v)}$
+assures for every outside vertex $i$, exactly one edge $(u,v), u, v \in R$ is selected.
+We also make sure the edges cost is bounded by $O(\log n) \OPT_{post}$. Note that
+the edge cost is weighted, each edge selected after rounding cost $p_i \cdot (d(u,i)+d(i,v))$.
+The rounding solution also assures for each interval the incoming and outgoing 
+imbalance before realization is bounded by $O(\log^2 n)$.
+
+\section{What can we get from circulation and rounding}
+We do not directly have an adaptive policy yet. After rounding, 
+every outside vertex $i$ has exactly one edge $e$ such that $x_{i,e}=p_i$.
+A naive policy would be that, when we stand at a backbone vertex $v$, we always 
+try to probe from $v$ to some outside vertex $i$ which has $e = (v, v')$ and 
+$x_{i,e}=p_i$. If we cannot find any outside vertex from $v$, then we go alonside
+the backbone and continue until we probed all outside vertex. This naive policy 
+does not provide good cost upper bound because it relies heavily on backbone edges 
+to move from one vertex to another. We do not care about log factor,
+we can use each backbone edge poly-log times, but it can happen that poly-log is 
+not enough. In circulation lemma, we also paid for these arcs on backbone tour,
+i.e. those $u \rightarrow i \rightarrow v$ arcs where $i$ is the outside vertex.
+Since ciculation lemma gives bounded cost, we can also use these edges poly-log times.
+But notice that, each such arc has non-integral weight. So when we say poly-log times,
+we are actually saying we can use it no more than poly-log times the flow weight $x$.
+Or in another way, since after rounding each edge has flow weight either $0$ or $p_i$,
+we can assume we can use an edge when the corresponding outside vertex is active, thus
+in expectation point of view it is equivalent. So in summary, we do not care about 
+the edge distance / cost, we essentially care about the congestion! We care about 
+how many times a edge in circulation and rounding would be used in adaptive policy.
+If we can control this to be upper bounded by poly-log, then we are happy.
+
+
+
+
+
+\end{document}

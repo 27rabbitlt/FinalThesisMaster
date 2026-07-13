@@ -8,26 +8,27 @@
 \usepackage{centernot}
 \usepackage{enumitem}
 
-\usepackage[yyyymmdd,hhmmss]{datetime}
-\renewcommand{\dateseparator}{-}
-\renewcommand{\timeseparator}{:}
-
 \usepackage{fontspec}
-\usepackage[margin=1.2in]{geometry}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref} % blue for all
-\usepackage{mathrsfs} 
+\usepackage[a4paper,margin=1.2in]{geometry}
+\usepackage[colorlinks=true, allcolors=blue, plainpages=false, pdfpagelabels]{hyperref}
+\usepackage{mathrsfs}
 
-\usepackage{biblatex} 
+\usepackage[backend=biber,style=alphabetic,maxbibnames=99]{biblatex}
 \usepackage{stmaryrd}
+\SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
 \usepackage{import}
 \usepackage{xifthen}
 \usepackage{pdfpages}
+\usepackage{booktabs}
 
 \usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{calc}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{shapes.geometric}
+\usetikzlibrary{positioning}
+
+\usepackage{microtype}
 
 \newcommand{\incfig}[1]{%
     \def\svgwidth{0.5\columnwidth}

@@ -1,7 +1,52 @@
-% \title{Stochastic TSP}
+% ============================================================
+% Thesis metadata — fill in your details here
+% ============================================================
+\newcommand{\thesistitle}{Adaptive Policies for the Stochastic Traveling Salesperson Problem}
+\newcommand{\thesisauthor}{Teng Liu}
+\newcommand{\thesisdate}{July 2026}
+\newcommand{\thesisadvisor}{Dr. Sharat Ibrahimpur}
+\newcommand{\thesissecondadvisor}{Prof.\ Dr.\ Vera Traub}  % leave empty if none
+\newcommand{\thesisdepartment}{Department of Computer Science}
+\newcommand{\thesisinstitution}{ETH Z\"urich}
 
+% ============================================================
+% Title page
+% ============================================================
+\newcommand{\maketitlepage}{%
+\begin{titlepage}
+\begin{center}
 
-\title{Adaptive Policies for Stochastic Traveling Salesperson Problem}
-\author{Teng Liu}
-% \email{liuten@student.ethz.ch}
-% \date{\today}
+\vspace*{0.5cm}
+{\large\textbf{ETH} Z\"urich}\\[0.15cm]
+{\small Eidgen\"ossische Technische Hochschule Z\"urich}\\[0.05cm]
+{\small Swiss Federal Institute of Technology Zurich}
+
+\vspace{4cm}
+
+{\LARGE\bfseries \thesistitle}
+
+\vspace{2.5cm}
+
+{\Large Master Thesis}
+
+\vspace{0.5cm}
+
+{\Large \thesisauthor}
+
+\vspace{0.5cm}
+
+{\Large \thesisdate}
+
+\vfill
+
+\ifthenelse{\isempty{\thesissecondadvisor}}{%
+{\large Advisor: \thesisadvisor}\par
+}{%
+{\large Advisors: \thesisadvisor, \thesissecondadvisor}\par
+}
+\vspace{0.3cm}
+{\large \thesisdepartment, \thesisinstitution}\par
+
+\end{center}
+\end{titlepage}
+}
