@@ -7,7 +7,11 @@
 
 \addbibresource{preamble/ref.bib}
 
-\newcommand{\sharat}[1]{\textcolor{red}{Sharat: #1}}
+\newenvironment{comments}
+  {\par\medskip\begingroup\color{red!70!black}%
+   \noindent\textbf{Comments:}%
+   \begin{enumerate}[leftmargin=*,itemsep=0.25em,topsep=0.4em]}
+  {\end{enumerate}\endgroup\medskip}
 
 \begin{document}
 
@@ -24,19 +28,41 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-We study the stochastic traveling salesperson problem, in which each vertex of a metric space is active independently with a given probability and the goal is to find a tour of minimum expected cost visiting all active vertices. 
-\sharat{Too long. An abstract should convey the high level problem statement without getting into technical details. You have to accomplish this without introducing ambiguity.}
-Three benchmarks of increasing information are compared: the \emph{a~posteriori} optimum (full knowledge of the active set), the \emph{adaptive} optimum (vertices are probed during the tour), and the \emph{a~priori} optimum (a fixed tour with shortcutting).
+We study the stochastic traveling salesperson problem, where each client is active
+independently according to a given probability and all active clients must be
+served at minimum expected travel cost.
 
-We prove several quantitative separations between these benchmarks. \sharat{Rephrase. Sounds LLMie. } 
-First, we construct a family of symmetric instances (\sharat{you haven't even defined what symmetric instances are.}) showing that the adaptivity gap (a~priori vs.\ adaptive) is at least~$5/4$.
-Second, we exhibit a family of symmetric instances achieving a clairvoyance gap (adaptive vs.\ a~posteriori) of~$11/10$, and prove a single-stochastic-vertex upper bound for symmetric metrics. \sharat{single stochastic vertex setting isn't an important case, especially because the associated result is not really exploiting the true structure.}
-Third, for asymmetric metrics, we construct a recursive family of instances for which the clairvoyance gap tends to~$4/3$.
+There are three common benchmarks that differ in when the active clients are revealed
+and when the decisions are made: an a~posteriori solution knows the complete
+active set in advance and decide the tour after active clients are revealed,
+an adaptive solution decide the next client to visit based on past information,
+and an a~priori solution commits to a fixed tour ordering before any activations are known.
 
-Additionally, we present a $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP on directed metrics, running in time~$c_\varepsilon^n\poly(n)$. \sharat{What's a directed metric? Also, does the distinction matter?} 
-The algorithm first shows that only nearby pairs in the a~priori order matter, and then optimizes the resulting local expression by dynamic programming. \sharat{It's important to mention that we use dynamic programming for this result but anything more is unnecessary. Nearby pairs introduces more confusion since the reader hasn't yet seen the cost expression for a priori TSP.}
+We compare the three benchmarks and give lower bounds for the gap between them.
+For clients with symmetric distances, we construct instances with an adaptivity gap approaching~$5/4$ and
+instances with a clairvoyance gap of~$11/10$. For asymmetric distances, we
+construct a recursive family whose clairvoyance gap approaches~$4/3$. We also
+give that, for every fixed $\varepsilon>0$, a deterministic
+$(1{+}\varepsilon)$-approximation algorithm for a~priori TSP with running time
+$c_\varepsilon^n\poly(n)$ based on dynamic programming.
 
-\sharat{My general advice is to keep rewriting the abstract in your own words. Read it until it sounds like a coherent piece of text that someone in our field can understand.}
+\begin{comments}
+  \item Too long. An abstract should convey the high level problem statement
+  without getting into technical details. You have to accomplish this without
+  introducing ambiguity.
+  \item Rephrase. Sounds LLMie.
+  \item You haven't even defined what symmetric instances are.
+  \item Single stochastic vertex setting isn't an important case, especially
+  because the associated result is not really exploiting the true structure.
+  \item What's a directed metric? Also, does the distinction matter?
+  \item It's important to mention that we use dynamic programming for this
+  result but anything more is unnecessary. Nearby pairs introduces more
+  confusion since the reader hasn't yet seen the cost expression for a~priori
+  TSP.
+  \item My general advice is to keep rewriting the abstract in your own words.
+  Read it until it sounds like a coherent piece of text that someone in our
+  field can understand.
+\end{comments}
 \tableofcontents
 
 % ============================================================
@@ -112,30 +138,17 @@ Brada\v{c}, Singla, and \v{Z}u\v{z}i\'c~\cite{BradacSinglaZuzic2019} obtained ne
 Levin and Vainer~\cite{LV14} studied adaptivity in the stochastic blackjack knapsack problem.
 Barak and Talgam-Cohen~\cite{BarakTalgamCohen2026} recently studied semi-adaptivity gaps for stochastic knapsack.
 
-\section{Organization}
-
-Chapter~\ref{ch:prelim} introduces the notation, the three benchmarks for stochastic TSP, and the gap measures.
-Chapter~\ref{ch:sym-adapt} proves the adaptivity gap lower bound of~$5/4$ for symmetric metrics.
-Chapter~\ref{ch:sym-clair} studies the symmetric clairvoyance gap, proving the lower bound of~$11/10$ and establishing a single-stochastic-vertex upper bound.
-Chapter~\ref{ch:asym-clair} constructs the asymmetric recursive instance with clairvoyance gap tending to~$4/3$.
-Chapter~\ref{ch:dp} presents the $(1{+}\varepsilon)$-approximation algorithm for directed a~priori TSP.
-Chapter~\ref{ch:conclusion} concludes with a summary and directions for future
-research.
-Appendix~\ref{app:evidence} records exploratory computational searches for the symmetric clairvoyance gap.
-
-
 % ============================================================
-% CHAPTER 2: PRELIMINARIES
+% MODEL AND BENCHMARKS
 % ============================================================
-\chapter{Preliminaries}\label{ch:prelim}
+\section{Model and benchmarks}\label{sec:model}
 
-\sharat{Preliminaries section is usually meant to state well known tools and techniques that will be used later in the thesis. For instance, we will be using some linear programming based lower bounds. Some results on circulations, Hoffmann's condition etc. Some concentration inequalities.The current content should be moved to the introduction.}
-
-\section{Metric spaces and tours}
+\subsection{Metric spaces and tours}
 
 Let $(\{r\}\cup V,d)$ be a finite metric space on $n+1$ vertices (a depot vertex~$r$ and $n$~clients) equipped with a distance function~$d$.
 That is, $d$ satisfies the triangle inequality: for any three vertices $u,v,w$, $d(u,v) \leq d(u,w) + d(w,v)$.
-A metric is said to be \emph{symmetric} if $d(x, y) = d(y, x)$ for all $x, y$.
+A metric is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y$; otherwise it
+may be asymmetric, in which case distances are directed.
 
 A \emph{tour} on a subset $S \subseteq \{r\}\cup V$ containing the depot is a cyclic sequence $T=(r,u_1,u_2,\ldots,u_{|S|-1},r)$ that visits every vertex in~$S$ exactly once. Its \emph{cost} is
 \[
@@ -143,7 +156,7 @@ A \emph{tour} on a subset $S \subseteq \{r\}\cup V$ containing the depot is a cy
 \]
 For a subset $A\subseteq V$, we write $\opt(A)$ for the minimum cost of a tour on $\{r\}\cup A$.
 
-\section{Three benchmarks for stochastic TSP}
+\subsection{Three benchmarks for stochastic TSP}
 
 In the stochastic setting, the set of active vertices is a subset $A \subseteq V$ generated by independent activations: each vertex $v \in V$ is active (i.e., $v \in A$) independently with probability~$p_v$. We denote by~$q$ the resulting product distribution on~$2^V$, so $q(A) = \prod_{v \in A}p_v \cdot \prod_{v \notin A}(1 - p_v)$.
 
@@ -191,7 +204,7 @@ We consider three benchmarks for stochastic TSP, distinguished by how much the s
         The optimum is $\optadapt := \min_{\pi}\,\cost(\pi)$, where the minimum is over all adaptive policies.
 \end{enumerate}
 
-\section{Gap measures}\label{sec:gaps}
+\subsection{Gap measures}\label{sec:gaps}
 
 Among the three benchmarks, a~posteriori TSP has the most information (the full realization~$A$), a~priori TSP has the least (only the metric and probabilities), and adaptive TSP lies in between.
 
@@ -214,39 +227,95 @@ The same upper bound carries over to the clairvoyance gap and the adaptivity gap
 For asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025} show that the obliviousness gap is $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 Moreover, the construction in Section~3.1 of~\cite{Christalla2025} also implies an adaptivity gap of $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 
+\begin{comments}
+  \item Preliminaries section is usually meant to state well known tools and
+  techniques that will be used later in the thesis. For instance, we will be
+  using some linear programming based lower bounds. Some results on
+  circulations, Hoffmann's condition etc. Some concentration inequalities. The
+  current content should be moved to the introduction.
+\end{comments}
+
+\section{Organization}
+
+Chapter~\ref{ch:sym-adapt} proves the adaptivity gap lower bound of~$5/4$ for symmetric metrics.
+Chapter~\ref{ch:sym-clair} studies the symmetric clairvoyance gap, proving the lower bound of~$11/10$ and establishing a single-stochastic-vertex upper bound.
+Chapter~\ref{ch:asym-clair} constructs the asymmetric recursive instance with clairvoyance gap tending to~$4/3$.
+Chapter~\ref{ch:dp} presents the $(1{+}\varepsilon)$-approximation algorithm for directed a~priori TSP.
+Chapter~\ref{ch:conclusion} concludes with a summary and directions for future
+research.
+Appendix~\ref{app:evidence} records exploratory computational searches for the symmetric clairvoyance gap.
+
 
 % ============================================================
 % CHAPTER 3: ADAPTIVITY GAP — SYMMETRIC
 % ============================================================
 \chapter{Adaptivity Gap for Symmetric Metrics}\label{ch:sym-adapt}
 
-Our main result in this chapter is a lower bound of $5/4$ on the adaptivity gap for symmetric stochastic TSP. We show that there exists a family of instances, obtained by subdividing edges in a Hamiltonian cycle of a complete graph, for which the ratio $\optprior/\optadapt$ tends to $5/4$ as the number of vertices grows. Since $\optpost \le \optadapt$, the same lower bound applies to the obliviousness gap $\optprior/\optpost$.
+Our main result in this chapter is a lower bound of $5/4$ on the adaptivity gap for symmetric stochastic TSP. We show that there exists a family of instances, obtained by subdividing edges in a Hamiltonian cycle of a complete graph, for which the ratio $\optprior/\optadapt$ tends to $5/4$ as the number of vertices grows.
 
 \begin{theorem}[Cycle-subdivision gap]\label{thm:cycle-subdivision}
 The adaptivity gap for symmetric stochastic TSP is at least $\frac54$.
-Since $\optpost\le\optadapt$ (cf.\ \eqref{eq:optineq}), the same lower bound holds for the obliviousness gap. \sharat{The second sentence should be put in a separate corollary.}
 \end{theorem}
 
 We prove this by exhibiting a family of instances and establishing a matching pair of bounds. Consider the following construction.
 
-\begin{definition}[Cycle-subdivision instance]\label{def:cycle-sub}
-Fix some integer $n \ge 7$, and consider the complete graph on vertices $v_1,\dots,v_n$, where each edge has length~$1$ \sharat{Edge length being 1 can be stated at the very end. The focus should be on defining the underlying graph}. 
-\sharat{Since we control the indexing, there's no need to mention that we are choosing the trivial Hamiltonian cycle. Just say that each edge of the form $v_i v_{i+1}$ is subdivided by introducing a new vertex $v'_i$. Don't use ``replace'' terminology.}
-For the Hamiltonian cycle
-\[
-v_1v_2\cdots v_nv_1,
-\]
-where indices are taken modulo~$n$. For each $i\in[n]$, replace the cycle edge $v_iv_{i+1}$ by a path $v_i v_i' v_{i+1}$ of two unit edges; let $d$ be the shortest-path metric of the resulting undirected graph. \sharat{In fact, remove the wording of length from the definition. This shortest-path metric is the correct way of describing the instance.} Let $r:=v_1$ be the depot, and let the client set be
-\[
-V:=\{v_2,\dots,v_n,v_1',\dots,v_n'\}.
-\]
-Every original client $v_2,\dots,v_n$ is active with probability~$1$, and every subdividing vertex $v_i'$ is active independently with probability~$1/2$. 
-
-\sharat{The stochastic TSP instance should be different from the cycle-subdivided graph. Introduce the graph first. While talking about the TSP instance, you say that the metric is obtained by the shortest path metric induced by the cycle-subdivided graph with vertices having so and so activation probabilities.}
-
+\begin{definition}[Cycle-subdivision graph]\label{def:cycle-sub-graph}
+Fix $n\ge 7$, and let $v_1,\dots,v_n$ be the vertices of the complete graph
+$K_n$, with indices taken modulo~$n$. For every $i\in[n]$, subdivide the edge
+$v_iv_{i+1}$ by introducing a new vertex~$v_i'$. Denote the resulting
+unweighted graph by~$G_n$.
 \end{definition}
 
-\sharat{Include a figure of the cycle-subdivided complete graph say for $n=6$. Make sure to draw vertices as boxes/circles as opposed to tiny dots since edges will be crossing at many places and we don't want the reader to think that there are a lot more vertices.}
+The \emph{cycle-subdivision instance} $\mathcal I_n$ has depot $r:=v_1$ and client set
+\[
+V_n:=\{v_2,\dots,v_n\}\cup\{v_1',\dots,v_n'\}.
+\]
+Its distance function is the shortest-path metric induced by~$G_n$. Every
+original client $v_2,\dots,v_n$ is active with probability~$1$, while every
+subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    scale=1.05,
+    original/.style={circle,draw=black,fill=white,minimum size=8mm,inner sep=0pt,font=\small},
+    stochastic/.style={circle,draw=black,fill=gray!20,minimum size=7mm,inner sep=0pt,font=\small},
+    cycleedge/.style={black,line width=0.6pt},
+    chord/.style={black,line width=0.6pt}
+]
+\foreach \i in {1,...,6} {
+  \coordinate (c\i) at ({90-60*(\i-1)}:3.2);
+}
+\foreach \i in {1,...,6} {
+  \pgfmathtruncatemacro{\next}{mod(\i,6)+1}
+  \coordinate (m\i) at ($(c\i)!0.5!(c\next)$);
+}
+\foreach \i in {1,...,6} {
+  \foreach \j in {1,...,6} {
+    \ifnum\j>\i
+      \pgfmathtruncatemacro{\next}{mod(\i,6)+1}
+      \ifnum\j=\next\else
+        \ifnum\i=1\ifnum\j=6\else\draw[chord] (c\i)--(c\j);\fi
+        \else\draw[chord] (c\i)--(c\j);\fi
+      \fi
+    \fi
+  }
+}
+\foreach \i in {1,...,6} {
+  \pgfmathtruncatemacro{\next}{mod(\i,6)+1}
+  \draw[cycleedge] (c\i)--(m\i)--(c\next);
+}
+\foreach \i in {1,...,6} {
+  \node[original] at (c\i) {$v_\i$};
+  \node[stochastic] at (m\i) {$v_\i'$};
+}
+\node[above=2mm of c1,font=\small] {depot $r$};
+\end{tikzpicture}
+\caption{The cycle-subdivision graph $G_6$. Original vertices are white and
+deterministic; gray subdivision vertices are active with probability~$1/2$.
+Line crossings are not vertices.}
+\label{fig:cycle-subdivision}
+\end{figure}
 
 Theorem~\ref{thm:cycle-subdivision} follows from the next two lemmas.
 
@@ -262,14 +331,21 @@ For every $n\ge 7$, the cycle-subdivision instance satisfies $\optadapt\le \frac
 Lemma~\ref{lem:cycle-prior} gives $\optprior=\frac{15}{8}n$
 and Lemma~\ref{lem:cycle-adapt} gives $\optadapt\le \frac32 n+6$.
 Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
-Since $\optpost\le\optadapt$, the same lower bound holds for the obliviousness gap.
-\sharat{Obliviousness gap is irrelevant here. It's just a corollary that shouldn't be talked about here.}
+\end{proof}
+
+\begin{corollary}\label{cor:cycle-oblivious}
+The obliviousness gap for symmetric stochastic TSP is at least~$\frac54$.
+\end{corollary}
+
+\begin{proof}
+This follows from Theorem~\ref{thm:cycle-subdivision} and
+$\optpost\le\optadapt$.
 \end{proof}
 
 We now prove the two lemmas in turn.
 
 \begin{proof}[Proof of Lemma~\ref{lem:cycle-prior}]
-Fix an arbitrary a~priori tour $T=(r,s_1,s_2,\dots,s_{2n-1},r)$ on $\{r\}\cup V$, where $s_1,\dots,s_{2n-1}$ is a permutation of $\{v_2,\dots,v_n,v_1',\dots,v_n'\}$. \sharat{Replace $r$ by $v_1$?} We shall prove that its expected realized length is at least $15n/8$, and then exhibit a tour attaining this value.
+Fix an arbitrary a~priori tour $T=(v_1,s_1,s_2,\dots,s_{2n-1},v_1)$ on $\{v_1\}\cup V_n$, where $s_1,\dots,s_{2n-1}$ is a permutation of $\{v_2,\dots,v_n,v_1',\dots,v_n'\}$. We shall prove that its expected realized length is at least $15n/8$, and then exhibit a tour attaining this value.
 
 \medskip
 \noindent\emph{Metric structure.}
@@ -299,13 +375,13 @@ d(v_i',v_j')=
 \noindent\emph{Decomposition into segments.}
 Deleting all subdividing vertices from $T$ leaves a cyclic ordering
 \[
-(r=u_1,u_2,\dots,u_n,r)
+(v_1=u_1,u_2,\dots,u_n,v_1)
 \]
 of the original vertices $v_1,\dots,v_n$. For each $j\in[n]$, let
 \[
 W_j=(w_{j,1},\dots,w_{j,k_j})
 \]
-be the ordered list (possibly empty) of subdividing vertices appearing on $T$ between $u_j$ and $u_{j+1}$, where $u_{n+1}:=r$. Then
+be the ordered list (possibly empty) of subdividing vertices appearing on $T$ between $u_j$ and $u_{j+1}$, where $u_{n+1}:=v_1$. Then
 \[
 \sum_{j=1}^n k_j=n,
 \]
@@ -547,6 +623,31 @@ At each step the uncalled clients on~$P$ form a contiguous subpath, and the sale
 Let $a:=|A\cap\{v_2',\dots,v_{n-1}'\}|$. The $a$ active subdividers on~$P$ each contribute cost~$2$. Each of the $(n-2)-a$ inactive ones triggers a switch of cost~$1$, except possibly the last, which may cost~$2$. Including the return to~$r$ (cost at most~$2$), the middle phase costs at most $2+2a+((n-2)-a+1)+2=n+a+3$.
 The total cost per realization is therefore at most $4+(n+a+3)=n+a+7$, and taking expectation with $\E[a]=(n-2)/2$ gives $\E[\cost(\pi)]\le \frac32 n+6$.
 \end{proof}
+
+\clearpage
+\begin{comments}
+  \item The second sentence should be put in a separate corollary.
+  \item Edge length being~$1$ can be stated at the very end. The focus should
+  be on defining the underlying graph.
+  \item Since we control the indexing, there is no need to mention that we are
+  choosing the trivial Hamiltonian cycle. Just say that each edge of the form
+  $v_iv_{i+1}$ is subdivided by introducing a new vertex~$v_i'$. Don't use
+  ``replace'' terminology.
+  \item In fact, remove the wording of length from the definition. This
+  shortest-path metric is the correct way of describing the instance.
+  \item The stochastic TSP instance should be different from the
+  cycle-subdivided graph. Introduce the graph first. While talking about the
+  TSP instance, you say that the metric is obtained by the shortest path metric
+  induced by the cycle-subdivided graph with vertices having so and so
+  activation probabilities.
+  \item Include a figure of the cycle-subdivided complete graph say for $n=6$.
+  Make sure to draw vertices as boxes/circles as opposed to tiny dots since
+  edges will be crossing at many places and we don't want the reader to think
+  that there are a lot more vertices.
+  \item Obliviousness gap is irrelevant here. It's just a corollary that
+  shouldn't be talked about here.
+  \item Replace $r$ by~$v_1$?
+\end{comments}
 
 
 % ============================================================
