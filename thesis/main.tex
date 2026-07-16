@@ -13,6 +13,8 @@
    \begin{enumerate}[leftmargin=*,itemsep=0.25em,topsep=0.4em]}
   {\end{enumerate}\endgroup\medskip}
 
+\newcommand{\sharat}[1]{\textcolor{red}{Sharat: #1}} %%% don't remove this macro
+
 \begin{document}
 
 % ============================================================
@@ -33,7 +35,7 @@ independently according to a given probability and all active clients must be
 served at minimum expected travel cost.
 
 There are three common benchmarks that differ in when the active clients are revealed
-and when the decisions are made: an a~posteriori solution knows the complete
+and when the decisions are  made: an a~posteriori solution knows the complete
 active set in advance and decide the tour after active clients are revealed,
 an adaptive solution decide the next client to visit based on past information,
 and an a~priori solution commits to a fixed tour ordering before any activations are known.
@@ -251,7 +253,11 @@ Appendix~\ref{app:evidence} records exploratory computational searches for the s
 % ============================================================
 \chapter{Adaptivity Gap for Symmetric Metrics}\label{ch:sym-adapt}
 
-Our main result in this chapter is a lower bound of $5/4$ on the adaptivity gap for symmetric stochastic TSP. We show that there exists a family of instances, obtained by subdividing edges in a Hamiltonian cycle of a complete graph, for which the ratio $\optprior/\optadapt$ tends to $5/4$ as the number of vertices grows.
+\sharat{Change cycle-subdivision graph to cycle-subdivided clique.}
+
+Our main result in this chapter is a lower bound of $5/4$ on the adaptivity gap for symmetric stochastic TSP. We show that there exists a family of instances, obtained by subdividing edges in a Hamiltonian cycle of a complete graph, for which the ratio $\optprior/\optadapt$ tends to $5/4$ as the number of vertices goes to infinity. 
+
+\sharat{No need to refer to this theorem as cycle-subdivision gap. It conflicts with the adaptive gap. It's an adaptivity gap construction arising from a metric induced by a cycle-subdivided clique.}
 
 \begin{theorem}[Cycle-subdivision gap]\label{thm:cycle-subdivision}
 The adaptivity gap for symmetric stochastic TSP is at least $\frac54$.
@@ -317,6 +323,8 @@ Line crossings are not vertices.}
 \label{fig:cycle-subdivision}
 \end{figure}
 
+\sharat{No need to say that line crossings are not vertices since the current representation of the nodes removes that ambiguity. Also, maybe use squares for permanent/original vertices.}
+
 Theorem~\ref{thm:cycle-subdivision} follows from the next two lemmas.
 
 \begin{lemma}\label{lem:cycle-prior}
@@ -332,6 +340,8 @@ Lemma~\ref{lem:cycle-prior} gives $\optprior=\frac{15}{8}n$
 and Lemma~\ref{lem:cycle-adapt} gives $\optadapt\le \frac32 n+6$.
 Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
 \end{proof}
+
+\sharat{put the corollary right after the statement of Theorem 2.1.}
 
 \begin{corollary}\label{cor:cycle-oblivious}
 The obliviousness gap for symmetric stochastic TSP is at least~$\frac54$.
