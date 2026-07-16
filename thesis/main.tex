@@ -94,7 +94,7 @@ We obtain the following results.
 
 \begin{enumerate}
     \item \textbf{Adaptivity gap lower bound for symmetric metrics} (Chapter~\ref{ch:sym-adapt}).
-    We construct a family of instances obtained by subdividing the edges of a cycle and show that the ratio $\optprior/\optadapt$ tends to~$5/4$ as the number of vertices grows (Theorem~\ref{thm:cycle-subdivision}).
+    We construct a family of cycle-subdivided-clique instances and show that the ratio $\optprior/\optadapt$ tends to~$5/4$ as the number of vertices grows (Theorem~\ref{thm:cycle-subdivision}).
     Since $\optpost \le \optadapt$, the same lower bound applies to the obliviousness gap.
 
     \item \textbf{Clairvoyance gap lower bound for symmetric metrics} (Chapter~\ref{ch:sym-clair}).
@@ -253,26 +253,31 @@ Appendix~\ref{app:evidence} records exploratory computational searches for the s
 % ============================================================
 \chapter{Adaptivity Gap for Symmetric Metrics}\label{ch:sym-adapt}
 
-\sharat{Change cycle-subdivision graph to cycle-subdivided clique.}
-
 Our main result in this chapter is a lower bound of $5/4$ on the adaptivity gap for symmetric stochastic TSP. We show that there exists a family of instances, obtained by subdividing edges in a Hamiltonian cycle of a complete graph, for which the ratio $\optprior/\optadapt$ tends to $5/4$ as the number of vertices goes to infinity. 
 
-\sharat{No need to refer to this theorem as cycle-subdivision gap. It conflicts with the adaptive gap. It's an adaptivity gap construction arising from a metric induced by a cycle-subdivided clique.}
-
-\begin{theorem}[Cycle-subdivision gap]\label{thm:cycle-subdivision}
+\begin{theorem}\label{thm:cycle-subdivision}
 The adaptivity gap for symmetric stochastic TSP is at least $\frac54$.
 \end{theorem}
 
-We prove this by exhibiting a family of instances and establishing a matching pair of bounds. Consider the following construction.
+\begin{corollary}\label{cor:cycle-oblivious}
+The obliviousness gap for symmetric stochastic TSP is at least~$\frac54$.
+\end{corollary}
 
-\begin{definition}[Cycle-subdivision graph]\label{def:cycle-sub-graph}
+\begin{proof}
+This follows from Theorem~\ref{thm:cycle-subdivision} and
+$\optpost\le\optadapt$.
+\end{proof}
+
+We prove Theorem~\ref{thm:cycle-subdivision} by exhibiting a family of instances and establishing a matching pair of bounds. Consider the following construction.
+
+\begin{definition}[Cycle-subdivided clique]\label{def:cycle-sub-graph}
 Fix $n\ge 7$, and let $v_1,\dots,v_n$ be the vertices of the complete graph
 $K_n$, with indices taken modulo~$n$. For every $i\in[n]$, subdivide the edge
 $v_iv_{i+1}$ by introducing a new vertex~$v_i'$. Denote the resulting
 unweighted graph by~$G_n$.
 \end{definition}
 
-The \emph{cycle-subdivision instance} $\mathcal I_n$ has depot $r:=v_1$ and client set
+The \emph{cycle-subdivided-clique instance} $\mathcal I_n$ has depot $r:=v_1$ and client set
 \[
 V_n:=\{v_2,\dots,v_n\}\cup\{v_1',\dots,v_n'\}.
 \]
@@ -284,7 +289,7 @@ subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
 \centering
 \begin{tikzpicture}[
     scale=1.05,
-    original/.style={circle,draw=black,fill=white,minimum size=8mm,inner sep=0pt,font=\small},
+    original/.style={rectangle,draw=black,fill=white,minimum size=8mm,inner sep=0pt,font=\small},
     stochastic/.style={circle,draw=black,fill=gray!20,minimum size=7mm,inner sep=0pt,font=\small},
     cycleedge/.style={black,line width=0.6pt},
     chord/.style={black,line width=0.6pt}
@@ -317,39 +322,25 @@ subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
 }
 \node[above=2mm of c1,font=\small] {depot $r$};
 \end{tikzpicture}
-\caption{The cycle-subdivision graph $G_6$. Original vertices are white and
-deterministic; gray subdivision vertices are active with probability~$1/2$.
-Line crossings are not vertices.}
+\caption{The cycle-subdivided clique $G_6$. Original vertices are deterministic
+squares; gray subdivision vertices are active with probability~$1/2$.}
 \label{fig:cycle-subdivision}
 \end{figure}
-
-\sharat{No need to say that line crossings are not vertices since the current representation of the nodes removes that ambiguity. Also, maybe use squares for permanent/original vertices.}
 
 Theorem~\ref{thm:cycle-subdivision} follows from the next two lemmas.
 
 \begin{lemma}\label{lem:cycle-prior}
-For every $n\ge 7$, the cycle-subdivision instance satisfies $\optprior=\frac{15}{8}n$.
+For every $n\ge 7$, the instance $\mathcal I_n$ satisfies $\optprior=\frac{15}{8}n$.
 \end{lemma}
 
 \begin{lemma}\label{lem:cycle-adapt}
-For every $n\ge 7$, the cycle-subdivision instance satisfies $\optadapt\le \frac32 n+6$.
+For every $n\ge 7$, the instance $\mathcal I_n$ satisfies $\optadapt\le \frac32 n+6$.
 \end{lemma}
 
 \begin{proof}[Proof of Theorem~\ref{thm:cycle-subdivision}]
 Lemma~\ref{lem:cycle-prior} gives $\optprior=\frac{15}{8}n$
 and Lemma~\ref{lem:cycle-adapt} gives $\optadapt\le \frac32 n+6$.
 Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
-\end{proof}
-
-\sharat{put the corollary right after the statement of Theorem 2.1.}
-
-\begin{corollary}\label{cor:cycle-oblivious}
-The obliviousness gap for symmetric stochastic TSP is at least~$\frac54$.
-\end{corollary}
-
-\begin{proof}
-This follows from Theorem~\ref{thm:cycle-subdivision} and
-$\optpost\le\optadapt$.
 \end{proof}
 
 We now prove the two lemmas in turn.
@@ -657,6 +648,14 @@ The total cost per realization is therefore at most $4+(n+a+3)=n+a+7$, and takin
   \item Obliviousness gap is irrelevant here. It's just a corollary that
   shouldn't be talked about here.
   \item Replace $r$ by~$v_1$?
+  \item Change cycle-subdivision graph to cycle-subdivided clique.
+  \item No need to refer to this theorem as cycle-subdivision gap. It conflicts
+  with the adaptive gap. It's an adaptivity gap construction arising from a
+  metric induced by a cycle-subdivided clique.
+  \item No need to say that line crossings are not vertices since the current
+  representation of the nodes removes that ambiguity. Also, maybe use squares
+  for permanent/original vertices.
+  \item Put the corollary right after the statement of Theorem~2.1.
 \end{comments}
 
 
