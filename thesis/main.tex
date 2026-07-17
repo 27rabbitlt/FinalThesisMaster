@@ -99,8 +99,8 @@ We obtain the following results.
 
     \item \textbf{Clairvoyance gap lower bound for symmetric metrics} (Chapter~\ref{ch:sym-clair}).
     We exhibit a family of symmetric instances, the \emph{three-chain construction}, achieving $\optadapt/\optpost = 11/10$ for infinitely many~$n$
-    (Corollary~\ref{cor:sym-clair}).
-    We complement this lower bound with an upper bound of~$1/(1-p+p^2)$ for symmetric instances with a single stochastic vertex of activation probability~$p$ (Proposition~\ref{prop:general-p}); this bound is maximized at~$4/3$ when $p=1/2$.
+    (Theorem~\ref{thm:sym-clair}).
+    For context, we also record an elementary upper bound of~$1/(1-p+p^2)$ for the restricted setting with a single stochastic vertex of activation probability~$p$ (Proposition~\ref{prop:general-p}).
 
     \item \textbf{Clairvoyance gap lower bound for asymmetric metrics} (Chapter~\ref{ch:asym-clair}).
     We define a recursive family of directed instances for which $\optadapt/\optpost$ tends to~$4/3$ (Theorem~\ref{thm:recursive-gap}).
@@ -240,7 +240,7 @@ Moreover, the construction in Section~3.1 of~\cite{Christalla2025} also implies 
 \section{Organization}
 
 Chapter~\ref{ch:sym-adapt} proves the adaptivity gap lower bound of~$5/4$ for symmetric metrics.
-Chapter~\ref{ch:sym-clair} studies the symmetric clairvoyance gap, proving the lower bound of~$11/10$ and establishing a single-stochastic-vertex upper bound.
+Chapter~\ref{ch:sym-clair} proves the symmetric clairvoyance-gap lower bound of~$11/10$ and records an auxiliary single-stochastic-vertex upper bound.
 Chapter~\ref{ch:asym-clair} constructs the asymmetric recursive instance with clairvoyance gap tending to~$4/3$.
 Chapter~\ref{ch:dp} presents the $(1{+}\varepsilon)$-approximation algorithm for directed a~priori TSP.
 Chapter~\ref{ch:conclusion} concludes with a summary and directions for future
@@ -249,7 +249,7 @@ Appendix~\ref{app:evidence} records exploratory computational searches for the s
 
 
 % ============================================================
-% CHAPTER 3: ADAPTIVITY GAP — SYMMETRIC
+% CHAPTER 2: ADAPTIVITY GAP — SYMMETRIC
 % ============================================================
 \chapter{Adaptivity Gap for Symmetric Metrics}\label{ch:sym-adapt}
 
@@ -317,13 +317,14 @@ subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
   \draw[cycleedge] (c\i)--(m\i)--(c\next);
 }
 \foreach \i in {1,...,6} {
-  \node[original] at (c\i) {$v_\i$};
-  \node[stochastic] at (m\i) {$v_\i'$};
+  \node[original] (v\i) at (c\i) {$v_\i$};
+  \node[stochastic] (vp\i) at (m\i) {$v_\i'$};
 }
-\node[above=2mm of c1,font=\small] {depot $r$};
+\node[above=2mm of v1,font=\small] {depot $r$};
 \end{tikzpicture}
-\caption{The cycle-subdivided clique $G_6$. Original vertices are deterministic
-squares; gray subdivision vertices are active with probability~$1/2$.}
+\caption{The cycle-subdivided clique $G_6$. Original vertices are active with
+probability~$1$ and are represented as squares; subdivision vertices are active
+with probability~$1/2$ and are represented as gray circles.}
 \label{fig:cycle-subdivision}
 \end{figure}
 
@@ -660,23 +661,23 @@ The total cost per realization is therefore at most $4+(n+a+3)=n+a+7$, and takin
 
 
 % ============================================================
-% CHAPTER 4: CLAIRVOYANCE GAP — SYMMETRIC
+% CHAPTER 3: CLAIRVOYANCE GAP — SYMMETRIC
 % ============================================================
 \chapter{Clairvoyance Gap for Symmetric Metrics}\label{ch:sym-clair}
 
 In this chapter we study the symmetric clairvoyance gap $\optadapt/\optpost$.
-We construct an explicit family of symmetric instances achieving ratio~$11/10$
-and prove an upper bound of~$1/(1-p+p^2)$ for symmetric instances with a
-single stochastic vertex of activation probability~$p$.
+We construct an explicit family of symmetric instances achieving ratio~$11/10$.
+We also record an auxiliary upper bound for the restricted setting in which
+only one vertex is stochastic.
 
 \section{The three-chain lower bound}\label{sec:3chain}
 
-\begin{construction}[Three-chain instance $G_k(W)$]\label{con:3chain}
-Let $k \ge 2$ and $W \ge 1$ be integers.
-Define a symmetric weighted graph on $3k$ clients plus a depot:
+\begin{construction}[Three-chain graph $H_k$]\label{con:3chain}
+Let $k \ge 3$ be an integer.
+Define a symmetric weighted graph with vertex set
 \[
-U(G_k) \;=\; \{r\}\;\cup\; A\;\cup\; B\;\cup\; C\;\cup\; \{s\},
-\qquad |U(G_k)| = 3k+1,
+V(H_k) \;=\; A\;\cup\; B\;\cup\; C\;\cup\; \{s\},
+\qquad |V(H_k)| = 3k+1,
 \]
 where the \emph{chains}
 \begin{align*}
@@ -689,7 +690,7 @@ are vertex-disjoint paths, with the identification $a_0 = r$.
 \medskip\noindent\textbf{Internal edges} (weight~$1$): for each chain $X \in \{A,B,C\}$
 and each $0\le i\le k-2$, include the edge $\{x_i, x_{i+1}\}$ of weight~$1$.
 
-\medskip\noindent\textbf{Inter-chain edges} (weight~$W$):
+\medskip\noindent\textbf{Inter-chain edges} (weight~$2(k-1)$):
 \begin{equation}\label{eq:interchain}
 \begin{gathered}
 \{a_0, b_{k-1}\},\quad
@@ -702,23 +703,107 @@ and each $0\le i\le k-2$, include the edge $\{x_i, x_{i+1}\}$ of weight~$1$.
 \end{gathered}
 \end{equation}
 
-\medskip\noindent\textbf{Probabilities:}
-$p_v = 1$ for every client $v \ne s$, and $p_s = 1/2$.
-The set of deterministic customers is $D := U(G_k) \setminus \{r,s\}$.
-
 \medskip
-All other pairwise distances are determined by the shortest-path metric.
+There are no other edges.
 \end{construction}
 
-We specialize to the \emph{balanced} instance
+The \emph{three-chain instance} $G_k$ has depot $r=a_0$ and client set
+$V(H_k)\setminus\{r\}$. Its distance function is the shortest-path metric
+induced by $H_k$. The client $s$ is active with probability~$1/2$, and
+every other client is deterministic. We write
 \[
-    G_k := G_k(2(k-1)).
+D:=V(H_k)\setminus\{r,s\}
 \]
-Throughout the proof below, write $h:=k-1$ and hence $W=2h$.
+for the deterministic clients. Thus the instance has $3k$ clients and one
+depot.
 
-\begin{lemma}[Near-optimal routes in the balanced instance]\label{lem:near-optimal-routes}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    x=1cm,y=1cm,
+    deterministic/.style={rectangle,draw=black,fill=white,minimum width=8.5mm,
+      minimum height=7mm,inner sep=0pt,font=\scriptsize},
+    depot/.style={deterministic,fill=gray!15},
+    stochastic/.style={circle,draw=black,fill=gray!30,minimum size=7.5mm,
+      inner sep=0pt,font=\scriptsize},
+    internal/.style={black,line width=0.75pt},
+    crossing/.style={black!75,densely dashed,line width=0.75pt},
+    rowlabel/.style={font=\small\bfseries,anchor=east}
+]
+% Chain A, drawn from a_0 to a_{k-1}.
+\node[depot]         (A0) at (0, 2.4) {$a_0$};
+\node[deterministic] (A1) at (1.5, 2.4) {$a_1$};
+\node[deterministic] (Ak) at (6, 2.4) {$a_{k-1}$};
+
+% Chain B is reversed so that its relevant endpoints align with A and C.
+\node[deterministic] (Bk) at (0, 0) {$b_{k-1}$};
+\node[deterministic] (B1) at (4.5, 0) {$b_1$};
+\node[deterministic] (B0) at (6, 0) {$b_0$};
+
+% Chain C, drawn from c_0 to c_{k-1}.
+\node[deterministic] (C0) at (0,-2.4) {$c_0$};
+\node[deterministic] (C1) at (1.5,-2.4) {$c_1$};
+\node[deterministic] (Ck) at (6,-2.4) {$c_{k-1}$};
+\node[stochastic]    (S)  at (7.3,-1.2) {$s$};
+
+% The seven inter-chain edges, all of weight 2(k-1).
+\draw[crossing] (A0)--(Bk);
+\draw[crossing] (A0)--(Ck);
+\draw[crossing] (B0)--(Ak);
+\draw[crossing] (C0)--(Ak);
+\draw[crossing] (C0)--(Bk);
+\draw[crossing] (B0)--(S);
+\draw[crossing] (Ck)--(S);
+
+% Unit-weight edges within the three chains.
+\draw[internal] (A0)--(A1)--(Ak);
+\draw[internal] (Bk)--(B1)--(B0);
+\draw[internal] (C0)--(C1)--(Ck);
+
+% Ellipses cover the long middle segments of the schematic chains.
+\node[fill=white,inner sep=3pt] at (3.45, 2.4) {$\cdots$};
+\node[fill=white,inner sep=3pt] at (2.1, 0) {$\cdots$};
+\node[fill=white,inner sep=3pt] at (3.45,-2.4) {$\cdots$};
+
+\node[rowlabel] at (-0.65, 2.4) {chain $A$};
+\node[rowlabel] at (-0.65, 0) {chain $B$};
+\node[rowlabel] at (-0.65,-2.4) {chain $C$};
+\node[above=1mm of A0,font=\scriptsize] {depot $r$};
+\end{tikzpicture}
+\caption{The three-chain graph $H_k$. Each horizontal row is a chain of
+unit-weight edges; chain~$B$ is drawn in reverse order. The seven dashed edges
+have weight~$2(k-1)$. The shaded square is the depot, and the gray circle is the
+only stochastic client.}
+\label{fig:three-chain}
+\end{figure}
+
+The inter-chain weight $2(k-1)$ balances the cost of a crossing against
+the cost of traversing the chains and makes the active and inactive optimal
+tour skeletons compete at the thresholds used below.
+Throughout the proof below, write $h:=k-1$, so every crossing has cost~$2h$.
+
+\begin{theorem}[Symmetric clairvoyance gap lower bound]\label{thm:sym-clair}
+For every $k\ge3$, the three-chain instance $G_k$ satisfies
+\[
+    \optpost(G_k)=10(k-1)
+    \qquad\text{and}\qquad
+    \optadapt(G_k)=11(k-1).
+\]
+Consequently,
+\[
+    \frac{\optadapt(G_k)}{\optpost(G_k)}=\frac{11}{10},
+\]
+and the clairvoyance gap for symmetric stochastic TSP is at least~$11/10$.
+\end{theorem}
+
+The proof has two structural ingredients.  First we identify the only
+near-optimal crossing patterns in the two realizations.  We then show that an
+adaptive policy cannot realize both patterns because its calls before learning
+the status of~$s$ must be the same in both realizations.
+
+\begin{lemma}[Realization costs and near-optimal routes]\label{lem:near-optimal-routes}
 Let $k\ge3$ and $h=k-1$.
-In the balanced instance $G_k$, the following hold.
+In the instance $G_k$, the following hold.
 \begin{enumerate}
 \item[\textup{(i)}]
 Every tour on $\{r\}\cup D$ has cost at least $9h$.
@@ -726,13 +811,15 @@ This bound is attained by
 \begin{multline*}
 T_D:\;
 a_0 \to a_1 \to \cdots \to a_{k-1}
-\xrightarrow{\;W\;} b_0 \to b_1 \to \cdots \to b_{k-1}\\
-\xrightarrow{\;W\;} c_0 \to c_1 \to \cdots \to c_{k-1}
-\xrightarrow{\;W\;} a_0,
+\xrightarrow{\;2h\;} b_0 \to b_1 \to \cdots \to b_{k-1}\\
+\xrightarrow{\;2h\;} c_0 \to c_1 \to \cdots \to c_{k-1}
+\xrightarrow{\;2h\;} a_0,
 \end{multline*}
 which has cost $9h$.
 Moreover, any tour on $\{r\}\cup D$ of cost strictly less than $11h$
-uses, up to reversal, the same three inter-chain crossings as $T_D$:
+has the following property: every expansion of its metric edges into shortest
+paths in $H_k$ uses each of these three inter-chain crossings exactly once
+and uses no other crossing:
 \[
     \{a_0,c_{k-1}\},\qquad
     \{c_0,b_{k-1}\},\qquad
@@ -745,14 +832,15 @@ This bound is attained by
 \begin{multline*}
 T_{\mathrm{all}}:\;
 a_0 \to a_1 \to \cdots \to a_{k-1}
-\xrightarrow{\;W\;} c_0 \to c_1 \to \cdots \to c_{k-1}\\
-\xrightarrow{\;W\;} s
-\xrightarrow{\;W\;} b_0 \to b_1 \to \cdots \to b_{k-1}
-\xrightarrow{\;W\;} a_0,
+\xrightarrow{\;2h\;} c_0 \to c_1 \to \cdots \to c_{k-1}\\
+\xrightarrow{\;2h\;} s
+\xrightarrow{\;2h\;} b_0 \to b_1 \to \cdots \to b_{k-1}
+\xrightarrow{\;2h\;} a_0,
 \end{multline*}
 which has cost $11h$.
 Moreover, any tour on the full vertex set of cost strictly less than $13h$
-uses, up to reversal, the same four crossings as $T_{\mathrm{all}}$:
+has the following property: every shortest-path expansion uses each of these
+four crossings exactly once and uses no other crossing:
 \[
     \{a_0,b_{k-1}\},\qquad
     \{b_0,s\},\qquad
@@ -764,155 +852,172 @@ uses, up to reversal, the same four crossings as $T_{\mathrm{all}}$:
 
 \begin{proof}
 Replace every metric edge of a tour by a shortest path in the underlying
-weighted graph.  The resulting closed walk has the same length.  Since all
-vertices on the three chains are required deterministic vertices, this walk
-must cover every internal edge of each chain at least once.  Thus the chain
-edges contribute at least $3h$.
+weighted graph.  The resulting closed walk has the same length, and its
+support---the subgraph formed by the edges it uses---is connected.
+
+We first show that the internal edges of each chain contribute at least~$h$.
+Fix one chain.  If all its $h$ internal edges occur in the walk, the claim is
+immediate.  Otherwise, at most one internal edge can be absent: two absent
+edges would separate the required vertices between them from the support of
+the walk, since only the two endpoints of the chain have edges leaving the
+chain.  If one internal edge is absent, each of the remaining $h-1$ internal
+edges is a bridge in the support and is therefore traversed at least twice by
+the closed walk.  Its internal-edge contribution is then at least
+$2(h-1)\ge h$, where the last inequality uses $h\ge2$.  Summing over the three
+chains gives a contribution of at least~$3h$.
 
 Call a traversal of one of the seven edges in~\eqref{eq:interchain} a
-\emph{crossing}.  Each crossing has cost $W=2h$.
+\emph{crossing}.  Each crossing has cost~$2h$.
 For a tour on $\{r\}\cup D$, the expanded walk starts and ends in chain~$A$
 and must visit chains~$B$ and~$C$, so it uses at least three crossings.  Hence
-its cost is at least $3h+3W=9h$.
+its cost is at least $3h+6h=9h$.
 For a tour on $\{r\}\cup D\cup\{s\}$, the expanded walk must also visit~$s$,
 so it uses at least four crossings.  Hence its cost is at least
-$3h+4W=11h$.
+$3h+8h=11h$.
 
 It remains to identify the tours that can be close to these lower bounds.
-Suppose first that a tour on $\{r\}\cup D$ has cost strictly less than
-$11h=3h+4W$.  It must use exactly three crossings, and the total chain-edge
-contribution must be strictly less than $5h$.  With three crossings, the
-quotient walk on the three chains is a single cycle through $A,B,C$.  If a
-chain is entered and exited through the same endpoint, then covering all its
-vertices costs $2h$ on that chain rather than $h$.  The only three-crossing
-cycle that uses opposite endpoints on all three chains is
+First consider a tour on $\{r\}\cup D$ of cost strictly less than
+$11h=3h+8h$. It must use exactly three crossings.  After contracting each
+chain, these crossings form the cycle $A$--$B$--$C$--$A$; in particular, the
+walk does not use~$s$.  The $B$--$C$ crossing is necessarily
+$\{b_{k-1},c_0\}$.  There are two choices for the $A$--$B$ crossing and two
+for the $A$--$C$ crossing.  Choosing $\{a_0,b_{k-1}\}$ together with
+$\{a_0,c_{k-1}\}$ repeats the crossing endpoint on chains $A$ and~$B$;
+choosing $\{a_0,b_{k-1}\}$ together with $\{a_{k-1},c_0\}$ repeats it on
+$B$ and~$C$; and choosing $\{a_{k-1},b_0\}$ together with
+$\{a_{k-1},c_0\}$ repeats it on $A$ and~$C$.  The remaining combination is
+the unique one using distinct endpoints on every chain, and its crossing set
+is
 \[
-    \{a_0,c_{k-1}\},\qquad
-    \{c_0,b_{k-1}\},\qquad
-    \{b_0,a_{k-1}\}.
+E_D:=\bigl\{\{a_0,c_{k-1}\},\{c_0,b_{k-1}\},
+              \{b_0,a_{k-1}\}\bigr\}.
 \]
-Every other choice makes at least two chains use the same endpoint twice,
-forcing chain contribution at least $5h$ and total cost at least $11h$.
-Thus any tour of cost less than $11h$ has the same crossing skeleton as
-$T_D$, up to reversal.  Its order inside a chain may differ, but this will not
-matter below.
+If the two crossings incident with a chain use the same endpoint, the walk
+must travel from that endpoint to the other end of the chain and back, at
+cost at least~$2h$.  Hence each of the other three combinations pays at least
+$2h+2h+h=5h$ on chain edges and at least $5h+6h=11h$ in total, a
+contradiction.  Thus the three crossings of every tour below~$11h$ are
+exactly those in~$E_D$.
 
-The argument with~$s$ is analogous.  A tour on the full vertex set with cost
-strictly less than $13h=3h+5W$ must use exactly four crossings and chain-edge
-contribution strictly less than $5h$.  Since the only crossing edges incident
-to~$s$ are $\{b_0,s\}$ and $\{c_{k-1},s\}$, both must be used.  The only
-four-crossing cycle that then uses opposite endpoints on all three chains is
+Now consider a full tour of cost strictly less than
+$13h=3h+10h$.  It uses exactly four crossings, which form a cycle through
+$A,B,s,C$.  The two crossings incident with~$s$ must be $\{b_0,s\}$ and
+$\{c_{k-1},s\}$.  Again there are two choices for the $A$--$B$ crossing and
+two for the $A$--$C$ crossing.  The three choices other than
+$\{a_0,b_{k-1}\}$ together with $\{a_{k-1},c_0\}$ are as follows:
+$\{a_0,b_{k-1}\}$ with $\{a_0,c_{k-1}\}$ repeats endpoints on $A$ and~$C$;
+$\{a_{k-1},b_0\}$ with $\{a_{k-1},c_0\}$ repeats them on $A$ and~$B$; and
+$\{a_{k-1},b_0\}$ with $\{a_0,c_{k-1}\}$ repeats them on $B$ and~$C$.
+Hence the unique combination using distinct endpoints on every chain is
 \[
-    \{a_0,b_{k-1}\},\qquad
-    \{b_0,s\},\qquad
-    \{s,c_{k-1}\},\qquad
-    \{c_0,a_{k-1}\}.
+E_{\mathrm{all}}:=
+\bigl\{\{a_0,b_{k-1}\},\{b_0,s\},\{s,c_{k-1}\},
+        \{c_0,a_{k-1}\}\bigr\}.
 \]
-Every other choice again makes at least two chains use the same endpoint
-twice, and therefore has cost at least $13h$.  Hence any full tour of cost
-less than $13h$ has the same crossing skeleton as $T_{\mathrm{all}}$, up to
-reversal.
+Each of the other three combinations repeats an endpoint on two chains, so
+the same $5h$ chain-edge lower bound gives total cost at least
+$5h+8h=13h$.  Thus every full tour below~$13h$ uses exactly the four
+crossings in~$E_{\mathrm{all}}$.
+\end{proof}
+
+\begin{lemma}[Incompatibility of the two near-optimal skeletons]
+\label{lem:incompatible-skeletons}
+Let $C_0$ and $C_1$ be the realized costs of an adaptive policy when $s$ is
+inactive and active, respectively. Then it is impossible to have both
+$C_0<11h$ and $C_1<13h$.
+\end{lemma}
+
+\begin{proof}
+The two realizations make exactly the same calls until the policy calls~$s$,
+because every other client is deterministic. Write their common called prefix
+as
+\[
+P=(r=x_0,x_1,\dots,x_t=u).
+\]
+Thus the inactive realized tour begins with~$P$, whereas the active realized
+tour begins with $(P,s)$.
+
+Assume for contradiction that $C_0<11h$ and $C_1<13h$. Expand every metric
+edge into a shortest path in $H_k$, choosing the same expansion for the
+edges of the common prefix. Lemma~\ref{lem:near-optimal-routes} forces the
+inactive and active expanded tours to use the crossing sets $E_D$ and
+$E_{\mathrm{all}}$, respectively. These sets are disjoint. Consequently, the
+common prefix contains no crossing. Since it starts at $a_0$, every client
+called before~$s$ lies on chain~$A$, and $u\in A$.
+
+Only $b_0$ and $c_{k-1}$ are adjacent to~$s$ in the underlying graph. The
+expanded path from $u$ to~$s$ in the active realization must therefore reach
+$s$ through one of them. Because its crossings must belong to
+$E_{\mathrm{all}}$, there are only two possibilities:
+\begin{itemize}
+  \item it goes from $A$ through $\{a_0,b_{k-1}\}$, traverses chain~$B$ from
+  $b_{k-1}$ to~$b_0$, and then uses $\{b_0,s\}$; or
+  \item it goes from $A$ through $\{a_{k-1},c_0\}$, traverses chain~$C$ from
+  $c_0$ to~$c_{k-1}$, and then uses $\{c_{k-1},s\}$.
+\end{itemize}
+In the first case no client of~$B$ has yet been called. Passing through its
+vertices in the shortest-path expansion does not call them, so all of~$B$
+must still be served after reaching~$s$. But the two crossings just used are
+the only crossings of $E_{\mathrm{all}}$ incident with~$B$; the remaining
+skeleton proceeds from $s$ through $C$ and $A$ and never returns to~$B$.
+Serving~$B$ would therefore require repeating a crossing or adding another
+one, contradicting the forced four-crossing skeleton. The second case gives
+the same contradiction with chain~$C$. Hence the two inequalities cannot
+hold simultaneously.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:sym-clair}]
+Since $s$ is active with probability~$1/2$, there are exactly two
+realizations.  Lemma~\ref{lem:near-optimal-routes} gives optimum costs $9h$
+when $s$ is inactive and $11h$ when it is active.  Therefore
+\[
+    \optpost=\frac12\cdot9h+\frac12\cdot11h=10h.
+\]
+
+For an adaptive upper bound, follow the order of $T_{\mathrm{all}}$ and
+call~$s$ after $c_{k-1}$.  If $s$ is active, continue through~$s$ and then
+chain~$B$.  If it is inactive, call $b_0$ next; the metric edge from
+$c_{k-1}$ to~$b_0$ costs at most $4h$, by the path
+$c_{k-1}$--$s$--$b_0$.  Thus either realization costs at most
+$\cost(T_{\mathrm{all}})=11h$, and $\optadapt\le11h$.
+
+For the reverse inequality, consider any adaptive policy and let $C_0$ and
+$C_1$ be its realized costs when $s$ is inactive and active.  If
+$(C_0+C_1)/2<11h$, the realization lower bounds $C_0\ge9h$ and $C_1\ge11h$
+force $C_0<11h$ and $C_1<13h$.  This contradicts
+Lemma~\ref{lem:incompatible-skeletons}.  Hence $\optadapt\ge11h$.
+
+Substituting $h=k-1$ gives the two claimed optimum values and their ratio
+$11/10$.
 \end{proof}
 
 \begin{remark}[Tour restructuring]\label{rem:restructuring}
-The two optimal tours visit the chains in opposite orders:
+The two optimal realized tours visit the chains in opposite orders:
 $T_{\mathrm{all}}$ routes $A \to C \to s \to B$,
 while $T_D$ routes $A \to B \to C$.
 The cost reduction from removing~$s$ is not a local vertex deletion
 but a \emph{global tour restructuring} that saves one inter-chain crossing.
 \end{remark}
 
-\begin{proposition}\label{prop:apost}
-For the balanced instance $G_k$ with $k\ge3$,
-\[
-\optpost = 10(k-1).
-\]
-\end{proposition}
-\begin{proof}
-Since $s$ is the only stochastic vertex with $p_s = 1/2$, there are exactly two realizations:
-the full set, whose optimal cost is $11h$ by Lemma~\ref{lem:near-optimal-routes},
-and $\{r\}\cup D$, whose optimal cost is $9h$ by the same lemma.  Hence
-\[
-    \optpost=\frac12\cdot 11h+\frac12\cdot 9h=10h=10(k-1).
-\]
-\end{proof}
-
-\begin{theorem}[Balance condition]\label{thm:balance}
-For $G_k = G_k(2(k-1))$ with $k \ge 3$, the optimal adaptive cost equals the all-active tour cost:
-\[
-\optadapt = \cost(T_{\mathrm{all}}) = 11(k-1).
-\]
-\end{theorem}
-
-\begin{proof}
-For the upper bound, follow the order of $T_{\mathrm{all}}$ and call~$s$
-when the route reaches $c_{k-1}$.  If $s$ is active, continue through
-$s$ and then through chain~$B$.  If $s$ is inactive, go directly from
-$c_{k-1}$ to $b_0$; this distance is $2W$, the same as the two edges
-$c_{k-1}s$ and $sb_0$.  Thus the realized cost is at most
-$\cost(T_{\mathrm{all}})=11h$ in either outcome.
-
-We prove the reverse inequality by contradiction.  Consider an arbitrary
-adaptive policy.  Since all clients except~$s$ are deterministic, the two
-realizations follow the same deterministic prefix until the policy calls~$s$.
-Let $C_0$ be the realized tour cost when $s$ is inactive, and let $C_1$ be
-the realized tour cost when $s$ is active.  The policy's expected cost is
-$(C_0+C_1)/2$.
-
-Assume that this expectation is strictly smaller than $11h$.  By
-Lemma~\ref{lem:near-optimal-routes}, $C_0\ge9h$ and $C_1\ge11h$.
-Therefore $C_0<11h$ and $C_1<13h$.  The near-optimal classification in
-Lemma~\ref{lem:near-optimal-routes} then forces the inactive realization to
-have the $T_D$ crossing skeleton, and the active realization to have the
-$T_{\mathrm{all}}$ crossing skeleton, each up to reversal.
-
-In the active realization, the vertex immediately before~$s$ must be one of
-the two neighbours of~$s$ in the $T_{\mathrm{all}}$ skeleton, namely
-$c_{k-1}$ or $b_0$.
-
-If the predecessor is $c_{k-1}$, then the active prefix has used the
-$A$--$C$ crossing $\{a_{k-1},c_0\}$ and has not visited any vertex of
-chain~$B$.  In the $T_D$ skeleton, a prefix ending at $c_{k-1}$ either reaches
-chain~$C$ only after using the $A$--$B$ and $B$--$C$ crossings, hence after
-visiting chain~$B$, or else it is the reversed orientation whose first
-crossing is the direct edge $\{a_0,c_{k-1}\}$.  Neither prefix can equal the
-active one.
-
-If the predecessor is $b_0$, the active prefix has used the $A$--$B$ crossing
-$\{a_0,b_{k-1}\}$ and has not visited chain~$C$.  In the $T_D$ skeleton, a
-prefix ending at $b_0$ either reaches $B$ through the crossing
-$\{a_{k-1},b_0\}$ after moving through chain~$A$, or reaches $B$ only after
-visiting chain~$C$ in the reversed orientation.  Again neither prefix can
-equal the active one.
-
-This contradicts the fact that the two realizations must share exactly the
-same deterministic prefix before~$s$ is called.  Hence every adaptive policy
-has expected cost at least $11h$, and the upper-bound policy is optimal.
-\end{proof}
-
-\begin{corollary}[Symmetric clairvoyance gap $\ge 11/10$]\label{cor:sym-clair}
-For all $k \ge 3$, the balanced three-chain instance $G_k$ satisfies
-\[
-\frac{\optadapt(G_k)}{\optpost(G_k)} = \frac{11(k-1)}{10(k-1)} = \frac{11}{10}.
-\]
-\end{corollary}
-\begin{proof}
-This follows from Theorem~\ref{thm:balance} and Proposition~\ref{prop:apost}.
-\end{proof}
-
 \begin{remark}[Equality of adaptive and a~priori]
 The order $T_{\mathrm{all}}$ is also an a~priori tour of expected cost
-$11(k-1)$, since shortcutting an inactive~$s$ replaces the two edges
-$c_{k-1}s$ and $sb_0$ by a metric edge of the same length.  Therefore
+$11(k-1)$ or less, since shortcutting an inactive~$s$ replaces the two edges
+$c_{k-1}s$ and $sb_0$ by a metric edge of no greater length.  Therefore
 $\optprior\le 11(k-1)$.  Together with
 $\optadapt\le\optprior$ from~\eqref{eq:optineq}, this gives
 $\optprior=\optadapt=11(k-1)$ for this family.  All of the gap comes from
 clairvoyance, not from adaptivity.
 \end{remark}
 
-\section{A single-stochastic-vertex upper bound}\label{sec:single-vertex-upper}
+\section{An auxiliary single-stochastic-vertex bound}\label{sec:single-vertex-upper}
 
-Consider a symmetric instance with a single stochastic vertex~$s$ of activation probability $p\in(0,1)$ and deterministic customers~$D$.
+This section records an elementary bound for the restricted case of a single
+stochastic vertex. It is independent of the three-chain argument and is not
+claimed to be tight. Consider a symmetric instance with a single stochastic
+vertex~$s$ of activation probability $p\in(0,1)$ and deterministic
+customers~$D$.
+If $D=\emptyset$, the adaptive and a~posteriori benchmarks coincide, so for
+the notation and proof below we may assume $D\ne\emptyset$.
 Write $T_{\mathrm{all}}$ for the optimal tour on $D\cup\{s\}\cup\{r\}$ and $T_D$ for the optimal tour on $D\cup\{r\}$, with costs
 \[
     \optall:=\cost(T_{\mathrm{all}}),
@@ -928,13 +1033,14 @@ Let
     \beta:=\frac{d_{\min}}{\opt_D}.
 \]
 
-\begin{proposition}\label{prop:general-p}
+\begin{proposition}[Single-stochastic-vertex bound]\label{prop:general-p}
 For any symmetric metric instance with a single stochastic vertex~$s$
 of probability~$p \in (0,1)$,
 \[
 \frac{\optadapt}{\optpost} \;\le\; \frac{1}{1 - p + p^2}.
 \]
-This bound is maximized at $p = 1/2$, where it equals~$4/3$.
+The right-hand side is maximized at $p = 1/2$, where it equals~$4/3$;
+we do not claim that this value is attained by an instance.
 By continuity, at $p = 0$ and $p = 1$ the bound equals~$1$ (no gap).
 \end{proposition}
 
@@ -943,35 +1049,27 @@ For general~$p$, the a~posteriori expected cost is
 \[
 \optpost = (1-p)\,\opt_D + p\,\optall = \opt_D\bigl((1-p) + p\rho\bigr).
 \]
-One adaptive policy simply follows $T_{\mathrm{all}}$, giving
-\[
-    \frac{\optadapt}{\optpost}
-    \le
-    \frac{\rho}{(1-p)+p\rho}.
-\]
-Another adaptive policy follows $T_D$ to a closest vertex to~$s$ and calls~$s$ there.  If $s$ is inactive, the cost is at most~$\opt_D$; if $s$ is active, the extra detour costs at most~$2d_{\min}$.
-This gives expected cost at most
-$\opt_D+2p\,d_{\min}=\opt_D(1+2p\beta)$, and hence
-\[
-    \frac{\optadapt}{\optpost}
-    \le
-    \frac{1+2p\beta}{(1-p)+p\rho}.
-\]
-Taking the better of the two policies,
+One adaptive policy simply follows $T_{\mathrm{all}}$.  Another follows
+$T_D$ to a closest vertex $v$ to~$s$ and
+calls~$s$ there.  If $s$ is inactive, it continues along $T_D$.  If $s$ is
+active, it calls the next vertex of $T_D$ after visiting~$s$; by the triangle
+inequality, this changes the next leg by at most $2d(v,s)=2d_{\min}$.
+The two policies have expected costs at most $\optall$ and
+$\opt_D+2p\,d_{\min}=\opt_D(1+2p\beta)$, respectively.  Taking the better
+one gives
 \[
 \frac{\optadapt}{\optpost}
 \;\le\; \frac{\min(\rho,\; 1 + 2p\beta)}{(1-p) + p\rho}.
 \]
 
-We use three elementary metric constraints.
-First, $\rho\ge1$.
-Second, inserting~$s$ at a closest vertex of~$T_D$ gives
+We use three elementary metric constraints.  Shortcutting~$s$ from
+$T_{\mathrm{all}}$ gives $\rho\ge1$; inserting~$s$ at a closest vertex of
+$T_D$ gives $\rho\le1+2\beta$; and the two edges of $T_{\mathrm{all}}$
+incident with~$s$ each have length at least~$d_{\min}$, so
 \[
-    \rho\le 1+2\beta.
-\]
-Third, the two edges of $T_{\mathrm{all}}$ incident to~$s$ each have length at least~$d_{\min}$, so
-\[
-    \rho\ge2\beta.
+    1\le\rho\le1+2\beta,
+    \qquad
+    2\beta\le\rho.
 \]
 
 For fixed~$\rho$, the numerator $\min(\rho,1+2p\beta)$ is nondecreasing in~$\beta$, and the largest feasible value is $\beta=\rho/2$.
@@ -998,7 +1096,7 @@ Hence the largest value of the bound over $p\in[0,1]$ is
 
 
 % ============================================================
-% CHAPTER 5: CLAIRVOYANCE GAP — ASYMMETRIC
+% CHAPTER 4: CLAIRVOYANCE GAP — ASYMMETRIC
 % ============================================================
 \chapter{Clairvoyance Gap for Asymmetric Metrics}\label{ch:asym-clair}
 
@@ -1428,7 +1526,7 @@ $R\to m_l\to L\to r$.  Hence
 
 
 % ============================================================
-% CHAPTER 6: APPROXIMATE A PRIORI TSP
+% CHAPTER 5: APPROXIMATE A PRIORI TSP
 % ============================================================
 \chapter{Approximate A Priori TSP via Dynamic Programming}\label{ch:dp}
 
@@ -1984,7 +2082,7 @@ We summarize the main results of this thesis in the following table.
 \textbf{Result} & \textbf{Metric} & \textbf{Reference} \\
 \midrule
 Adaptivity gap $\ge 5/4$ & Symmetric & Theorem~\ref{thm:cycle-subdivision} \\
-Clairvoyance gap $\ge 11/10$ & Symmetric & Corollary~\ref{cor:sym-clair} \\
+Clairvoyance gap $\ge 11/10$ & Symmetric & Theorem~\ref{thm:sym-clair} \\
 One stochastic vertex: gap $\le 1/(1-p+p^2)$ & Symmetric & Proposition~\ref{prop:general-p} \\
 Clairvoyance gap $\ge 4/3$ & Asymmetric & Theorem~\ref{thm:recursive-gap} \\
 $(1{+}\varepsilon)$-approx.\ for a~priori TSP & Asymmetric & Theorem~\ref{thm:directed-apriori-ptas} \\
