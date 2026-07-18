@@ -695,6 +695,13 @@ only one vertex is stochastic.
 
 \section{The three-chain lower bound}\label{sec:3chain}
 
+\begin{theorem}[Symmetric clairvoyance gap lower bound]\label{thm:sym-clair}
+The clairvoyance gap for symmetric stochastic TSP is at least~$11/10$.
+\end{theorem}
+
+We prove the theorem by constructing a family of three-chain instances whose
+adaptive and a~posteriori optimum values differ by precisely this factor.
+
 \begin{construction}[Three-chain graph $H_k$]\label{con:3chain}
 Let $k \ge 3$ be an integer.
 Define a symmetric weighted graph with vertex set
@@ -708,37 +715,33 @@ A &= (a_0, a_1, \ldots, a_{k-1}), &
 B &= (b_0, b_1, \ldots, b_{k-1}), &
 C &= (c_0, c_1, \ldots, c_{k-1})
 \end{align*}
-are vertex-disjoint paths, with the identification $a_0 = r$.
+are vertex-disjoint paths. There are two types of edges in this graph:
 
 \medskip\noindent\textbf{Internal edges} (weight~$1$): for each chain $X \in \{A,B,C\}$
 and each $0\le i\le k-2$, include the edge $\{x_i, x_{i+1}\}$ of weight~$1$.
 
 \medskip\noindent\textbf{Inter-chain edges} (weight~$2(k-1)$):
-\begin{equation}\label{eq:interchain}
+\begin{equation*}\label{eq:interchain}
 \begin{gathered}
 \{a_0, b_{k-1}\},\quad
 \{a_0, c_{k-1}\},\quad
 \{b_0, a_{k-1}\},\quad
-\{c_0, a_{k-1}\},\\
+\{c_0, a_{k-1}\},\quad
 \{c_0, b_{k-1}\},\quad
 \{b_0, s\},\quad
 \{c_{k-1}, s\}.
 \end{gathered}
-\end{equation}
+\end{equation*}
 
-\medskip
-There are no other edges.
 \end{construction}
 
-The \emph{three-chain instance} $G_k$ has depot $r=a_0$ and client set
+The instance has depot $r=a_0$ and $3k$ client 
 $V(H_k)\setminus\{r\}$. Its distance function is the shortest-path metric
 induced by $H_k$. The client $s$ is active with probability~$1/2$, and
-every other client is deterministic. We write
+every other client is deterministic. We denote the deterministic clients
 \[
 D:=V(H_k)\setminus\{r,s\}
 \]
-for the deterministic clients. Thus the instance has $3k$ clients and one
-depot.
 
 \begin{figure}[htbp]
 \centering
@@ -794,7 +797,7 @@ depot.
 \node[above=1mm of A0,font=\scriptsize] {depot $r$};
 \end{tikzpicture}
 \caption{The three-chain graph $H_k$. Each horizontal row is a chain of
-unit-weight edges; chain~$B$ is drawn in reverse order. The seven dashed edges
+edges with weight $1$; chain~$B$ is drawn in reverse order for simplicity. The dashed edges
 have weight~$2(k-1)$. The shaded square is the depot, and the gray circle is the
 only stochastic client.}
 \label{fig:three-chain}
@@ -805,23 +808,20 @@ only stochastic client.}
 The inter-chain weight $2(k-1)$ balances the cost of a crossing against
 the cost of traversing the chains and makes the active and inactive optimal
 tour skeletons compete at the thresholds used below.
-Throughout the proof below, write $h:=k-1$, so every crossing has cost~$2h$.
 
-\begin{theorem}[Symmetric clairvoyance gap lower bound]\label{thm:sym-clair}
-For every $k\ge3$, the three-chain instance $G_k$ satisfies
-\[
-    \optpost(G_k)=10(k-1)
-    \qquad\text{and}\qquad
-    \optadapt(G_k)=11(k-1).
-\]
-Consequently,
-\[
-    \frac{\optadapt(G_k)}{\optpost(G_k)}=\frac{11}{10},
-\]
-and the clairvoyance gap for symmetric stochastic TSP is at least~$11/10$.
-\end{theorem}
+Theorem \ref{thm:sym-clair} can be directly derived from the following lemmas:
 
-The proof has two structural ingredients.  First we identify the only
+\begin{lemma}[Optimal a posteriori cost]\label{lem:sym-apost-cost}
+    The three-chain instance $H_k$ satisfies $\optpost = 10(k-1)$.
+\end{lemma}
+\begin{lemma}[Optimal adaptive cost]\label{lem:sym-adapt-cost}
+    The three-chain instance $H_k$ satisfies $\optadapt = 11(k-1)$.
+\end{lemma}
+\begin{proof}[Proof to Theorem~\ref{thm:sym-clair}]
+    Follows immediately from definition.
+\end{proof}
+
+The proof of these identities has two structural ingredients.  First we identify the only
 near-optimal crossing patterns in the two realizations.  We then show that an
 adaptive policy cannot realize both patterns because its calls before learning
 the status of~$s$ must be the same in both realizations.
@@ -1012,8 +1012,8 @@ $(C_0+C_1)/2<11h$, the realization lower bounds $C_0\ge9h$ and $C_1\ge11h$
 force $C_0<11h$ and $C_1<13h$.  This contradicts
 Lemma~\ref{lem:incompatible-skeletons}.  Hence $\optadapt\ge11h$.
 
-Substituting $h=k-1$ gives the two claimed optimum values and their ratio
-$11/10$.
+Substituting $h=k-1$ gives the displayed optimum values above.  Their ratio is
+$11/10$, which proves the claimed lower bound.
 \end{proof}
 
 \begin{remark}[Tour restructuring]\label{rem:restructuring}

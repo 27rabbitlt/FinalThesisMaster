@@ -269,21 +269,22 @@ imbalance before realization is bounded by $O(\log^2 n)$.
 \section{What can we get from circulation and rounding}
 We do not directly have an adaptive policy yet. After rounding, 
 every outside vertex $i$ has exactly one edge $e$ such that $x_{i,e}=p_i$.
+So an outside vertex $i$ is mostly like a chord on backbone cycle with activation probability.
 A naive policy would be that, when we stand at a backbone vertex $v$, we always 
 try to probe from $v$ to some outside vertex $i$ which has $e = (v, v')$ and 
 $x_{i,e}=p_i$. If we cannot find any outside vertex from $v$, then we go alonside
 the backbone and continue until we probed all outside vertex. This naive policy 
 does not provide good cost upper bound because it relies heavily on backbone edges 
-to move from one vertex to another. We do not care about log factor,
+to move from one vertex to another. Since we do not care about log factor,
 we can use each backbone edge poly-log times, but it can happen that poly-log is 
-not enough. In circulation lemma, we also paid for these arcs on backbone tour,
-i.e. those $u \rightarrow i \rightarrow v$ arcs where $i$ is the outside vertex.
+not enough in this naive adaptive policy. In circulation lemma, we also paid for the chords
+on backbone tour, i.e. those $u \rightarrow i \rightarrow v$ chords where $i$ is the outside vertex.
 Since ciculation lemma gives bounded cost, we can also use these edges poly-log times.
-But notice that, each such arc has non-integral weight. So when we say poly-log times,
-we are actually saying we can use it no more than poly-log times the flow weight $x$.
+But notice that, each such arc has non-integral weight in circulation. So when we say poly-log times,
+we are actually saying we can use it no more than poly-log multiplied by the flow weight $x_e$.
 Or in another way, since after rounding each edge has flow weight either $0$ or $p_i$,
-we can assume we can use an edge when the corresponding outside vertex is active, thus
-in expectation point of view it is equivalent. So in summary, we do not care about 
+we can assume we can use the chord when the corresponding outside vertex is active, bacause
+in expectation point of view, it is equivalent. So in summary, we do not care about 
 the edge distance / cost, we essentially care about the congestion! We care about 
 how many times a edge in circulation and rounding would be used in adaptive policy.
 If we can control this to be upper bounded by poly-log, then we are happy.
