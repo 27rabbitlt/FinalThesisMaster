@@ -281,7 +281,7 @@ The \emph{cycle-subdivided-clique instance} $\mathcal I_n$ has depot $r:=v_1$ an
 \[
 V_n:=\{v_2,\dots,v_n\}\cup\{v_1',\dots,v_n'\}.
 \]
-Its distance function is the shortest-path metric induced by~$G_n$. Every
+The underlying distance function is the shortest-path metric induced by~$G_n$. Every
 original client $v_2,\dots,v_n$ is active with probability~$1$, while every
 subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
 
@@ -344,10 +344,18 @@ and Lemma~\ref{lem:cycle-adapt} gives $\optadapt\le \frac32 n+6$.
 Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
 \end{proof}
 
-We now prove the two lemmas in turn.
+\sharat{It's good practice to collect all tools that you need for a technical proof before you start the proof. I would rephrase the below sentence as follows: 
+The rest of this chapter is devoted to proving Lemmas blah and blah. 
+Start a new section entitled a priori optimum for cycle-subdivided clique instances. The next section would be adaptive optimum for ...}
+
+\sharat{In the a prior section, you start with a short paragraph on how the proof works. It's good practice to give the reader an idea on where the proof is going before you take them down the rabbit hole. Starting a new section gives you a chance to collect properties of the metric without entering the proof environment.}
+
+We now prove the two lemmas in turn. %% this will be commented out. 
 
 \begin{proof}[Proof of Lemma~\ref{lem:cycle-prior}]
 Fix an arbitrary a~priori tour $T=(v_1,s_1,s_2,\dots,s_{2n-1},v_1)$ on $\{v_1\}\cup V_n$, where $s_1,\dots,s_{2n-1}$ is a permutation of $\{v_2,\dots,v_n,v_1',\dots,v_n'\}$. We shall prove that its expected realized length is at least $15n/8$, and then exhibit a tour attaining this value.
+
+\sharat{It's not standard practice in our field to introduce subheadings in proofs like metric structure and decomposition into segments. These things are better isolated even before you start the proof.}
 
 \medskip
 \noindent\emph{Metric structure.}
@@ -372,6 +380,8 @@ d(v_i',v_j')=
 3, & \text{otherwise.}
 \end{cases}
 \]
+
+\sharat{The metric structure is just an observation that should be collected early on (outside the proof) with labeled equations. Give each of the 3 settings a unique equation number.}
 
 \medskip
 \noindent\emph{Decomposition into segments.}
@@ -403,6 +413,8 @@ after deleting inactive subdividing vertices. Because all original vertices are 
 \]
 Thus it is enough to derive a lower bound on $\Phi(u;W;v)$ in terms of $k:=|W|$.
 
+\sharat{Ideally, the proof of Lemma A should end here. Claims 2.6 and long segment analysis are the technical heart of the proof which are distracting the reader from knowing what is happening in the proof of Lemma A. In the proof sketch/overview paragraph at the beginning of this section, you should already allude to the strategy briefly. The proof of lemma is dependent on the reader believing that $f(k) >= 1 + 7k/8$. This should be made explicit and then the proof should be concluded. Proving the technical bits is a separate proof.}
+
 \medskip
 \noindent\emph{Short segments.}
 We first treat the cases $k\le 3$.
@@ -420,6 +432,8 @@ For every segment $(u;W;v)$ with $k=|W|\le 3$,
 \]
 Moreover, equality is attained for $k=2$ by $(v_i,v_i',v_{i+1}',v_{i+1})$, and for $k=3$ by $(v_{i+1},v_{i+1}',v_i',v_{i-1}',v_i)$.
 \end{claim}
+
+\sharat{11/4 and 29/8 are overlapping. Just remove the dfrac macro.}
 
 \begin{proof}
 If $k=0$, then the segment contributes the single edge $uv$, so $\Phi(u;\varnothing;v)=d(u,v)\ge 1$.
@@ -554,9 +568,11 @@ Since $T$ was arbitrary, this shows that
 \optprior\ge \frac{15}{8}n.
 \]
 
+\sharat{At a minimum, you should make these headings bold and not just use italics. Italics are in general used for inline writing where you want to emphasize something. They can be mistaken for a new sentence. ``Matching constructions.'' is not a proper sentence in this context.}
 \medskip
 \noindent\emph{Matching constructions.}
-It remains to exhibit a~priori tours attaining this value.
+
+It remains to exhibit an a~priori tour, for each $n \geq 7$, attaining this value. 
 
 \smallskip
 \noindent\emph{Even $n$.}
@@ -617,10 +633,17 @@ We exhibit an adaptive policy~$\pi$. Let
 \[
 P \;:=\; v_2,\, v_2',\, v_3,\, \dots,\, v_{n-1}',\, v_n.
 \]
+\sharat{We should adopt proper terminology to talk about adaptive policies. In the introduction, calling terminology makes sense. That's how we motivate the problem. Somewhere in the introduction you will be formalizing the setup. At this point, the probing terminology should be introduced. Make it clear in the introduction that the probes are done remotely. Do include a prompt in your LLM to highlight all places where the terminology is inconsistent.}
+
 First call $v_1'$ and $v_n'$ (the only clients outside~$P$), then return to the depot $r=v_1$.
 In the worst case both are active, costing $d(r,v_1')+d(v_1',v_n')+d(v_n',r)=1+2+1=4$.
-Next, move from $r$ to $v_2$ (cost~$2$) and process~$P$.
-At each step the uncalled clients on~$P$ form a contiguous subpath, and the salesperson sits at one of its two endpoint originals. The policy probes the adjacent subdividing vertex: if it is active, traverse it and the next original (cost~$2$) and continue in the same direction; if it is inactive, jump to the opposite endpoint original of the remaining subpath (cost~$1$, since nonconsecutive originals are at distance~$1$) and proceed symmetrically.
+Next, move from $r$ to $v_2$, which costs $2$,  
+% (cost~$2$) 
+and process~$P$. \sharat{fix throughout.}
+At each step the uncalled clients on~$P$ form a contiguous subpath, and the salesperson sits at one of its two endpoint originals. The policy probes the adjacent subdividing vertex: if it is active, traverse it and the next original (cost~$2$) \sharat{original vertex you mean} and continue in the same direction; if it is inactive, jump to the opposite endpoint original \sharat{???} of the remaining subpath (cost~$1$, since nonconsecutive originals are at distance~$1$) and proceed symmetrically. 
+\sharat{incorrect use of parantheses. nonconsecutive originals is not good terminology. Opposite of original is duplicate. You should come up with a better naming system here.}
+
+\sharat{Avoid using $a$ and $A$ as much as possible since the thesis is going to be filled with a priori and a posteriori everywhere.}
 
 Let $a:=|A\cap\{v_2',\dots,v_{n-1}'\}|$. The $a$ active subdividers on~$P$ each contribute cost~$2$. Each of the $(n-2)-a$ inactive ones triggers a switch of cost~$1$, except possibly the last, which may cost~$2$. Including the return to~$r$ (cost at most~$2$), the middle phase costs at most $2+2a+((n-2)-a+1)+2=n+a+3$.
 The total cost per realization is therefore at most $4+(n+a+3)=n+a+7$, and taking expectation with $\E[a]=(n-2)/2$ gives $\E[\cost(\pi)]\le \frac32 n+6$.
@@ -776,6 +799,8 @@ have weight~$2(k-1)$. The shaded square is the depot, and the gray circle is the
 only stochastic client.}
 \label{fig:three-chain}
 \end{figure}
+
+\sharat{Replace weight by length throughout.}
 
 The inter-chain weight $2(k-1)$ balances the cost of a crossing against
 the cost of traversing the chains and makes the active and inactive optimal
@@ -1010,6 +1035,8 @@ clairvoyance, not from adaptivity.
 \end{remark}
 
 \section{An auxiliary single-stochastic-vertex bound}\label{sec:single-vertex-upper}
+
+\sharat{You don't have to call it an auxiliary bound. It's mostly a thing we say while talking but not necessarily write it.}
 
 This section records an elementary bound for the restricted case of a single
 stochastic vertex. It is independent of the three-chain argument and is not
