@@ -1,0 +1,1150 @@
+%! TeX program = pdflatex
+\documentclass[aspectratio=169,12pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[default]{sourcesanspro}
+\usefonttheme[onlymath]{serif}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{tikz}
+\usetikzlibrary{
+  arrows.meta,
+  backgrounds,
+  calc,
+  decorations.pathreplacing,
+  fit,
+  positioning,
+  shapes.geometric
+}
+\usepackage{beamerthemestochastic}
+
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\optpost}{\OPT_{\mathrm{post}}}
+\newcommand{\optadapt}{\OPT_{\mathrm{adapt}}}
+\newcommand{\optprior}{\OPT_{\mathrm{prior}}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Pp}{\mathbb{P}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\1}{\mathbf{1}}
+
+\title[Information Gaps \& Algorithms]{%
+  Information Gaps and Algorithms for the\\
+  Stochastic Traveling Salesperson Problem}
+\author{Teng Liu}
+\institute{Department of Computer Science \enspace·\enspace ETH Zürich}
+\date{Master Thesis \enspace·\enspace July 2026}
+
+\input{diagrams}
+\setbeameroption{hide notes}
+
+\begin{document}
+
+% ==========================================================================
+% Title
+% ==========================================================================
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[STPaper] (current page.south west) rectangle (current page.north east);
+    \draw[STLine,line width=0.45pt]
+      ([xshift=0.95cm,yshift=-0.82cm]current page.north west)
+      --
+      ([xshift=-0.88cm,yshift=-0.82cm]current page.north east);
+    \draw[STBlue,line width=1.35pt]
+      ([xshift=0.95cm,yshift=-0.82cm]current page.north west)
+      --
+      ([xshift=3.35cm,yshift=-0.82cm]current page.north west);
+
+    \node[
+      anchor=west,
+      text=STBlue,
+      font=\fontsize{9pt}{11pt}\selectfont\bfseries
+    ] at ([xshift=0.98cm,yshift=2.42cm]current page.west)
+      {MASTER THESIS \enspace·\enspace JULY 2026};
+    \node[
+      anchor=east,
+      text=STMuted,
+      font=\fontsize{9.4pt}{11.5pt}\selectfont
+    ] at ([xshift=-0.90cm,yshift=2.42cm]current page.east)
+      {\(\optpost\leq\optadapt\leq\optprior\)};
+    \node[
+      anchor=west,
+      text=STInk,
+      text width=11.35cm,
+      align=left,
+      font=\fontsize{20pt}{23.8pt}\selectfont\bfseries
+    ] at ([xshift=0.98cm,yshift=0.34cm]current page.west)
+      {Information Gaps and Algorithms\\
+       for the Stochastic Traveling\\
+       Salesperson Problem};
+    \draw[STLine,line width=0.45pt]
+      ([xshift=0.98cm,yshift=-1.10cm]current page.west)
+      --
+      ([xshift=-0.90cm,yshift=-1.10cm]current page.east);
+    \node[
+      anchor=west,
+      text=STInk,
+      font=\fontsize{13.2pt}{16pt}\selectfont\bfseries
+    ] at ([xshift=0.98cm,yshift=-1.54cm]current page.west)
+      {Teng Liu};
+    \node[
+      anchor=west,
+      text=STInkSoft,
+      font=\fontsize{10.8pt}{13pt}\selectfont
+    ] at ([xshift=0.98cm,yshift=-1.98cm]current page.west)
+      {Department of Computer Science \enspace·\enspace ETH Zürich};
+    \node[
+      anchor=west,
+      text=STMuted,
+      font=\fontsize{9.8pt}{12pt}\selectfont
+    ] at ([xshift=0.98cm,yshift=-2.56cm]current page.west)
+      {Advisors: Dr.\ Sharat Ibrahimpur and Prof.\ Dr.\ Vera Traub};
+  \end{tikzpicture}
+\end{frame}
+
+% ==========================================================================
+% Outline — outside the requested technical timing
+% ==========================================================================
+\begin{frame}{Outline}
+  \vfill
+  \tableofcontents[hideallsubsections]
+  \vfill
+\end{frame}
+
+% ==========================================================================
+% Background — 3 minutes
+% ==========================================================================
+\section{Problem and benchmarks}
+
+% Timing: ~1:00
+\begin{frame}{Uncertainty is simple; ordering is not}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.35\textwidth}
+      \vspace{0.00cm}
+      Each client \(v\) is independently active with probability \(p_v\).
+
+      \vspace{0.24cm}
+      A tour starts and ends at depot \(r\), visits every active client, and
+      pays directed metric distance.
+
+      \vspace{0.22cm}
+      {\small
+      \stresult[STTeal]{The hard decision is \emph{when the visit order may
+      depend on the realization}.}}
+    \end{column}
+    \begin{column}{0.62\textwidth}
+      \centering
+      \resizebox{0.99\linewidth}{!}{\StMasterOrder}
+    \end{column}
+  \end{columns}
+  \vspace{-0.02cm}
+\end{frame}
+
+% Timing: ~1:10
+\begin{frame}{Information arrives at three different times}
+  \centering
+  \resizebox{0.74\linewidth}{!}{\StBenchmarkLadder}
+
+  \vspace{0.02cm}
+  \[
+    \optpost \;\le\; \optadapt \;\le\; \optprior
+  \]
+
+  \vspace{-0.30cm}
+  \small
+  \stpill[STBlue]{adaptivity gap}
+  \(\displaystyle\sup\frac{\optprior}{\optadapt}\)
+  \hspace{0.75cm}
+  \stpill[STTeal]{clairvoyance gap}
+  \(\displaystyle\sup\frac{\optadapt}{\optpost}\)
+\end{frame}
+
+% Timing: ~0:50
+\begin{frame}{The thesis separates three kinds of difficulty}
+  \vspace{0.18cm}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \draw[STLine,line width=1.5pt] (0.75,2.20)--(10.95,2.20);
+    \foreach \x/\col/\label in {
+      1.20/STBlue/1,
+      5.80/STTeal/2,
+      10.45/STGold/3
+    }{
+      \node[circle,fill=\col,text=STWhite,minimum size=0.58cm,
+        font=\fontsize{11pt}{12pt}\selectfont\bfseries] at (\x,2.20) {\label};
+    }
+    \node[anchor=north west,text width=3.25cm,align=left] at (0.75,1.70) {
+      \textbf{Witness the gaps}\par
+      \vspace{0.16cm}
+      \color{STInkSoft}\small
+      Symmetric: \(5/4\), \(11/10\)\\
+      Asymmetric: \(4/3\)
+    };
+    \node[anchor=north,text width=3.45cm,align=center] at (5.80,1.70) {
+      \textbf{Build low-cost structure}\par
+      \vspace{0.16cm}
+      \color{STInkSoft}\small
+      Backbone circulation,\\endpoint rounding, offline walk
+    };
+    \node[anchor=north east,text width=3.15cm,align=right] at (10.95,1.70) {
+      \textbf{Optimize a fixed order}\par
+      \vspace{0.16cm}
+      \color{STInkSoft}\small
+      Factor \(1+\varepsilon\)\\
+      Time \(c_\varepsilon^n\poly(n)\)
+    };
+  \end{tikzpicture}
+
+  \vfill
+  \centering
+  \large
+  The common theme is not merely uncertainty—it is the value and the
+  \emph{timing} of information.
+\end{frame}
+
+% ==========================================================================
+% Constructions — 13 minutes
+% ==========================================================================
+\section{Gap constructions}
+\stsectionframe{STBlue}{Part I}{Three gap constructions}{Local switching,
+global restructuring,\\and recursive reversal.}
+
+% Timing: ~1:05
+\begin{frame}{Subdividing a cycle makes observations useful}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.55\textwidth}
+      \centering
+      \resizebox{!}{5.00cm}{\StCycleClique}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \vspace{0.42cm}
+      Start from \(K_n\), then subdivide the edges
+      \(v_i v_{i+1}\) of one Hamiltonian cycle.
+
+      \vspace{0.38cm}
+      \begin{sttightitemize}
+        \item original vertices: deterministic;
+        \item subdividers \(v_i'\): \(p=\tfrac12\);
+        \item distances: shortest-path metric.
+      \end{sttightitemize}
+
+      \vspace{0.30cm}
+      \stpill[STBlue]{symmetric metric}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:10
+\begin{frame}{Every fixed order pays a local tax}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \vspace{0.42cm}
+      \resizebox{0.94\linewidth}{!}{\StSegmentTax}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      A fixed tour breaks into \(n\) segments. If segment \(j\) contains
+      \(k_j\) subdividers, then
+      \[
+        \E[\cost(T)]
+        \ge n+\frac78\sum_{j=1}^{n}k_j.
+      \]
+
+      Because \(\sum_j k_j=n\),
+      \[
+        \boxed{\optprior=\frac{15}{8}n.}
+      \]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{Adaptation peels from the cheaper end}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.57\textwidth}
+      \centering
+      \vspace{0.62cm}
+      \resizebox{0.95\linewidth}{!}{\StAdaptivePeel}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      Maintain the uncalled part of the subdivided path as one interval.
+
+      \vspace{0.12cm}
+      \begin{sttightitemize}
+        \item active: cross it, cost \(2\);
+        \item inactive: switch endpoints, usually cost \(1\).
+      \end{sttightitemize}
+
+      \vspace{0.08cm}
+      With \(a\) active internal subdividers,
+      {\small
+      \[
+        \begin{aligned}
+          \cost(\pi,A)&\le n+a+7,\\[-1mm]
+          \optadapt&\le \frac32n+6.
+        \end{aligned}
+      \]}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~0:50
+\begin{frame}{Local switching creates a \(5/4\) gap}
+  \vspace{0.70cm}
+  \centering
+  \steyebrow{fixed order versus adaptive policy}
+
+  \vspace{0.30cm}
+  {\fontsize{29pt}{34pt}\selectfont\bfseries
+    \(\displaystyle
+      \frac{\optprior}{\optadapt}
+      \;\ge\;
+      \frac{\frac{15}{8}n}{\frac32n+6}
+      \;\longrightarrow\;
+      \color{STBlue}\frac54
+    \)}
+
+  \vspace{0.64cm}
+  \centering
+  The gain comes from changing direction after an inactive call.
+\end{frame}
+
+% Timing: ~1:10
+\begin{frame}{One stochastic vertex forces global restructuring}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.61\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\StThreeChain}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      Put three unit-edge chains of length \(h=k-1\) behind seven inter-chain
+      edges of length \(2h\).
+
+      \vspace{0.38cm}
+      \begin{sttightitemize}
+        \item depot: \(a_0\);
+        \item all chain vertices deterministic;
+        \item only \(s\) is stochastic, with \(p_s=\tfrac12\).
+      \end{sttightitemize}
+
+      \vspace{0.28cm}
+      \stpill[STTeal]{symmetric metric}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{The realizations prefer disjoint crossing skeletons}
+  \centering
+  \resizebox{0.79\linewidth}{!}{\StSkeletonComparison}
+
+  \vspace{0.02cm}
+  {\small
+  \stresult[STCoral]{Removing \(s\) reverses the preferred order of
+  entire chains.}}
+\end{frame}
+
+% Timing: ~1:15
+\begin{frame}{Adaptation commits before learning the skeleton}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      Near-optimal tours are forced:
+      \[
+      \begin{aligned}
+        C_0<11h &\Longrightarrow \text{inactive skeleton }E_D,\\
+        C_1<13h &\Longrightarrow \text{active skeleton }E_{\mathrm{all}}.
+      \end{aligned}
+      \]
+      The two crossing sets are disjoint.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      Before calling \(s\), both realizations have the same called prefix.
+
+      \vspace{0.30cm}
+      That prefix cannot cross between chains in either forced skeleton.
+      Reaching \(s\) then transits through an uncalled chain with no crossing
+      left to return and serve it.
+
+      \vspace{0.28cm}
+      \stpill[STCoral]{contradiction}
+    \end{column}
+  \end{columns}
+
+  \vfill
+  \centering
+  Therefore both \(C_0<11h\) and \(C_1<13h\) are impossible.
+\end{frame}
+
+% Timing: ~0:50
+\begin{frame}{Clairvoyance saves one expected crossing}
+  \vspace{0.22cm}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \steyebrow{a posteriori}
+      \[
+        \optpost=\tfrac12(9h)+\tfrac12(11h)=10h
+      \]
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \steyebrow{adaptive}
+      \[
+        \optadapt=11h
+      \]
+    \end{column}
+  \end{columns}
+
+  \vspace{0.10cm}
+  \centering
+  {\fontsize{31pt}{35pt}\selectfont\bfseries\color{STTeal}
+    \(\displaystyle \frac{\optadapt}{\optpost}=\frac{11}{10}\)}
+
+  \vspace{0.28cm}
+  Here \(\optprior=\optadapt\): the entire gap is the value of knowing \(s\)
+  before choosing the chain order.
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{A recursive block repeats the order reversal}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \resizebox{0.79\linewidth}{!}{\StRecursiveBlock}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      Build \(B_\ell\) from two copies of \(B_{\ell-1}\) and midpoint \(m_\ell\).
+
+      \[
+        \begin{gathered}
+          L\longrightarrow R\longrightarrow m_\ell\longrightarrow L,\\[-1mm]
+          w_\ell=2^{\ell-1}.
+        \end{gathered}
+      \]
+
+      Permanent ports are deterministic; every midpoint is active with
+      probability \(1/2\).
+
+      \vspace{0.28cm}
+      \stpill[STCoral]{directed metric}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{An active midpoint reverses the local order}
+  \centering
+  \resizebox{0.88\linewidth}{!}{\StLocalChoice}
+
+  \vspace{0.02cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \centering
+      Clairvoyance pays
+      \(\tfrac12w+\tfrac12(2w)=\tfrac32w\).
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \centering
+      A causal policy pays
+      \(\tfrac12w+\tfrac12(3w)=2w\).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:15
+\begin{frame}{Interrupted services obey clean recurrences}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \steyebrow{known realization}
+      \[
+        \begin{aligned}
+        P_\ell(A)
+          &=P_{\ell-1}(A_L)+P_{\ell-1}(A_R)\\[-1mm]
+          &\quad+w_\ell\bigl(1+\1_{\{m_\ell\in A\}}\bigr).
+        \end{aligned}
+      \]
+      Hence
+      \[
+        \E[P_\ell]=3\ell\,2^{\ell-2}.
+      \]
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \steyebrow{adaptive open service}
+      \[
+        Q_\ell=2Q_{\ell-1}+2w_\ell,
+        \qquad Q_0=0.
+      \]
+      Hence
+      \[
+        Q_\ell=\ell\,2^\ell.
+      \]
+    \end{column}
+  \end{columns}
+
+  \vfill
+  \small
+  Every additional excursion into a child is charged to a top-level entry
+  arc, so interleaving cannot beat these recurrences.
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{The penalty accumulates once per depth}
+  \vspace{0.15cm}
+  \[
+    \optpost(I_\ell)=(3\ell+4)2^{\ell-2},
+    \qquad
+    \optadapt(I_\ell)=(\ell+1)2^\ell.
+  \]
+
+  \vspace{0.24cm}
+  \centering
+  {\fontsize{30pt}{34pt}\selectfont\bfseries\color{STCoral}
+    \(\displaystyle
+      \frac{\optadapt(I_\ell)}{\optpost(I_\ell)}
+      =\frac{4(\ell+1)}{3\ell+4}
+      \longrightarrow \frac43
+    \)}
+
+  \vspace{0.24cm}
+  \begin{tikzpicture}
+    \node[anchor=east,text=STBlue,
+      font=\fontsize{11pt}{13pt}\selectfont\bfseries] at (-0.35,0)
+      {cycle-subdivided clique};
+    \node[anchor=west,text=STInkSoft,
+      font=\fontsize{11pt}{13pt}\selectfont] at (0,0)
+      {local switching};
+    \node[anchor=east,text=STTeal,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries] at (-0.35,-0.52)
+      {three chains};
+    \node[anchor=west,text=STInkSoft,
+      font=\fontsize{10.5pt}{12pt}\selectfont] at (0,-0.52)
+      {global restructuring};
+    \node[anchor=east,text=STCoral,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries] at (-0.35,-1.04)
+      {recursive blocks};
+    \node[anchor=west,text=STInkSoft,
+      font=\fontsize{10.5pt}{12pt}\selectfont] at (0,-1.04)
+      {the same causal penalty at every scale};
+  \end{tikzpicture}
+\end{frame}
+
+% ==========================================================================
+% Circulation — 15 minutes
+% ==========================================================================
+\section{Backbone circulation and rounding}
+\stsectionframe{STTeal}{Part II}{Directed structure versus\\causal
+execution}{A backbone yields a fractional circulation, endpoint rounding,
+and an offline walk; causality remains the obstacle.}
+
+% Timing: ~1:00
+\begin{frame}{Directed attachments need two endpoints}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \resizebox{0.90\linewidth}{!}{\StBackboneSample}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      Sample \(S\) independently with
+      \(\Pp(v\in S)=p_v\).
+      \[
+        R=S\cup\{r\},\qquad U=V\setminus S.
+      \]
+
+      In a symmetric metric, an outside client can detour to one nearby
+      backbone point.
+
+      \vspace{0.28cm}
+      In a directed metric, entering and leaving may require
+      \emph{different} endpoints.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{The LP is a fractional directed detour system}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.59\textwidth}
+      {\fontsize{12.5pt}{15pt}\selectfont
+      \[
+      \begin{aligned}
+        \min\quad &\sum_{u,v} d(u,v)z_{uv}\\
+        \text{s.t.}\quad
+          &z(\delta^+(w))=z(\delta^-(w))
+            &&\forall w,\\
+          &z(\delta^+(i))=z(\delta^-(i))=p_i
+            &&\forall i\in U,\\
+          &z_{ij}=0
+            &&\forall i,j\in U,\\
+          &z_{uv}\ge0
+            &&\forall u,v.
+      \end{aligned}
+      \tag{\(\mathrm{CIRC}(S)\)}
+      \]}
+    \end{column}
+    \begin{column}{0.37\textwidth}
+      \vspace{0.40cm}
+      No outside-to-outside arc is allowed.
+
+      \vspace{0.38cm}
+      Every \(i\in U\) receives \(p_i\) units from the backbone and sends
+      \(p_i\) units back.
+
+      \vspace{0.28cm}
+      {\small
+      \stresult[STTeal]{The LP preserves direction before rounding.}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{A realized tour fans into a feasible circulation}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \vspace{0.18cm}
+      \resizebox{0.96\linewidth}{!}{\StFanFlow}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      Take an independent activation set \(A\), put \(C=A\cup S\), and cut an
+      optimal tour \(T_C\) at backbone vertices.
+
+      \vspace{0.20cm}
+      Let \(M(A,S)\) be the longest run of outside vertices between two
+      consecutive backbone vertices.
+
+      \[
+        \cost(z^{A,S})
+        \le M(A,S)\,\OPT(C).
+      \]
+
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{The longest run controls expected cost}
+  \centering
+  \resizebox{0.80\linewidth}{!}{\StLongestRun}
+
+  \vspace{0.08cm}
+  {\fontsize{12pt}{14.5pt}\selectfont
+  \[
+    \E[M\mid C]=O(\log(n+1))
+    \quad\Longrightarrow\quad
+    \E_S[\OPT(S)+c(S)]
+    \le O(\log(n+1))\optpost.
+  \]}
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{Boosting buys regularity for rounding}
+  \centering
+  \resizebox{0.94\linewidth}{!}{\StBoostedBackbone}
+
+  \vspace{0.24cm}
+  With \(q_v=\min\{1,\lambda p_v\}\) and
+  \(\lambda=\Theta(\log(n+1))\), some backbone satisfies
+  \[
+  \begin{aligned}
+    \cost(T_R)+\cost(z)
+      &\le O(\log(n+1))\optpost,\\
+    z(\delta^\pm(s))
+      &\le O(\log(n+1)) &&(s\in R),\\
+    p_i&<1/\lambda &&(i\notin S).
+  \end{aligned}
+  \]
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{Couple each client into a chord distribution}
+  \centering
+  \resizebox{0.58\linewidth}{!}{\StChordCoupling}
+
+  \vspace{-0.02cm}
+  {\fontsize{11.8pt}{14pt}\selectfont
+  \[
+    \sum_b x_{i,ab}=z_{ai},
+    \qquad
+    \sum_a x_{i,ab}=z_{ib},
+    \qquad
+    \sum_{a,b}x_{i,ab}=p_i.
+  \]}
+  The coupling preserves the circulation cost exactly.
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{Preserve a laminar family of balances}
+  \centering
+  \resizebox{0.94\linewidth}{!}{\StDyadicIntervals}
+
+  \vspace{0.10cm}
+  For a cyclic backbone interval \(I\), let
+  \[
+    \Delta_{x,y}(I)
+    =\text{weighted chord flow leaving \(I\)}
+     -\text{weighted chord flow entering \(I\)}.
+  \]
+  Initially every interval has \(\Delta_{x,y}(I)=0\). The rounding preserves
+  dyadic interval equations only while they touch many live variables.
+\end{frame}
+
+% Timing: ~1:10
+\begin{frame}{A dimension count leaves room to move}
+  Let \(F=\{x_{i,ab}:0<x_{i,ab}<p_i\}\) be the live variables.
+
+  \vspace{0.22cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      Every live outside equation contains at least two live variables:
+      \[
+        c_1\le\frac{|F|}{2}.
+      \]
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      A live variable touches at most \(2(h+1)\) dyadic intervals; with
+      \(L=8(h+1)\):
+      \[
+        c_2L\le2(h+1)|F|
+        \quad\Rightarrow\quad
+        c_2\le\frac{|F|}{4}.
+      \]
+    \end{column}
+  \end{columns}
+
+  \vspace{0.20cm}
+  \[
+    c_1+c_2<|F|.
+  \]
+  So a nonzero feasible direction exists. Move until a variable hits
+  \(0\) or \(p_i\), choosing the non-increasing-cost endpoint.
+\end{frame}
+
+% Timing: ~0:55
+\begin{frame}{Discarded equations create small imbalance}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \resizebox{0.93\linewidth}{!}{\StRoundedChords}
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      When a dyadic equation is discarded, fewer than \(L=O(\log n)\) live
+      variables can still change.
+
+      \[
+        |\Delta(I)|
+        \le O\!\left(p_{\max}\log^2(n+1)\right).
+      \]
+
+      Boosting gives
+      \(p_{\max}=O(1/\log(n+1))\), hence
+      \[
+        \boxed{|\Delta(I)|=O(\log(n+1)).}
+      \]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~0:55
+\begin{frame}{Rounding chooses one chord per client}
+  \vspace{0.06cm}
+  There exist a backbone tour \(T_R\), auxiliary backbone flow \(y\), and one
+  ordered pair \((a_i,b_i)\) for every outside client such that
+  {\fontsize{11.0pt}{13.2pt}\selectfont
+  \[
+    \begin{aligned}
+      &\cost(T_R)+\sum_{a,b\in R}d(a,b)y_{ab}\\[-1mm]
+      &\qquad+\sum_{i\in U}p_i\bigl(d(a_i,i)+d(i,b_i)\bigr)
+      \le O(\log(n+1))\optpost.
+    \end{aligned}
+  \]}
+
+  \vspace{0.06cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.30\textwidth}
+      \centering
+      \stpill[STBlue]{one chord per client}
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \centering
+      \stpill[STTeal]{degree \(O(\log n)\)}
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \centering
+      \stpill[STCoral]{imbalance \(O(\log n)\)}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{Cut concentration controls every chord set}
+  For \(X\subseteq R\), let \(q(X)\) be the number of interval components of
+  \(X\) in the cyclic backbone order.
+
+  \vspace{0.16cm}
+  With probability at least \(1-(n+1)^{-5}\), simultaneously for every \(X\):
+  \[
+  \begin{aligned}
+    F_A^-(X)&\le2\mu^-(X)+C_0q(X)\log(n+1),\\
+    \mu^+(X)&\le2F_A^+(X)+C_0q(X)\log(n+1).
+  \end{aligned}
+  \]
+
+  \vspace{0.22cm}
+  There are at most \((n+1)^{2q}\) subsets with \(q\) interval components, so
+  Chernoff bounds survive a union bound over all cuts.
+\end{frame}
+
+% Timing: ~1:05
+\begin{frame}{Hoffman's condition closes chords into a walk}
+  Hoffman's theorem asks, for every \(X\subseteq R\),
+  \[
+    \ell(\delta^-(X))\le u(\delta^+(X)).
+  \]
+
+  \vspace{-0.02cm}
+  Use three arc types:
+  \begin{center}
+  \begin{tabular}{>{\raggedright\arraybackslash}p{0.43\linewidth}
+                  >{\centering\arraybackslash}p{0.19\linewidth}
+                  >{\raggedright\arraybackslash}p{0.26\linewidth}}
+    \toprule
+    \textbf{arc type} & \textbf{lower}--\textbf{upper} & \textbf{purpose}\\
+    \midrule
+    active outside chord & \(1\)--\(4\) & serve every active client\\
+    auxiliary arc \(a\to b\) & \(0\)--\(\lceil2y_{ab}\rceil\) & repair mean imbalance\\
+    backbone cycle edge & \(1\)--\(O(\log n)\) & connect every cut\\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \small Interval discrepancy plus cut concentration implies the condition.
+\end{frame}
+
+% Timing: ~0:55
+\begin{frame}{The realized object has bounded multiplicity}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \resizebox{0.91\linewidth}{!}{\StOfflineWalk}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      With high probability, an integral circulation exists.
+
+      \vspace{0.30cm}
+      Expanding every chord
+      \(a_i\to b_i\) back to
+      \(a_i\to i\to b_i\) yields a balanced, strongly connected multigraph.
+
+      \vspace{0.30cm}
+      Its Euler tour is a closed walk serving all active outside clients.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Timing: ~1:00
+\begin{frame}{The proof ends where causality begins}
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \node[draw=STBlue,fill=STBlue!9,rounded corners=0.65pt,
+      minimum width=2.15cm,minimum height=0.90cm,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries] (backbone) at (1.1,1.55)
+      {backbone};
+    \node[draw=STTeal,fill=STTeal!9,rounded corners=0.65pt,
+      minimum width=2.15cm,minimum height=0.90cm,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries] (fractional) at (4.0,1.55)
+      {fractional flow};
+    \node[draw=STGold,fill=STGold!12,rounded corners=0.65pt,
+      minimum width=2.15cm,minimum height=0.90cm,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries] (rounded) at (6.9,1.55)
+      {rounded chords};
+    \node[draw=STCoral,fill=STCoral!9,rounded corners=0.65pt,
+      minimum width=2.15cm,minimum height=0.90cm,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries] (offline) at (9.8,1.55)
+      {offline walk};
+    \draw[stArrow] (backbone)--(fractional);
+    \draw[stArrow] (fractional)--(rounded);
+    \draw[stArrow] (rounded)--(offline);
+    \draw[STCoral,line width=1.4pt,densely dashed,
+      -{Stealth[length=2.2mm]}] (offline.south)
+      to[bend left=28]
+      node[below=0.20cm,align=center,text=STCoral,
+        font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+      {missing: causal,\\cost-sensitive execution}
+      (6.7,-0.55);
+    \node[draw=STCoral,dashed,rounded corners=0.65pt,
+      minimum width=2.40cm,minimum height=0.90cm,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries,text=STCoral]
+      at (5.25,-0.55) {adaptive policy};
+  \end{tikzpicture}
+
+  \vspace{0.08cm}
+  \begin{sttightitemize}
+    \item the Hoffman circulation depends on the complete active set \(A\);
+    \item the next call must be chosen without knowing future active chords;
+    \item bounded multiplicity alone does not control the cost of tiny-\(y\)
+      auxiliary arcs.
+  \end{sttightitemize}
+\end{frame}
+
+% ==========================================================================
+% DP — 10 minutes
+% ==========================================================================
+\section{A priori TSP via dynamic programming}
+\stsectionframe{STGold}{Part III}{Dynamic programming with\\finite memory}{Survival
+suppresses rare long shortcuts;\\a short suffix contains all later terms.}
+
+% Timing: ~1:15
+\begin{frame}{A fixed order is a sum of possible shortcuts}
+  \centering
+  \resizebox{0.83\linewidth}{!}{\StPairwiseShortcut}
+
+  \vspace{0.04cm}
+  For \(\pi=(r,v_1,\ldots,v_n,r)\),
+  {\fontsize{12.3pt}{14.8pt}\selectfont
+  \[
+    \cost(\pi)
+    =
+    \sum_{0\le i<j\le n+1}
+      p_i p_j Q(i,j)d(v_i,v_j),
+    \qquad
+    Q(i,j)=\prod_{i<k<j}(1-p_k).
+  \]}
+  \small Pair \((i,j)\) is paid exactly when its endpoints are consecutive
+  active vertices.
+\end{frame}
+
+% Timing: ~1:30
+\begin{frame}{Extra activation damps rare long gaps}
+  \centering
+  \resizebox{0.83\linewidth}{!}{\StActivationInflation}
+
+  \vspace{0.04cm}
+  Retain pairs with \(Q(i,j)>\eta\). For
+  \(\widetilde p_v=1-(1-p_v)^{1+\alpha}\) and
+  \(\kappa=(1+\alpha)^2\),
+  \[
+    \cost(\pi)
+    \le
+    \frac{\kappa}{1-\kappa\eta^\alpha}\,
+    \cost^{\mathrm{loc}}_\eta(\pi)
+    \qquad(\kappa\eta^\alpha<1).
+  \]
+\end{frame}
+
+% Timing: ~1:10
+\begin{frame}{Blocks make the interface finite}
+  \centering
+  \resizebox{0.92\linewidth}{!}{\StBlockStrip}
+
+  \vspace{0.12cm}
+  Fix \(0<\delta<1/4\):
+  \begin{itemize}
+    \item a \textbf{heavy} client has \(p_v>\delta/2\) and forms a singleton;
+    \item a \textbf{light block} \(B\) has
+      \(\mu(B)=\sum_{v\in B}p_v\le\delta\);
+    \item after the first light block in a run,
+      \(\mu(B)\ge\delta/2\).
+  \end{itemize}
+  Scan each light run from right to left to obtain such a consecutive
+  partition.
+\end{frame}
+
+% Timing: ~1:20
+\begin{frame}{The block objective has controlled loss}
+  For a block \(B\), precompute its best internal order:
+  \[
+    I(B)=\min_\sigma\sum_{x<_\sigma y}p_xp_y d(x,y).
+  \]
+  For an ordered partition \(\mathcal B=(B_1,\ldots,B_m)\),
+  {\fontsize{11.6pt}{14pt}\selectfont
+  \[
+    F_\eta(\mathcal B)
+    =
+    \sum_t I(B_t)
+    +
+    \sum_{\substack{i<j\\ \prod_{i<t<j}q(B_t)>\eta}}
+      \left(\prod_{i<t<j}q(B_t)\right)C(B_i,B_j).
+  \]}
+
+  \vspace{0.02cm}
+  \[
+    \cost^{\mathrm{loc}}_\eta(\pi(\mathcal B))
+    \le F_\eta(\mathcal B),
+    \qquad
+    F_\eta(\mathcal B_\pi)
+    \le(1-\delta)^{-2}\cost(\pi).
+  \]
+  \vspace{-0.08cm}
+  \small Only endpoint-internal survival factors are dropped; each is at
+  least \(1-\delta\).
+\end{frame}
+
+% Timing: ~1:20
+\begin{frame}{Only a short suffix can affect the future}
+  \centering
+  \resizebox{0.84\linewidth}{!}{\StDPSuffix}
+
+  \vspace{0.04cm}
+  A state stores
+  \[
+    (U,\Omega)
+    =
+    \bigl(\text{placed clients},\ \text{relevant suffix of blocks}\bigr).
+  \]
+  \small Once intervening survival falls to at most \(\eta\), an old block
+  cannot interact with any future block.
+\end{frame}
+
+% Timing: ~1:25
+\begin{frame}{Appending a block exposes its local terms}
+  If the relevant suffix is
+  \(\Omega=(B_a,\ldots,B_t)\), appending \(B\) adds
+  \[
+    I(B)
+    +
+    \sum_{s=a}^{t}
+      \left(\prod_{s<u\le t}q(B_u)\right)C(B_s,B).
+  \]
+
+  \vspace{0.08cm}
+  Then trim the suffix by the same product rule.
+
+  \vspace{0.10cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      {\color{STBlue}\rule{3pt}{2.3em}}\hspace{0.35em}%
+      \parbox[c]{0.88\linewidth}{\textbf{Exactness.} These are exactly the
+      terms created by appending \(B\).}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      {\color{STTeal}\rule{3pt}{2.3em}}\hspace{0.35em}%
+      \parbox[c]{0.88\linewidth}{\textbf{Memory.} The suffix contains
+      \(K=O((\log(1/\eta)+1)/\delta)\) blocks.}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.10cm}
+  The resulting shortest-path DP runs in
+  \(c_{\delta,\eta}^{\,n}\poly(n)\).
+\end{frame}
+
+% Timing: ~1:40
+\begin{frame}{The losses multiply to at most \(1+\varepsilon\)}
+  Choose
+  \[
+    \delta=\frac{\varepsilon}{16},
+    \qquad
+    \alpha=\frac{\varepsilon}{32},
+    \qquad
+    \eta=\left(\frac{\varepsilon}{64}\right)^{32/\varepsilon}.
+  \]
+  Then \(\eta^\alpha=\varepsilon/64\), and the DP output
+  \(\widehat\pi\) satisfies
+  {\fontsize{13.4pt}{16pt}\selectfont
+  \[
+  \begin{aligned}
+    \cost(\widehat\pi)
+      &\le
+      \frac{(1+\alpha)^2}
+           {1-(1+\alpha)^2\eta^\alpha}
+      F_\eta(\widehat{\mathcal B})\\
+      &\le
+      \frac{(1+\alpha)^2}
+           {1-(1+\alpha)^2\eta^\alpha}
+      (1-\delta)^{-2}\optprior\\
+      &\le(1+\varepsilon)\optprior.
+  \end{aligned}
+  \]}
+
+  \centering
+  \stpill[STGold]{deterministic runtime \(c_\varepsilon^n\poly(n)\)}
+\end{frame}
+
+% ==========================================================================
+% Close
+% ==========================================================================
+\section*{Takeaway}
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[STPaper] (current page.south west) rectangle (current page.north east);
+    \draw[STLine,line width=0.45pt]
+      ([xshift=0.95cm,yshift=-0.82cm]current page.north west)
+      --
+      ([xshift=-0.88cm,yshift=-0.82cm]current page.north east);
+    \draw[STTeal,line width=1.35pt]
+      ([xshift=0.95cm,yshift=-0.82cm]current page.north west)
+      --
+      ([xshift=3.15cm,yshift=-0.82cm]current page.north west);
+    \node[
+      anchor=west,
+      text=STTeal,
+      font=\fontsize{9pt}{11pt}\selectfont\bfseries
+    ] at ([xshift=0.98cm,yshift=2.42cm]current page.west)
+      {TAKEAWAY};
+    \node[
+      anchor=west,
+      text=STInk,
+      text width=11.4cm,
+      align=left,
+      font=\fontsize{21.5pt}{25.5pt}\selectfont\bfseries
+    ] at ([xshift=0.98cm,yshift=1.42cm]current page.west)
+      {Information is a resource; causality is the constraint.};
+
+    \draw[STBlue,line width=1.1pt]
+      ([xshift=0.98cm,yshift=0.58cm]current page.west)
+      --
+      ([xshift=3.88cm,yshift=0.58cm]current page.west);
+    \draw[STTeal,line width=1.1pt]
+      ([xshift=4.72cm,yshift=0.58cm]current page.west)
+      --
+      ([xshift=7.62cm,yshift=0.58cm]current page.west);
+    \draw[STGold,line width=1.1pt]
+      ([xshift=8.46cm,yshift=0.58cm]current page.west)
+      --
+      ([xshift=11.36cm,yshift=0.58cm]current page.west);
+
+    \node[anchor=north west,text=STInkSoft,text width=3.25cm,align=left,
+      font=\fontsize{11.1pt}{14.2pt}\selectfont]
+      at ([xshift=0.98cm,yshift=0.34cm]current page.west)
+      {\hyphenpenalty=10000
+       \textbf{\color{STBlue}Gap constructions}\par
+       \vspace{0.12cm}
+       Three distinct bottlenecks:\par
+       \(\tfrac54,\ \tfrac{11}{10},\ \tfrac43\).};
+    \node[anchor=north west,text=STInkSoft,text width=3.25cm,align=left,
+      font=\fontsize{11.1pt}{14.2pt}\selectfont]
+      at ([xshift=4.72cm,yshift=0.34cm]current page.west)
+      {\hyphenpenalty=10000
+       \textbf{\color{STTeal}Circulation}\par
+       \vspace{0.12cm}
+       Offline structure exists; the causal step remains open.};
+    \node[anchor=north west,text=STInkSoft,text width=3.78cm,align=left,
+      font=\fontsize{11.1pt}{14.2pt}\selectfont]
+      at ([xshift=8.46cm,yshift=0.34cm]current page.west)
+      {\hyphenpenalty=10000
+       \textbf{\color{STGold}A priori DP}\par
+       \vspace{0.12cm}
+       Survival locality gives a \((1+\varepsilon)\)-approximation in
+       \(c_\varepsilon^n\poly(n)\).};
+
+    \draw[STLine,line width=0.45pt]
+      ([xshift=0.98cm,yshift=-2.25cm]current page.west)
+      --
+      ([xshift=-0.90cm,yshift=-2.25cm]current page.east);
+    \node[
+      anchor=west,
+      text=STInk,
+      text width=10.9cm,
+      font=\fontsize{11.8pt}{14.5pt}\selectfont\bfseries
+    ] at ([xshift=0.98cm,yshift=-2.86cm]current page.west)
+      {Open question: can the offline circulation be made causal?};
+    \node[
+      anchor=east,
+      text=STMuted,
+      font=\fontsize{8.5pt}{10pt}\selectfont\bfseries
+    ] at ([xshift=-0.90cm,yshift=-2.86cm]current page.east)
+      {QUESTIONS};
+  \end{tikzpicture}
+\end{frame}
+
+\end{document}

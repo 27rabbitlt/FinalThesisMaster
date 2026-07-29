@@ -1,0 +1,180 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemestochastic}[2026/07/23 Custom thesis presentation theme]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+
+\mode<presentation>
+
+% --------------------------------------------------------------------------
+% Restrained academic palette
+% --------------------------------------------------------------------------
+\definecolor{STInk}{HTML}{182433}
+\definecolor{STInkSoft}{HTML}{364654}
+\definecolor{STBlue}{HTML}{315A78}
+\definecolor{STTeal}{HTML}{426C68}
+\definecolor{STGold}{HTML}{8B6D32}
+\definecolor{STCoral}{HTML}{99534A}
+\definecolor{STPaper}{HTML}{FCFCFA}
+\definecolor{STWhite}{HTML}{FFFFFF}
+\definecolor{STMist}{HTML}{F0F2F3}
+\definecolor{STLine}{HTML}{D8DEE2}
+\definecolor{STMuted}{HTML}{6E7882}
+\definecolor{STGreen}{HTML}{5D7A66}
+
+\setbeamercolor{normal text}{fg=STInk,bg=STPaper}
+\setbeamercolor{background canvas}{bg=STPaper}
+\setbeamercolor{structure}{fg=STBlue}
+\setbeamercolor{frametitle}{fg=STBlue,bg=STPaper}
+\setbeamercolor{section in head/foot}{fg=STMuted,bg=STPaper}
+\setbeamercolor{footline}{fg=STMuted,bg=STPaper}
+\setbeamercolor{section in toc}{fg=STInk}
+\setbeamercolor{section title}{fg=STBlue,bg=STPaper}
+\setbeamercolor{section subtitle}{fg=STMuted,bg=STPaper}
+\setbeamercolor{itemize item}{fg=STBlue}
+\setbeamercolor{itemize subitem}{fg=STMuted}
+\setbeamercolor{enumerate item}{fg=STBlue}
+\setbeamercolor{block title}{fg=STWhite,bg=STInkSoft}
+\setbeamercolor{block body}{fg=STInk,bg=STMist}
+\setbeamercolor{block title alerted}{fg=STWhite,bg=STCoral!88!STInk}
+\setbeamercolor{block body alerted}{fg=STInk,bg=STCoral!5}
+\setbeamercolor{block title example}{fg=STWhite,bg=STTeal!88!STInk}
+\setbeamercolor{block body example}{fg=STInk,bg=STTeal!5}
+
+% --------------------------------------------------------------------------
+% Type
+% --------------------------------------------------------------------------
+\setbeamerfont{normal text}{size=\fontsize{14.8pt}{18.1pt}\selectfont}
+\setbeamerfont{title}{size=\fontsize{29pt}{33pt}\selectfont,series=\bfseries}
+\setbeamerfont{subtitle}{size=\fontsize{15pt}{19pt}\selectfont}
+\setbeamerfont{author}{size=\fontsize{14pt}{17pt}\selectfont}
+\setbeamerfont{institute}{size=\fontsize{11pt}{14pt}\selectfont}
+\setbeamerfont{date}{size=\fontsize{11pt}{14pt}\selectfont}
+\setbeamerfont{frametitle}{size=\fontsize{17pt}{20pt}\selectfont,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\fontsize{11.5pt}{14.5pt}\selectfont}
+\setbeamerfont{section in head/foot}{size=\fontsize{8.2pt}{10pt}\selectfont,series=\bfseries}
+\setbeamerfont{section in toc}{size=\fontsize{14.5pt}{18.5pt}\selectfont}
+\setbeamerfont{section title}{size=\fontsize{22pt}{27pt}\selectfont,series=\bfseries}
+\setbeamerfont{section subtitle}{size=\fontsize{12.4pt}{16pt}\selectfont}
+\setbeamerfont{footline}{size=\fontsize{7pt}{8.5pt}\selectfont}
+\setbeamerfont{block title}{size=\fontsize{12.8pt}{15.5pt}\selectfont,series=\bfseries}
+\setbeamerfont{block body}{size=\fontsize{12.8pt}{16pt}\selectfont}
+\setbeamerfont{caption}{size=\fontsize{9.2pt}{11.5pt}\selectfont}
+
+\setbeamersize{text margin left=0.82cm,text margin right=0.82cm}
+\setlength{\leftmargini}{1.18em}
+\setlength{\leftmarginii}{1.05em}
+\setlength{\leftmarginiii}{0.95em}
+
+% --------------------------------------------------------------------------
+% Chrome
+% --------------------------------------------------------------------------
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{bibliography item}{}
+\setbeamertemplate{blocks}[default]
+\setbeamertemplate{section in toc}[sections numbered]
+
+\setbeamertemplate{itemize item}[triangle]
+\setbeamertemplate{itemize subitem}[circle]
+\setbeamertemplate{enumerate item}[default]
+
+\defbeamertemplate*{frametitle}{stochastic}{%
+  \nointerlineskip
+  \begin{beamercolorbox}[
+    wd=\paperwidth,
+    ht=0.80cm,
+    dp=0.18cm,
+    leftskip=0.82cm,
+    rightskip=0.82cm
+  ]{frametitle}
+    {\usebeamerfont{frametitle}\insertframetitle\strut}%
+  \end{beamercolorbox}%
+}
+
+\defbeamertemplate*{footline}{stochastic}{%
+  \leavevmode%
+  \begin{beamercolorbox}[
+    wd=\paperwidth,
+    ht=0.22cm,
+    dp=0.07cm,
+    rightskip=0.82cm
+  ]{footline}
+    \usebeamerfont{footline}%
+    \hfill\insertframenumber
+  \end{beamercolorbox}%
+}
+
+\setbeamertemplate{frametitle}[stochastic]
+\setbeamertemplate{footline}[stochastic]
+
+% Avoid excess vertical whitespace in lists.
+\setlength{\itemsep}{0.36em}
+\setlength{\parskip}{0.22em}
+
+% --------------------------------------------------------------------------
+% Audience-facing helpers
+% --------------------------------------------------------------------------
+\newcommand{\steyebrow}[1]{%
+  {\fontsize{8.4pt}{10.2pt}\selectfont\bfseries\color{STMuted}%
+    \MakeUppercase{#1}}}
+
+\newcommand{\stpill}[2][STBlue]{%
+  \tikz[baseline=(pill.base)]\node[
+    rounded corners=0.45pt,
+    fill=STWhite,
+    draw=#1!72!STInk,
+    line width=0.40pt,
+    text=STInk,
+    inner xsep=4.6pt,
+    inner ysep=1.8pt,
+    font=\fontsize{8.8pt}{10.5pt}\selectfont\bfseries
+  ] (pill) {#2};}
+
+\newcommand{\stresult}[2][STTeal]{%
+  \par\noindent
+  \begin{tikzpicture}[baseline=(resulttext.base)]
+    \node[
+      anchor=north west,
+      inner sep=0pt,
+      text width=\dimexpr\linewidth-0.58cm\relax,
+      align=left
+    ] (resulttext) at (0.58cm,0) {#2};
+    \draw[#1,line width=1.5pt]
+      ([xshift=-0.36cm,yshift=0.04cm]resulttext.north west)
+      --
+      ([xshift=-0.36cm,yshift=-0.04cm]resulttext.south west);
+  \end{tikzpicture}}
+
+\newcommand{\stsource}[1]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[
+      anchor=south west,
+      text=STMuted,
+      font=\fontsize{7.6pt}{9pt}\selectfont
+    ] at ([xshift=0.84cm,yshift=0.50cm]current page.south west) {#1};
+  \end{tikzpicture}}
+
+\newenvironment{sttightitemize}
+  {\begin{itemize}\setlength{\itemsep}{0.22em}\setlength{\topsep}{0.15em}}
+  {\end{itemize}}
+
+\newenvironment{stsmall}
+  {\fontsize{12.6pt}{15.4pt}\selectfont}
+  {\par}
+
+\newcommand{\stsectionframe}[4]{%
+  \begin{frame}[plain]
+    \vfill
+    \begin{center}
+      {\usebeamerfont{section title}\usebeamercolor[fg]{section title}%
+        \hyphenpenalty=10000\exhyphenpenalty=10000 #3\par}
+      \vspace{0.42cm}
+      {\usebeamerfont{section subtitle}\usebeamercolor[fg]{section subtitle}%
+        \hyphenpenalty=10000\exhyphenpenalty=10000 #4\par}
+    \end{center}
+    \vfill
+  \end{frame}}
+
+\mode<all>

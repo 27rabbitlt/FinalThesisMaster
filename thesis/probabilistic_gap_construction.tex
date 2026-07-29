@@ -1,0 +1,616 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\optpost}{\operatorname{OPT}_{\mathrm{post}}}
+\newcommand{\optadapt}{\operatorname{OPT}_{\mathrm{adapt}}}
+\newcommand{\optprior}{\operatorname{OPT}_{\mathrm{prior}}}
+
+\title{A Probabilistic Construction for a Factor-Two\\
+Lower Bound in Symmetric Stochastic TSP}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We use the probabilistic method to construct symmetric stochastic traveling
+salesperson instances with a priori-to-adaptive cost ratio tending to~$2$.
+The outer randomness selects a deterministic metric, whereas the inner
+randomness is the independent activation process of the resulting stochastic
+TSP instance.  A weighted concentration argument shows that, with high
+probability over the sampled metric, every a priori master tour has expected
+cost close to twice the minimum possible baseline.  A metric-dependent
+adaptive policy has expected cost close to that baseline.  Consequently, some
+deterministic metric in the support of the random construction has adaptivity
+ratio arbitrarily close to~$2$.  The same family gives an obliviousness-gap
+lower bound of~$2$, but it does not produce a nontrivial clairvoyance gap.
+\end{abstract}
+
+\section{The stochastic TSP benchmarks}
+
+Let $V$ be a finite set of clients, let $r\notin V$ be a depot, and let
+$d$ be a symmetric metric on $\{r\}\cup V$.  Each client $v\in V$ is active
+independently with probability $p_v$.  The random active set is denoted by
+$A\subseteq V$.
+
+An \emph{a posteriori solution} knows $A$ before choosing a tour.  Its optimum
+is
+\[
+    \optpost
+    :=
+    \E_A\bigl[\operatorname{TSP}_d(\{r\}\cup A)\bigr],
+\]
+where the cost for $A=\varnothing$ is defined to be~$0$.
+
+An \emph{a priori tour} is a fixed tour
+\[
+    T=(r,v_1,\ldots,v_{|V|},r)
+\]
+on the full vertex set.  For a realization $A$, let $T|_A$ be the tour obtained
+by retaining only $r$ and the active clients, in their order in~$T$.  Its
+expected cost is
+\[
+    \cost_d(T):=\E_A\bigl[\cost_d(T|_A)\bigr],
+\]
+and
+\[
+    \optprior(d):=\min_T \cost_d(T).
+\]
+
+An \emph{adaptive policy} calls uncalled clients one at a time.  If the called
+client is active, the salesperson must travel to it immediately; if it is
+inactive, the salesperson remains at the current location.  The next call may
+depend on the current location and on all outcomes observed so far.  After all
+clients have been called, the salesperson returns to~$r$.  For a policy~$\pi$,
+write
+\[
+    \cost_d(\pi):=\E_A\bigl[\cost_d(\pi,A)\bigr],
+    \qquad
+    \optadapt(d):=\min_\pi \cost_d(\pi).
+\]
+The metric and all activation probabilities are known to the policy; only the
+realization $A$ is initially unknown.
+
+For every fixed instance,
+\[
+    \optpost(d)\leq \optadapt(d)\leq \optprior(d).
+\]
+The \emph{adaptivity ratio} is $\optprior/\optadapt$, and the
+\emph{obliviousness ratio} is $\optprior/\optpost$.
+
+\section{Outer randomness and the probabilistic method}
+
+The random metric used below is only a proof device.  There are two independent
+sources of randomness:
+\[
+    \underbrace{D}_{\text{randomly sampled metric}}
+    \qquad\text{and}\qquad
+    \underbrace{A}_{\text{active set in the fixed instance}}.
+\]
+After a realization $D=d$ is selected, the stochastic TSP instance is the
+ordinary deterministic metric instance $(\{r\}\cup V,d,\{p_v\})$.  Both the
+optimal a priori tour and the optimal adaptive policy may depend on~$d$.
+Thus the sampled metric is not hidden information available to one benchmark
+but not another.
+
+The following elementary statement records the relevant probabilistic-method
+principle.
+
+\begin{proposition}[Existence from random certificates]\label{prop:method}
+Let $I_D$ be a random deterministic instance, and let $X(I)$ and $Y(I)$ be two
+nonnegative optimum values.  Suppose that, for every realization~$I$,
+\[
+    X(I)\geq L(I)
+    \qquad\text{and}\qquad
+    Y(I)\leq U(I).
+\]
+If
+\[
+    \Prob_D\bigl[L(I_D)\geq \rho U(I_D)\bigr]>0,
+\]
+then there is a deterministic realization~$I$ satisfying
+$X(I)/Y(I)\geq\rho$.  The same conclusion follows from
+\[
+    \E_D\bigl[L(I_D)-\rho U(I_D)\bigr]\geq 0.
+\]
+\end{proposition}
+
+\begin{proof}
+In the first case, choose any realization in the positive-probability event.
+Then
+\[
+    X(I)\geq L(I)\geq \rho U(I)\geq \rho Y(I).
+\]
+In the second case, some realization satisfies
+$L(I)-\rho U(I)\geq0$, and the same chain of inequalities applies.
+\end{proof}
+
+A central quantifier issue is that
+\[
+    \E_D\!\left[\min_T \cost_D(T)\right]
+    \leq
+    \min_T \E_D\!\left[\cost_D(T)\right].
+\]
+Therefore, proving that every \emph{fixed} tour is expensive on average over
+$D$ does not suffice: the optimizing tour is allowed to depend on the sampled
+metric.  Our proof establishes a simultaneous high-probability lower bound for
+all tours.
+
+\section{The random metric construction}
+
+All logarithms are natural.  Fix a sufficiently large integer~$n$, let
+$V=[n]$, and set
+\[
+    p=p_n:=\frac{1}{(\log n)^4},
+    \qquad
+    \theta=\theta_n:=\frac{1}{\log n},
+    \qquad
+    q:=1-p.
+\]
+Every client is active independently with probability~$p$.
+
+Independently for every unordered pair
+$e=\{x,y\}\subseteq\{r\}\cup V$, sample $X_e\sim\operatorname{Bernoulli}(\theta)$
+and define
+\[
+    D(x,y):=2-X_{\{x,y\}}
+    \quad (x\neq y),
+    \qquad
+    D(x,x):=0.
+\]
+Thus every pair has distance~$1$ with probability~$\theta$ and distance~$2$
+with probability~$1-\theta$, independently of all other pairs.  We call a
+pair of distance~$1$ a \emph{cheap edge}.
+
+Every realization of~$D$ is a symmetric metric.  Indeed, for distinct
+$x,y,z$,
+\[
+    D(x,z)\leq 2\leq D(x,y)+D(y,z),
+\]
+and all remaining triangle inequalities are immediate.
+
+Let $K:=|A|\sim\operatorname{Binomial}(n,p)$ and define
+\[
+    W=W_n
+    :=\E_A\bigl[(K+1)\one_{\{K\geq1\}}\bigr]
+    =np+1-q^n.
+\]
+For a nonempty realization with $K=k$, every tour through $r$ and the active
+clients has exactly $k+1$ traveled edges.  Since every distance is at least~$1$,
+$W$ is a universal lower bound on the expected cost of every feasible
+benchmark.  Moreover,
+\[
+    W\geq np=\frac{n}{(\log n)^4},
+    \qquad
+    \theta W\geq\frac{n}{(\log n)^5}\longrightarrow\infty.
+\]
+
+\section{A simultaneous lower bound for all a priori tours}
+
+Fix an a priori tour
+\[
+    T=(r,v_1,v_2,\ldots,v_n,r)
+\]
+and a deterministic realization~$d$ of the metric.  Write
+\[
+    C_d(T):=\E_A\bigl[\cost_d(T|_A)\bigr].
+\]
+
+\begin{lemma}[Exact expected-cost expansion]\label{lem:expansion}
+For $i\in[n]$, define
+\[
+    \alpha_i:=p\bigl(q^{i-1}+q^{n-i}\bigr),
+\]
+and for $1\leq i<j\leq n$, define
+\[
+    \beta_{ij}:=p^2q^{j-i-1}.
+\]
+Then
+\begin{equation}\label{eq:cost-expansion}
+    C_d(T)
+    =
+    \sum_{i=1}^n \alpha_i d(r,v_i)
+    +
+    \sum_{1\leq i<j\leq n}\beta_{ij}d(v_i,v_j).
+\end{equation}
+Furthermore, the sum of all coefficients in \eqref{eq:cost-expansion} is~$W$.
+\end{lemma}
+
+\begin{proof}
+The edge from $r$ to $v_i$ is used when $v_i$ is active and
+$v_1,\ldots,v_{i-1}$ are inactive, an event of probability $pq^{i-1}$.
+The edge from $v_i$ to $r$ is used when $v_i$ is active and
+$v_{i+1},\ldots,v_n$ are inactive, an event of probability $pq^{n-i}$.
+For $i<j$, the clients $v_i$ and $v_j$ are consecutive active clients in the
+shortcut whenever they are both active and every client strictly between them
+is inactive.  This event has probability $p^2q^{j-i-1}$.  This proves
+\eqref{eq:cost-expansion}.
+
+If every distance in \eqref{eq:cost-expansion} is replaced by~$1$, the right
+side becomes the expected number of traveled edges in the shortcut tour.  That
+number is $(K+1)\one_{\{K\geq1\}}$, whose expectation is~$W$.  Hence the
+coefficients sum to~$W$.
+\end{proof}
+
+We use the following weighted form of Hoeffding's inequality: if
+$Y_1,\ldots,Y_m$ are independent random variables taking values in $[0,1]$ and
+$a_1,\ldots,a_m\geq0$, then, for every $t>0$,
+\begin{equation}\label{eq:weighted-hoeffding}
+    \Prob\!\left[
+        \sum_{\ell=1}^m a_\ell
+        \bigl(Y_\ell-\E Y_\ell\bigr)\geq t
+    \right]
+    \leq
+    \exp\!\left(-\frac{2t^2}{\sum_{\ell=1}^m a_\ell^2}\right).
+\end{equation}
+
+\begin{lemma}[Coefficient-square bound]\label{lem:squares}
+For every a priori order and all sufficiently large~$n$, the coefficients in
+\eqref{eq:cost-expansion} satisfy
+\[
+    \sum_{i=1}^n\alpha_i^2
+    +
+    \sum_{1\leq i<j\leq n}\beta_{ij}^2
+    \leq 2np^3.
+\]
+\end{lemma}
+
+\begin{proof}
+Using $(a+b)^2\leq2a^2+2b^2$,
+\begin{align*}
+    \sum_{i=1}^n\alpha_i^2
+    &\leq
+    2p^2\sum_{i=1}^n
+        \bigl(q^{2(i-1)}+q^{2(n-i)}\bigr)\\
+    &\leq
+    \frac{4p^2}{1-q^2}
+    =\frac{4p}{2-p}
+    \leq 4p.
+\end{align*}
+Also,
+\begin{align*}
+    \sum_{1\leq i<j\leq n}\beta_{ij}^2
+    &=p^4\sum_{g=0}^{n-2}(n-g-1)q^{2g}\\
+    &\leq
+    \frac{np^4}{1-q^2}
+    =\frac{np^3}{2-p}
+    \leq np^3.
+\end{align*}
+Since $np^2=n/(\log n)^8\to\infty$, we have $4p\leq np^3$ for all
+sufficiently large~$n$.  Adding the two bounds proves the claim.
+\end{proof}
+
+\begin{lemma}[All master tours are expensive]\label{lem:all-tours}
+With probability $1-o(1)$ over the random metric~$D$,
+\[
+    \optprior(D)
+    \geq
+    \left(2-\frac{2}{\log n}\right)W.
+\]
+\end{lemma}
+
+\begin{proof}
+Fix a tour~$T$.  Let $c_e$ denote the coefficient of the unordered pair~$e$ in
+\eqref{eq:cost-expansion}; thus $c_{\{r,v_i\}}=\alpha_i$ and
+$c_{\{v_i,v_j\}}=\beta_{ij}$.  Since $D(e)=2-X_e$,
+\[
+    C_D(T)=2W-\sum_e c_eX_e.
+\]
+By Lemma~\ref{lem:expansion}, $\sum_e c_e=W$, and therefore
+\[
+    \E_D[C_D(T)]=(2-\theta)W.
+\]
+Set
+\[
+    \varepsilon:=\frac{1}{\log n}.
+\]
+The event
+$C_D(T)\leq(2-\theta-\varepsilon)W$ is the event
+\[
+    \sum_e c_e(X_e-\theta)\geq\varepsilon W.
+\]
+Applying \eqref{eq:weighted-hoeffding}, Lemma~\ref{lem:squares}, and
+$W\geq np$ gives
+\begin{align*}
+    \Prob_D\!\left[
+        C_D(T)\leq(2-\theta-\varepsilon)W
+    \right]
+    &\leq
+    \exp\!\left(
+        -\frac{2\varepsilon^2W^2}{\sum_e c_e^2}
+    \right)\\
+    &\leq
+    \exp\!\left(-\frac{\varepsilon^2W^2}{np^3}\right)\\
+    &\leq
+    \exp\!\left(-\frac{\varepsilon^2n}{p}\right)\\
+    &=\exp\!\bigl(-n(\log n)^2\bigr).
+\end{align*}
+There are at most $n!$ a priori tours with the depot fixed.  Hence, by a union
+bound,
+\begin{align*}
+    &\Prob_D\!\left[
+        \text{some tour }T\text{ satisfies }
+        C_D(T)<(2-\theta-\varepsilon)W
+    \right]\\
+    &\hspace{3cm}\leq
+    n!\exp\!\bigl(-n(\log n)^2\bigr)\\
+    &\hspace{3cm}\leq
+    \exp\!\bigl(n\log n-n(\log n)^2\bigr)
+    =o(1).
+\end{align*}
+Thus, with probability $1-o(1)$, the stated lower bound holds simultaneously
+for every a priori tour.  Since $\theta=\varepsilon=1/\log n$, the claimed
+factor is $2-2/\log n$.
+\end{proof}
+
+\section{A cheap adaptive policy}
+
+For each deterministic metric realization~$d$, define a deterministic adaptive
+policy~$\pi_d$ as follows.  Suppose the salesperson is at $u$ and the set of
+uncalled clients is~$S$.
+\begin{itemize}
+    \item If $S=\varnothing$, return to~$r$.
+    \item If there exists $v\in S$ with $d(u,v)=1$, call the least-labeled such
+    vertex.
+    \item Otherwise, call the least-labeled vertex of~$S$.
+\end{itemize}
+Thus, while the salesperson remains at a fixed location~$u$, all uncalled cheap
+neighbors of~$u$ are called before any distance-$2$ vertex is called.
+
+The policy is allowed to depend on~$d$, because the metric is part of the fixed
+instance and is known before the activation outcomes are observed.
+
+\begin{lemma}[Cost of the adaptive policy, averaged over metrics]
+\label{lem:adaptive-average}
+Let
+\[
+    U(d):=\E_A\bigl[\cost_d(\pi_d,A)\bigr].
+\]
+Then
+\[
+    W\leq U(d)\quad\text{for every }d,
+\]
+and
+\[
+    \E_D[U(D)]
+    \leq
+    np+\left(\frac{1}{\theta}+1\right)(1-q^n)
+    \leq W+\frac{1}{\theta}.
+\]
+\end{lemma}
+
+\begin{proof}
+First fix $k\geq1$ and condition on $K=k$.  Consider the execution jointly over
+the random metric and the active set.  Immediately after the salesperson
+arrives at a new active client~$u$, let $S$ be the set of uncalled clients and
+suppose that exactly $s$ clients in~$S$ are active.
+
+We may expose the random metric lazily.  Before this arrival, none of the edges
+$\{u,v\}$ with $v\in S$ was needed by the policy.  Indeed, prior choices use
+only edges incident to the then-current vertex, and $u$ had not previously been
+the current vertex.  The only previously exposed edge incident to~$u$ may be
+the edge from the preceding current vertex to~$u$; that preceding vertex is not
+in~$S$.  At the initial state $u=r$, no edge incident to an uncalled client has
+yet been exposed.  Consequently, conditional on the entire preceding history,
+the edges $\{u,v\}$ for $v\in S$ remain independent, each being cheap with
+probability~$\theta$, and they remain independent of the activation states of
+the clients in~$S$.
+
+The next traveled edge has length~$2$ exactly when none of the $s$ remaining
+active clients is a cheap neighbor of~$u$.  The probability of this event is
+$(1-\theta)^s$.  Hence the conditional expected length of the next traveled
+edge is
+\[
+    1+(1-\theta)^s.
+\]
+As the policy visits the $k$ active clients, the number~$s$ of active clients
+still unvisited takes the values $k,k-1,\ldots,1$.  The final return to~$r$ costs
+at most~$2$.  Therefore
+\begin{align*}
+    \E_{D,A}\bigl[\cost_D(\pi_D,A)\mid K=k\bigr]
+    &\leq
+    \sum_{s=1}^k\bigl(1+(1-\theta)^s\bigr)+2\\
+    &\leq
+    k+\frac{1-\theta}{\theta}+2\\
+    &=k+\frac{1}{\theta}+1.
+\end{align*}
+For $K=0$, the cost is~$0$.  Averaging over~$K$ yields
+\begin{align*}
+    \E_D[U(D)]
+    &=\E_{D,A}\bigl[\cost_D(\pi_D,A)\bigr]\\
+    &\leq
+    \E[K]
+    +\left(\frac{1}{\theta}+1\right)\Prob[K\geq1]\\
+    &=np+\left(\frac{1}{\theta}+1\right)(1-q^n)\\
+    &=W+\frac{1-q^n}{\theta}
+    \leq W+\frac{1}{\theta}.
+\end{align*}
+
+For the pointwise lower bound, if $K=k\geq1$, the policy travels along exactly
+$k+1$ edges: one edge to each active client and one final edge back to~$r$.
+Every such edge has length at least~$1$.  Thus its realized cost is at least
+$(k+1)\one_{\{k\geq1\}}$, and taking expectation over~$A$ gives $U(d)\geq W$.
+\end{proof}
+
+\begin{lemma}[A good adaptive policy for most sampled metrics]
+\label{lem:adaptive-whp}
+Define
+\[
+    \delta_n:=\frac{1}{\sqrt{\theta W}}.
+\]
+Then $\delta_n=o(1)$ and
+\[
+    \Prob_D\bigl[\optadapt(D)\leq(1+\delta_n)W\bigr]
+    \geq 1-\delta_n.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $\theta W\to\infty$, we have $\delta_n=o(1)$.  By
+Lemma~\ref{lem:adaptive-average}, the nonnegative random variable $U(D)-W$
+satisfies
+\[
+    \E_D[U(D)-W]\leq\frac{1}{\theta}.
+\]
+Markov's inequality therefore gives
+\begin{align*}
+    \Prob_D\bigl[U(D)>(1+\delta_n)W\bigr]
+    &=
+    \Prob_D\bigl[U(D)-W>\delta_nW\bigr]\\
+    &\leq
+    \frac{1/\theta}{\delta_nW}
+    =\frac{1}{\sqrt{\theta W}}
+    =\delta_n.
+\end{align*}
+Since $\optadapt(d)\leq U(d)$ for every~$d$, the claim follows.
+\end{proof}
+
+\section{Extracting a deterministic metric}
+
+\begin{theorem}[Factor-two adaptivity lower bound]\label{thm:main}
+There exists a sequence of deterministic symmetric stochastic TSP instances
+for which
+\[
+    \frac{\optprior}{\optadapt}\longrightarrow 2.
+\]
+Consequently, the adaptivity gap for symmetric stochastic TSP is at least~$2$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:all-tours}, with probability $1-o(1)$,
+\[
+    \optprior(D)\geq
+    \left(2-\frac{2}{\log n}\right)W.
+\]
+By Lemma~\ref{lem:adaptive-whp}, with probability $1-o(1)$,
+\[
+    \optadapt(D)\leq(1+\delta_n)W.
+\]
+The two events therefore occur simultaneously with positive probability for all
+sufficiently large~$n$.  Choose one deterministic realization~$d_n$ in their
+intersection.  Then
+\[
+    \frac{\optprior(d_n)}{\optadapt(d_n)}
+    \geq
+    \frac{2-2/\log n}{1+\delta_n}.
+\]
+Since $\delta_n=o(1)$, the right side tends to~$2$.
+\end{proof}
+
+The proof does not identify a particular successful realization~$d_n$.  It
+shows more: a random realization succeeds with probability tending to~$1$.
+Thus the deterministic metric is obtained nonconstructively by the
+probabilistic method.
+
+\begin{corollary}[Factor-two obliviousness lower bound]
+There exists a sequence of deterministic symmetric stochastic TSP instances
+for which
+\[
+    \frac{\optprior}{\optpost}\geq 2-o(1).
+\]
+In particular, the obliviousness gap is at least~$2$.
+\end{corollary}
+
+\begin{proof}
+For every instance, $\optpost\leq\optadapt$.  Hence
+\[
+    \frac{\optprior}{\optpost}
+    \geq
+    \frac{\optprior}{\optadapt},
+\]
+and Theorem~\ref{thm:main} applies.
+\end{proof}
+
+\section{Why this construction has no clairvoyance gap}
+
+For every realization~$d$ of the metric,
+\[
+    \optpost(d)\geq W,
+\]
+because a nonempty active set of size~$k$ requires a tour with $k+1$ edges and
+every edge has length at least~$1$.  For the deterministic realizations selected
+in the proof of Theorem~\ref{thm:main},
+\[
+    W\leq\optpost(d_n)\leq\optadapt(d_n)\leq(1+\delta_n)W.
+\]
+Consequently,
+\[
+    1\leq
+    \frac{\optadapt(d_n)}{\optpost(d_n)}
+    \leq 1+\delta_n
+    =1+o(1).
+\]
+Thus random $\{1,2\}$-metrics separate the a priori and adaptive benchmarks,
+but they do not separate the adaptive and a posteriori benchmarks.
+
+\section{A Bellman certificate for future clairvoyance constructions}
+
+This section records a general device for a different probabilistic
+construction; it does not itself prove a new clairvoyance lower bound.
+
+For a fixed metric~$d$ and independent activation probabilities $p_v$, let
+$F_d(u,S)$ be the optimal expected remaining cost of an adaptive policy when the
+salesperson is at~$u$ and the set of uncalled clients is~$S$.  Then
+\[
+    F_d(u,\varnothing)=d(u,r),
+\]
+and, for $S\neq\varnothing$,
+\begin{equation}\label{eq:bellman}
+    F_d(u,S)
+    =
+    \min_{v\in S}
+    \left\{
+        (1-p_v)F_d(u,S\setminus\{v\})
+        +p_v\bigl(d(u,v)+F_d(v,S\setminus\{v\})\bigr)
+    \right\}.
+\end{equation}
+In particular, $\optadapt(d)=F_d(r,V)$.
+
+A function $\Phi_d(u,S)$ is a lower-bound certificate if
+\[
+    \Phi_d(u,\varnothing)\leq d(u,r)
+\]
+and, for every nonempty $S$ and every $v\in S$,
+\begin{equation}\label{eq:subsolution}
+    \Phi_d(u,S)
+    \leq
+    (1-p_v)\Phi_d(u,S\setminus\{v\})
+    +p_v\bigl(d(u,v)+\Phi_d(v,S\setminus\{v\})\bigr).
+\end{equation}
+Induction on $|S|$, using \eqref{eq:bellman}, gives
+\[
+    \Phi_d(u,S)\leq F_d(u,S)
+\]
+for every state, and hence
+\[
+    \Phi_d(r,V)\leq\optadapt(d).
+\]
+This avoids a direct union bound over adaptive policies.  In a probabilistic
+clairvoyance-gap construction, one may try to show that a random metric admits
+both
+\begin{enumerate}
+    \item a low-cost a posteriori routing for most activation realizations, and
+    \item a Bellman subsolution $\Phi_d$ that forces every adaptive policy to
+    incur a larger expected cost.
+\end{enumerate}
+The random structure would need to couple many routing decisions whose correct
+resolution depends on activation information not yet revealed to the adaptive
+policy.
+
+\end{document}

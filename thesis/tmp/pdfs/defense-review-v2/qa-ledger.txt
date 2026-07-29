@@ -1,0 +1,27 @@
+Stochastic TSP thesis deck — final PDF visual QA
+Date: 2026-07-23
+Artifact: thesis/defense-slides/main.pdf
+Pages: 41
+Render: Poppler pdftoppm, PNG, 180 dpi (1134 x 638)
+
+Full-size visual review:
+- Slides 1–7: pass
+- Slides 8–14: pass
+- Slides 15–21: pass
+- Slides 22–28: pass
+- Slides 29–35: pass
+- Slides 36–41: pass
+
+Corrections verified in the final render:
+- title eyebrow/title collision removed
+- section-divider and closing-slide word breaks removed
+- benchmark labels and construction diagrams enlarged/rebalanced
+- 5/4 comparison redrawn as a single coherent ratio
+- midpoint comparison headings separated and vertical overflow removed
+- circulation callout and fan-diagram labels cleared from nearby graphics
+- all footers and page counters remain visible
+
+Build checks:
+- 41 pages, 16:9
+- no LaTeX overfull boxes
+- no residual extracted text lines ending in automatic hyphenation

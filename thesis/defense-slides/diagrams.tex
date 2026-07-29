@@ -1,0 +1,714 @@
+% Native TikZ figures for the thesis talk.
+% All figures inherit the palette from beamerthemestochastic.sty.
+
+\tikzset{
+  stDet/.style={
+    rectangle,
+    rounded corners=0.45pt,
+    draw=STInk,
+    fill=STWhite,
+    line width=0.7pt,
+    minimum width=0.52cm,
+    minimum height=0.48cm,
+    inner sep=1.5pt,
+    font=\fontsize{8.5pt}{9pt}\selectfont
+  },
+  stDepot/.style={
+    stDet,
+    fill=STGold!25,
+    draw=STGold!65!STInk,
+    line width=0.9pt
+  },
+  stStoch/.style={
+    circle,
+    draw=STInk,
+    fill=STTeal!20,
+    line width=0.7pt,
+    minimum size=0.47cm,
+    inner sep=1pt,
+    font=\fontsize{8pt}{9pt}\selectfont
+  },
+  stStochActive/.style={
+    stStoch,
+    fill=STTeal,
+    text=STWhite,
+    draw=STTeal!55!STInk
+  },
+  stStochInactive/.style={
+    stStoch,
+    fill=STPaper,
+    draw=STMuted,
+    text=STMuted
+  },
+  stArrow/.style={
+    -{Stealth[length=2.2mm,width=1.45mm]},
+    line width=1.05pt,
+    draw=STBlue
+  },
+  stArrowThin/.style={
+    -{Stealth[length=1.8mm,width=1.2mm]},
+    line width=0.72pt,
+    draw=STBlue
+  },
+  stEdge/.style={draw=STInkSoft,line width=0.70pt},
+  stFaintEdge/.style={draw=STLine,line width=0.5pt},
+  stDashed/.style={draw=STMuted,densely dashed,line width=0.7pt},
+  stLabel/.style={
+    font=\fontsize{8.5pt}{10pt}\selectfont,
+    text=STMuted,
+    align=center
+  },
+  stSmallLabel/.style={
+    font=\fontsize{7.5pt}{9pt}\selectfont,
+    text=STMuted,
+    align=center
+  }
+}
+
+% --------------------------------------------------------------------------
+% Background: a master tour and a realized shortcut
+% --------------------------------------------------------------------------
+\newcommand{\StMasterOrder}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[anchor=west,font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=STInk]
+    at (0,2.65) {Master order};
+  \node[stDepot] (mr) at (0.7,2.0) {$r$};
+  \node[stStochActive] (mone) at (2.0,2.0) {$1$};
+  \node[stStochInactive] (mtwo) at (3.3,2.0) {$2$};
+  \node[stStochActive] (mthree) at (4.6,2.0) {$3$};
+  \node[stStochInactive] (mfour) at (5.9,2.0) {$4$};
+  \node[stStochInactive] (mfive) at (7.2,2.0) {$5$};
+  \node[stStochActive] (msix) at (8.5,2.0) {$6$};
+  \node[stDepot] (mrb) at (9.8,2.0) {$r$};
+  \foreach \a/\b in {r/one,one/two,two/three,three/four,four/five,five/six,six/rb}{
+    \draw[stFaintEdge,-{Stealth[length=1.4mm]}] (m\a)--(m\b);
+  }
+  \node[stSmallLabel,anchor=north] at (3.3,1.63) {inactive};
+  \node[stSmallLabel,anchor=north] at (5.9,1.63) {inactive};
+  \node[stSmallLabel,anchor=north] at (7.2,1.63) {inactive};
+
+  \node[anchor=west,font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=STInk]
+    at (0,0.93) {Realized tour};
+  \node[stDepot] (rr) at (0.7,0.28) {$r$};
+  \node[stStochActive] (a1) at (2.8,0.28) {$1$};
+  \node[stStochActive] (a3) at (5.15,0.28) {$3$};
+  \node[stStochActive] (a6) at (7.55,0.28) {$6$};
+  \node[stDepot] (rr2) at (9.8,0.28) {$r$};
+  \draw[stArrow] (rr)--node[above,stSmallLabel] {$d(r,1)$} (a1);
+  \draw[stArrow] (a1)--node[above,stSmallLabel] {$d(1,3)$} (a3);
+  \draw[stArrow] (a3)--node[above,stSmallLabel] {$d(3,6)$} (a6);
+  \draw[stArrow] (a6)--(rr2);
+  \node[stLabel,anchor=west,text=STTeal] at (10.25,0.28)
+    {inactive clients\\are shortcut};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Background: three information regimes
+% --------------------------------------------------------------------------
+\newcommand{\StBenchmarkLadder}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[STLine,line width=2.0pt] (0.7,0)--(11.1,0);
+  \draw[STTeal,line width=2.8pt] (0.7,0)--(3.55,0);
+  \draw[STBlue,line width=2.8pt] (3.55,0)--(7.25,0);
+  \draw[STGold,line width=2.8pt] (7.25,0)--(11.1,0);
+
+  \foreach \x/\col/\num in {1.05/STTeal/1,5.4/STBlue/2,10.5/STGold/3}{
+    \node[circle,fill=\col,text=STWhite,minimum size=0.52cm,
+      font=\fontsize{10pt}{11pt}\selectfont\bfseries] at (\x,0) {\num};
+  }
+
+  \node[anchor=north west,text width=3.05cm,align=left] at (0.55,2.70) {%
+    {\fontsize{14pt}{16pt}\selectfont\bfseries A posteriori}\par
+    \vspace{0.12cm}
+    {\fontsize{10.5pt}{13pt}\selectfont\color{STInkSoft}
+      Know the active set\\before choosing.}};
+  \node[anchor=north,text width=3.55cm,align=center] at (5.4,2.70) {%
+    {\fontsize{14pt}{16pt}\selectfont\bfseries Adaptive}\par
+    \vspace{0.12cm}
+    {\fontsize{10.5pt}{13pt}\selectfont\color{STInkSoft}
+      Learn on calls;\\move when active.}};
+  \node[anchor=north east,text width=3.35cm,align=right] at (11.0,2.70) {%
+    {\fontsize{14pt}{16pt}\selectfont\bfseries A priori}\par
+    \vspace{0.12cm}
+    {\fontsize{10.5pt}{13pt}\selectfont\color{STInkSoft}
+      Fix one\\master order.}};
+
+  \node[anchor=north west,text=STTeal,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (0.62,-0.38)
+    {knows the active set};
+  \node[anchor=north,text=STBlue,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (5.4,-0.38)
+    {learns causally};
+  \node[anchor=north east,text=STGold!75!STInk,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (11.0,-0.38)
+    {does not observe the set};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Construction I: cycle-subdivided clique
+% --------------------------------------------------------------------------
+\newcommand{\StCycleClique}{%
+\begin{tikzpicture}[scale=0.90]
+  \foreach \i in {1,...,6} {
+    \coordinate (c\i) at ({90-60*(\i-1)}:3.0);
+  }
+  \foreach \i in {1,...,6} {
+    \pgfmathtruncatemacro{\next}{mod(\i,6)+1}
+    \coordinate (m\i) at ($(c\i)!0.5!(c\next)$);
+  }
+  \foreach \i in {1,...,6} {
+    \foreach \j in {1,...,6} {
+      \ifnum\j>\i
+        \pgfmathtruncatemacro{\next}{mod(\i,6)+1}
+        \ifnum\j=\next\else
+          \ifnum\i=1
+            \ifnum\j=6\else
+              \draw[STLine,line width=0.5pt] (c\i)--(c\j);
+            \fi
+          \else
+            \draw[STLine,line width=0.5pt] (c\i)--(c\j);
+          \fi
+        \fi
+      \fi
+    }
+  }
+  \foreach \i in {1,...,6} {
+    \pgfmathtruncatemacro{\next}{mod(\i,6)+1}
+    \draw[STBlue,line width=1.55pt] (c\i)--(m\i)--(c\next);
+  }
+  \foreach \i in {1,...,6} {
+    \node[stDet,minimum width=0.62cm,minimum height=0.57cm] (v\i) at (c\i)
+      {$v_{\i}$};
+    \node[stStoch,minimum size=0.53cm] at (m\i) {$v'_{\i}$};
+  }
+  \node[stSmallLabel,anchor=south] at ([yshift=0.36cm]v1.north)
+    {depot};
+  \node[stSmallLabel,text=STBlue,anchor=north] at (0,-3.46)
+    {thick cycle edges are subdivided};
+\end{tikzpicture}}
+
+\newcommand{\StSegmentTax}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[stDet,minimum size=0.60cm] (u) at (0.35,0) {$u$};
+  \node[stStoch] (w1) at (1.65,0) {$w_1$};
+  \node[stStoch] (w2) at (2.75,0) {$w_2$};
+  \node[font=\fontsize{14pt}{15pt}\selectfont,text=STMuted] at (3.75,0) {$\cdots$};
+  \node[stStoch] (wk) at (4.75,0) {$w_k$};
+  \node[stDet,minimum size=0.60cm] (v) at (6.1,0) {$v$};
+  \draw[stEdge] (u)--(w1)--(w2);
+  \draw[stEdge] (w2)--(3.43,0);
+  \draw[stEdge] (4.07,0)--(wk)--(v);
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},STBlue,line width=0.8pt]
+    (0.05,-0.58)--(6.4,-0.58)
+    node[midway,below=0.25cm,text=STBlue,
+      font=\fontsize{10.5pt}{12pt}\selectfont\bfseries]
+      {$\Phi(u;W;v)\ge 1+\frac{7}{8}k$};
+
+  \node[anchor=south,text=STInkSoft,
+    font=\fontsize{9.2pt}{11pt}\selectfont] at (3.22,0.62)
+    {one segment with \(k\) independent subdividers};
+\end{tikzpicture}}
+
+\newcommand{\StAdaptivePeel}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[stDet] (l) at (0.3,0) {};
+  \node[stStochActive] (a) at (1.2,0) {};
+  \node[stDet] (u) at (2.1,0) {};
+  \node[stStoch] (b) at (3.0,0) {};
+  \node[stDet] (c) at (3.9,0) {};
+  \node[stStochInactive] (d) at (4.8,0) {};
+  \node[stDet] (r) at (5.7,0) {};
+  \draw[STLine,line width=1.1pt] (l)--(a)--(u)--(b)--(c)--(d)--(r);
+  \draw[stArrow,draw=STTeal] ([yshift=0.15cm]l.north east)
+    to[bend left=18] node[above=0.04cm,stSmallLabel,text=STTeal]
+    {active: traverse} ([yshift=0.13cm]u.north west);
+  \draw[stArrow,draw=STCoral] ([yshift=-0.12cm]c.south east)
+    to[bend left=43] node[below=0.12cm,stSmallLabel,text=STCoral]
+    {inactive: switch endpoint} ([yshift=-0.12cm]l.south west);
+  \node[stSmallLabel,anchor=north] at (4.8,-0.38) {skip};
+  \draw[decorate,decoration={brace,amplitude=4pt},STBlue,line width=0.7pt]
+    (0.05,0.88)--(5.95,0.88)
+    node[midway,above=0.18cm,stLabel,text=STBlue]
+    {uncalled clients remain one interval};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Construction II: three chains and incompatible skeletons
+% --------------------------------------------------------------------------
+\newcommand{\StThreeChain}{%
+\begin{tikzpicture}[x=0.95cm,y=0.95cm]
+  \node[stDepot] (A0) at (0, 2.35) {$a_0$};
+  \node[stDet] (A1) at (1.4, 2.35) {$a_1$};
+  \node[stDet] (Ah) at (6.0, 2.35) {$a_h$};
+  \node[stDet] (Bh) at (0, 0) {$b_h$};
+  \node[stDet] (B1) at (4.6, 0) {$b_1$};
+  \node[stDet] (B0) at (6.0, 0) {$b_0$};
+  \node[stDet] (C0) at (0,-2.35) {$c_0$};
+  \node[stDet] (C1) at (1.4,-2.35) {$c_1$};
+  \node[stDet] (Ch) at (6.0,-2.35) {$c_h$};
+  \node[stStoch,minimum size=0.60cm] (S) at (7.35,-1.18) {$s$};
+
+  \draw[stDashed] (A0)--(Bh);
+  \draw[stDashed] (A0)--(Ch);
+  \draw[stDashed] (B0)--(Ah);
+  \draw[stDashed] (C0)--(Ah);
+  \draw[stDashed] (C0)--(Bh);
+  \draw[stDashed] (B0)--(S);
+  \draw[stDashed] (Ch)--(S);
+
+  \draw[STBlue,line width=1.15pt] (A0)--(A1)--(Ah);
+  \draw[STBlue,line width=1.15pt] (Bh)--(B1)--(B0);
+  \draw[STBlue,line width=1.15pt] (C0)--(C1)--(Ch);
+  \node[fill=STPaper,inner sep=3pt,text=STMuted] at (3.6,2.35) {$\cdots$};
+  \node[fill=STPaper,inner sep=3pt,text=STMuted] at (2.5,0) {$\cdots$};
+  \node[fill=STPaper,inner sep=3pt,text=STMuted] at (3.6,-2.35) {$\cdots$};
+  \node[stLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (-0.55,2.35) {$A$};
+  \node[stLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (-0.55,0) {$B$};
+  \node[stLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (-0.55,-2.35) {$C$};
+  \node[stSmallLabel,anchor=west,text=STBlue] at (7.0,1.45)
+    {chain edges: $1$};
+  \node[stSmallLabel,anchor=west,text=STMuted] at (7.0,0.95)
+    {dashed: $2h$};
+\end{tikzpicture}}
+
+\newcommand{\StSkeletonComparison}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  % Left panel: s inactive.
+  \node[anchor=west,font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=STBlue]
+    at (0,2.25) {$s$ inactive};
+  \node[stDet] (A0) at (0.45,0.85) {$A$};
+  \node[stDet] (B0) at (2.05,0.85) {$B$};
+  \node[stDet] (C0) at (3.65,0.85) {$C$};
+  \draw[stArrow,draw=STBlue] (A0)--(B0);
+  \draw[stArrow,draw=STBlue] (B0)--(C0);
+  \draw[stArrow,draw=STBlue] (C0) to[bend left=38] (A0);
+  \node[stLabel,text=STBlue] at (2.05,-0.08) {three crossings};
+  \node[font=\fontsize{17pt}{19pt}\selectfont\bfseries,text=STInk]
+    at (2.05,-0.83) {$9h$};
+
+  \draw[STLine,line width=0.7pt] (5.15,-1.2)--(5.15,2.35);
+
+  % Right panel: s active.
+  \node[anchor=west,font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=STCoral]
+    at (5.65,2.25) {$s$ active};
+  \node[stDet] (A1) at (6.1,0.85) {$A$};
+  \node[stDet] (C1) at (7.55,0.85) {$C$};
+  \node[stStochActive] (S1) at (9.0,0.85) {$s$};
+  \node[stDet] (B1) at (10.45,0.85) {$B$};
+  \draw[stArrow,draw=STCoral] (A1)--(C1);
+  \draw[stArrow,draw=STCoral] (C1)--(S1);
+  \draw[stArrow,draw=STCoral] (S1)--(B1);
+  \draw[stArrow,draw=STCoral] (B1) to[bend left=35] (A1);
+  \node[stLabel,text=STCoral] at (8.28,-0.08) {four crossings};
+  \node[font=\fontsize{17pt}{19pt}\selectfont\bfseries,text=STInk]
+    at (8.28,-0.83) {$11h$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Construction III: recursive directed block
+% --------------------------------------------------------------------------
+\newcommand{\StRecursiveBlock}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[draw=STBlue,dashed,rounded corners=0.65pt,minimum width=2.35cm,
+    minimum height=2.15cm,fill=STBlue!4] (L) at (1.35,0) {};
+  \node[draw=STBlue,dashed,rounded corners=0.65pt,minimum width=2.35cm,
+    minimum height=2.15cm,fill=STBlue!4] (R) at (5.35,0) {};
+  \node[font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=STInk] at (1.35,0.35)
+    {$B_{\ell-1}^{L}$};
+  \node[font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=STInk] at (5.35,0.35)
+    {$B_{\ell-1}^{R}$};
+  \foreach \x in {0.78,1.35,1.92}
+    \node[stDet,minimum size=0.35cm] at (\x,-0.40) {};
+  \foreach \x in {4.78,5.35,5.92}
+    \node[stDet,minimum size=0.35cm] at (\x,-0.40) {};
+  \node[stSmallLabel] at (1.35,-0.78) {ports};
+  \node[stSmallLabel] at (5.35,-0.78) {ports};
+  \node[stStoch,minimum size=0.72cm] (M) at (3.35,-2.10) {$m_\ell$};
+
+  \draw[stArrow,draw=STBlue,line width=1.3pt]
+    (L.east)--node[above,stLabel,text=STBlue] {$w_\ell$} (R.west);
+  \draw[stArrow,draw=STCoral,line width=1.3pt]
+    (R.south) to[bend left=12]
+    node[right,stLabel,text=STCoral] {$w_\ell$} (M.east);
+  \draw[stArrow,draw=STTeal,line width=1.3pt]
+    (M.west) to[bend left=12]
+    node[left,stLabel,text=STTeal] {$w_\ell$} (L.south);
+
+  \node[stDepot,minimum size=0.62cm] (D) at (3.35,1.85) {$r$};
+  \draw[stArrowThin,draw=STGold!75!STInk] (D) to[bend right=12] (L.north);
+  \draw[stArrowThin,draw=STGold!75!STInk] (L.north) to[bend right=12] (D);
+  \draw[stArrowThin,draw=STGold!75!STInk] (D) to[bend left=12] (R.north);
+  \draw[stArrowThin,draw=STGold!75!STInk] (R.north) to[bend left=12] (D);
+  \node[stSmallLabel,text=STGold!70!STInk] at (3.35,1.22)
+    {depot arcs also $w_\ell$};
+\end{tikzpicture}}
+
+\newcommand{\StLocalChoice}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[anchor=south,align=center,
+    font=\fontsize{8.4pt}{10pt}\selectfont\bfseries,text=STBlue]
+    at (1.35,1.90) {KNOWN: \(M\) ABSENT};
+  \node[stDet] (L0) at (0.45,0.90) {$L$};
+  \node[stDet] (R0) at (2.25,0.90) {$R$};
+  \node[stStochInactive] (M0) at (1.35,-0.35) {$M$};
+  \draw[stArrow,draw=STBlue,line width=1.35pt] (L0)--node[above,stSmallLabel] {$w$} (R0);
+  \node[font=\fontsize{15pt}{17pt}\selectfont\bfseries,text=STInk]
+    at (1.35,-1.05) {$w$};
+
+  \draw[STLine] (3.25,-1.35)--(3.25,2.35);
+  \node[anchor=south,align=center,
+    font=\fontsize{8.4pt}{10pt}\selectfont\bfseries,text=STTeal]
+    at (5.00,1.90) {KNOWN: \(M\) ACTIVE};
+  \node[stDet] (L1) at (4.10,0.90) {$L$};
+  \node[stDet] (R1) at (5.90,0.90) {$R$};
+  \node[stStochActive] (M1) at (5.00,-0.35) {$M$};
+  \draw[stArrow,draw=STTeal,line width=1.35pt] (R1)--(M1);
+  \draw[stArrow,draw=STTeal,line width=1.35pt] (M1)--(L1);
+  \node[font=\fontsize{15pt}{17pt}\selectfont\bfseries,text=STInk]
+    at (5.00,-1.05) {$2w$};
+
+  \draw[STLine] (6.90,-1.35)--(6.90,2.35);
+  \node[anchor=south,align=center,
+    font=\fontsize{8.4pt}{10pt}\selectfont\bfseries,text=STCoral]
+    at (8.65,1.90) {CAUSAL: PROBE \(M\) LAST};
+  \node[stDet] (L2) at (7.75,0.90) {$L$};
+  \node[stDet] (R2) at (9.55,0.90) {$R$};
+  \node[stStoch] (M2) at (8.65,-0.35) {$M$};
+  \draw[stArrow,draw=STBlue,line width=1.25pt] (L2)--(R2);
+  \draw[stArrow,draw=STCoral,line width=1.25pt] (R2)--(M2);
+  \draw[stArrow,draw=STCoral,line width=1.25pt] (M2)--(L2);
+  \node[font=\fontsize{15pt}{17pt}\selectfont\bfseries,text=STInk]
+    at (8.65,-1.05) {$\E=2w$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Circulation: backbone, fan construction, boosting, and rounding
+% --------------------------------------------------------------------------
+\newcommand{\StBackboneSample}{%
+\begin{tikzpicture}[scale=0.95]
+  \foreach \i in {1,...,8}
+    \coordinate (b\i) at ({90-45*(\i-1)}:2.55);
+  \foreach \i in {1,...,8} {
+    \pgfmathtruncatemacro{\next}{mod(\i,8)+1}
+    \draw[STBlue!75,line width=1.15pt] (b\i)--(b\next);
+  }
+  \foreach \i in {1,...,8}
+    \node[stDet,minimum size=0.44cm] at (b\i) {};
+  \node[stDepot] at (b1) {$r$};
+  \node[stStoch,minimum size=0.46cm] (u1) at (-0.25,0.72) {$i$};
+  \node[stStoch,minimum size=0.46cm] (u2) at (0.65,-0.72) {$j$};
+  \node[stStoch,minimum size=0.46cm] (u3) at (-0.95,-0.48) {$k$};
+  \draw[stDashed,draw=STTeal] (b7)--(u1)--(b2);
+  \draw[stDashed,draw=STTeal] (b5)--(u2)--(b3);
+  \draw[stDashed,draw=STTeal] (b6)--(u3)--(b8);
+  \node[stLabel,text=STBlue,anchor=west] at (3.05,1.25)
+    {$R=S\cup\{r\}$\\backbone};
+  \node[stLabel,text=STTeal,anchor=west] at (3.05,-0.55)
+    {$U=V\setminus S$\\outside clients};
+\end{tikzpicture}}
+
+\newcommand{\StFanFlow}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[stDet] (s1) at (0,0) {$s_j$};
+  \node[stStoch] (u1) at (1.45,0) {$u_1$};
+  \node[stStoch] (u2) at (2.75,0) {$u_2$};
+  \node[font=\fontsize{13pt}{14pt}\selectfont,text=STMuted] at (3.8,0) {$\cdots$};
+  \node[stStoch] (uk) at (4.75,0) {$u_k$};
+  \node[stDet] (s2) at (6.25,0) {$s_{j+1}$};
+  \draw[STLine,line width=1.3pt] (s1)--(u1)--(u2);
+  \draw[STLine,line width=1.3pt] (u2)--(3.43,0);
+  \draw[STLine,line width=1.3pt] (4.17,0)--(uk)--(s2);
+  \node[stLabel,anchor=south,text=STInkSoft] at (3.10,1.30)
+    {segment of an optimal tour on $C=A\cup S$};
+
+  \draw[stArrow,draw=STTeal] (s1.north) to[bend left=24] (u1.north);
+  \draw[stArrow,draw=STTeal] (u1.north) to[bend left=24] (s2.north);
+  \draw[stArrow,draw=STBlue] (s1.north) to[bend left=42] (u2.north);
+  \draw[stArrow,draw=STBlue] (u2.north) to[bend left=42] (s2.north);
+  \draw[stArrow,draw=STCoral] (s1.south) to[bend right=28] (uk.south);
+  \draw[stArrow,draw=STCoral] (uk.south) to[bend right=28] (s2.south);
+  \node[stLabel,anchor=north,text=STInkSoft] at (3.12,-1.35)
+    {fan every outside client to the same two backbone endpoints};
+\end{tikzpicture}}
+
+\newcommand{\StLongestRun}{%
+\begin{tikzpicture}[x=0.92cm,y=1cm]
+  \foreach \x in {0,...,11}{
+    \pgfmathtruncatemacro{\styleflag}{mod(\x+2,5)}
+    \ifnum\styleflag=0
+      \node[stDet,minimum size=0.42cm] (n\x) at (\x,0) {};
+    \else
+      \node[stStoch,minimum size=0.42cm] (n\x) at (\x,0) {};
+    \fi
+  }
+  \foreach \x [evaluate=\x as \next using int(\x+1)] in {0,...,10}
+    \draw[STLine,line width=0.75pt] (n\x)--(n\next);
+  \draw[decorate,decoration={brace,amplitude=5pt},STCoral,line width=0.9pt]
+    (n5.north west)--(n8.north east)
+    node[midway,above=0.24cm,text=STCoral,
+      font=\fontsize{10pt}{12pt}\selectfont\bfseries] {run length $t$};
+  \node[stLabel,anchor=north] at (5.5,-0.50)
+    {conditioned on $C$, every vertex is outside with probability at most $\frac12$};
+  \node[anchor=south east,text=STInk,
+    font=\fontsize{15pt}{17pt}\selectfont\bfseries] at (10.95,1.45)
+    {$\Pr[M\ge t\mid C]\le n\,2^{-t}$};
+\end{tikzpicture}}
+
+\newcommand{\StBoostedBackbone}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \row in {0,1,2}{
+    \foreach \x in {0,...,8}{
+      \pgfmathtruncatemacro{\isblue}{mod(2*\x+\row,7)}
+      \ifnum\isblue<2
+        \node[circle,fill=STBlue,minimum size=0.19cm] at (\x*0.75,2.0-\row*0.62) {};
+      \else
+        \node[circle,draw=STLine,fill=STPaper,minimum size=0.18cm]
+          at (\x*0.75,2.0-\row*0.62) {};
+      \fi
+    }
+    \node[anchor=east,stSmallLabel] at (-0.25,2.0-\row*0.62) {$B^{\row}$};
+  }
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},STBlue,line width=0.8pt]
+    (-0.25,0.48)--(6.35,0.48)
+    node[midway,below=0.23cm,stLabel,text=STBlue]
+    {$S=\bigcup_{j=1}^{\lambda}B^j$,\quad $\lambda=\Theta(\log n)$};
+  \draw[stArrow,draw=STTeal] (6.90,1.25)--(8.10,1.25);
+  \node[anchor=west,align=left,text=STInk,
+    font=\fontsize{10pt}{12.5pt}\selectfont] at (8.35,1.25)
+    {\textbf{Outside probabilities shrink}\\[1mm]
+     $p_i<1/\lambda$};
+\end{tikzpicture}}
+
+\newcommand{\StChordCoupling}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[stDet] (a1) at (0,1.55) {$a_1$};
+  \node[stDet] (a2) at (0,0.35) {$a_2$};
+  \node[stDet] (a3) at (0,-0.85) {$a_3$};
+  \node[stStoch,minimum size=0.64cm] (i) at (3.2,0.35) {$i$};
+  \node[stDet] (b1) at (6.4,1.55) {$b_1$};
+  \node[stDet] (b2) at (6.4,0.35) {$b_2$};
+  \node[stDet] (b3) at (6.4,-0.85) {$b_3$};
+  \draw[stArrowThin,draw=STBlue] (a1)--(i);
+  \draw[stArrowThin,draw=STBlue] (a2)--(i);
+  \draw[stArrowThin,draw=STBlue] (a3)--(i);
+  \draw[stArrowThin,draw=STTeal] (i)--(b1);
+  \draw[stArrowThin,draw=STTeal] (i)--(b2);
+  \draw[stArrowThin,draw=STTeal] (i)--(b3);
+  \node[stSmallLabel,text=STBlue,anchor=south] at (1.25,1.72)
+    {incoming marginal $z_{ai}$};
+  \node[stSmallLabel,text=STTeal,anchor=south] at (5.10,1.72)
+    {outgoing marginal $z_{ib}$};
+  \draw[stArrow,draw=STCoral,line width=1.25pt]
+    (0.10,-1.65) to[bend right=15]
+    node[below,stLabel,text=STCoral] {couple into $x_{i,ab}$}
+    (6.30,-1.65);
+  \node[anchor=west,align=left,text=STInk,
+    font=\fontsize{10pt}{12pt}\selectfont] at (7.05,0.70)
+    {$\displaystyle\sum_{a,b}x_{i,ab}=p_i$\\[2mm]
+     round to one pair\\
+     $\widehat x_{i,a_i b_i}=p_i$};
+\end{tikzpicture}}
+
+\newcommand{\StDyadicIntervals}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \x in {0,...,7}{
+    \node[stDet,minimum size=0.41cm] (p\x) at (\x*1.10,0) {$s_{\x}$};
+  }
+  \foreach \x [evaluate=\x as \next using int(\x+1)] in {0,...,6}
+    \draw[STLine] (p\x)--(p\next);
+
+  \draw[STTeal,line width=2pt] (-0.28,0.72)--(8.0,0.72);
+  \node[anchor=west,stSmallLabel,text=STTeal] at (8.15,0.72) {level 0};
+  \foreach \a/\b in {-0.28/4.10,4.10/8.0}
+    \draw[STBlue,line width=2pt] (\a,1.30)--(\b,1.30);
+  \node[anchor=west,stSmallLabel,text=STBlue] at (8.15,1.30) {level 1};
+  \foreach \a/\b in {-0.28/1.93,1.93/4.10,4.10/6.28,6.28/8.0}
+    \draw[STGold,line width=2pt] (\a,1.88)--(\b,1.88);
+  \node[anchor=west,stSmallLabel,text=STGold!70!STInk] at (8.15,1.88) {level 2};
+
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},STCoral,line width=0.9pt]
+    (p2.south west)--(p6.south east)
+    node[midway,below=0.25cm,stLabel,text=STCoral]
+      {any interval = $O(\log n)$ dyadic pieces};
+  \node[anchor=west,align=left,text=STInkSoft,
+    font=\fontsize{9.2pt}{11.5pt}\selectfont] at (0,2.65)
+    {Preserve a dyadic balance equation while it touches
+     at least $L=8(\lceil\log_2 m\rceil+1)$ live variables.};
+\end{tikzpicture}}
+
+\newcommand{\StRoundedChords}{%
+\begin{tikzpicture}[scale=0.86]
+  \foreach \i in {1,...,8}
+    \coordinate (q\i) at ({90-45*(\i-1)}:2.7);
+  \foreach \i in {1,...,8} {
+    \pgfmathtruncatemacro{\next}{mod(\i,8)+1}
+    \draw[STBlue!75,line width=1.2pt,-{Stealth[length=1.5mm]}] (q\i)--(q\next);
+    \node[stDet,minimum size=0.40cm] at (q\i) {};
+  }
+  \draw[stArrow,draw=STTeal,line width=1.1pt] (q7) to[bend left=20] (q2);
+  \draw[stArrow,draw=STCoral,line width=1.1pt] (q8) to[bend left=12] (q4);
+  \draw[stArrow,draw=STGold!75!STInk,line width=1.1pt] (q5) to[bend left=18] (q1);
+  \draw[STCoral,line width=2.7pt] (q8)--(q1)--(q2)--(q3);
+  \node[stLabel,text=STCoral,anchor=west] at (3.15,1.10)
+    {interval $I$};
+  \node[stLabel,text=STInk,anchor=west,align=left] at (3.15,-0.35)
+    {$|\Delta(I)|=O(\log n)$\\after boosting + rounding};
+\end{tikzpicture}}
+
+\newcommand{\StOfflineWalk}{%
+\begin{tikzpicture}[scale=0.88]
+  \foreach \i in {1,...,7}
+    \coordinate (o\i) at ({90-360/7*(\i-1)}:2.45);
+  \foreach \i in {1,...,7} {
+    \pgfmathtruncatemacro{\next}{mod(\i,7)+1}
+    \draw[STBlue,line width=2.0pt,-{Stealth[length=1.8mm]}] (o\i)--(o\next);
+    \node[stDet,minimum size=0.43cm] at (o\i) {};
+  }
+  \node[stStochActive,minimum size=0.46cm] (i1) at (0.15,0.55) {$i$};
+  \node[stStochActive,minimum size=0.46cm] (i2) at (-0.75,-0.62) {$j$};
+  \draw[stArrow,draw=STTeal,line width=1.35pt] (o6)--(i1);
+  \draw[stArrow,draw=STTeal,line width=1.35pt] (i1)--(o2);
+  \draw[stArrow,draw=STCoral,line width=1.35pt] (o5)--(i2);
+  \draw[stArrow,draw=STCoral,line width=1.35pt] (i2)--(o3);
+  \node[anchor=west,align=left,text=STInk,
+    font=\fontsize{10pt}{12.5pt}\selectfont] at (3.20,0.75)
+    {\textbf{Hoffman circulation}\\[1mm]
+     active chord: $1$--$4$ copies\\
+     backbone / auxiliary arc:\\
+     $O(\log n)$ copies};
+  \node[anchor=west,align=left,text=STCoral,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (3.20,-1.30)
+    {chosen after seeing all of $A$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Dynamic programming: pairwise cost, inflation, blocks, and suffix memory
+% --------------------------------------------------------------------------
+\newcommand{\StPairwiseShortcut}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[stDepot] (r) at (0,0) {$r$};
+  \node[stDet] (one) at (1.25,0) {$v_1$};
+  \node[stStochActive] (vi) at (2.50,0) {$v_i$};
+  \node[stStochInactive] (a) at (3.65,0) {$a$};
+  \node[stStochInactive] (b) at (4.80,0) {$b$};
+  \node[stStochInactive] (c) at (5.95,0) {$c$};
+  \node[stStochActive] (vj) at (7.10,0) {$v_j$};
+  \node[stDet] (d) at (8.35,0) {$d$};
+  \node[stDepot] (rb) at (9.60,0) {$r$};
+  \foreach \a/\b in {r/one,one/vi,vi/a,a/b,b/c,c/vj,vj/d,d/rb}
+    \draw[STLine,line width=0.75pt] (\a)--(\b);
+  \draw[stArrow,draw=STCoral,line width=1.5pt]
+    (vi.north) to[bend left=27]
+    node[above,align=center,text=STCoral,
+      font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    {$p_i p_j\,Q(i,j)\,d_{ij}$\\[-1mm]
+     $Q(i,j)=\prod_{i<k<j}(1-p_k)$}
+    (vj.north);
+  \node[stSmallLabel,anchor=north] at (4.8,-0.42)
+    {all intermediate clients inactive};
+\end{tikzpicture}}
+
+\newcommand{\StActivationInflation}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[anchor=west,text=STInk,font=\fontsize{11pt}{13pt}\selectfont\bfseries]
+    at (0,2.35) {Original activations};
+  \foreach \x in {0,...,7}{
+    \pgfmathtruncatemacro{\flag}{mod(3*\x+1,5)}
+    \ifnum\flag<2
+      \node[stStochActive,minimum size=0.38cm] at (0.4+\x*0.86,1.45) {};
+    \else
+      \node[stStochInactive,minimum size=0.38cm] at (0.4+\x*0.86,1.45) {};
+    \fi
+  }
+  \draw[stArrow,draw=STBlue] (7.60,1.45)--(8.70,1.45);
+  \node[anchor=west,align=left,text=STBlue,
+    font=\fontsize{9.3pt}{11.5pt}\selectfont] at (8.95,1.45)
+    {$\widetilde p_v=1-(1-p_v)^{1+\alpha}$\\
+     $\widetilde Q=Q^{1+\alpha}$};
+
+  \node[anchor=west,text=STInk,font=\fontsize{11pt}{13pt}\selectfont\bfseries]
+    at (0,0.42) {After an independent extra round};
+  \foreach \x in {0,...,7}{
+    \pgfmathtruncatemacro{\flag}{mod(3*\x+1,5)}
+    \ifnum\flag<4
+      \node[stStochActive,minimum size=0.38cm] at (0.4+\x*0.86,-0.48) {};
+    \else
+      \node[stStochInactive,minimum size=0.38cm] at (0.4+\x*0.86,-0.48) {};
+    \fi
+  }
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},STCoral,line width=0.8pt]
+    (2.0,-1.02)--(5.65,-1.02)
+    node[midway,below=0.22cm,stLabel,text=STCoral]
+    {a long empty gap is damped by $Q^\alpha$};
+\end{tikzpicture}}
+
+\newcommand{\StBlockStrip}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[stStochInactive] (l1) at (0.30,0) {};
+  \node[stStochInactive] (l2) at (0.95,0) {};
+  \node[stStochInactive] (l3) at (1.60,0) {};
+  \node[stStochActive,minimum size=0.55cm] (h1) at (2.75,0) {$H$};
+  \node[stStochInactive] (l4) at (3.85,0) {};
+  \node[stStochInactive] (l5) at (4.50,0) {};
+  \node[stStochInactive] (l6) at (5.15,0) {};
+  \node[stStochInactive] (l7) at (5.80,0) {};
+  \node[stStochActive,minimum size=0.55cm] (h2) at (6.95,0) {$H$};
+  \node[stStochInactive] (l8) at (8.05,0) {};
+  \node[stStochInactive] (l9) at (8.70,0) {};
+
+  \draw[STBlue,line width=1.15pt,rounded corners=0.65pt]
+    (0.0,-0.55) rectangle (1.90,0.55);
+  \draw[STGold,line width=1.15pt,rounded corners=0.65pt]
+    (2.42,-0.55) rectangle (3.08,0.55);
+  \draw[STTeal,line width=1.15pt,rounded corners=0.65pt]
+    (3.55,-0.55) rectangle (6.10,0.55);
+  \draw[STGold,line width=1.15pt,rounded corners=0.65pt]
+    (6.62,-0.55) rectangle (7.28,0.55);
+  \draw[STBlue,line width=1.15pt,rounded corners=0.65pt]
+    (7.75,-0.55) rectangle (9.00,0.55);
+  \node[stSmallLabel,text=STBlue] at (0.95,-0.90) {light block};
+  \node[stSmallLabel,text=STGold!75!STInk] at (2.75,-0.90) {heavy singleton};
+  \node[stSmallLabel,text=STTeal] at (4.82,-0.90)
+    {$\delta/2\le\mu(B)\le\delta$};
+  \node[stSmallLabel,text=STBlue] at (8.38,-0.90)
+    {first light block\\may be smaller};
+\end{tikzpicture}}
+
+\newcommand{\StDPSuffix}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \fill[STLine!45,rounded corners=0.65pt] (-0.15,-0.48) rectangle (3.35,0.58);
+  \node[text=STMuted,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (1.60,0.05) {placed and forgotten};
+  \draw[STLine,dashed,line width=1pt] (3.65,-1.05)--(3.65,1.28);
+  \node[anchor=south,text=STInkSoft,font=\fontsize{8.5pt}{10pt}\selectfont]
+    at (3.65,1.30) {$\prod q\le\eta$};
+  \node[draw=STBlue,fill=STBlue!9,rounded corners=0.65pt,
+    minimum width=1.05cm,minimum height=0.76cm,
+    font=\fontsize{9pt}{10pt}\selectfont\bfseries,text=STInk]
+    (Ba) at (4.35,0.05) {$B_a$};
+  \node[draw=STTeal,fill=STTeal!9,rounded corners=0.65pt,
+    minimum width=1.05cm,minimum height=0.76cm,
+    font=\fontsize{9pt}{10pt}\selectfont\bfseries,text=STInk]
+    (Bap) at (5.70,0.05) {$B_{a+1}$};
+  \node[draw=STMuted,fill=STMuted!9,rounded corners=0.65pt,
+    minimum width=1.05cm,minimum height=0.76cm,
+    font=\fontsize{9pt}{10pt}\selectfont\bfseries,text=STInk]
+    (Bdots) at (7.05,0.05) {$\cdots$};
+  \node[draw=STGold,fill=STGold!9,rounded corners=0.65pt,
+    minimum width=1.05cm,minimum height=0.76cm,
+    font=\fontsize{9pt}{10pt}\selectfont\bfseries,text=STInk]
+    (Bt) at (8.40,0.05) {$B_t$};
+  \draw[stArrow,draw=STCoral] (9.05,0.05)--(10.15,0.05);
+  \node[draw=STCoral,fill=STCoral!10,rounded corners=0.65pt,
+    minimum width=1.06cm,minimum height=0.76cm,
+    font=\fontsize{9pt}{10pt}\selectfont\bfseries] (B) at (10.85,0.05) {$B$};
+  \foreach \source in {Ba,Bap,Bt}
+    \draw[stArrowThin,draw=STBlue!75] (\source.north)
+      to[bend left=20] (B.north);
+  \node[anchor=north,align=center,text=STInkSoft,
+    font=\fontsize{9pt}{11pt}\selectfont] at (7.55,-0.83)
+    {state $(U,\Omega)$ remembers only the relevant suffix $\Omega$};
+\end{tikzpicture}}
