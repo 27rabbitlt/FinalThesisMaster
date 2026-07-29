@@ -32,3 +32,6 @@ texbuild/
 *.alg
 *.xdv
 *.pdf
+
+# no tmp folder
+tmp/
