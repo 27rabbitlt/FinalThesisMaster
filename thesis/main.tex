@@ -42,7 +42,7 @@ and an a~priori solution commits to a fixed tour ordering before any activations
 
 We compare the three benchmarks and give lower bounds for the gap between them.
 For clients with symmetric distances, we construct instances with an adaptivity gap approaching~$2$ and
-instances with a clairvoyance gap of~$11/10$. For asymmetric distances, we
+instances with a clairvoyance gap approaching~$10/9$. For asymmetric distances, we
 give a layered-poset construction showing that the clairvoyance gap is at
 least~$3/2$, strengthening a recursive family whose ratio approaches~$4/3$.
 We also
@@ -70,6 +70,7 @@ $c_\varepsilon^n\poly(n)$ based on dynamic programming.
   field can understand.
 \end{comments}
 \tableofcontents
+\clearpage
 
 % ============================================================
 % CHAPTER 1: INTRODUCTION
@@ -108,10 +109,16 @@ We obtain the following results.
     $\optpost\le\optadapt$, the same factor-two lower bound applies to the
     obliviousness gap.
 
-    \item \textbf{Clairvoyance gap lower bound for symmetric metrics} (Chapter~\ref{ch:sym-clair}).
-    We exhibit a family of symmetric instances, the \emph{three-chain construction}, achieving $\optadapt/\optpost = 11/10$ for infinitely many~$n$
-    (Theorem~\ref{thm:sym-clair}).
-    For context, we also record an elementary upper bound of~$1/(1-p+p^2)$ for the restricted setting with a single stochastic vertex of activation probability~$p$ (Proposition~\ref{prop:general-p}).
+    \item \textbf{Clairvoyance gap for symmetric metrics} (Chapter~\ref{ch:sym-clair}).
+    We give a balanced three-chain family with one stochastic client of
+    activation probability~$1/2$ whose ratios converge to~$10/9$.  We also
+    prove the upper bound
+    \[
+        \frac{\optadapt}{\optpost}\le\frac{2+p}{2+p^2}
+    \]
+    for every symmetric instance with one stochastic client of activation
+    probability~$p$.  The bounds match at $p=1/2$, so the exact supremum in
+    that setting is~$10/9$ (Theorem~\ref{thm:sym-clair}).
 
     \item \textbf{Clairvoyance gap lower bound for asymmetric metrics} (Chapter~\ref{ch:asym-clair}).
     We first define a recursive family of directed instances for which
@@ -223,16 +230,20 @@ We consider three benchmarks for stochastic TSP, distinguished by how much the s
 
     \item \textbf{Adaptive TSP.}
         The salesperson knows all the activation probabilities but not the realization~$A$.
-        During execution, the salesperson calls clients one by one:
-        if the called client~$v$ is in~$A$, the salesperson \emph{must} travel to~$v$ immediately; otherwise the salesperson remains in place.
-        The order of calls may depend on the outcomes observed so far.
+        During execution, the salesperson \emph{probes} clients one by one.
+        A probe is performed remotely and reveals whether the probed client is
+        active before the salesperson moves.  If the probed client~$v$ lies
+        in~$A$, the salesperson \emph{must} travel to~$v$ immediately;
+        otherwise the salesperson remains in place.  Informally, a probe can
+        be viewed as remotely calling the client.  The order of probes may
+        depend on the outcomes observed so far.
 
-        Formally, an adaptive policy is a function $\pi: (\{r\} \cup V) \times 2^V \rightarrow \{r\} \cup V \cup \{\bot\}$, where $\pi(u,S)$ denotes the next vertex to call when the salesperson is at~$u$ and the set of uncalled vertices is~$S$.
-        We require: (a)~$\pi(u,S) := \bot$ whenever $u \in S$ (invalid input); (b)~$\pi(u,S) = r$ iff $S = \emptyset$ (return to depot only when done); (c)~$\pi(u,S) \in S$ iff $S \neq \emptyset$ (must call an uncalled vertex).
+        Formally, an adaptive policy is a function $\pi: (\{r\} \cup V) \times 2^V \rightarrow \{r\} \cup V \cup \{\bot\}$, where $\pi(u,S)$ denotes the next vertex to probe when the salesperson is at~$u$ and the set of unprobed vertices is~$S$.
+        We require: (a)~$\pi(u,S) := \bot$ whenever $u \in S$ (invalid input); (b)~$\pi(u,S) = r$ iff $S = \emptyset$ (return to depot only when done); (c)~$\pi(u,S) \in S$ iff $S \neq \emptyset$ (must probe an unprobed vertex).
 
         Restricting the policy to the state $(u,S)$ is without loss of
         generality.  Indeed, independence implies that, conditional on the
-        calls made so far, the vertices in~$S$ retain their original
+        probe outcomes observed so far, the vertices in~$S$ retain their original
         independent activation probabilities.  If $J(u,S)$ denotes the
         minimum expected remaining cost, then backward induction gives
         \[
@@ -254,7 +265,7 @@ We consider three benchmarks for stochastic TSP, distinguished by how much the s
 
         Given a realization~$A$, the policy induces a realized tour $T(A;\pi)$ on $\{r\}\cup A$ as follows.
         Initialize $u \leftarrow r$, $S \leftarrow V$.
-        While $S \neq \emptyset$: compute $v = \pi(u,S)$; if $v \in A$ then travel to~$v$ and set $u\leftarrow v$; set $S \leftarrow S \setminus \{v\}$.
+        While $S \neq \emptyset$: compute $v = \pi(u,S)$ and probe~$v$; if $v \in A$ then travel to~$v$ and set $u\leftarrow v$; set $S \leftarrow S \setminus \{v\}$.
         Finally, return to~$r$.
         We overload:
         \[
@@ -286,18 +297,12 @@ The same upper bound carries over to the clairvoyance gap and the adaptivity gap
 For asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025} show that the obliviousness gap is $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 Moreover, the construction in Section~3.1 of~\cite{Christalla2025} also implies an adaptivity gap of $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 
-\begin{comments}
-  \item Preliminaries section is usually meant to state well known tools and
-  techniques that will be used later in the thesis. For instance, we will be
-  using some linear programming based lower bounds. Some results on
-  circulations, Hoffmann's condition etc. Some concentration inequalities. The
-  current content should be moved to the introduction.
-\end{comments}
-
 \section{Organization}
 
 Chapter~\ref{ch:sym-adapt} proves an adaptivity-gap lower bound of~$2$ for symmetric metrics, beginning with an explicit cycle-subdivided-clique construction and then strengthening it through a probabilistic construction.
-Chapter~\ref{ch:sym-clair} proves the symmetric clairvoyance-gap lower bound of~$11/10$ and records an auxiliary single-stochastic-vertex upper bound.
+Chapter~\ref{ch:sym-clair} proves a symmetric clairvoyance-gap lower bound
+of~$10/9$ and determines the exact gap for one stochastic client of
+activation probability~$1/2$.
 Chapter~\ref{ch:asym-clair} first constructs an asymmetric recursive instance
 with clairvoyance gap tending to~$4/3$, and then strengthens the lower bound
 to~$3/2$ using a layered-poset construction.
@@ -309,6 +314,13 @@ Chapter~\ref{ch:conclusion} concludes with a summary and directions for future
 research.
 Appendix~\ref{app:evidence} records exploratory computational searches for the symmetric clairvoyance gap.
 
+\begin{comments}
+  \item Preliminaries section is usually meant to state well known tools and
+  techniques that will be used later in the thesis. For instance, we will be
+  using some linear programming based lower bounds. Some results on
+  circulations, Hoffmann's condition etc. Some concentration inequalities. The
+  current content should be moved to the introduction.
+\end{comments}
 
 % ============================================================
 % CHAPTER 2: ADAPTIVITY GAP — SYMMETRIC
@@ -342,25 +354,27 @@ $\optpost\le\optadapt$.
 We prove Theorem~\ref{thm:cycle-subdivision} by exhibiting a family of instances and establishing a matching pair of bounds. Consider the following construction.
 
 \begin{definition}[Cycle-subdivided clique]\label{def:cycle-sub-graph}
-Fix $n\ge 7$, and let $v_1,\dots,v_n$ be the vertices of the complete graph
-$K_n$, with indices taken modulo~$n$. For every $i\in[n]$, subdivide the edge
-$v_iv_{i+1}$ by introducing a new vertex~$v_i'$. Denote the resulting
-unweighted graph by~$G_n$.
+Fix $n\ge 7$, and let $b_1,\dots,b_n$ be the vertices of the complete graph
+$K_n$, with indices taken modulo~$n$.  We call
+$C_n=(b_1,\dots,b_n,b_1)$ the \emph{base cycle} and its vertices the
+\emph{base vertices}.  For every $i\in[n]$, subdivide the edge
+$b_ib_{i+1}$ of the base cycle by introducing a \emph{subdivision
+vertex}~$s_i$. Denote the resulting unweighted graph by~$G_n$.
 \end{definition}
 
-The \emph{cycle-subdivided-clique instance} $\mathcal I_n$ has depot $r:=v_1$ and client set
+The \emph{cycle-subdivided-clique instance} $\mathcal I_n$ has depot $r:=b_1$ and client set
 \[
-V_n:=\{v_2,\dots,v_n\}\cup\{v_1',\dots,v_n'\}.
+V_n:=\{b_2,\dots,b_n\}\cup\{s_1,\dots,s_n\}.
 \]
 The underlying distance function is the shortest-path metric induced by~$G_n$. Every
-original client $v_2,\dots,v_n$ is active with probability~$1$, while every
-subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
+base client $b_2,\dots,b_n$ is active with probability~$1$, while every
+subdivision vertex~$s_i$ is active independently with probability~$1/2$.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
     scale=1.05,
-    original/.style={rectangle,draw=black,fill=white,minimum size=8mm,inner sep=0pt,font=\small},
+    base/.style={rectangle,draw=black,fill=white,minimum size=8mm,inner sep=0pt,font=\small},
     stochastic/.style={circle,draw=black,fill=gray!20,minimum size=7mm,inner sep=0pt,font=\small},
     cycleedge/.style={black,line width=0.6pt},
     chord/.style={black,line width=0.6pt}
@@ -388,12 +402,12 @@ subdivision vertex~$v_i'$ is active independently with probability~$1/2$.
   \draw[cycleedge] (c\i)--(m\i)--(c\next);
 }
 \foreach \i in {1,...,6} {
-  \node[original] (v\i) at (c\i) {$v_\i$};
-  \node[stochastic] (vp\i) at (m\i) {$v_\i'$};
+  \node[base] (b\i) at (c\i) {$b_\i$};
+  \node[stochastic] (s\i) at (m\i) {$s_\i$};
 }
-\node[above=2mm of v1,font=\small] {depot $r$};
+\node[above=2mm of b1,font=\small] {depot $r$};
 \end{tikzpicture}
-\caption{The cycle-subdivided clique $G_6$. Original vertices are active with
+\caption{The cycle-subdivided clique $G_6$. Base vertices are active with
 probability~$1$ and are represented as squares; subdivision vertices are active
 with probability~$1/2$ and are represented as gray circles.}
 \label{fig:cycle-subdivision}
@@ -420,36 +434,36 @@ Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
 
 We prove Lemma~\ref{lem:cycle-prior} in two steps.  First, we bound the
 expected contribution of every segment of an arbitrary a~priori tour between
-two original vertices.  Summing these local bounds gives a global lower
+two base vertices.  Summing these local bounds gives a global lower
 bound.  We then construct tours attaining it.
 
 We begin by recording the relevant distances in the metric completion.  For
-original vertices,
-\begin{equation}\label{eq:cycle-original-distances}
-    d(v_i,v_{i+1})=2,
+base vertices,
+\begin{equation}\label{eq:cycle-base-distances}
+    d(b_i,b_{i+1})=2,
     \qquad
-    d(v_i,v_j)=1
+    d(b_i,b_j)=1
     \quad\text{if }j\not\equiv i\pm1\pmod n.
 \end{equation}
-For a subdivision vertex and an original vertex,
+For a subdivision vertex and a base vertex,
 \begin{equation}\label{eq:cycle-mixed-distances}
-    d(v_i',v_i)=d(v_i',v_{i+1})=1,
+    d(s_i,b_i)=d(s_i,b_{i+1})=1,
     \qquad
-    d(v_i',v_j)=2
+    d(s_i,b_j)=2
     \quad\text{if }j\notin\{i,i+1\}.
 \end{equation}
 Finally, for distinct subdivision vertices,
 \begin{equation}\label{eq:cycle-subdivision-distances}
-    d(v_i',v_j')
+    d(s_i,s_j)
     =
     \begin{cases}
-        2, & \text{if the cycle edges }v_iv_{i+1}
-             \text{ and }v_jv_{j+1}\text{ are adjacent},\\
+        2, & \text{if the base-cycle edges }b_ib_{i+1}
+             \text{ and }b_jb_{j+1}\text{ are adjacent},\\
         3, & \text{otherwise.}
     \end{cases}
 \end{equation}
 
-Given original vertices $u,v$ and an ordered sequence
+Given base vertices $u,v$ and an ordered sequence
 $W=(w_1,\dots,w_k)$ of distinct subdivision vertices, let
 $\Phi(u;W;v)$ be the expected length of the realized path obtained from
 \[
@@ -485,8 +499,8 @@ For every segment $(u;W;v)$ with $k=|W|\le3$,
     \end{cases}
 \]
 Moreover, equality is attained for $k=2$ by
-$(v_i,v_i',v_{i+1}',v_{i+1})$, and for $k=3$ by
-$(v_{i+1},v_{i+1}',v_i',v_{i-1}',v_i)$.
+$(b_i,s_i,s_{i+1},b_{i+1})$, and for $k=3$ by
+$(b_{i+1},s_{i+1},s_i,s_{i-1},b_i)$.
 \end{claim}
 
 \begin{proof}
@@ -500,7 +514,7 @@ If $k=1$, say $W=(w)$, then
     \tfrac12d(u,v)
     +\tfrac12\bigl(d(u,w)+d(w,v)\bigr).
 \]
-If $u$ and $v$ are consecutive on the original cycle, then $d(u,v)=2$
+If $u$ and $v$ are consecutive on the base cycle, then $d(u,v)=2$
 and also $d(u,w)+d(w,v)\ge2$.  If they are not consecutive, then
 $d(u,v)=1$, and no subdivision vertex is incident with both $u$ and $v$,
 so $d(u,w)+d(w,v)\ge3$.  In either case
@@ -525,14 +539,14 @@ both active has cost at least~$4$.  Thus
     =\frac{11}{4}.
 \]
 Equality is attained, for example, by
-$(v_i,v_i',v_{i+1}',v_{i+1})$, whose four realization costs are
+$(b_i,s_i,s_{i+1},b_{i+1})$, whose four realization costs are
 $2,2,3,4$.
 
 Finally, let $k=3$, say $W=(w_1,w_2,w_3)$.  Suppose first that
 $d(u,v)=1$.  Then each singleton realization has cost at least~$3$.
-A two-vertex realization can have cost~$4$ only if one active subdivider is
+A two-vertex realization can have cost~$4$ only if one active subdivision vertex is
 incident with~$u$, the other is incident with~$v$, and the corresponding
-cycle edges are adjacent.  For fixed nonconsecutive $u$ and $v$, there is
+base-cycle edges are adjacent.  For fixed nonconsecutive $u$ and $v$, there is
 at most one unordered pair of subdivision vertices with this property.
 Hence among the three two-vertex realizations, at most one has cost~$4$,
 and the other two have cost at least~$5$.  The realization with all three
@@ -548,8 +562,8 @@ Now suppose that $d(u,v)=2$.  Then exactly one subdivision vertex is
 incident with both $u$ and~$v$, so among the three singleton realizations
 at most one has cost~$2$.  Hence the sum of the singleton costs is at least
 $2+3+3=8$.  A two-vertex realization can have cost~$4$ only if one active
-subdivider is the unique subdivider of the edge $uv$ and the other comes
-from one of the two cycle edges adjacent to $uv$.  Thus among the three
+subdivision vertex is the unique subdivision vertex of the edge $uv$ and the other comes
+from one of the two base-cycle edges adjacent to $uv$.  Thus among the three
 two-vertex realizations, at most two have cost~$4$, and the remaining one
 has cost at least~$5$; the sum of these three costs is therefore at
 least~$13$.  The realization with all three active has cost at least~$6$.
@@ -560,7 +574,7 @@ Consequently,
     =\frac{29}{8}.
 \]
 Equality is attained, for example, by
-$(v_{i+1},v_{i+1}',v_i',v_{i-1}',v_i)$, whose eight realization costs are
+$(b_{i+1},s_{i+1},s_i,s_{i-1},b_i)$, whose eight realization costs are
 \[
     2,\ 3,\ 2,\ 3,\ 4,\ 5,\ 4,\ 6.
 \]
@@ -594,13 +608,13 @@ and, for $1\le i<j\le k$,
 \[
     \gamma_{ij}
     :=
-    \1_{\{w_i,w_j\text{ correspond to adjacent cycle edges}\}}.
+    \1_{\{w_i,w_j\text{ correspond to adjacent base-cycle edges}\}}.
 \]
-By~\eqref{eq:cycle-original-distances}--%
+By~\eqref{eq:cycle-base-distances}--%
 \eqref{eq:cycle-subdivision-distances},
 \begin{align*}
     d(u,v)
-    &=1+\1_{\{u,v\text{ are consecutive on the original cycle}\}},\\
+    &=1+\1_{\{u,v\text{ are consecutive on the base cycle}\}},\\
     d(u,w_t)&=2-\alpha_t,\\
     d(w_t,v)&=2-\beta_t,\\
     d(w_i,w_j)&=3-\gamma_{ij}.
@@ -621,7 +635,7 @@ where
     +\sum_{t=1}^k2^{-(k-t+1)}\beta_t
     +\sum_{1\le i<j\le k}2^{-(j-i+1)}\gamma_{ij}.
 \]
-Since an original vertex is incident with exactly two subdivision vertices,
+Since a base vertex is incident with exactly two subdivision vertices,
 \[
     \sum_{t=1}^k2^{-t}\alpha_t
     \le\frac34,
@@ -631,8 +645,8 @@ Since an original vertex is incident with exactly two subdivision vertices,
 \]
 For the last sum, consider the graph on
 $\{w_1,\dots,w_k\}$ in which two vertices are adjacent when the
-corresponding subdivision vertices arise from adjacent edges of the original
-cycle.  This graph is a subgraph of a cycle, hence has maximum degree at
+corresponding subdivision vertices arise from adjacent edges of the base
+cycle.  This graph is a subgraph of the base cycle, hence has maximum degree at
 most~$2$ and at most $k$ edges.  Every edge contributes weight at
 most~$1/4$, so
 \[
@@ -664,25 +678,25 @@ Together with Claim~\ref{clm:short-seg}, this proves the lemma.
 \begin{proof}[Proof of Lemma~\ref{lem:cycle-prior}]
 Fix an arbitrary a~priori tour
 \[
-    T=(v_1,s_1,s_2,\dots,s_{2n-1},v_1)
+    T=(b_1,x_1,x_2,\dots,x_{2n-1},b_1)
 \]
-on $\{v_1\}\cup V_n$, where $s_1,\dots,s_{2n-1}$ is a permutation of
-$\{v_2,\dots,v_n,v_1',\dots,v_n'\}$.  Deleting all subdivision vertices
+on $\{b_1\}\cup V_n$, where $x_1,\dots,x_{2n-1}$ is a permutation of
+$\{b_2,\dots,b_n,s_1,\dots,s_n\}$.  Deleting all subdivision vertices
 from~$T$ leaves a cyclic ordering
 \[
-    (v_1=u_1,u_2,\dots,u_n,v_1)
+    (b_1=u_1,u_2,\dots,u_n,b_1)
 \]
-of the original vertices.  For each $j\in[n]$, let
+of the base vertices.  For each $j\in[n]$, let
 \[
     W_j=(w_{j,1},\dots,w_{j,k_j})
 \]
 be the ordered list, possibly empty, of subdivision vertices appearing
-between $u_j$ and $u_{j+1}$, where $u_{n+1}:=v_1$.  Every subdivision
+between $u_j$ and $u_{j+1}$, where $u_{n+1}:=b_1$.  Every subdivision
 vertex belongs to exactly one such segment, so
 \[
     \sum_{j=1}^n k_j=n.
 \]
-Because all original vertices are active with probability~$1$, the realized
+Because all base vertices are active with probability~$1$, the realized
 tour decomposes into these segment contributions.  Applying
 Lemma~\ref{lem:cycle-segment-bound}, we obtain
 \begin{align*}
@@ -709,21 +723,21 @@ For the reverse inequality, we construct a tour attaining this bound.
 Write $n=2m$ and consider
 \begin{align*}
 T^{\mathrm{even}}
-:=(&v_1,v_1',v_2',v_2,
-   v_4,v_4',v_3',v_3,
-   v_6,v_6',v_5',v_5,
+:=(&b_1,s_1,s_2,b_2,
+   b_4,s_4,s_3,b_3,
+   b_6,s_6,s_5,b_5,
    \dots,\\
-  &v_{2m},v_{2m}',v_{2m-1}',v_{2m-1},v_1).
+  &b_{2m},s_{2m},s_{2m-1},b_{2m-1},b_1).
 \end{align*}
 This tour has $m$ nonempty segments, namely
 \[
-    (v_1,v_1',v_2',v_2)
+    (b_1,s_1,s_2,b_2)
     \quad\text{and}\quad
-    (v_{2t},v_{2t}',v_{2t-1}',v_{2t-1})
+    (b_{2t},s_{2t},s_{2t-1},b_{2t-1})
     \qquad(2\le t\le m),
 \]
 each with expected contribution $11/4$, together with $m$ direct edges
-between original vertices, each of length~$1$.  Hence
+between base vertices, each of length~$1$.  Hence
 \[
     \E[\cost(T^{\mathrm{even}}|_A)]
     =
@@ -737,22 +751,22 @@ between original vertices, each of length~$1$.  Hence
 Write $n=2m+1$ with $m\ge2$ and consider
 \begin{align*}
 T^{\mathrm{odd}}
-:=(&v_n,v_2,v_2',v_1',v_n',v_1,
-   v_4,v_4',v_3',v_3,
-   v_6,v_6',v_5',v_5,
+:=(&b_n,b_2,s_2,s_1,s_n,b_1,
+   b_4,s_4,s_3,b_3,
+   b_6,s_6,s_5,b_5,
    \dots,\\
-  &v_{2m},v_{2m}',v_{2m-1}',v_{2m-1},v_n).
+  &b_{2m},s_{2m},s_{2m-1},b_{2m-1},b_n).
 \end{align*}
 This tour has one segment
 \[
-    (v_2,v_2',v_1',v_n',v_1)
+    (b_2,s_2,s_1,s_n,b_1)
 \]
 with expected contribution $29/8$, together with $m-1$ segments
 \[
-    (v_{2t},v_{2t}',v_{2t-1}',v_{2t-1})
+    (b_{2t},s_{2t},s_{2t-1},b_{2t-1})
     \qquad(2\le t\le m),
 \]
-each contributing $11/4$, and $m+1$ direct edges between original vertices,
+each contributing $11/4$, and $m+1$ direct edges between base vertices,
 each of length~$1$.  Therefore
 \begin{align*}
     \E[\cost(T^{\mathrm{odd}}|_A)]
@@ -780,24 +794,67 @@ We now prove Lemma~\ref{lem:cycle-adapt} by giving an adaptive policy and
 bounding its cost for every realization.
 
 \begin{proof}[Proof of Lemma~\ref{lem:cycle-adapt}]
-We exhibit an adaptive policy~$\pi$. Let
+We exhibit an adaptive policy~$\pi$.  Let
 \[
-P \;:=\; v_2,\, v_2',\, v_3,\, \dots,\, v_{n-1}',\, v_n.
+P \;:=\; (b_2,\,s_2,\,b_3,\,\dots,\,s_{n-1},\,b_n),
 \]
-\sharat{We should adopt proper terminology to talk about adaptive policies. In the introduction, calling terminology makes sense. That's how we motivate the problem. Somewhere in the introduction you will be formalizing the setup. At this point, the probing terminology should be introduced. Make it clear in the introduction that the probes are done remotely. Do include a prompt in your LLM to highlight all places where the terminology is inconsistent.}
+viewed as an ordered path.
 
-First call $v_1'$ and $v_n'$ (the only clients outside~$P$), then return to the depot $r=v_1$.
-In the worst case both are active, costing $d(r,v_1')+d(v_1',v_n')+d(v_n',r)=1+2+1=4$.
-Next, move from $r$ to $v_2$, which costs $2$,  
-% (cost~$2$) 
-and process~$P$. \sharat{fix throughout.}
-At each step the uncalled clients on~$P$ form a contiguous subpath, and the salesperson sits at one of its two endpoint originals. The policy probes the adjacent subdividing vertex: if it is active, traverse it and the next original (cost~$2$) \sharat{original vertex you mean} and continue in the same direction; if it is inactive, jump to the opposite endpoint original \sharat{???} of the remaining subpath (cost~$1$, since nonconsecutive originals are at distance~$1$) and proceed symmetrically. 
-\sharat{incorrect use of parantheses. nonconsecutive originals is not good terminology. Opposite of original is duplicate. You should come up with a better naming system here.}
+\medskip
+\noindent\textbf{Policy.}
+\begin{enumerate}
+    \item Probe $s_1$, then $s_n$, and then $b_2$.  The last probe leaves the
+    salesperson at~$b_2$.  Set the sweep direction along~$P$ from $b_2$
+    toward~$b_n$.
 
-\sharat{Avoid using $a$ and $A$ as much as possible since the thesis is going to be filled with a priori and a posteriori everywhere.}
+    \item While an unprobed client remains on~$P$, maintain the following
+    invariant: the unprobed clients form a contiguous subpath, and the
+    salesperson is at a probed base vertex adjacent to one end of it.
+    Probe the subdivision vertex at that end.
+    \begin{enumerate}[label=(\alph*)]
+        \item If it is active, travel to it.  If a base vertex remains
+        unprobed in the sweep direction, probe that vertex and continue in
+        the same direction.
+        \item If it is inactive, remain in place.  If an unprobed client
+        remains, probe the base vertex at the opposite end of the remaining
+        subpath and reverse the sweep direction.
+    \end{enumerate}
 
-Let $a:=|A\cap\{v_2',\dots,v_{n-1}'\}|$. The $a$ active subdividers on~$P$ each contribute cost~$2$. Each of the $(n-2)-a$ inactive ones triggers a switch of cost~$1$, except possibly the last, which may cost~$2$. Including the return to~$r$ (cost at most~$2$), the middle phase costs at most $2+2a+((n-2)-a+1)+2=n+a+3$.
-The total cost per realization is therefore at most $4+(n+a+3)=n+a+7$, and taking expectation with $\E[a]=(n-2)/2$ gives $\E[\cost(\pi)]\le \frac32 n+6$.
+    \item After every client has been probed, return to the depot~$r$.
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Cost analysis.}
+The first three probes cost at most
+\[
+    d(r,s_1)+d(s_1,s_n)+d(s_n,b_2)
+    =1+2+2=5.
+\]
+
+Let
+\[
+    X:=\bigl|\{i\in\{2,\dots,n-1\}:s_i\text{ is active}\}\bigr|.
+\]
+Each of the $X$ active subdivision vertices on~$P$ causes at most two
+unit-length moves: one to the subdivision vertex and one to the next base
+vertex.  An inactive subdivision vertex can cause one switch to the base
+vertex at the opposite end of the remaining subpath.  Every such switch
+costs~$1$, except possibly the last, which may cost~$2$ when its endpoints
+are consecutive on the base cycle.  Hence the total switch cost is at most
+$(n-2)-X+1$.  Finally, the return to~$r$ costs at most~$2$.  Therefore, for
+every realization,
+\[
+    \cost(\pi)
+    \le
+    5+2X+\bigl((n-2)-X+1\bigr)+2
+    =n+X+6.
+\]
+Since $\E[X]=(n-2)/2$, it follows that
+\[
+    \E[\cost(\pi)]
+    \le \frac32n+5
+    \le \frac32n+6.
+\]
 \end{proof}
 
 \section{Randomizing the metric}
@@ -808,15 +865,15 @@ for separating adaptive and a~priori solutions.  Its subdivision vertices are
 random, and deleting the inactive ones creates shortcut edges that a fixed
 master tour must pay for.  Although the master tour knows the metric, it must
 choose one cyclic order that works for every activation pattern.  The adaptive
-policy, by contrast, can use the outcomes of calls to decide which cheap
+policy, by contrast, can use probe outcomes to decide which cheap
 continuation to take.
 
 We now amplify this mechanism by moving the randomness from the subdivision
 vertices to the metric.  The metric will contain a sparse random collection of
 cheap edges.  A fixed a~priori order typically obtains little benefit from
 them, because the consecutive active clients in its shortcut are determined by
-independent activation randomness.  An adaptive policy can instead call all
-cheap neighbors of its current location before calling a client at distance~$2$.
+independent activation randomness.  An adaptive policy can instead probe all
+cheap neighbors of its current location before probing a client at distance~$2$.
 
 The random metric is only a device for the probabilistic method.  After it is
 sampled, we fix one deterministic realization.  That complete metric is known
@@ -1048,11 +1105,11 @@ $\theta=\varepsilon=1/\log n$.
 \subsection{A cheap adaptive policy}
 
 For each deterministic metric realization~$d$, define a policy~$\pi_d$ as
-follows.  Suppose the salesperson is at~$u$ and the set of uncalled clients
+follows.  Suppose the salesperson is at~$u$ and the set of unprobed clients
 is~$S$.  If $S=\varnothing$, return to~$r$.  If $u$ has a cheap neighbor
-in~$S$, call the least-labeled such client; otherwise call the least-labeled
-client in~$S$.  Thus all uncalled cheap neighbors of the current location
-are called before any client at distance~$2$.
+in~$S$, probe the least-labeled such client; otherwise probe the least-labeled
+client in~$S$.  Thus all unprobed cheap neighbors of the current location
+are probed before any client at distance~$2$.
 
 This policy may depend on~$d$, because the metric is fixed as part of the
 instance and is known before any activation outcomes are observed.
@@ -1076,7 +1133,7 @@ Then $U(d)\ge W$ for every~$d$, and
 \begin{proof}
 Fix $k\ge1$ and condition on $K=k$.  Consider the execution jointly over
 the random metric and the active set.  Immediately after the salesperson
-arrives at an active client~$u$, let $S$ be the set of uncalled clients and
+arrives at an active client~$u$, let $S$ be the set of unprobed clients and
 suppose that exactly $s$ clients in~$S$ are active.
 
 We expose the random metric lazily for the purpose of the analysis.  Before
@@ -1089,7 +1146,7 @@ the edges $\{u,v\}$ for $v\in S$ remain independent, each being cheap with
 probability~$\theta$, and they remain independent of the activation states
 in~$S$.  This deferred exposure is only an analysis device; the policy
 itself knows the complete fixed metric.
-At the initial state $u=r$, the edges from the depot to all uncalled clients
+At the initial state $u=r$, the edges from the depot to all unprobed clients
 are likewise unexposed in this analysis.
 
 The next traveled edge has length~$2$ exactly when none of the $s$ remaining
@@ -1244,60 +1301,81 @@ tour dominate $\log(n!)$.  The choices above make these conditions immediate.
 % ============================================================
 \chapter{Clairvoyance Gap for Symmetric Metrics}\label{ch:sym-clair}
 
-In this chapter we study the symmetric clairvoyance gap $\optadapt/\optpost$.
-We construct an explicit family of symmetric instances achieving ratio~$11/10$.
-We also record an auxiliary upper bound for the restricted setting in which
-only one vertex is stochastic.
+\providecommand{\Gammaone}{\Gamma_{1}}
 
-\section{The three-chain lower bound}\label{sec:3chain}
-
-\begin{theorem}[Symmetric clairvoyance gap lower bound]\label{thm:sym-clair}
-The clairvoyance gap for symmetric stochastic TSP is at least~$11/10$.
-\end{theorem}
-
-We prove the theorem by constructing a family of three-chain instances whose
-adaptive and a~posteriori optimum values differ by precisely this factor.
-
-\begin{construction}[Three-chain graph $H_k$]\label{con:3chain}
-Let $k \ge 3$ be an integer.
-Define a symmetric weighted graph with vertex set
+This chapter gives a sharp result for symmetric stochastic TSP instances with
+one stochastic client.  We first construct a balanced three-chain family
+with one client active with probability~$1/2$.  Its clairvoyance gap is
 \[
-V(H_k) \;=\; A\;\cup\; B\;\cup\; C\;\cup\; \{s\},
-\qquad |V(H_k)| = 3k+1,
+  \frac{10m+2}{9m+2}>\frac{11}{10}
 \]
-where the \emph{chains}
-\begin{align*}
-A &= (a_0, a_1, \ldots, a_{k-1}), &
-B &= (b_0, b_1, \ldots, b_{k-1}), &
-C &= (c_0, c_1, \ldots, c_{k-1})
-\end{align*}
-are vertex-disjoint paths. There are two types of edges in this graph:
+for every integer $m\ge3$, and converges to~$10/9$.  We then prove a matching
+upper bound for this activation probability.
 
-\medskip\noindent\textbf{Internal edges} (weight~$1$): for each chain $X \in \{A,B,C\}$
-and each $0\le i\le k-2$, include the edge $\{x_i, x_{i+1}\}$ of weight~$1$.
+More generally, for $p\in[0,1]$, let
+\[
+  \Gammaone(p)
+  :=\sup_{\mathcal I}
+  \frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)},
+\]
+where the supremum ranges over symmetric instances with exactly one
+stochastic client of activation probability~$p$ and any number of
+deterministic clients.  We prove
+\[
+  \Gammaone(p)\le\frac{2+p}{2+p^2}.
+\]
+At $p=1/2$, the construction and upper bound coincide, giving
+$\Gammaone(1/2)=10/9$.
 
-\medskip\noindent\textbf{Inter-chain edges} (weight~$2(k-1)$):
-\begin{equation*}\label{eq:interchain}
-\begin{gathered}
-\{a_0, b_{k-1}\},\quad
-\{a_0, c_{k-1}\},\quad
-\{b_0, a_{k-1}\},\quad
-\{c_0, a_{k-1}\},\\
-\{c_0, b_{k-1}\},\quad
-\{b_0, s\},\quad
-\{c_{k-1}, s\}.
-\end{gathered}
-\end{equation*}
+\section{The balanced three-chain construction}
 
+Fix an integer $m\ge3$ and set
+\begin{equation}\label{eq:HUV}
+  H:=2m,
+  \qquad
+  U:=3m+2,
+  \qquad
+  V:=4m=2H.
+\end{equation}
+Thus $U<V$ and $2U>V$.
+
+\begin{construction}[Three chains and one stochastic client]\label{con:three-chain}
+The underlying undirected graph contains the depot $r=a_0$, one
+stochastic client $s$, and three paths
+\[
+  A=(a_0,a_1,\ldots,a_m),
+  \qquad
+  B=(b_0,b_1,\ldots,b_m),
+  \qquad
+  C=(c_0,c_1,\ldots,c_m).
+\]
+Every path edge has length $2$, so each chain has total length $H=2m$.
+Add four \emph{outer edges} of length $U$,
+\begin{equation}\label{eq:outer-edges}
+  a_0b_m,
+  \qquad
+  a_0c_m,
+  \qquad
+  a_mb_0,
+  \qquad
+  a_mc_0,
+\end{equation}
+and three \emph{phase edges} of length $V$,
+\begin{equation}\label{eq:phase-edges}
+  b_mc_0,
+  \qquad
+  b_0s,
+  \qquad
+  c_ms.
+\end{equation}
+The metric $d$ is the shortest-path metric of this graph.  Every
+client other than $s$ is deterministic, and $s$ is active with probability
+$1/2$.
 \end{construction}
 
-The instance has depot $r=a_0$ and $3k$ client 
-$V(H_k)\setminus\{r\}$. Its distance function is the shortest-path metric
-induced by $H_k$. The client $s$ is active with probability~$1/2$, and
-every other client is deterministic. We denote the deterministic clients
-\[
-D:=V(H_k)\setminus\{r,s\}
-\]
+Figure~\ref{fig:balanced-three-chain} shows the topology of the construction.
+The edge lengths are chosen by balancing the intended tours against the
+cheapest competing crossing patterns.
 
 \begin{figure}[htbp]
 \centering
@@ -1309,40 +1387,37 @@ D:=V(H_k)\setminus\{r,s\}
     stochastic/.style={circle,draw=black,fill=gray!30,minimum size=7.5mm,
       inner sep=0pt,font=\scriptsize},
     internal/.style={black,line width=0.75pt},
-    crossing/.style={black!75,densely dashed,line width=0.75pt},
+    outer/.style={black!70,densely dashed,line width=0.8pt},
+    phase/.style={black,dash pattern=on 4pt off 2pt on 1pt off 2pt,
+      line width=0.8pt},
     rowlabel/.style={font=\small\bfseries,anchor=east}
 ]
-% Chain A, drawn from a_0 to a_{k-1}.
 \node[depot]         (A0) at (0, 2.4) {$a_0$};
 \node[deterministic] (A1) at (1.5, 2.4) {$a_1$};
-\node[deterministic] (Ak) at (6, 2.4) {$a_{k-1}$};
+\node[deterministic] (Am) at (6, 2.4) {$a_m$};
 
-% Chain B is reversed so that its relevant endpoints align with A and C.
-\node[deterministic] (Bk) at (0, 0) {$b_{k-1}$};
+\node[deterministic] (Bm) at (0, 0) {$b_m$};
 \node[deterministic] (B1) at (4.5, 0) {$b_1$};
 \node[deterministic] (B0) at (6, 0) {$b_0$};
 
-% Chain C, drawn from c_0 to c_{k-1}.
 \node[deterministic] (C0) at (0,-2.4) {$c_0$};
 \node[deterministic] (C1) at (1.5,-2.4) {$c_1$};
-\node[deterministic] (Ck) at (6,-2.4) {$c_{k-1}$};
+\node[deterministic] (Cm) at (6,-2.4) {$c_m$};
 \node[stochastic]    (S)  at (7.3,-1.2) {$s$};
 
-% The seven inter-chain edges, all of weight 2(k-1).
-\draw[crossing] (A0)--(Bk);
-\draw[crossing] (A0)--(Ck);
-\draw[crossing] (B0)--(Ak);
-\draw[crossing] (C0)--(Ak);
-\draw[crossing] (C0)--(Bk);
-\draw[crossing] (B0)--(S);
-\draw[crossing] (Ck)--(S);
+\draw[outer] (A0)--(Bm);
+\draw[outer] (A0)--(Cm);
+\draw[outer] (Am)--(B0);
+\draw[outer] (Am)--(C0);
 
-% Unit-weight edges within the three chains.
-\draw[internal] (A0)--(A1)--(Ak);
-\draw[internal] (Bk)--(B1)--(B0);
-\draw[internal] (C0)--(C1)--(Ck);
+\draw[phase] (Bm)--(C0);
+\draw[phase] (B0)--(S);
+\draw[phase] (Cm)--(S);
 
-% Ellipses cover the long middle segments of the schematic chains.
+\draw[internal] (A0)--(A1)--(Am);
+\draw[internal] (Bm)--(B1)--(B0);
+\draw[internal] (C0)--(C1)--(Cm);
+
 \node[fill=white,inner sep=3pt] at (3.45, 2.4) {$\cdots$};
 \node[fill=white,inner sep=3pt] at (2.1, 0) {$\cdots$};
 \node[fill=white,inner sep=3pt] at (3.45,-2.4) {$\cdots$};
@@ -1352,331 +1427,665 @@ D:=V(H_k)\setminus\{r,s\}
 \node[rowlabel] at (-0.65,-2.4) {chain $C$};
 \node[above=1mm of A0,font=\scriptsize] {depot $r$};
 \end{tikzpicture}
-\caption{The three-chain graph $H_k$. Each horizontal row is a chain of
-edges with weight $1$; chain~$B$ is drawn in reverse order for simplicity. The dashed edges
-have weight~$2(k-1)$. The shaded square is the depot, and the gray circle is the
-only stochastic client.}
-\label{fig:three-chain}
+\caption{The balanced three-chain graph.  Solid chain edges have length~$2$,
+dashed outer edges have length~$U$, and dash-dotted phase edges have
+length~$V$.  The gray circle is the only stochastic client.}
+\label{fig:balanced-three-chain}
 \end{figure}
 
-\sharat{Replace weight by length throughout.}
 
-The inter-chain weight $2(k-1)$ balances the cost of a crossing against
-the cost of traversing the chains and makes the active and inactive optimal
-tour skeletons compete at the thresholds used below.
+Let $D$ be the set of deterministic clients.  Consider the deterministic-only
+tour
+\begin{equation}\label{eq:T0}
+\begin{split}
+  T_0:\quad
+  &a_0,a_1,\ldots,a_m,
+  b_0,b_1,\ldots,b_m,\\
+  &c_0,c_1,\ldots,c_m,a_0,
+\end{split}
+\end{equation}
+and the all-active tour
+\begin{equation}\label{eq:T1}
+\begin{split}
+  T_1:\quad
+  &a_0,a_1,\ldots,a_m,
+  c_0,c_1,\ldots,c_m,\\
+  &s,b_0,b_1,\ldots,b_m,a_0.
+\end{split}
+\end{equation}
+Their costs are
+\begin{align}
+  L_0&:=\cost(T_0)=3H+2U+V=16m+4,
+  \label{eq:L0}\\
+  L_1&:=\cost(T_1)=3H+2U+2V=20m+4.
+  \label{eq:L1}
+\end{align}
+In particular,
+\begin{equation}\label{eq:Ldifference}
+  L_1-L_0=V.
+\end{equation}
 
-Theorem \ref{thm:sym-clair} can be directly derived from the following lemmas:
+\subsection{Expanded walks and chain contributions}
 
-\begin{lemma}[Optimal a posteriori cost]\label{lem:sym-apost-cost}
-    For $H_k$, $\optpost=10(k-1)$.
-\end{lemma}
-\begin{lemma}[Optimal adaptive cost]\label{lem:sym-adapt-cost}
-    For $H_k$, $\optadapt=11(k-1)$.
-\end{lemma}
-\begin{proof}[Proof to Theorem~\ref{thm:sym-clair}]
-    Follows immediately from definition.
-\end{proof}
+For every ordered pair of metric vertices, fix one shortest path in the
+underlying graph, choosing the reverse path for the reverse ordered
+pair.  Replacing every metric edge of a tour by its fixed shortest path gives
+an \emph{expanded closed walk} of exactly the same cost.  A traversal of one
+of the seven non-chain edges in \cref{eq:outer-edges,eq:phase-edges} is called
+a \emph{crossing}.  Crossings are counted with multiplicity.
 
-The proof of these identities has two structural ingredients.  First we identify the only
-near-optimal crossing patterns in the two realizations.  We then show that an
-adaptive policy cannot realize both patterns because its calls before learning
-the status of~$s$ must be the same in both realizations.
-
-\begin{lemma}[Realization costs and near-optimal routes]\label{lem:near-optimal-routes}
-Let $k\ge3$ and $h=k-1$.
-In the instance $G_k$, the following hold.
-\begin{enumerate}
-\item[\textup{(i)}]
-Every tour on $\{r\}\cup D$ has cost at least $9h$.
-This bound is attained by
-\begin{multline*}
-T_D:\;
-a_0 \to a_1 \to \cdots \to a_{k-1}
-\xrightarrow{\;2h\;} b_0 \to b_1 \to \cdots \to b_{k-1}\\
-\xrightarrow{\;2h\;} c_0 \to c_1 \to \cdots \to c_{k-1}
-\xrightarrow{\;2h\;} a_0,
-\end{multline*}
-which has cost $9h$.
-Moreover, any tour on $\{r\}\cup D$ of cost strictly less than $11h$
-has the following property: every expansion of its metric edges into shortest
-paths in $H_k$ uses each of these three inter-chain crossings exactly once
-and uses no other crossing:
-\[
-    \{a_0,c_{k-1}\},\qquad
-    \{c_0,b_{k-1}\},\qquad
-    \{b_0,a_{k-1}\}.
-\]
-
-\item[\textup{(ii)}]
-Every tour on $\{r\}\cup D\cup\{s\}$ has cost at least $11h$.
-This bound is attained by
-\begin{multline*}
-T_{\mathrm{all}}:\;
-a_0 \to a_1 \to \cdots \to a_{k-1}
-\xrightarrow{\;2h\;} c_0 \to c_1 \to \cdots \to c_{k-1}\\
-\xrightarrow{\;2h\;} s
-\xrightarrow{\;2h\;} b_0 \to b_1 \to \cdots \to b_{k-1}
-\xrightarrow{\;2h\;} a_0,
-\end{multline*}
-which has cost $11h$.
-Moreover, any tour on the full vertex set of cost strictly less than $13h$
-has the following property: every shortest-path expansion uses each of these
-four crossings exactly once and uses no other crossing:
-\[
-    \{a_0,b_{k-1}\},\qquad
-    \{b_0,s\},\qquad
-    \{s,c_{k-1}\},\qquad
-    \{c_0,a_{k-1}\}.
-\]
+\begin{lemma}[Chain contribution]\label{lem:chain-contribution}
+Let $W$ be an expanded closed walk that serves every client of one of the
+chains $A,B,C$.
+\begin{enumerate}[label=(\roman*)]
+  \item The internal edges of that chain contribute at least $H$ to
+  $\cost(W)$.
+  \item If the chain has exactly two crossing incidences and both are at the
+  same endpoint, its internal contribution is at least $2H$.
+  \item Suppose all four outer edges in \cref{eq:outer-edges} are traversed
+  exactly once.  Then $A$ has two external incidences at each endpoint, and
+  its internal contribution is at least
+  \[
+    2(H-2)=2H-4.
+  \]
 \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-Replace every metric edge of a tour by a shortest path in the underlying
-weighted graph.  The resulting closed walk has the same length, and its
-support---the subgraph formed by the edges it uses---is connected.
+A chain is a path whose only external attachments are its two endpoints.  If
+two internal edges were unused, the vertices in a component strictly between
+two unused edges would be disconnected from the expanded walk.  Hence at most
+one internal edge can be unused.
 
-We first show that the internal edges of each chain contribute at least~$h$.
-Fix one chain.  If all its $h$ internal edges occur in the walk, the claim is
-immediate.  Otherwise, at most one internal edge can be absent: two absent
-edges would separate the required vertices between them from the support of
-the walk, since only the two endpoints of the chain have edges leaving the
-chain.  If one internal edge is absent, each of the remaining $h-1$ internal
-edges is a bridge in the support and is therefore traversed at least twice by
-the closed walk.  Its internal-edge contribution is then at least
-$2(h-1)\ge h$, where the last inequality uses $h\ge2$.  Summing over the three
-chains gives a contribution of at least~$3h$.
+If every internal edge is used, the contribution is at least $H$.  If exactly
+one length-$2$ edge is unused, each of the two remaining path components is
+attached to the rest of the walk at only one endpoint.  Since the walk is
+closed, every used edge in either component is traversed at least twice.
+Consequently the contribution is at least $2(H-2)\ge H$, proving (i).
 
-Call a traversal of one of the seven edges in~\eqref{eq:interchain} a
-\emph{crossing}.  Each crossing has cost~$2h$.
-For a tour on $\{r\}\cup D$, the expanded walk starts and ends in chain~$A$
-and must visit chains~$B$ and~$C$, so it uses at least three crossings.  Hence
-its cost is at least $3h+6h=9h$.
-For a tour on $\{r\}\cup D\cup\{s\}$, the expanded walk must also visit~$s$,
-so it uses at least four crossings.  Hence its cost is at least
-$3h+8h=11h$.
+For (ii), both external incidences occur at one endpoint.  To serve the other
+endpoint and return, every internal edge must be traversed at least twice, for
+a contribution of at least $2H$.
 
-It remains to identify the tours that can be close to these lower bounds.
-First consider a tour on $\{r\}\cup D$ of cost strictly less than
-$11h=3h+8h$. It must use exactly three crossings.  After contracting each
-chain, these crossings form the cycle $A$--$B$--$C$--$A$; in particular, the
-walk does not use~$s$.  The $B$--$C$ crossing is necessarily
-$\{b_{k-1},c_0\}$.  There are two choices for the $A$--$B$ crossing and two
-for the $A$--$C$ crossing.  Choosing $\{a_0,b_{k-1}\}$ together with
-$\{a_0,c_{k-1}\}$ repeats the crossing endpoint on chains $A$ and~$B$;
-choosing $\{a_0,b_{k-1}\}$ together with $\{a_{k-1},c_0\}$ repeats it on
-$B$ and~$C$; and choosing $\{a_{k-1},b_0\}$ together with
-$\{a_{k-1},c_0\}$ repeats it on $A$ and~$C$.  The remaining combination is
-the unique one using distinct endpoints on every chain, and its crossing set
-is
-\[
-E_D:=\bigl\{\{a_0,c_{k-1}\},\{c_0,b_{k-1}\},
-              \{b_0,a_{k-1}\}\bigr\}.
-\]
-If the two crossings incident with a chain use the same endpoint, the walk
-must travel from that endpoint to the other end of the chain and back, at
-cost at least~$2h$.  Hence each of the other three combinations pays at least
-$2h+2h+h=5h$ on chain edges and at least $5h+6h=11h$ in total, a
-contradiction.  Thus the three crossings of every tour below~$11h$ are
-exactly those in~$E_D$.
-
-Now consider a full tour of cost strictly less than
-$13h=3h+10h$.  It uses exactly four crossings, which form a cycle through
-$A,B,s,C$.  The two crossings incident with~$s$ must be $\{b_0,s\}$ and
-$\{c_{k-1},s\}$.  Again there are two choices for the $A$--$B$ crossing and
-two for the $A$--$C$ crossing.  The three choices other than
-$\{a_0,b_{k-1}\}$ together with $\{a_{k-1},c_0\}$ are as follows:
-$\{a_0,b_{k-1}\}$ with $\{a_0,c_{k-1}\}$ repeats endpoints on $A$ and~$C$;
-$\{a_{k-1},b_0\}$ with $\{a_{k-1},c_0\}$ repeats them on $A$ and~$B$; and
-$\{a_{k-1},b_0\}$ with $\{a_0,c_{k-1}\}$ repeats them on $B$ and~$C$.
-Hence the unique combination using distinct endpoints on every chain is
-\[
-E_{\mathrm{all}}:=
-\bigl\{\{a_0,b_{k-1}\},\{b_0,s\},\{s,c_{k-1}\},
-        \{c_0,a_{k-1}\}\bigr\}.
-\]
-Each of the other three combinations repeats an endpoint on two chains, so
-the same $5h$ chain-edge lower bound gives total cost at least
-$5h+8h=13h$.  Thus every full tour below~$13h$ uses exactly the four
-crossings in~$E_{\mathrm{all}}$.
+For (iii), the number of external incidences at each endpoint of $A$ is even.
+Because the expanded walk has even degree at every vertex, the multiplicity of
+every used edge of the path $A$ is even.  At most one internal edge can be
+unused, so the contribution is at least $2(H-2)$.
 \end{proof}
 
-\begin{lemma}[Incompatibility of the two near-optimal skeletons]
-\label{lem:incompatible-skeletons}
-Let $C_0$ and $C_1$ be the realized costs of an adaptive policy when $s$ is
-inactive and active, respectively. Then it is impossible to have both
-$C_0<11h$ and $C_1<13h$.
+\subsection{Rigidity of the two posterior tours}
+
+\begin{lemma}[Inactive realization]\label{lem:inactive-rigidity}
+When $s$ is inactive, the optimal tour cost is $L_0$.  Moreover, every tour of
+cost strictly less than $L_1$ has, up to reversal, exactly the crossing
+skeleton
+\begin{equation}\label{eq:inactive-skeleton}
+  a_mb_0,
+  \qquad
+  b_mc_0,
+  \qquad
+  c_ma_0.
+\end{equation}
 \end{lemma}
 
 \begin{proof}
-The two realizations make exactly the same calls until the policy calls~$s$,
-because every other client is deterministic. Write their common called prefix
-as
+Consider an expanded closed walk serving all deterministic clients.  If it
+uses $s$ as an internal vertex of one of its shortest paths, then it has at
+least two crossings incident to $A$, each of cost $U$, and at least two
+crossings incident to $s$, each of cost $V$.  By
+\cref{lem:chain-contribution}(i), its cost is at least
 \[
-P=(r=x_0,x_1,\dots,x_t=u).
+  3H+2U+2V=L_1.
 \]
-Thus the inactive realized tour begins with~$P$, whereas the active realized
-tour begins with $(P,s)$.
+Thus a tour of cost below $L_1$ does not traverse $s$.
 
-Assume for contradiction that $C_0<11h$ and $C_1<13h$. Expand every metric
-edge into a shortest path in $H_k$, choosing the same expansion for the
-edges of the common prefix. Lemma~\ref{lem:near-optimal-routes} forces the
-inactive and active expanded tours to use the crossing sets $E_D$ and
-$E_{\mathrm{all}}$, respectively. These sets are disjoint. Consequently, the
-common prefix contains no crossing. Since it starts at $a_0$, every client
-called before~$s$ lies on chain~$A$, and $u\in A$.
+Contract each of $A,B,C$ to one vertex.  Let $x,y,z$ be the respective numbers
+of $A$--$B$, $A$--$C$, and $B$--$C$ crossings.  The contracted multigraph is
+connected and Eulerian, so
+\[
+  x+y\equiv x+z\equiv y+z\equiv0\pmod2.
+\]
+Hence $x,y,z$ have the same parity.
 
-Only $b_0$ and $c_{k-1}$ are adjacent to~$s$ in the underlying graph. The
-expanded path from $u$ to~$s$ in the active realization must therefore reach
-$s$ through one of them. Because its crossings must belong to
-$E_{\mathrm{all}}$, there are only two possibilities:
-\begin{itemize}
-  \item it goes from $A$ through $\{a_0,b_{k-1}\}$, traverses chain~$B$ from
-  $b_{k-1}$ to~$b_0$, and then uses $\{b_0,s\}$; or
-  \item it goes from $A$ through $\{a_{k-1},c_0\}$, traverses chain~$C$ from
-  $c_0$ to~$c_{k-1}$, and then uses $\{c_{k-1},s\}$.
-\end{itemize}
-In the first case no client of~$B$ has yet been called. Passing through its
-vertices in the shortest-path expansion does not call them, so all of~$B$
-must still be served after reaching~$s$. But the two crossings just used are
-the only crossings of $E_{\mathrm{all}}$ incident with~$B$; the remaining
-skeleton proceeds from $s$ through $C$ and $A$ and never returns to~$B$.
-Serving~$B$ would therefore require repeating a crossing or adding another
-one, contradicting the forced four-crossing skeleton. The second case gives
-the same contradiction with chain~$C$. Hence the two inequalities cannot
-hold simultaneously.
+Suppose first that they are odd.  Then $x,y,z\ge1$.  If one is at least $3$,
+the crossing cost is at least $4U+V$, and the total cost is at least
+\[
+  3H+4U+V>L_1,
+\]
+because $2U>V$.  Therefore a tour below $L_1$ must have
+$x=y=z=1$.  Its contracted walk is the triangle through $A,B,C$ and its
+crossing cost is $2U+V$.
+
+The $B$--$C$ crossing is necessarily $b_mc_0$.  For $B$ to use opposite
+endpoints, the $A$--$B$ crossing must be $a_mb_0$; for $C$ to use opposite
+endpoints, the $A$--$C$ crossing must be $a_0c_m$.  These choices also make
+$A$ use opposite endpoints.  Conversely, if one chain uses the same endpoint
+twice, at least one other chain does as well.  By
+\cref{lem:chain-contribution}, a noncanonical port choice has internal
+contribution at least $2H+2H+H=5H$.  Its total cost is therefore at least
+\[
+  5H+2U+V=L_1,
+\]
+where we used $V=2H$.  Hence every tour below $L_1$ in the odd case has the
+skeleton in \cref{eq:inactive-skeleton}, up to reversal.  Its cost is at least
+$3H+2U+V=L_0$, and $T_0$ attains this bound.
+
+Now suppose $x,y,z$ are even.  Connectivity implies that at least two of them
+are positive.  If $z>0$, then there are at least two $B$--$C$ crossings and at
+least two crossings incident to $A$, so the total cost is at least
+\[
+  3H+2U+2V=L_1.
+\]
+Assume therefore that $z=0$.  Then $x,y\ge2$.  If $x+y\ge6$, the total cost is
+at least $3H+6U>L_1$.  The only remaining possibility is
+\[
+  x=y=2,
+  \qquad
+  z=0.
+\]
+If $B$ or $C$ uses the same endpoint twice, the total internal contribution is
+at least $4H$, and the cost is greater than $L_1$.  Otherwise both $B$ and $C$
+use opposite endpoints.  Hence each of the four outer edges is used exactly
+once.  By \cref{lem:chain-contribution}(iii), the internal contribution is at
+least
+\[
+  H+H+(2H-4)=4H-4.
+\]
+Thus the total cost is at least
+\[
+  4H-4+4U
+  =20m+4
+  =L_1.
+\]
+This excludes the even case below $L_1$ and completes the proof.
 \end{proof}
 
-\begin{proof}[Proof of Theorem~\ref{thm:sym-clair}]
-Since $s$ is active with probability~$1/2$, there are exactly two
-realizations.  Lemma~\ref{lem:near-optimal-routes} gives optimum costs $9h$
-when $s$ is inactive and $11h$ when it is active.  Therefore
-\[
-    \optpost=\frac12\cdot9h+\frac12\cdot11h=10h.
-\]
-
-For an adaptive upper bound, follow the order of $T_{\mathrm{all}}$ and
-call~$s$ after $c_{k-1}$.  If $s$ is active, continue through~$s$ and then
-chain~$B$.  If it is inactive, call $b_0$ next; the metric edge from
-$c_{k-1}$ to~$b_0$ costs at most $4h$, by the path
-$c_{k-1}$--$s$--$b_0$.  Thus either realization costs at most
-$\cost(T_{\mathrm{all}})=11h$, and $\optadapt\le11h$.
-
-For the reverse inequality, consider any adaptive policy and let $C_0$ and
-$C_1$ be its realized costs when $s$ is inactive and active.  If
-$(C_0+C_1)/2<11h$, the realization lower bounds $C_0\ge9h$ and $C_1\ge11h$
-force $C_0<11h$ and $C_1<13h$.  This contradicts
-Lemma~\ref{lem:incompatible-skeletons}.  Hence $\optadapt\ge11h$.
-
-Substituting $h=k-1$ gives the displayed optimum values above.  Their ratio is
-$11/10$, which proves the claimed lower bound.
-\end{proof}
-
-\begin{remark}[Tour restructuring]\label{rem:restructuring}
-The two optimal realized tours visit the chains in opposite orders:
-$T_{\mathrm{all}}$ routes $A \to C \to s \to B$,
-while $T_D$ routes $A \to B \to C$.
-The cost reduction from removing~$s$ is not a local vertex deletion
-but a \emph{global tour restructuring} that saves one inter-chain crossing.
-\end{remark}
-
-\begin{remark}[Equality of adaptive and a~priori]
-The order $T_{\mathrm{all}}$ is also an a~priori tour of expected cost
-$11(k-1)$ or less, since shortcutting an inactive~$s$ replaces the two edges
-$c_{k-1}s$ and $sb_0$ by a metric edge of no greater length.  Therefore
-$\optprior\le 11(k-1)$.  Together with
-$\optadapt\le\optprior$ from~\eqref{eq:optineq}, this gives
-$\optprior=\optadapt=11(k-1)$ for this family.  All of the gap comes from
-clairvoyance, not from adaptivity.
-\end{remark}
-
-\section{An auxiliary single-stochastic-vertex bound}\label{sec:single-vertex-upper}
-
-\sharat{You don't have to call it an auxiliary bound. It's mostly a thing we say while talking but not necessarily write it.}
-
-This section records an elementary bound for the restricted case of a single
-stochastic vertex. It is independent of the three-chain argument and is not
-claimed to be tight. Consider a symmetric instance with a single stochastic
-vertex~$s$ of activation probability $p\in(0,1)$ and deterministic
-customers~$D$.
-If $D=\emptyset$, the adaptive and a~posteriori benchmarks coincide, so for
-the notation and proof below we may assume $D\ne\emptyset$.
-Write $T_{\mathrm{all}}$ for the optimal tour on $D\cup\{s\}\cup\{r\}$ and $T_D$ for the optimal tour on $D\cup\{r\}$, with costs
-\[
-    \optall:=\cost(T_{\mathrm{all}}),
-    \qquad
-    \opt_D:=\cost(T_D).
-\]
-Let
-\[
-    \rho:=\frac{\optall}{\opt_D},
-    \qquad
-    d_{\min}:=\min_{v\in D\cup\{r\}}d(v,s),
-    \qquad
-    \beta:=\frac{d_{\min}}{\opt_D}.
-\]
-
-\begin{proposition}[Single-stochastic-vertex bound]\label{prop:general-p}
-For any symmetric metric instance with a single stochastic vertex~$s$
-of probability~$p \in (0,1)$,
-\[
-\frac{\optadapt}{\optpost} \;\le\; \frac{1}{1 - p + p^2}.
-\]
-The right-hand side is maximized at $p = 1/2$, where it equals~$4/3$;
-we do not claim that this value is attained by an instance.
-By continuity, at $p = 0$ and $p = 1$ the bound equals~$1$ (no gap).
-\end{proposition}
+\begin{lemma}[Active realization]\label{lem:active-rigidity}
+When $s$ is active, the optimal tour cost is $L_1$.  Moreover, every tour of
+cost strictly less than $L_1+V$ has, up to reversal, exactly the crossing
+skeleton
+\begin{equation}\label{eq:active-skeleton}
+  a_mc_0,
+  \qquad
+  c_ms,
+  \qquad
+  sb_0,
+  \qquad
+  b_ma_0.
+\end{equation}
+\end{lemma}
 
 \begin{proof}
-For general~$p$, the a~posteriori expected cost is
+Any expanded closed walk serving $s$ has at least two crossings incident to
+$A$, each of cost $U$, and at least two crossings incident to $s$, each of cost
+$V$.  Therefore
 \[
-\optpost = (1-p)\,\opt_D + p\,\optall = \opt_D\bigl((1-p) + p\rho\bigr).
+  \cost(W)\ge3H+2U+2V=L_1
 \]
-One adaptive policy simply follows $T_{\mathrm{all}}$.  Another follows
-$T_D$ to a closest vertex $v$ to~$s$ and
-calls~$s$ there.  If $s$ is inactive, it continues along $T_D$.  If $s$ is
-active, it calls the next vertex of $T_D$ after visiting~$s$; by the triangle
-inequality, this changes the next leg by at most $2d(v,s)=2d_{\min}$.
-The two policies have expected costs at most $\optall$ and
-$\opt_D+2p\,d_{\min}=\opt_D(1+2p\beta)$, respectively.  Taking the better
-one gives
+by \cref{lem:chain-contribution}(i), and $T_1$ attains this value.
+
+Now consider a tour of cost below $L_1+V$, and let $q$ be its total number of
+crossings.  After contracting $A,B,C$ and retaining $s$, we obtain a connected
+Eulerian multigraph on four vertices.  Hence every contracted vertex has
+positive even degree and $q\ge4$.
+
+If $q=4$, every contracted degree is $2$, so the quotient is the four-cycle
 \[
-\frac{\optadapt}{\optpost}
-\;\le\; \frac{\min(\rho,\; 1 + 2p\beta)}{(1-p) + p\rho}.
+  A-B-s-C-A
+\]
+up to reversal.  The two edges incident to $s$ are necessarily $b_0s$ and
+$c_ms$.  In order that $B$ and $C$ use opposite endpoints, the remaining two
+crossings must be $a_0b_m$ and $a_mc_0$; these choices also make $A$ use
+opposite endpoints.  Any other port choice makes at least two chains use the
+same endpoint twice.  Its internal contribution is then at least $5H$, so its
+cost is at least
+\[
+  5H+2U+2V=L_1+V.
+\]
+Thus strict inequality forces exactly the skeleton in
+\cref{eq:active-skeleton}, up to reversal.
+
+If $q=5$, let $q_A$ be the number of crossings incident to $A$ and $q_s$ the
+number incident to $s$.  Both are positive and even.  Every crossing is either
+incident to $A$, incident to $s$, or is a $B$--$C$ crossing.  Therefore
+$q=5$ forces
+\[
+  q_A=2,
+  \qquad
+  q_s=2,
+  \qquad
+  q_{BC}=1.
+\]
+The crossing cost is at least $2U+3V$, and hence the total cost is at least
+$L_1+V$.
+
+Finally, if $q\ge6$, the two mandatory $A$-crossings and two mandatory
+$s$-crossings are supplemented by at least two further crossings.  Every
+additional crossing costs at least $U$, so
+\[
+  \cost(W)
+  \ge3H+4U+2V
+  >3H+2U+3V
+  =L_1+V,
+\]
+where the strict inequality is $2U>V$.  This proves the rigidity statement.
+\end{proof}
+
+\subsection{The adaptive optimum}
+
+\begin{lemma}[Prefix incompatibility]\label{lem:prefix-incompatibility}
+No adaptive policy can simultaneously have realized cost below $L_1$ when
+$s$ is inactive and realized cost below $L_1+V$ when $s$ is active.
+\end{lemma}
+
+\begin{proof}
+Assume, for contradiction, that such a policy exists.  Expand every movement
+using the fixed shortest paths chosen above.  Before the policy probes $s$, all
+probed clients are deterministic.  Therefore the active and inactive
+realizations make exactly the same probes, occupy the same locations, and have
+the same expanded-walk prefix up to the moment at which $s$ is probed.
+
+By \cref{lem:inactive-rigidity}, the inactive expanded walk uses only the
+three crossings in \cref{eq:inactive-skeleton}.  By
+\cref{lem:active-rigidity}, the active expanded walk uses only the four
+crossings in \cref{eq:active-skeleton}.
+
+In the active skeleton, the component immediately preceding $s$ is either
+$C$ or, under reversal, $B$.  That chain has exactly two crossing incidences in
+the entire active expanded walk, so all probes of its deterministic clients must
+occur in its unique component interval.  Moreover, the crossing by which the
+walk enters that interval must occur before the probe of $s$.  Indeed, if the
+entry crossing occurred only as part of the post-probe movement to the active
+vertex $s$, none of the clients of the preceding chain could have been probed
+in that interval before $s$; serving them later would require re-entering the
+chain and would create additional crossings.
+
+Consequently, before the probe of $s$, the common expanded prefix has already
+used either
+\[
+  a_mc_0
+  \qquad\text{or}\qquad
+  a_0b_m,
+\]
+depending on the orientation of the active skeleton.  Neither crossing occurs
+in the inactive skeleton \cref{eq:inactive-skeleton}.  This contradicts the
+fact that the inactive realization has the same expanded prefix before the
+probe of $s$.
+\end{proof}
+
+\begin{theorem}[Cost of the three-chain instance]\label{thm:three-chain-cost}
+For every integer $m\ge3$, the instance in
+\cref{con:three-chain} satisfies
+\[
+  \optpost=18m+4,
+  \qquad
+  \optadapt=20m+4.
+\]
+Therefore
+\[
+  \frac{\optadapt}{\optpost}
+  =\frac{20m+4}{18m+4}
+  =\frac{10m+2}{9m+2}
+  >\frac{11}{10},
+\]
+and the ratio converges to $10/9$ as $m\to\infty$.
+\end{theorem}
+
+\begin{proof}
+By \cref{lem:inactive-rigidity,lem:active-rigidity}, the two posterior optimum
+costs are $L_0$ and $L_1$.  Since $p_s=1/2$,
+\[
+  \optpost=\frac{L_0+L_1}{2}=18m+4.
 \]
 
-We use three elementary metric constraints.  Shortcutting~$s$ from
-$T_{\mathrm{all}}$ gives $\rho\ge1$; inserting~$s$ at a closest vertex of
-$T_D$ gives $\rho\le1+2\beta$; and the two edges of $T_{\mathrm{all}}$
-incident with~$s$ each have length at least~$d_{\min}$, so
+For an adaptive upper bound, follow the order of $T_1$ and probe $s$ upon
+reaching $c_m$.  If $s$ is active, the realized tour is exactly $T_1$.  If it
+is inactive, probe $b_0$ next.  The metric distance satisfies
 \[
-    1\le\rho\le1+2\beta,
-    \qquad
-    2\beta\le\rho.
+  d(c_m,b_0)\le d(c_m,s)+d(s,b_0)=2V,
 \]
+which is exactly the cost of the two phase edges used by the active branch.
+Thus both realized costs are at most $L_1$, and
+$\optadapt\le L_1$.
 
-For fixed~$\rho$, the numerator $\min(\rho,1+2p\beta)$ is nondecreasing in~$\beta$, and the largest feasible value is $\beta=\rho/2$.
-Thus it remains to maximize
+For the reverse inequality, let $C_0$ and $C_1$ be the inactive and active
+realized costs of an arbitrary adaptive policy.  Suppose that
+$(C_0+C_1)/2<L_1$.  Posterior optimality gives
+$C_0\ge L_0$ and $C_1\ge L_1$, and therefore
 \[
-    \frac{\min(\rho,1+p\rho)}{(1-p)+p\rho}
-    \qquad(\rho\ge1).
+  C_0<L_1,
+  \qquad
+  C_1<2L_1-L_0=L_1+V,
 \]
-If $\rho\le1/(1-p)$, the minimum is~$\rho$ and the expression is increasing in~$\rho$.
-If $\rho\ge1/(1-p)$, the minimum is~$1+p\rho$ and the expression is decreasing in~$\rho$.
-Therefore the maximum occurs at $\rho=1/(1-p)$, where
-\[
-\frac{1/(1-p)}{(1-p) + p/(1-p)}
-= \frac{1}{(1-p)^2 + p}
-= \frac{1}{1 - p + p^2}.
-\]
+where the last equality follows from \cref{eq:Ldifference}.  This contradicts
+\cref{lem:prefix-incompatibility}.  Hence every adaptive policy has expected
+cost at least $L_1$, proving $\optadapt=L_1$.
 
-Finally, $1-p+p^2$ is minimized at $p=1/2$.
-Hence the largest value of the bound over $p\in[0,1]$ is
+Finally,
 \[
-    \frac{1}{1-1/2+1/4}=\frac43.
+  \frac{10m+2}{9m+2}>\frac{11}{10}
+  \quad\Longleftrightarrow\quad
+  m>2.
 \]
 \end{proof}
 
+\subsection{Why these edge lengths?}
+
+The choices of $U$ and $V$ are dictated by the two thresholds in the rigidity
+argument.  First consider a three-crossing walk that uses the wrong pair of
+chain endpoints.  Relative to the intended inactive tour, at least two chains
+must each be traversed to an endpoint and back.  Its internal chain
+contribution therefore increases from $3H$ to at least $5H$.  Choosing
+\[
+  V=2H
+\]
+makes this extra chain cost equal to the difference
+$L_1-L_0=V$.  Thus every such wrong-port walk has cost at least~$L_1$, exactly
+the threshold needed in \cref{lem:inactive-rigidity}.
+
+The remaining critical competitor in the inactive realization uses all four
+outer edges.  By \cref{lem:chain-contribution}(iii), its cost is at least
+\[
+  4H-4+4U.
+\]
+We need this value to be at least the cost of the intended active tour,
+\[
+  L_1=3H+2U+2V.
+\]
+To make the outer edges as short as possible without allowing this competitor
+below~$L_1$, we impose equality:
+\[
+  4H-4+4U=3H+2U+2V.
+\]
+Together with $V=2H$, this gives
+\[
+  U=\frac{3H}{2}+2,
+\]
+which is exactly $U=3m+2$ when $H=2m$.
+
+If $U$ were smaller, the four-outer-edge competitor would fall below the
+threshold~$L_1$ and the rigidity proof would fail.  If $U$ were larger, both
+posterior tour costs would increase while their difference~$V$ stayed fixed,
+moving the resulting ratio closer to~$1$.  Hence the chosen values are the
+natural tight balance for this construction.
+
+\section{A general upper bound with one stochastic vertex}
+
+We now consider an arbitrary symmetric metric instance with exactly one
+stochastic client $s$, active with probability $p\in(0,1)$.  Let $D$ be the
+set of deterministic clients.  If $D=\varnothing$, then probing $s$ at the
+depot is posterior-optimal in both realizations, so the clairvoyance gap is
+$1$.  We therefore assume $D\ne\varnothing$.  Let $T_0$ be an optimal tour on
+$\{r\}\cup D$, and let $T_1$ be an optimal tour on
+$\{r\}\cup D\cup\{s\}$.  Write
+\[
+  A:=\cost(T_0),
+  \qquad
+  B:=\cost(T_1),
+  \qquad
+  \Delta:=B-A.
+\]
+Shortcutting $s$ from $T_1$ shows that $A\le B$, so $\Delta\ge0$.  The
+posterior optimum is
+\begin{equation}\label{eq:post-general}
+  \optpost=(1-p)A+pB=A+p\Delta.
+\end{equation}
+
+We need two local exchange quantities.
+
+First, define the cheapest insertion surcharge of $s$ into $T_0$ by
+\begin{equation}\label{eq:alpha}
+  \alpha
+  :=\min_{uv\in E(T_0)}
+  \bigl(d(u,s)+d(s,v)-d(u,v)\bigr).
+\end{equation}
+Inserting $s$ into the minimizing edge gives a full tour of cost $A+\alpha$,
+so
+\begin{equation}\label{eq:delta-alpha}
+  \Delta\le\alpha.
+\end{equation}
+
+Second, let $x,y$ be the two neighbors of $s$ in $T_1$, and define the saving
+from shortcutting $s$ by
+\begin{equation}\label{eq:beta}
+  \beta:=d(x,s)+d(s,y)-d(x,y).
+\end{equation}
+The triangle inequality gives $\beta\ge0$, and deleting $s$ from $T_1$ gives
+a deterministic tour of cost $B-\beta$.  Hence
+\begin{equation}\label{eq:beta-delta}
+  0\le\beta\le\Delta.
+\end{equation}
+
+The key point is that the cheapest insertion surcharge into $T_0$ is
+controlled by the deletion saving in $T_1$.
+
+\begin{lemma}[Insertion--deletion exchange]\label{lem:exchange}
+The quantities in \cref{eq:alpha,eq:beta} satisfy
+\[
+  \alpha\le\frac A2+\beta.
+\]
+\end{lemma}
+
+\begin{proof}
+The vertices $x,y$ split the cycle $T_0$ into two $x$--$y$ arcs.  Let $P$ be
+the shorter arc.  Then
+\[
+  \cost(P)\le\frac A2,
+  \qquad
+  d(x,y)\le\cost(P)\le\frac A2.
+\]
+By the definition of $\beta$,
+\[
+  d(x,s)+d(s,y)=d(x,y)+\beta\le\frac A2+\beta.
+\]
+Therefore one of $x,y$, say $z$, satisfies
+\[
+  d(z,s)\le\frac A4+\frac\beta2.
+\]
+Let $z'$ be either neighbor of $z$ in $T_0$.  Inserting $s$ into the edge
+$zz'$ costs
+\[
+\begin{aligned}
+  d(z,s)+d(s,z')-d(z,z')
+  &\le d(z,s)+\bigl(d(s,z)+d(z,z')\bigr)-d(z,z')\\
+  &=2d(z,s)\\
+  &\le\frac A2+\beta.
+\end{aligned}
+\]
+Since $\alpha$ is the minimum insertion surcharge, the claim follows.
+\end{proof}
+
+\subsection{Two adaptive policies}
+
+\begin{lemma}[Two-policy bound]\label{lem:two-policies}
+For every one-stochastic-vertex instance,
+\begin{equation}\label{eq:two-policy-bound}
+  \optadapt
+  \le
+  \min\left\{
+    A+p\left(\frac A2+\beta\right),
+    \;A+\Delta-(1-p)\beta
+  \right\}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+For the first policy, orient $T_0$ and follow it until reaching one endpoint
+$u$ of an edge $uv$ attaining the minimum in \cref{eq:alpha}.  Probe $s$ at
+$u$.  If $s$ is inactive, continue directly to $v$ and complete $T_0$, at cost
+$A$.  If $s$ is active, traverse $u,s,v$ and then complete $T_0$, at cost
+$A+\alpha$.  Thus the expected cost is
+\[
+  A+p\alpha
+  \le A+p\left(\frac A2+\beta\right)
+\]
+by \cref{lem:exchange}.
+
+For the second policy, orient $T_1$ so that the local order is
+$x,s,y$.  Follow $T_1$ to $x$ and probe $s$.  If $s$ is active, complete
+$T_1$, at cost $B$.  If $s$ is inactive, move directly from $x$ to $y$ and
+complete the shortcut tour, at cost $B-\beta$.  Its expected cost is
+\[
+  pB+(1-p)(B-\beta)
+  =B-(1-p)\beta
+  =A+\Delta-(1-p)\beta.
+\]
+Taking the better policy gives \cref{eq:two-policy-bound}.
+\end{proof}
+
+\subsection{Optimization of the bound}
+
+\begin{theorem}[One stochastic vertex]\label{thm:general-upper}
+For every symmetric metric instance with exactly one stochastic client of
+activation probability $p\in[0,1]$,
+\[
+  \frac{\optadapt}{\optpost}
+  \le\frac{2+p}{2+p^2}.
+\]
+Equivalently,
+\[
+  \Gammaone(p)\le\frac{2+p}{2+p^2}.
+\]
+\end{theorem}
+
+\begin{proof}
+The cases $p=0$ and $p=1$ have no information gap and give ratio $1$, so
+assume $p\in(0,1)$.  Because $D\ne\varnothing$ and $d$ is a metric, $A>0$.  Normalize
+\[
+  \delta:=\frac{\Delta}{A},
+  \qquad
+  b:=\frac{\beta}{A}.
+\]
+By \cref{eq:post-general,eq:two-policy-bound},
+\begin{equation}\label{eq:normalized-bound}
+  \frac{\optadapt}{A}
+  \le
+  \min\left\{
+    1+\frac p2+pb,
+    \;1+\delta-(1-p)b
+  \right\},
+  \qquad
+  \frac{\optpost}{A}=1+p\delta.
+\end{equation}
+
+Suppose first that $\delta\le p/2$.  The second policy and $b\ge0$ give
+\[
+  \frac{\optadapt}{A}\le1+\delta.
+\]
+The function $(1+\delta)/(1+p\delta)$ is increasing in $\delta$ because
+$p<1$.  Hence
+\[
+  \frac{\optadapt}{\optpost}
+  \le\frac{1+\delta}{1+p\delta}
+  \le\frac{1+p/2}{1+p^2/2}
+  =\frac{2+p}{2+p^2}.
+\]
+
+Now suppose that $\delta\ge p/2$ and set
+\[
+  b_0:=\delta-\frac p2\ge0.
+\]
+If $b\le b_0$, the first term in \cref{eq:normalized-bound} gives
+\[
+\begin{aligned}
+  \frac{\optadapt}{A}
+  &\le1+\frac p2+pb\\
+  &\le1+\frac p2+p\left(\delta-\frac p2\right)\\
+  &=1+p\delta+\frac{p(1-p)}2.
+\end{aligned}
+\]
+If $b\ge b_0$, the second term gives
+\[
+\begin{aligned}
+  \frac{\optadapt}{A}
+  &\le1+\delta-(1-p)b\\
+  &\le1+\delta-(1-p)\left(\delta-\frac p2\right)\\
+  &=1+p\delta+\frac{p(1-p)}2.
+\end{aligned}
+\]
+Thus in either case,
+\[
+  \frac{\optadapt}{\optpost}
+  \le
+  1+\frac{p(1-p)/2}{1+p\delta}.
+\]
+Since $\delta\ge p/2$,
+\[
+  \frac{\optadapt}{\optpost}
+  \le
+  1+\frac{p(1-p)/2}{1+p^2/2}
+  =\frac{1+p/2}{1+p^2/2}
+  =\frac{2+p}{2+p^2}.
+\]
+This proves the theorem.
+\end{proof}
+
+\begin{theorem}[Exact unbiased one-vertex gap]\label{thm:sym-clair}
+Among symmetric instances with exactly one stochastic client of probability
+$1/2$,
+\[
+  \Gammaone\!\left(\frac12\right)=\frac{10}{9}.
+\]
+\end{theorem}
+
+\begin{proof}
+By \cref{thm:general-upper},
+\[
+  \Gammaone\!\left(\frac12\right)
+  \le
+  \frac{2+1/2}{2+(1/2)^2}
+  =\frac{10}{9}.
+\]
+By \cref{thm:three-chain-cost}, the three-chain family has ratios converging
+to $10/9$.  Hence the supremum is exactly $10/9$.
+\end{proof}
+
+\begin{remark}[Maximum of the general upper bound]
+The function
+\[
+  f(p):=\frac{2+p}{2+p^2}
+\]
+is maximized at
+\[
+  p=\sqrt6-2,
+\]
+where
+\[
+  f(p)=\frac{2+\sqrt6}{4}\approx1.112372.
+\]
+Thus every symmetric instance with one stochastic client, with arbitrary
+activation probability, satisfies
+\[
+  \frac{\optadapt}{\optpost}
+  \le\frac{2+\sqrt6}{4}.
+\]
+The present construction settles the unbiased case exactly; whether the
+probability-dependent bound is attainable for biased $p$ is a separate
+question.
+\end{remark}
+
+\begin{remark}[Extremal parameters of the construction]
+For the three-chain family,
+\[
+  A=L_0=16m+4,
+  \qquad
+  \Delta=L_1-L_0=4m.
+\]
+The neighbors of $s$ in $T_1$ are $c_m$ and $b_0$, and
+$d(c_m,b_0)=2V$, so shortcutting $s$ saves $\beta=0$.  A direct check of the
+three internal-edge families and the three crossing edges of $T_0$ shows that
+every insertion surcharge is at least $2V$; equality holds, for example, on
+the edge $a_mb_0$.  Thus $\alpha=2V=8m$.  Consequently,
+\[
+  \frac{\Delta}{A}\longrightarrow\frac14,
+  \qquad
+  \frac{\beta}{A}=0,
+  \qquad
+  \frac{\alpha}{A}\longrightarrow\frac12.
+\]
+These are exactly the limiting equality conditions in the proof of
+\cref{thm:general-upper} at $p=1/2$.
+\end{remark}
 
 % ============================================================
 % CHAPTER 4: CLAIRVOYANCE GAP — ASYMMETRIC
@@ -1692,7 +2101,7 @@ learning that activation bit.  The second construction strengthens the lower
 bound to~$3/2$.  It embeds a layered poset into a directed metric: a
 clairvoyant tour needs essentially two increasing chains, while every causal
 policy needs at least three increasing runs with high probability.  Both
-proofs allow a policy to interleave calls across different recursive blocks or
+proofs allow a policy to interleave probes across different recursive blocks or
 poset layers.
 
 \section{The construction}
@@ -1866,12 +2275,12 @@ vertices are allowed.  Let $F_k(A)$ be its minimum cost.  Shortcutting repeated
 visits in the metric shows that allowing walks does not change this optimum.
 
 For adaptive services we use the following boundary relaxation.  Initially
-the policy is in an abstract exterior state.  It must call every client of~$C$
-exactly once.  Inactive calls made before the first movement leave the policy
-in the exterior state.  When the first active client~$v$ is called, the policy
+the policy is in an abstract exterior state.  It must probe every client of~$C$
+exactly once.  Probes returning an inactive outcome before the first movement
+leave the policy in the exterior state.  When the first active client~$v$ is probed, the policy
 chooses an entry port $a\in\mathcal P(C)$ and is charged $d_C(a,v)$; the
 external movement to~$a$ is not charged.  Thereafter the usual adaptive rules
-apply with metric~$d_C$.  Once all clients have been called, the policy chooses
+apply with metric~$d_C$.  Once all clients have been probed, the policy chooses
 an exit port $b\in\mathcal P(C)$ and, if its current position is~$x$, is
 charged $d_C(x,b)$ for the final internal movement.  Let $G_k$ be the minimum
 expected cost of such an
@@ -1885,7 +2294,7 @@ cannot improve this finite boundary-state problem.  For the single-port block,
 
 For cost accounting, fix once and for all a shortest generating-graph walk for
 each ordered pair of vertices.  Whenever a metric move is made, \emph{expand}
-it into this walk.  Passing through a client in an expanded walk neither calls
+it into this walk.  Passing through a client in an expanded walk neither probes
 nor serves that client.  Every non-depot arc occurrence in an expanded walk
 belongs to a unique recursive level.
 
@@ -1896,7 +2305,7 @@ one service event in~$C$; it enters and leaves at ports.  Initial and terminal
 port endpoints are treated as boundary crossings.  Internal portions that
 only transit through~$C$ may be omitted from the list of pieces, but their
 arcs remain included in the total internal cost~$Z$.  Omitting such transit
-can only decrease the cost of the local service constructed below.  Calls to
+can only decrease the cost of the local service constructed below.  Probes of
 inactive vertices made outside~$C$ cause no movement and do not create pieces.
 
 \begin{lemma}[Ports and interrupted services]\label{lem:block-excursions}
@@ -1939,14 +2348,14 @@ service of~$C$.  Its cost is at most $Z+w_{k+1}(N-1)$, proving
 For the adaptive statement, let $\xi$ consist of the complete activation
 vector outside~$C$, together with any private random seed used by the original
 policy.  Sample $\xi$ at time zero.  It is independent of all activations
-inside~$C$.  We run a virtual copy of the original execution: calls outside
+inside~$C$.  We run a virtual copy of the original execution: probes outside
 $C$ receive the corresponding pre-sampled coordinate of~$\xi$ only when that
-vertex is virtually called, and their movements update only the virtual
-position in the ambient execution; calls inside~$C$ use the actual local
+vertex is virtually probed, and their movements update only the virtual
+position in the ambient execution; probes inside~$C$ use the actual local
 outcomes.  Thus every decision remains causal with respect to the observations
 in~$C$, even though the virtual exterior behavior may depend on them.
 
-Consider two consecutive active calls in~$C$.  If they belong to the same
+Consider two consecutive probes with active outcomes in~$C$.  If they belong to the same
 piece, the internal portion of the original expanded movement connects them.
 If they belong to different pieces, concatenate three internal walks: the
 suffix leading from the first client to the preceding exit port, a
@@ -1954,7 +2363,7 @@ port-to-port connector of length at most~$w_{k+1}$, and the prefix from the
 next entry port to the second client.  The local metric distance between the
 two clients is no larger than this concatenated walk.  The first piece uses
 the free-entry convention, and the final internal suffix supplies the terminal
-movement to an exit port.  Inactive local calls cause no movement.  This
+movement to an exit port.  Local probes with inactive outcomes cause no movement.  This
 construction also covers arbitrarily many boundary crossings within one
 expanded metric move.
 
@@ -2078,19 +2487,19 @@ counts below.
 In the open case, the fixed bounds give $\widehat H_0\ge1$ and
 $\widehat H_1\ge2$.  If $\widehat H_0\ge2$, their sum is at least~$4$.
 Otherwise \eqref{eq:open-equality-trace} applies, and the two executions agree
-until $M$ is called.  There are three possible phases.
+until $M$ is probed.  There are three possible phases.
 \begin{itemize}
-    \item If $M$ is called in the exterior state, an active execution needs at
+    \item If $M$ is probed in the exterior state, an active execution needs at
     least the three occurrences $R\to M\to L\to R$.  The entry into~$M$ and
     the first service entries into $L$ and $R$ are all uncharged, so
     $\widehat H_1\ge3$.
-    \item If it is called during the $L$-service, reaching $M$ requires
+    \item If it is probed during the $L$-service, reaching $M$ requires
     $L\to R\to M$, and subsequently serving $R$ requires
     $M\to L\to R$.  Of these four occurrences, only $M\to L$ can be charged,
     namely when an unfinished $L$-service is resumed there.  Hence
-    $\widehat H_1\ge4-1=3$; completing~$L$ before the call cannot reduce the
+    $\widehat H_1\ge4-1=3$; completing~$L$ before the probe cannot reduce the
     count.
-    \item If it is called during or after the $R$-service, the common prefix
+    \item If it is probed during or after the $R$-service, the common prefix
     already contains the uncharged first entry $L\to R$.  Serving $M$ and
     reaching a terminal port requires $R\to M\to L$.  All service in~$L$ was
     completed in the common prefix, so $M\to L$ is pure transit or terminal
@@ -2110,14 +2519,14 @@ In the closed case, the fixed bounds give $\widehat H_0\ge3$ and
 $\widehat H_1\ge4$.  The desired pair sum is immediate when
 $\widehat H_0\ge4$.  If $\widehat H_0=3$, then
 \eqref{eq:closed-equality-trace} applies.  Again the executions agree until
-$M$ is called.
+$M$ is probed.
 \begin{itemize}
-    \item If $M$ is called at the initial depot, an active execution needs at
+    \item If $M$ is probed at the initial depot, an active execution needs at
     least the five occurrences $D\to R\to M\to L\to R\to D$.  They consist
     of the entry into~$M$, the first service entries into both children, the
     final return, and the necessary transit before~$M$; none is chargeable.
     Thus $\widehat H_1\ge5$.
-    \item If it is called during the $L$-service, the necessary occurrences
+    \item If it is probed during the $L$-service, the necessary occurrences
     are
     \[
         D\to L\to R\to M\to L\to R\to D.
@@ -2126,7 +2535,7 @@ $M$ is called.
     unfinished $L$-service is resumed.  Hence
     $\widehat H_1\ge6-1=5$; if $L$ is already complete, the count is no
     smaller.
-    \item If it is called during or after the $R$-service, the common prefix is
+    \item If it is probed during or after the $R$-service, the common prefix is
     $D\to L\to R$.  If the $R$-service is complete, the five occurrences in
     $D\to L\to R\to M\to L\to D$ are all uncharged: in particular,
     $M\to L$ is pure transit because the $L$-service is complete.  If the
@@ -2134,8 +2543,8 @@ $M$ is called.
     specified occurrences, of which only the re-entry $L\to R$ can be
     charged.  Both subcases give $\widehat H_1\ge5$.
 \end{itemize}
-There is no case in which $M$ is called after a final return to~$D$, because
-the policy may return only after all clients have been called.  Consequently,
+There is no case in which $M$ is probed after a final return to~$D$, because
+the policy may return only after all clients have been probed.  Consequently,
 $\widehat H_0+\widehat H_1\ge8$, and averaging proves
 \eqref{eq:closed-top-adapt}.
 \end{proof}
@@ -2143,14 +2552,15 @@ $\widehat H_0+\widehat H_1\ge8$, and averaging proves
 \subsection{Gluing relaxed block policies}
 
 The open-service definition allows a terminal movement to a chosen port,
-whereas the original adaptive model permits movement only after an active call
+whereas the original adaptive model permits movement only after a probe with
+an active outcome
 or on the final return to the depot.  The following observation justifies all
 recursive policies used below.
 
 \begin{lemma}[Policy gluing]\label{lem:block-policy-gluing}
 Consider a causal recursive plan obtained by concatenating adaptive open
 services of child blocks with generating-graph walks between their chosen
-ports.  The plan may make inactive calls before entering a child, and its
+ports.  The plan may make probes with inactive outcomes before entering a child, and its
 entry and exit ports may depend on the observed history.  If every terminal
 child movement is included in the stated cost of the plan, then the plan can
 be implemented by a policy in the original metric model with no larger cost.
@@ -2160,9 +2570,9 @@ The same conclusion holds for recursively nested concatenations.
 \begin{proof}
 Do not execute a child's terminal movement when its local service ends.
 Instead, keep the internal walk from the last active client to the chosen exit
-port as a pending walk.  Inactive calls made before the next entry cause no
+port as a pending walk.  Probes with inactive outcomes before the next entry cause no
 movement, so the pending walk remains unchanged.  When the next active
-client~$v$ is called, concatenate the pending exit walk, the prescribed
+client~$v$ is probed, concatenate the pending exit walk, the prescribed
 parent-level connection to the next entry port, and the next child's internal
 entry walk to~$v$.  This is a directed generating-graph walk from the current
 active client to~$v$; the metric distance charged by the original model is no
@@ -2170,7 +2580,7 @@ larger than its length.  At the end of the full execution, concatenate the
 remaining pending walk with the prescribed return to the depot.
 
 All ports and connections are chosen from information available when the
-corresponding active call is made.  The complete arc bundles between child
+corresponding probe returns an active outcome.  The complete arc bundles between child
 ports, and between top-level ports and the depot, realize every such choice.
 The same pending-walk invariant applies at each recursive level, so nested
 terminal movements are handled by concatenation rather than by voluntary
@@ -2304,7 +2714,7 @@ Lemma~\ref{lem:top-accounting} give
 
 For the reverse inequality, use optimal adaptive open services in the two
 children.  First serve the left child, then cross to and serve the right
-child, and finally call~$m_k$.  If $m_k$ is inactive, terminate at the chosen
+child, and finally probe~$m_k$.  If $m_k$ is inactive, terminate at the chosen
 right-child exit port.  If it is active, use $R\to m_k\to L$ and terminate at
 a left-child port.  Lemma~\ref{lem:block-policy-gluing} makes this recursive
 description a legal adaptive open service.  Its top-level cost is $w_k$ when
@@ -2326,7 +2736,7 @@ and~\ref{lem:top-accounting}, now using the closed quotient, give
 \end{align*}
 
 For a matching policy, start at the depot, recursively serve the left child
-and then the right child, and finally call~$m_l$.
+and then the right child, and finally probe~$m_l$.
 Lemma~\ref{lem:block-policy-gluing} realizes the relaxed child interfaces as legal
 metric movements.  If $m_l$ is inactive, the top-level trace is
 $r\to L\to R\to r$ and costs~$3w_l$.  If it is active, the trace is
@@ -2475,11 +2885,11 @@ one selector.  If it enters the stage in row~$r$ and leaves in column~$c$,
 any other active selector must fit the complementary cell $(3-r,3-c)$ on the
 second run.
 
-This observation also explains why remote calls do not evade the
-construction.  If a policy calls a selector in a future stage before the
+This observation also explains why remote probes do not evade the
+construction.  If a policy probes a selector in a future stage before the
 first run has served the intervening gates, an active answer jumps past one
 gate in each intervening layer.  The second run cannot contain both gates of
-such a layer, so $K_\pi\le2$ is then impossible.  Inactive remote calls cause
+such a layer, so $K_\pi\le2$ is then impossible.  Remote probes with inactive outcomes cause
 no movement and will be allowed in the product argument below.
 
 Put
@@ -2497,15 +2907,15 @@ an arbitrary advice string independent of the four local activation bits.
 \end{lemma}
 
 \begin{proof}
-Follow the strategy on the branch on which every selector queried before the
+Follow the strategy on the branch on which every selector probed before the
 output gate is inactive.  If the strategy chooses an output gate without
-querying any selector, every exact two-active realization is fatal.  Calling
+probing any selector, every exact two-active realization is fatal.  Probing
 one of the two selectors before the second run reaches its predecessor gate
 skips an unserved gate and forces a third run; waiting leaves two incomparable
 selectors for the single second run.
 
-Otherwise, let $X$ be the first queried selector.  Follow the branch on which
-$X$ is active and every later selector queried before the output gate is
+Otherwise, let $X$ be the first probed selector.  Follow the branch on which
+$X$ is active and every later selector probed before the output gate is
 inactive.  If $X$ is incompatible with the input row, this branch already
 cannot belong to a two-run routing, and any exact pair containing~$X$ is
 fatal.  We may therefore assume that the strategy assigns~$X$ to a cell
@@ -2513,16 +2923,16 @@ $(r,c)$ compatible with its input row and chosen output column.
 
 Exactly two of the four stars contain $(r,c)$: its row star and its column
 star.  Let $Y\ne X$ be the other one.  Consider the realization in which
-exactly $X$ and~$Y$ are active.  If the strategy queries~$Y$ before taking
+exactly $X$ and~$Y$ are active.  If the strategy probes~$Y$ before taking
 the output gate, then it sees two incomparable active selectors before the
 first run leaves the stage, so the two-run event has already failed.  Suppose
-instead that it queries~$Y$ later.  If the second run has not yet reached its
-predecessor gate in stage~$i$, an active call to~$Y$ jumps past an unserved
+instead that it probes~$Y$ later.  If the second run has not yet reached its
+predecessor gate in stage~$i$, probing the active client~$Y$ jumps past an unserved
 gate of that run and forces a third run.  Once the second run has reached
 that predecessor, it must use the complementary cell $(3-r,3-c)$, but a row
-or column star through $(r,c)$ does not contain this cell.  Calling~$Y$ then
+or column star through $(r,c)$ does not contain this cell.  Probing~$Y$ then
 or after leaving the stage also forces a third run.  Since every selector
-must eventually be called, the exact $\{X,Y\}$ realization is fatal in all
+must eventually be probed, the exact $\{X,Y\}$ realization is fatal in all
 cases.
 
 Thus one exact-pair atom is always excluded from the success event.  Every
@@ -2534,7 +2944,7 @@ argument.
 \begin{lemma}[Interleaved product bound]
 \label{lem:four-star-product}
 Every adaptive policy, including a randomized policy making arbitrary remote
-calls, satisfies
+probes, satisfies
 \[
     \P(K_\pi\le2)\le(1-h)^L.
 \]
@@ -2548,14 +2958,14 @@ Consequently,
 We first fix a deterministic policy.  View the preservation of two runs as a
 finite reachability problem with one independent four-bit component per
 stage.  A component becomes \emph{ready} when the first run reaches its input
-gate and remains unresolved until all its selectors have been called and the
+gate and remains unresolved until all its selectors have been probed and the
 second-run routing, if needed, has been completed.  For a ready unresolved
 stage, let $V(s)$ be the optimal conditional probability of completing a
 valid local routing from its current local state~$s$.  The state records the
 input row, all local answers seen so far, any selector placed on the first
 run, its output column, whether the first run has left the stage, and whether
-the second run has reached its complementary input gate.  In particular, an
-active selector call after the first-run output but before that complementary
+the second run has reached its complementary input gate.  In particular, a
+probe with an active selector outcome after the first-run output but before that complementary
 input gate is reached is a failed state, by the argument in the proof of
 Lemma~\ref{lem:four-star-local}.  The Bellman definition gives
 \begin{equation}\label{eq:four-star-bellman}
@@ -2566,30 +2976,30 @@ Lemma~\ref{lem:four-star-local} gives $V(s)\le1-h$, for either input row and
 conditional on any observations outside the stage.
 
 For a future stage that is not yet ready, assign an upper potential as
-follows.  Its potential is $1-h$ before any premature local query, it is~$1$
-after one or more such queries have all answered inactive, and it is~$0$ if
+follows.  Its potential is $1-h$ before any premature local probe, it is~$1$
+after one or more such probes have all answered inactive, and it is~$0$ if
 one answers active.  The last case makes $K_\pi\le2$ impossible by the gate
-argument preceding Lemma~\ref{lem:four-star-local}.  The first premature query
+argument preceding Lemma~\ref{lem:four-star-local}.  The first premature probe
 changes the expected potential by at most
 \[
     q\cdot0+(1-q)\cdot1
     =1-q
     \le1-h,
 \]
-where $h\le q$.  Further premature queries start from potential~$1$ and have
+where $h\le q$.  Further premature probes start from potential~$1$ and have
 expected next potential at most~$1$.
 
 Take the product of the $L$ local potentials, using factor~$1$ only after all
 local selectors have been resolved and a valid two-chain routing has been
 completed, and factor~$0$ for a failed stage.  After the first run leaves a
 stage, its exact Bellman factor remains in the product until the second-run
-part of that stage is resolved.  A selector call changes only one factor.
+part of that stage is resolved.  A selector probe changes only one factor.
 When the first run reaches a new input gate, an untouched factor becomes an
-exact Bellman value at most~$1-h$, while a prematurely queried factor becomes
-an exact conditional value at most~$1$.  Gate calls that violate the forced
+exact Bellman value at most~$1-h$, while a prematurely probed factor becomes
+an exact conditional value at most~$1$.  Gate probes that violate the forced
 layer order make the two-run event impossible and may also set the product
 to zero.  Hence
-\eqref{eq:four-star-bellman} and the preceding premature-query estimate make
+\eqref{eq:four-star-bellman} and the preceding premature-probe estimate make
 the product a nonnegative supermartingale under arbitrary interleaving.
 
 Its initial value is at most $(1-h)^L$.  At termination it is the indicator
@@ -2806,7 +3216,7 @@ realization.
 These statements do \emph{not} yet give an adaptive policy.  In particular,
 the last construction is offline: both its feasibility proof and the walk
 itself depend on the complete activation set.  It therefore does not prescribe
-which client an adaptive salesperson should call next.
+which client an adaptive salesperson should probe next.
 
 \section{The backbone circulation relaxation}
 \label{sec:circulation-lp}
@@ -3537,8 +3947,8 @@ salesperson should execute the chords.  Three difficulties remain:
 \begin{itemize}
     \item the Hoffman circulation, and hence its Euler tour, is chosen using
     the complete realization~$A$;
-    \item an adaptive execution must choose its next call from its current
-    location without knowing which uncalled chords will become active; and
+    \item an adaptive execution must choose its next probe from its current
+    location without knowing which unprobed chords will become active; and
     \item bounded multiplicity alone does not give a cost bound for the
     auxiliary backbone arcs, because an arc with very small fractional
     value~$y_{ab}$ may still receive one integral copy.
@@ -3546,7 +3956,7 @@ salesperson should execute the chords.  Three difficulties remain:
 
 Thus the missing step is an \emph{online}, cost-sensitive version of the
 offline construction: a policy must discover and schedule the realized
-chords through its calls while keeping its expected travel cost comparable
+chords through its probes while keeping its expected travel cost comparable
 to~\eqref{eq:partial-circulation-total-cost}.  Hoffman's theorem establishes
 existence after all activations are known, but it does not provide this causal
 implementation.
@@ -4104,16 +4514,17 @@ $c_\varepsilon^n\poly(n)$.
 We summarize the main results of this thesis in the following table.
 
 \begin{center}
+\small
 \begin{tabular}{lll}
 \toprule
 \textbf{Result} & \textbf{Metric} & \textbf{Reference} \\
 \midrule
 Adaptivity gap $\ge 2$ & Symmetric & Theorem~\ref{thm:random-metric-gap} \\
-Clairvoyance gap $\ge 11/10$ & Symmetric & Theorem~\ref{thm:sym-clair} \\
-One stochastic vertex: gap $\le 1/(1-p+p^2)$ & Symmetric & Proposition~\ref{prop:general-p} \\
+Clairvoyance gap $\ge 10/9$ & Symmetric & Theorem~\ref{thm:sym-clair} \\
+One stochastic vertex: gap $\le (2+p)/(2+p^2)$ & Symmetric & Theorem~\ref{thm:general-upper} \\
 Clairvoyance gap $\ge 3/2$ & Asymmetric & Theorem~\ref{thm:layered-poset-gap} \\
 Backbone rounding and offline walk & Asymmetric & Theorems~\ref{thm:backbone-circulation-rounding}, \ref{thm:offline-backbone-walk} \\
-$(1{+}\varepsilon)$-approx.\ for a~priori TSP & Asymmetric & Theorem~\ref{thm:directed-apriori-ptas} \\
+$(1{+}\varepsilon)$-approx.\ for a~priori TSP & Both & Theorem~\ref{thm:directed-apriori-ptas} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -4126,7 +4537,10 @@ work.
 \begin{enumerate}
     \item \textbf{Symmetric clairvoyance gap.}
     What is the correct supremum of the clairvoyance gap for symmetric stochastic TSP?
-    The three-chain construction gives a lower bound of~$11/10$, while Proposition~\ref{prop:general-p} gives an upper bound of~$4/3$ for the special case of one stochastic vertex.
+    The balanced three-chain construction gives a lower bound
+    of~$10/9$.  Theorem~\ref{thm:sym-clair} shows that this is exact when
+    there is one stochastic vertex of activation probability~$1/2$, but a
+    matching upper bound for unrestricted symmetric instances remains open.
 
     \item \textbf{Symmetric adaptivity gap.}
     Our probabilistic construction gives a lower bound of~$2$, while the
@@ -4184,8 +4598,11 @@ their constant care, understanding, and support in my life.
 \appendix
 \chapter{Exploratory Computational Search}\label{app:evidence}
 
-This appendix records computational searches used as exploratory guidance for the symmetric clairvoyance gap.
-The search procedures were heuristic and limited in scope, so the table below should be read only as a record of tested instances, not as proof of tightness.
+This appendix records computational searches that provided early exploratory
+guidance for the symmetric clairvoyance gap.  These runs predate the balanced
+edge lengths in Chapter~\ref{ch:sym-clair}.  The search
+procedures were heuristic and limited in scope, so the table below should be
+read only as a record of tested instances, not as proof of tightness.
 
 Simulated-annealing search over continuous symmetric distance matrices and integer-weight sparse graphs produced the following best ratios:
 
@@ -4207,8 +4624,13 @@ $n$ & Best ratio & Exact fraction & Source & Notes \\
 \end{tabular}
 \end{center}
 
-The search did not find a ratio above $11/10$ in these runs.
-In the listed instances attaining $11/10$, the construction has a single stochastic vertex with activation probability $1/2$.
+The search did not find a ratio above $11/10$ in these runs.  The listed
+instances attaining $11/10$ use the earlier equal-crossing-length three-chain
+family with one stochastic vertex of activation probability~$1/2$.  The
+balanced
+family of Chapter~\ref{ch:sym-clair} has a ratio strictly above~$11/10$ for
+every $m\ge3$ and tends to~$10/9$; it was found analytically rather than by
+these searches.
 
 
 % ============================================================
