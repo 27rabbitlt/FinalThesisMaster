@@ -325,26 +325,32 @@ Appendix~\ref{app:evidence} records exploratory computational searches for the s
 % ============================================================
 % CHAPTER 2: ADAPTIVITY GAP — SYMMETRIC
 % ============================================================
-\chapter{Adaptivity Gap for Symmetric Metrics}\label{ch:sym-adapt}
+\chapter{Adaptivity Gap for Symmertic StochTSP}\label{ch:sym-adapt}
 
 We prove that the adaptivity gap for symmetric stochastic TSP is at least~$2$.
 We begin with an explicit family obtained by subdividing the edges of a
 Hamiltonian cycle in a complete graph; for this family,
 $\optprior/\optadapt$ tends to~$5/4$.  The mechanism behind that construction
 then motivates a probabilistic construction in which the randomness is moved
-from the subdivision vertices to the metric.  This strengthens the ratio
-to~$2-o(1)$.
+from the subdivision vertices to the metric. This strengthens the ratio
+to~$2-o(1)$. 
+
+\sharat{I recommend introducing an acronym of StochTSP for stochastic tsp. Use a macro for this. It's your call whether to introduce SymStochTSP and AsymStochTSP. I would avoid introducing long shorthands and just refer to them as symmetric/asymmetric StochTSP instances.}
+
+\sharat{Rephrasing of the intro para for this chapter. The main result in this chapter is that the adaptivity gap for symmetric StochTSP is at least $2$. This chapter is divided into two sections. In \Cref{sec:blah}, we establish a weaker lower bound of $5/4$ on the adaptivity gap via an explicit construction of StochTSP instances arising from cycle-subdivided cliques. The stronger lower bound of $2$ is established in \Cref{sec:blah} using the probabilistic method on $(1,2)$-TSP instances induced by a random graph $G_{n,p}$ in the Erdős–Rényi model.}
+
+\sharat{Some advice on the writing process. Imagine the process of describing high-level ideas as a breadth first search procedure. You can apply this meta rule at all levels: chapters, sections, subsections, proofs, etc. When you are at the level of this chapter, all that matters is the two results of $5/4$ and $2$ and not that a certain ratio is tending to these numbers. You don't want to just state these numbers but also give the reader some context on why we chose to have two sections instead of just one for the stronger result. There's a qualitative difference between the two results. The $5/4$ bound is an explicit construction whereas the $2$ bound is probabilistic. It's good to give a teaser to the reader without bombarding them with technical details. The numbers $5/4$ and $2$ and the terms explicit vs probabilistic are still not descriptive enough for what we are going to accomplish. So it makes sense to say more about these constructions without being too precise. Cycle-subdivided clique is fairly descriptive in the sense that a reader can visualize the subdivision operation on a cycle in a clique. Same for the $G_{n,p}$ model. It tells the reader that you are going to work with Erdos Renyi model where edges are independently present in the graph. Since we also say $(1,2)$-TSP, we are alluding to the reader that we are going to put a label of $1$ or $2$ depending on whether an edge appears or not. The advantage with this style of writing is to get the reader hooked. Your goal is to give them just enough hints so that they can convince themselves why the result goes through. If the reader can prove the result by themselves, then they will appreciate your work more and forever remember your thesis.}
 
 \section{The cycle-subdivided-clique construction}
 \label{sec:cycle-subdivided-construction}
 
+%Sub(K_n;C_n)
+%no need to state sym again
+% there should be a sectence between theo and corollary. should not list theorems in this way.
 \begin{theorem}\label{thm:cycle-subdivision}
 The adaptivity gap for symmetric stochastic TSP is at least $\frac54$.
 \end{theorem}
-
-\begin{corollary}\label{cor:cycle-oblivious}
-The obliviousness gap for symmetric stochastic TSP is at least~$\frac54$.
-\end{corollary}
+%move the corollory to 2 lower bound.
 
 \begin{proof}
 This follows from Theorem~\ref{thm:cycle-subdivision} and
@@ -361,7 +367,7 @@ $C_n=(b_1,\dots,b_n,b_1)$ the \emph{base cycle} and its vertices the
 $b_ib_{i+1}$ of the base cycle by introducing a \emph{subdivision
 vertex}~$s_i$. Denote the resulting unweighted graph by~$G_n$.
 \end{definition}
-
+% we just use vertex set and depot is a special vertex. we also call depot vertex to be root vertex (r). in technical part, use root and vertex; in intro use depot and client
 The \emph{cycle-subdivided-clique instance} $\mathcal I_n$ has depot $r:=b_1$ and client set
 \[
 V_n:=\{b_2,\dots,b_n\}\cup\{s_1,\dots,s_n\}.
@@ -429,9 +435,11 @@ and Lemma~\ref{lem:cycle-adapt} gives $\optadapt\le \frac32 n+6$.
 Hence $\optprior/\optadapt$ converges to $\frac{5}{4}$ as $n$ grows.
 \end{proof}
 
+
+% convert it to subsection of 2.1
 \section{The a priori optimum}
 \label{sec:cycle-prior}
-
+% short paragraph: in this section we show lemma 2.4,to do this we consider an arbitrary a priori solution, which can be represented as a permutation
 We prove Lemma~\ref{lem:cycle-prior} in two steps.  First, we bound the
 expected contribution of every segment of an arbitrary a~priori tour between
 two base vertices.  Summing these local bounds gives a global lower
@@ -469,9 +477,11 @@ $\Phi(u;W;v)$ be the expected length of the realized path obtained from
 \[
     (u,w_1,\dots,w_k,v)
 \]
+% removing semi-active vertices that are not activated.
 after deleting inactive subdivision vertices.
 
 \begin{lemma}[Segment lower bound]\label{lem:cycle-segment-bound}
+% merge k=0 into k=1. replace k to |W|
 Every such segment satisfies
 \[
     \Phi(u;W;v)
@@ -502,7 +512,9 @@ Moreover, equality is attained for $k=2$ by
 $(b_i,s_i,s_{i+1},b_{i+1})$, and for $k=3$ by
 $(b_{i+1},s_{i+1},s_i,s_{i-1},b_i)$.
 \end{claim}
-
+% we need to say somewhere that we treat vertex index in modulo, n+1 is just 1
+% subdivision vertices or subdivided vertices
+% or maybe semi-active vertices
 \begin{proof}
 If $k=0$, then the segment contributes the single edge $uv$, so
 $\Phi(u;\varnothing;v)=d(u,v)\ge1$.
@@ -799,7 +811,7 @@ We exhibit an adaptive policy~$\pi$.  Let
 P \;:=\; (b_2,\,s_2,\,b_3,\,\dots,\,s_{n-1},\,b_n),
 \]
 viewed as an ordered path.
-
+%alternating sweep policy
 \medskip
 \noindent\textbf{Policy.}
 \begin{enumerate}
