@@ -118,14 +118,14 @@ We obtain the following results.
     \item \textbf{Partial backbone-circulation framework} (\cref{ch:circulation}).
     For asymmetric metrics, we prove the existence of a backbone whose tour
     and associated fractional circulation have total cost
-    $O(\log(n+1))\optpost$.  We then round every outside client to a single
+    $O(\log n)\optpost$.  We then round every outside client to a single
     directed chord of the backbone without increasing this cost, while
-    incurring only $O(\log(n+1))$ weighted imbalance on every interval of
+    incurring only $O(\log n)$ weighted imbalance on every interval of
     the backbone order (\cref{thm:backbone-circulation-rounding}).
     For all but an inverse-polynomial fraction of activation sets, the rounded
     chords admit an offline closed walk that traverses every active outside
     chord between one and four times and every available backbone arc at most
-    $O(\log(n+1))$ times
+    $O(\log n)$ times
     (\cref{thm:offline-backbone-walk}).
     This is a partial structural result: the rounded object has not yet been
     converted into an adaptive policy.
@@ -337,6 +337,21 @@ For symmetric metrics, the obliviousness gap is known to be at most $O(1)$; in p
 The same upper bound carries over to the clairvoyance gap and the adaptivity gap by~\cref{eq:optineq}.
 For asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025} show that the obliviousness gap is $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 Moreover, the construction in Section~3.1 of~\cite{Christalla2025} also implies an adaptivity gap of $\Omega(n^{1/4} \cdot \log^{-1}n)$.
+
+\subsection{Probabilistic inequalities}\label{sec:probabilistic-inequalities}
+
+We use the following weighted form of Hoeffding's inequality.  Let
+$Y_1,\ldots,Y_m$ be independent random variables with
+$Y_i\in[a_i,b_i]$ almost surely.  Then, for every $t>0$,
+\begin{equation}\label{eq:weighted-hoeffding}
+    \P\left[\sum_{i=1}^m(Y_i-\E[Y_i])\ge t\right]
+    \le
+    \exp\left(-\frac{2t^2}{\sum_{i=1}^m(b_i-a_i)^2}\right).
+\end{equation}
+In particular, if the $X_i$ are independent Bernoulli random variables and
+$c_i\ge0$, then~\cref{eq:weighted-hoeffding} applies to
+$Y_i=c_iX_i\in[0,c_i]$.  We also use the union bound and Markov's inequality
+in their standard forms.
 
 \section{Organization}\label{sec:organization}
 
@@ -905,31 +920,27 @@ Together with the preceding lower bound, this proves the lemma.
 \section{Randomizing the metric}
 \label{sec:random-metric-gap}
 
-\sharat{The below three paras read like an LLM wrote it. Try to give it your own voice because the current text is not illuminating. It's OK if the flow isn't as smooth but words like pattern and continuation seems out of place.}
+We use an Erd\H{o}s--R\'enyi graph to decide which pairs of vertices are
+cheap.  An edge of the graph has distance~$1$, and a nonedge has distance~$2$.
+The vertices themselves have a much smaller activation probability, so the
+shortcut of a fixed a~priori order usually sees only a sparse selection of
+the cheap edges.  By contrast, an adaptive policy can probe all cheap
+unprobed neighbors of its current location before it makes a distance-$2$
+move.
 
-\sharat{You don't have to necessarily force a connection with the previous section. Try to give intuition through $G_{n,p}$. Mention that the probability of activation is small. Mention that the graph is symmetric in its structure so we only need to show that the probability that the a priori tour $1,\ldots,n$ has low cost is much smaller than $1/n!$. Say something about why the adaptive policy has a decent chance of paying a cost of $1$ to visit the next activated vertex. This story will take some time to clean up so give it another attempt.}
+Two simple observations drive the proof.  First, the random graph is
+invariant under relabeling the non-root vertices.  It therefore suffices to
+show that the canonical order $r,1,\ldots,n,r$ has unusually low expected
+cost with probability much smaller than~$1/n!$; a union bound then covers all
+a~priori orders.  Second, if $s$ active vertices remain when the policy is at
+a fresh vertex, the probability that at least one of them is a cheap neighbor
+is $1-(1-\theta)^s$.  Thus the adaptive policy has a good chance of paying
+only~$1$ for its next move until very few active vertices remain.
 
-The cycle-subdivided clique construction suggests a more general mechanism
-for separating adaptive and a~priori solutions.  Its semi-active vertices
-activate randomly, and deleting the inactive ones creates shortcut edges
-that a fixed master tour must pay for.  Although the master tour knows the metric, it must
-choose one cyclic order that works for every activation pattern.  The adaptive
-policy, by contrast, can use probe outcomes to decide which cheap
-continuation to take.
-
-We now amplify this mechanism by moving the randomness from the activation of
-the semi-active vertices to the metric.  The metric will contain a sparse
-random collection of cheap edges.  A fixed a~priori order typically obtains little benefit from
-them, because the consecutive active vertices in its shortcut are determined by
-independent activation randomness.  An adaptive policy can instead probe all
-cheap neighbors of its current location before probing a vertex at distance~$2$.
-
-The random metric is only a device for the probabilistic method.  After it is
-sampled, we fix one deterministic realization.  That complete metric is known
-to both benchmarks, and both the optimal master tour and the adaptive policy
-may depend on it.  Consequently, the a~priori lower bound must hold
-simultaneously for all master tours, rather than merely for each fixed tour in
-expectation over the sampled metric.
+The random graph is only a probabilistic-method device.  At the end of the
+argument we fix a deterministic realization, which is then known completely
+to both benchmarks.  The randomness used to prove existence is distinct from
+the activation randomness faced by a policy on the resulting instance.
 
 \begin{theorem}[Probabilistic factor-two construction]
 \label{thm:random-metric-gap}
@@ -961,13 +972,9 @@ and the claim follows from \cref{thm:random-metric-gap}.
 
 \subsection{The random metric}\label{sec:random-metric-model}
 
-We first specify the random family used in the probabilistic construction.
-Edges of an Erdős--Rényi graph receive distance~$1$ and all remaining pairs
-receive distance~$2$; the activation probability is chosen so that many
-vertices are active while cheap active continuations remain sparse.
-
-All logarithms in this section are natural \sharat{all logs are to the base $\mathrm{e}$}.  Fix a sufficiently large
-integer~$n$, let $V:=\{r\}\cup[n]$, and set
+We now specify the random family.  All logs in this section are to
+base~$\mathrm{e}$.  Fix a sufficiently large integer~$n$, label the non-root
+vertices by $[n]=\{1,\ldots,n\}$, let $V:=\{r\}\cup[n]$, and set
 \[
     p:=\frac{1}{(\log n)^4},
     \qquad
@@ -987,13 +994,11 @@ $X_e$ with mean~$\theta$, and define
     D(x,x):=0.
 \]
 Thus a pair has distance~$1$ with probability~$\theta$ and distance~$2$
-otherwise. 
-\sharat{It's a good idea to mention that this random metric is an instance of the $(1,2)$-TSP problem. Every realization being a symmetric metric is trivial. You shouldn't have to establish it.}
-We call a pair of distance~$1$ a \emph{cheap edge}.
-Every realization of~$D$ is a symmetric metric: for distinct $x,y,z$,
-\[
-    D(x,z)\le2\le D(x,y)+D(y,z).
-\]
+otherwise.  Let $H(D)$ be the graph whose edge set is
+$\{e:X_e=1\}$.  Then $H(D)\sim G_{n+1,\theta}$, and for $k\ge1$ we use
+$G_{k,\theta}$ for the same distribution on any fixed set of $k$ vertices.
+We call the edges of~$H(D)$ \emph{cheap}.  Every realization of~$D$ is a
+symmetric $(1,2)$-TSP metric.
 For every deterministic realization~$d$ of~$D$, let
 $\mathcal{I}_n^{\mathrm{RM}}(d)$ denote the resulting random-metric
 \StochTSP{} instance on~$V$ with root~$r$: its metric is~$d$, and its
@@ -1011,28 +1016,27 @@ $K:=|A|\sim\operatorname{Binomial}(n,p)$.  Define
 For a nonempty realization with $K=k$, every feasible tour has exactly
 $k+1$ traveled edges.  Since all distances are at least~$1$, $W$ is a
 lower bound on the expected cost of every benchmark.  Moreover,
-\begin{equation}\label{eq:random-metric-growth}
-    W\ge np=\frac{n}{(\log n)^4},
-    \qquad
-    \theta W\ge\frac{n}{(\log n)^5}\longrightarrow\infty.
+\begin{equation}\label{eq:random-metric-baseline-lower-bound}
+    W\ge np=\frac{n}{(\log n)^4}.
 \end{equation}
-
-\sharat{I don't understand why $n/\log^5 n \to \infty$. It's not relevant at this point to take $n \to \infty$.}
 \subsection{A uniform lower bound for a priori tours}
 \label{sec:random-metric-prior-bound}
 
 We next show that, with high probability over the metric, every a~priori tour
-has nearly the same large expected cost.  The argument first expands the cost
-of one fixed order into weighted edge contributions and then combines
-concentration with a union bound over all orders.
+has nearly the same large expected cost.  For a fixed order, its expected cost
+over the activations is a weighted sum of the independent random distances.
+The weights are the probabilities that the corresponding pairs become
+consecutive in the shortcut.  We identify these weights, bound their squared
+sum, and then apply Hoeffding's inequality.
 
-Fix an a~priori tour
+By the definition of a~priori cost in~\cref{sec:stoch-tsp-benchmarks}, for a
+deterministic realization~$d$ of~$D$ and an a~priori tour
 \[
     T=(r,v_1,v_2,\ldots,v_n,r)
 \]
-and a deterministic realization~$d$ of the metric. \sharat{Rewrite this section. Written in the style of an LLM. You have to recall definitions of a priori cost by pointing the relevant definition or equation.} Write
+we write
 \[
-    C_d(T):=\E_A[\cost_d(T|_A)].
+    C_d(T):=\E_A[\cost_d(T|_A)]=\cost_d(T).
 \]
 
 \begin{lemma}[Expected-cost expansion]\label{lem:random-metric-expansion}
@@ -1119,37 +1123,43 @@ With probability $1-o(1)$ over the random metric~$D$,
 \end{lemma}
 
 \begin{proof}
-\sharat{You only need to argue that the a priori tour $r,1,\ldots,n,r$ has low cost with extremely tiny probability.}
-Fix a tour~$T$, and let $c_e$ be the coefficient of the unordered pair~$e$
-in~\cref{eq:random-metric-expansion}.  Since $D(e)=2-X_e$ and the
+Consider the canonical tour $T_0=(r,1,\ldots,n,r)$, and let $c_e$ be the
+coefficient of the unordered pair~$e$ in~\cref{eq:random-metric-expansion}.
+Since $D(e)=2-X_e$ and the
 coefficients sum to~$W$,
 \[
-    C_D(T)=2W-\sum_e c_eX_e,
+    C_D(T_0)=2W-\sum_e c_eX_e,
     \qquad
-    \E_D[C_D(T)]=(2-\theta)W.
+    \E_D[C_D(T_0)]=(2-\theta)W.
 \]
+Thus the canonical tour is unusually cheap only if the weighted number of
+cheap shortcut pairs is unusually large.
+
 Set $\varepsilon:=1/\log n$.  The event
 \[
-    C_D(T)\le(2-\theta-\varepsilon)W
+    C_D(T_0)\le(2-\theta-\varepsilon)W
 \]
 is equivalent to
 \[
     \sum_e c_e(X_e-\theta)\ge\varepsilon W.
 \]
-The weighted form of Hoeffding's inequality therefore gives
+The variables $X_e$ are independent and each $c_eX_e$ lies in~$[0,c_e]$.
+Hence the weighted Hoeffding bound~\cref{eq:weighted-hoeffding} gives
 \[
     \P_D\left[
-        C_D(T)\le(2-\theta-\varepsilon)W
+        C_D(T_0)\le(2-\theta-\varepsilon)W
     \right]
     \le
     \exp\left(
         -\frac{2\varepsilon^2W^2}{\sum_ec_e^2}
     \right).
 \]
-Using \cref{lem:random-metric-coefficients} and $W\ge np$, we obtain
+For all sufficiently large~$n$, the coefficient bound
+\cref{lem:random-metric-coefficients} applies; together with
+\cref{eq:random-metric-baseline-lower-bound}, it gives
 \begin{align*}
     \P_D\left[
-        C_D(T)\le(2-\theta-\varepsilon)W
+        C_D(T_0)\le(2-\theta-\varepsilon)W
     \right]
     &\le
     \exp\left(-\frac{\varepsilon^2W^2}{np^3}\right)\\
@@ -1159,9 +1169,11 @@ Using \cref{lem:random-metric-coefficients} and $W\ge np$, we obtain
     \exp\bigl(-n(\log n)^2\bigr).
 \end{align*}
 
-There are at most $n!$ master tours with the root fixed.  A union bound
-therefore shows that the probability that some tour violates the claimed
-lower bound is at most
+For any other a~priori tour~$T$, a permutation of the non-root labels maps
+$T$ to~$T_0$.  Because the distribution of~$D$ is invariant under every such
+permutation, the same tail bound holds for~$C_D(T)$.  There are at most $n!$
+master tours with the root fixed, so a union bound shows that the probability
+that some tour violates the claimed lower bound is at most
 \[
     n!\exp\bigl(-n(\log n)^2\bigr)
     \le
@@ -1173,8 +1185,6 @@ The conclusion follows because
 $\theta=\varepsilon=1/\log n$.
 \end{proof}
 
-\sharat{The above section does not read well. The intuition for the proof is missing. Some quantities are introduced without motivating why they are relevant. Mention Hoeffding inequality in the prelims chapter and invoke it with the correct parameters. Also, whenever you invoke a lemma, you have to mention why the hypothesis holds. Make a remark early on that the cost of the tour is a sum of independent bounded random variables with mean so and so.}
-
 \subsection{A cheap adaptive policy}\label{sec:random-metric-adaptive-policy}
 
 To complement the uniform lower bound, we construct a policy that exhausts
@@ -1183,21 +1193,43 @@ average cost of this policy over the random metric and then fix a metric
 realization for which this bound and the preceding a~priori bound hold
 simultaneously.
 
-\sharat{Notation is quite poor. You need to recall how $d$ is obtained. Since it's a random variable, you will need to introduce more precise notation.}
-For each deterministic metric realization~$d$, define a policy~$\pi_d$ as
-follows. 
-\sharat{Best to avoid using client terminology.}
-Suppose the salesperson is at~$u$ and the set of unprobed vertices
-is~$S$.  If $S=\varnothing$, return to~$r$.  If $u$ has a cheap neighbor
-in~$S$, probe the \sharat{vertex with the smallest label. mention early on that the vertices are labeled $1,\ldots,n$.} least-labeled such vertex; otherwise probe the least-labeled
-vertex in~$S$.  Thus all unprobed cheap neighbors of the current location
-are probed before any vertex at distance~$2$.
+Fix a deterministic realization~$d$ in the support of~$D$.  Its cheap-edge
+graph $H(d)$, and hence the whole metric, is known before any activations are
+probed.  Define the \emph{nearest-unprobed-neighbor policy}~$\pi_d$ as follows.
+At a state $(u,S)$ with $S\ne\varnothing$, choose a vertex~$v\in S$ that
+minimizes $d(u,v)$, breaking ties by the labels $1,\ldots,n$, and probe~$v$.
+If $S=\varnothing$, return to~$r$.  Equivalently, the policy probes every
+cheap unprobed neighbor of its current location before it probes a vertex at
+distance~$2$.
 
-\sharat{Confusing text.}
-This policy may depend on~$d$, because the metric is fixed as part of the
-instance and is known before any activation outcomes are observed.
+The metric is sampled in advance and is known to the policy.  For the
+analysis, however, we may reveal its independent edge variables only when
+the policy uses them.  The following invariant formalizes this deferred
+exposure.
 
-\sharat{Maybe name the adaptive policy as \emph{nearest unprobed neighbor}. I am intentionally avoiding mentioning lazy in the name because the actual implementation of the policy can also be done non lazily.}
+\begin{lemma}[Fresh-edge invariant]\label{lem:random-metric-fresh-edges}
+Consider the joint experiment over the random metric~$D$ and the active
+set~$A$, and expose only the metric edges incident to the policy's current
+location.  Initially, when $u=r$, and immediately after every arrival at a
+new active vertex~$u$, let $S$ be the set of unprobed vertices.  Conditional
+on the complete exposure and probe history so far, no edge induced by
+$\{u\}\cup S$ has been exposed.  Consequently, the conditional distribution
+of the cheap-edge graph induced by $\{u\}\cup S$ is
+$G_{1+|S|,\theta}$, independently of the activation states on~$S$.
+\end{lemma}
+
+\begin{proof}
+At the initial state no metric edge has been exposed.  Suppose the invariant
+holds at a current vertex~$u$.  Reveal the edges $\{u,v\}$ for $v\in S$;
+these are the only metric variables needed to determine the probes made while
+the salesperson remains at~$u$.  If an active probed vertex~$v$ is reached,
+let $S'\subseteq S\setminus\{v\}$ be the vertices still unprobed.  The edges
+induced by $\{v\}\cup S'$ were not among the edges just exposed, and they
+were not exposed earlier by the induction hypothesis.  Independence of the
+edge variables gives their conditional law $G_{1+|S'|,\theta}$.  The metric
+and activation processes are independent, so this law is also independent
+of the activation states on~$S'$.  This proves the invariant by induction.
+\end{proof}
 
 \begin{lemma}[Cost of the adaptive policy]
 \label{lem:random-metric-adaptive-average}
@@ -1221,23 +1253,10 @@ the random metric and the active set.  Immediately after the salesperson
 arrives at an active vertex~$u$, let $S$ be the set of unprobed vertices and
 suppose that exactly $s$ vertices in~$S$ are active.
 
-\sharat{This part is a bit confusing as the metric was claimed to have been realized. You need to rethink how you present this section. since we are establishing an upper bound, it suffices to prove that some adaptive policy has low cost in expectation. Describe the adaptive policy precisely. Right after the description prove a lemma which captures the invariants of the adaptive policy. For example, if the adaptive tour has just arrived at an active vertex $u$ and the set of unprobed vertices is $S$, then none of the edges in $G[u+S]$ have realized their lengths. You could say that the distribution of edge lengths is identical to $G_{1+|S|,p}$ in your cost model. To do this you need to setup some clean notation early on about the distribution of edge lengths for a $k$-vertex graph.}
-We expose the random metric lazily for the purpose of the analysis.  Before
-this arrival, none of the edges $\{u,v\}$ with $v\in S$ has affected a
-decision of the policy: previous decisions inspected only edges incident to
-the then-current location, while neither endpoint of $\{u,v\}$ had yet been
-the current location.  The incoming edge to~$u$ has its other endpoint
-outside~$S$.  Consequently, conditional on the entire previous execution,
-the edges $\{u,v\}$ for $v\in S$ remain independent, each being cheap with
-probability~$\theta$, and they remain independent of the activation states
-in~$S$.  This deferred exposure is only an analysis device; the policy
-itself knows the complete fixed metric.
-At the initial state $u=r$, the edges from the root to all unprobed vertices
-are likewise unexposed in this analysis.
-
-The next traveled edge has length~$2$ exactly when none of the $s$ remaining
-active vertices is a cheap neighbor of~$u$.  Its conditional expected length
-is therefore
+By \cref{lem:random-metric-fresh-edges}, the edges from~$u$ to these $s$
+active vertices are conditionally independent, and each is cheap with
+probability~$\theta$.  The next traveled edge has length~$2$ exactly when
+none of them is cheap.  Its conditional expected length is therefore
 \[
     1+(1-\theta)^s.
 \]
@@ -1254,20 +1273,13 @@ costs at most~$2$.  Hence
     k+\frac1\theta+1.
 \end{align*}
 For $K=0$ the cost is~$0$.  Averaging over~$K$ gives
-\begin{align*}
+\[
     \E_D[U(D)]
-    &\le
-    \E[K]
-    +\left(\frac1\theta+1\right)\P[K\ge1]\\
-    &=
-    np+\left(\frac1\theta+1\right)(1-q^n)\\
-    &=
-    W+\frac{1-q^n}{\theta}
-    \le
-    W+\frac1\theta.
-\end{align*}
-
-\sharat{The above calculation is focusing on the wrong details. The probability that $K$ is nonzero is essentially $1$. Optimizing irrelevant stuff at this level while sacrificing readability is a signature move unique to LLMs.}
+    \le \E[K]
+       +\left(\frac1\theta+1\right)\P[K\ge1]
+    =W+\frac{\P[K\ge1]}{\theta}
+    \le W+\frac1\theta.
+\]
 
 For the pointwise lower bound, if $K=k\ge1$, the policy travels along exactly
 $k+1$ edges, each of length at least~$1$.  Taking expectation over the active
@@ -1291,7 +1303,11 @@ Then $\delta_n=o(1)$ and
 \end{lemma}
 
 \begin{proof}
-By~\cref{eq:random-metric-growth}, $\delta_n=o(1)$.  The nonnegative random
+By~\cref{eq:random-metric-baseline-lower-bound},
+\[
+    \theta W\ge\frac{n}{(\log n)^5}\longrightarrow\infty,
+\]
+and hence $\delta_n=o(1)$.  The nonnegative random
 variable $U(D)-W$ satisfies
 \[
     \E_D[U(D)-W]\le\frac1\theta
@@ -3316,13 +3332,13 @@ We therefore replace undirected detours by a directed circulation.
 
 There are three results.  First, some backbone admits a fractional circulation
 whose cost, together with the cost of a tour on the backbone, is at most
-$O(\log(n+1))\optpost$.  Second, the part of this circulation passing through
+$O(\log n)\optpost$.  Second, the part of this circulation passing through
 vertices outside the backbone can be rounded so that each such vertex chooses
 one ordered pair of backbone vertices.  The rounding does not increase cost
-and leaves only $O(\log(n+1))$ \sharat{The difference between $\log n$ and $\log (n+1)$ is insignificant. There's no reason for worrying about this difference.} weighted imbalance across every interval of
+and leaves only $O(\log n)$ weighted imbalance across every interval of
 the backbone order.  Third, after the activation set is known, Hoffman's
 circulation theorem converts the active rounded chords into a closed walk
-whose edge multiplicities are $O(\log(n+1))$, with high probability over the
+whose edge multiplicities are $O(\log n)$, with high probability over the
 realization.
 
 These statements do \emph{not} yet give an adaptive policy.  In particular,
@@ -3446,7 +3462,7 @@ $\P(A\cup S=C)>0$,
 In particular,
 \[
     \E\bigl[M(A,S)\mid A\cup S=C\bigr]
-    =O(\log(n+1)).
+    =O(\log n).
 \]
 \end{lemma}
 
@@ -3471,7 +3487,7 @@ Let $L:=\lceil\log_2(\max\{n,2\})\rceil$.  The tail-sum formula yields
     \E[M(A,S)\mid A\cup S=C]
     \le
     L+\sum_{t>L}n2^{-t}
-    =O(\log(n+1)).
+    =O(\log n).
 \]
 \end{proof}
 
@@ -3480,12 +3496,12 @@ Let $L:=\lceil\log_2(\max\{n,2\})\rceil$.  The tail-sum formula yields
 If $S$ is sampled independently with $\P(v\in S)=p_v$, then
 \[
     \E_S\bigl[\opt(S)+c(S)\bigr]
-    \le O(\log(n+1))\optpost.
+    \le O(\log n)\optpost.
 \]
 Consequently, there exists a fixed backbone~$S$ for which
 \[
     \opt(S)+c(S)
-    \le O(\log(n+1))\optpost.
+    \le O(\log n)\optpost.
 \]
 \end{proposition}
 
@@ -3501,7 +3517,7 @@ Using the feasible solution~$z^S$, linearity of cost, and
     &\le \E_S[\cost(z^S)]\\
     &=\E_{A,S}[\cost(z^{A,S})]\\
     &\le\E_{A,S}[M(A,S)\opt(A\cup S)]\\
-    &\le O(\log(n+1))\,\E_{A,S}[\opt(A\cup S)].
+    &\le O(\log n)\,\E_{A,S}[\opt(A\cup S)].
 \end{align*}
 For every pair~$A,S$, concatenate optimal tours on
 $A\cup\{r\}$ and $S\cup\{r\}$ and shortcut repeated vertices.  The directed
@@ -3511,7 +3527,7 @@ triangle inequality gives
 \]
 Both terms on the right have expectation~$\optpost$, so
 \[
-    \E_S[c(S)]\le O(\log(n+1))\optpost.
+    \E_S[c(S)]\le O(\log n)\optpost.
 \]
 Adding the expected backbone-tour cost proves the first statement.  The
 existence statement follows by averaging.
@@ -3529,7 +3545,7 @@ by boosting the sampling probabilities.
 There are absolute constants $c,D_0,K_0>0$ such that the following holds.
 Put
 \[
-    \lambda:=\left\lceil c\log(n+1)\right\rceil
+    \lambda:=\left\lceil c\log n\right\rceil
     \qquad\text{and}\qquad
     \widehat p_v:=\min\{1,\lambda p_v\}.
 \]
@@ -3538,10 +3554,10 @@ $R:=S\cup\{r\}$, and a feasible solution~$z$ to
 $\mathrm{CIRC}(S)$ such that
 \begin{align}
     \cost(T_R)+\cost(z)
-    &\le K_0\log(n+1)\optpost,
+    &\le K_0\log n\optpost,
     \label{eq:boosted-cost}\\
     z(\delta^+(s))=z(\delta^-(s))
-    &\le D_0\log(n+1)
+    &\le D_0\log n
     \qquad\forall s\in R,
     \label{eq:boosted-degree}\\
     p_i&<\frac1\lambda
@@ -3557,20 +3573,20 @@ First consider one ordinary sample~$B$, in which each non-root vertex~$v$ is inc
 with probability~$p_v$, and the averaged witness~$z^B$ constructed above.
 \Cref{eq:ordinary-backbone-degree,lem:circulation-longest-run} give
 \[
-    \E_B[Z(B)]=O(\log(n+1)).
+    \E_B[Z(B)]=O(\log n).
 \]
 The calculation in the proof of
 \cref{prop:low-cost-backbone-circulation} also gives
 \[
     \E_B[\cost(z^B)]
-    =O(\log(n+1))\optpost.
+    =O(\log n)\optpost.
 \]
 By Markov's inequality, after choosing absolute constants $D_0$ and~$K_0$
 large enough, both
 \[
-    Z(B)\le D_0\log(n+1)
+    Z(B)\le D_0\log n
     \quad\text{and}\quad
-    \cost(z^B)\le K_0\log(n+1)\optpost
+    \cost(z^B)\le K_0\log n\optpost
 \]
 hold with probability at least~$3/4$.  Call such a sample \emph{good}.
 
@@ -3589,7 +3605,7 @@ backbone is enlarged from~$B^j$ to~$S$.  Indeed, every vertex still outside
 $S$ was outside $B^j$ and retains incoming and outgoing degree~$p_v$.
 Every new backbone vertex $s\in S\setminus B^j$ previously had degree
 $p_s\le1$, while the old backbone vertices have degree at most
-$D_0\log(n+1)$.  The support restriction can only become weaker when the
+$D_0\log n$.  The support restriction can only become weaker when the
 outside set shrinks.  Hence~\cref{eq:boosted-degree} holds and the circulation
 cost is unchanged.
 
@@ -3804,25 +3820,25 @@ ordered pair $(a_i,b_i)\in R\times R$ such that
     +\sum_{a,b\in R}d(a,b)y_{ab}
     +\sum_{\substack{i\in V^\circ\setminus S\\p_i>0}}
        p_i\bigl(d(a_i,i)+d(i,b_i)\bigr)
-    \le O(\log(n+1))\optpost.
+    \le O(\log n)\optpost.
     \label{eq:partial-circulation-total-cost}
 \end{align}
 Moreover,
 \begin{equation}\label{eq:rounded-backbone-degree}
-    \sum_{b\in R}y_{ab}\le O(\log(n+1)),
+    \sum_{b\in R}y_{ab}\le O(\log n),
     \qquad
-    \sum_{b\in R}y_{ba}\le O(\log(n+1))
+    \sum_{b\in R}y_{ba}\le O(\log n)
     \qquad\forall a\in R,
 \end{equation}
 and every outside vertex satisfies
 \begin{equation}\label{eq:rounded-small-probability}
-    p_i\le O\left(\frac1{\log(n+1)}\right).
+    p_i\le O\left(\frac1{\log n}\right).
 \end{equation}
 If $\widehat x_{i,a_i b_i}:=p_i$ and all other $\widehat x$-variables are
 zero, then for every cyclic interval~$I$ of~$T_R$,
 \[
     |\Delta_{\widehat x,y}(I)|
-    \le O(\log(n+1)).
+    \le O(\log n).
 \]
 \end{theorem}
 
@@ -3838,9 +3854,9 @@ increase it by~\cref{eq:rounding-cost}.  Thus
 so~\cref{eq:rounded-backbone-degree} follows from
 \cref{eq:boosted-degree}; \cref{eq:rounded-small-probability} is
 \cref{eq:boosted-outside-probability}.  Finally,
-$p_{\max}=O(1/\log(n+1))$, and hence
+$p_{\max}=O(1/\log n)$, and hence
 \cref{eq:rounding-interval-balance} improves to
-$O(\log(n+1))$.
+$O(\log n)$.
 \end{proof}
 
 \section{An offline bounded-multiplicity closed walk}
@@ -3914,10 +3930,10 @@ There is an absolute constant $C_0$ such that, with probability at least
 $1-(n+1)^{-5}$ over the activation set~$A$, every $X\subseteq R$ satisfies
 \begin{align}
     F_A^-(X)
-    &\le2\mu^-(X)+C_0\iota(X)\log(n+1),
+    &\le2\mu^-(X)+C_0\iota(X)\log n,
     \label{eq:cut-concentration-in}\\
     \mu^+(X)
-    &\le2F_A^+(X)+C_0\iota(X)\log(n+1).
+    &\le2F_A^+(X)+C_0\iota(X)\log n.
     \label{eq:cut-concentration-out}
 \end{align}
 \end{lemma}
@@ -3939,7 +3955,7 @@ $F_A^+(X)<\mu^+(X)/2$, whose probability is at most
 
 There are at most $|R|^{2k}\le(n+1)^{2k}$ subsets of a cyclic order having
 $k$ interval components: it is enough to choose their $2k$ boundary
-positions.  Set $t=C_0k\log(n+1)$, choose $C_0$ sufficiently large, and take
+positions.  Set $t=C_0k\log n$, choose $C_0$ sufficiently large, and take
 a union bound over all $k\ge1$ and both inequalities.  The resulting failure
 probability is at most $(n+1)^{-5}$.  The two sets with $k=0$ satisfy both
 inequalities trivially.
@@ -3954,12 +3970,12 @@ properties:
     \item for every active outside vertex $i\in A\cap U$, the walk traverses
     both arcs of $a_i\to i\to b_i$ between one and four times;
     \item every backbone-cycle edge is traversed at least once and at most
-    $O(\log(n+1))$ times; and
+    $O(\log n)$ times; and
     \item every auxiliary backbone arc $a\to b$ with $y_{ab}>0$ is traversed
-    at most $O(\log(n+1))$ times.
+    at most $O(\log n)$ times.
 \end{enumerate}
 Thus every active outside chord is used at least once and every edge used by
-the offline walk has multiplicity $O(\log(n+1))$.
+the offline walk has multiplicity $O(\log n)$.
 \end{theorem}
 
 \begin{proof}
@@ -3969,7 +3985,7 @@ Fix a realization satisfying
 $C_\Delta$ such that every cyclic interval~$I$ satisfies
 \[
     |\Delta_{\widehat x,y}(I)|
-    \le C_\Delta\log(n+1).
+    \le C_\Delta\log n.
 \]
 If $X$ is the disjoint union of $\iota(X)$ cyclic intervals, additivity of the
 imbalance gives
@@ -3977,12 +3993,12 @@ imbalance gives
     \bigl|
        \mu^+(X)-\mu^-(X)+y^+(X)-y^-(X)
     \bigr|
-    \le C_\Delta\iota(X)\log(n+1).
+    \le C_\Delta\iota(X)\log n.
 \]
 In particular,
 \begin{equation}\label{eq:mean-cut-comparison}
     \mu^-(X)
-    \le\mu^+(X)+y^+(X)+C_\Delta\iota(X)\log(n+1).
+    \le\mu^+(X)+y^+(X)+C_\Delta\iota(X)\log n.
 \end{equation}
 Combining
 \cref{eq:cut-concentration-in,eq:mean-cut-comparison,eq:cut-concentration-out}
@@ -3991,7 +4007,7 @@ yields
     F_A^-(X)
     \le
     4F_A^+(X)+2y^+(X)+
-    (2C_\Delta+3C_0)\iota(X)\log(n+1)
+    (2C_\Delta+3C_0)\iota(X)\log n
     \qquad\forall X\subseteq R.
 \end{equation}
 
@@ -4008,7 +4024,7 @@ upper bounds:
     \[
         K:=
         \left\lceil
-        (2C_\Delta+3C_0)\log(n+1)
+        (2C_\Delta+3C_0)\log n
         \right\rceil+1.
     \]
 \end{enumerate}
@@ -4030,10 +4046,10 @@ are integral, so there is an integral circulation~$g$ within them.
 Every auxiliary backbone arc has
 \[
     g_{ab}\le\lceil2y_{ab}\rceil
-    \le 2D_0\log(n+1)+1
+    \le 2D_0\log n+1
 \]
 by~\cref{eq:rounded-backbone-degree}.  The cycle-edge multiplicity is at
-most~$K=O(\log(n+1))$, while every active outside chord has multiplicity
+most~$K=O(\log n)$, while every active outside chord has multiplicity
 between one and four.
 
 Finally, expand every chord~$e_i$ carrying $g_{e_i}$ units into
@@ -4079,28 +4095,26 @@ implementation.
 
 
 % ============================================================
-% CHAPTER 6: APPROXIMATE A PRIORI TSP
+% CHAPTER 6: ALMOST-OPTIMAL A PRIORI TOURS
 % ============================================================
-\chapter{Approximate A Priori TSP via Dynamic Programming}\label{ch:dp}
+\chapter{Almost-Optimal A Priori Tours via Dynamic Programming}\label{ch:dp}
 
-\sharat{Better title: Almost-Optimal A Priori Tours via Dynamic Programming}
+Our main focus in this chapter is to compute almost-optimal a~priori tours for
+\StochTSP{}.  A polynomial-time approximation scheme is impossible unless
+$\mathrm{P}=\mathrm{NP}$: when every non-root vertex is active with
+probability~$1$, the a~priori and a~posteriori optima both coincide with the
+optimum of classical metric TSP, which is APX-hard~\cite{Karpinski2015}.
 
-\sharat{Rephrase. Our main focus in this chapter is to obtain almost-optimal a priori tours for StochTSP. Since a priori and a posteriori optimums are the same for deterministic instances of TSP and the latter problem is APX-hard, P vs. NP conjecture rules out polynomial time approximation schemes for the a priori problem. 
-}
-This chapter studies how to compute a nearly optimal a~priori solution.  An
-a~priori solution fixes a tour before the active vertices are known, and its
-realization is obtained by shortcutting past the inactive vertices.  Finding
-the best tour directly is difficult because vertices that are far apart in
-its order may become consecutive after shortcutting.
-
-The main result of the chapter is a deterministic
+We instead allow exponential running time.  The main result is a deterministic
 $(1+\varepsilon)$-approximation algorithm for a~priori TSP on both symmetric
 and asymmetric metrics.  For every fixed $\varepsilon>0$, the algorithm runs
 in time $c_\varepsilon^n\poly(n)$, where $c_\varepsilon$ is a constant depending
 only on $\varepsilon$.
 
-The main difficulty is that shortcutting creates dependencies between vertices
-that are far apart in the order.  In \Cref{sec:dp-pairwise-objective}, we
+An a~priori solution fixes a tour before the active vertices are known, and
+its realization shortcuts the inactive vertices.  The main difficulty is
+that vertices far apart in the fixed order may therefore become consecutive.
+In \Cref{sec:dp-pairwise-objective}, we
 decompose the expected cost into pairwise interactions and show that the
 rarest of them can be ignored with only a small loss.  After grouping the
 vertices into blocks, the remaining interactions are local enough to be
