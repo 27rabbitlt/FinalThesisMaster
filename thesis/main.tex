@@ -872,6 +872,10 @@ Since $\E[X]=(n-2)/2$, it follows that
 \section{Randomizing the metric}
 \label{sec:random-metric-gap}
 
+\sharat{The below three paras read like an LLM wrote it. Try to give it your own voice because the current text is not illuminating. It's OK if the flow isn't as smooth but words like pattern and continuation seems out of place.}
+
+\sharat{You don't have to necessarily force a connection with the previous section. Try to give intuition through $G_{n,p}$. Mention that the probability of activation is small. Mention that the graph is symmetric in its structure so we only need to show that the probability that the a priori tour $1,\ldots,n$ has low cost is much smaller than $1/n!$. Say something about why the adaptive policy has a decent chance of paying a cost of $1$ to visit the next activated vertex. This story will take some time to clean up so give it another attempt.}
+
 The cycle-subdivided-clique construction suggests a more general mechanism
 for separating adaptive and a~priori solutions.  Its subdivision vertices are
 random, and deleting the inactive ones creates shortcut edges that a fixed
@@ -921,7 +925,7 @@ and the claim follows from Theorem~\ref{thm:random-metric-gap}.
 
 \subsection{The random metric}
 
-All logarithms in this section are natural.  Fix a sufficiently large
+All logarithms in this section are natural \sharat{all logs are to the base $\mathrm{e}$}.  Fix a sufficiently large
 integer~$n$, let $V=[n]$, and set
 \[
     p:=\frac{1}{(\log n)^4},
@@ -942,7 +946,9 @@ $X_e$ with mean~$\theta$, and define
     D(x,x):=0.
 \]
 Thus a pair has distance~$1$ with probability~$\theta$ and distance~$2$
-otherwise.  We call a pair of distance~$1$ a \emph{cheap edge}.
+otherwise. 
+\sharat{It's a good idea to mention that this random metric is an instance of the $(1,2)$-TSP problem. Every realization being a symmetric metric is trivial. You shouldn't have to establish it.}
+We call a pair of distance~$1$ a \emph{cheap edge}.
 Every realization of~$D$ is a symmetric metric: for distinct $x,y,z$,
 \[
     D(x,z)\le2\le D(x,y)+D(y,z).
@@ -966,13 +972,14 @@ lower bound on the expected cost of every benchmark.  Moreover,
     \theta W\ge\frac{n}{(\log n)^5}\longrightarrow\infty.
 \end{equation}
 
+\sharat{I don't understand why $n/\log^5 n \to \infty$. It's not relevant at this point to take $n \to \infty$.}
 \subsection{A uniform lower bound for a priori tours}
 
 Fix an a~priori tour
 \[
     T=(r,v_1,v_2,\ldots,v_n,r)
 \]
-and a deterministic realization~$d$ of the metric.  Write
+and a deterministic realization~$d$ of the metric. \sharat{Rewrite this section. Written in the style of an LLM. You have to recall definitions of a priori cost by pointing the relevant definition or equation.} Write
 \[
     C_d(T):=\E_A[\cost_d(T|_A)].
 \]
@@ -1061,6 +1068,7 @@ With probability $1-o(1)$ over the random metric~$D$,
 \end{lemma}
 
 \begin{proof}
+\sharat{You only need to argue that the a priori tour $r,1,\ldots,n,r$ has low cost with extremely tiny probability.}
 Fix a tour~$T$, and let $c_e$ be the coefficient of the unordered pair~$e$
 in~\eqref{eq:random-metric-expansion}.  Since $D(e)=2-X_e$ and the
 coefficients sum to~$W$,
@@ -1114,17 +1122,25 @@ The conclusion follows because
 $\theta=\varepsilon=1/\log n$.
 \end{proof}
 
+\sharat{The above section does not read well. The intuition for the proof is missing. Some quantities are introduced without motivating why they are relevant. Mention Hoeffding inequality in the prelims chapter and invoke it with the correct parameters. Also, whenever you invoke a lemma, you have to mention why the hypothesis holds. Make a remark early on that the cost of the tour is a sum of independent bounded random variables with mean so and so.}
+
 \subsection{A cheap adaptive policy}
 
+\sharat{Notation is quite poor. You need to recall how $d$ is obtained. Since it's a random variable, you will need to introduce more precise notation.}
 For each deterministic metric realization~$d$, define a policy~$\pi_d$ as
-follows.  Suppose the salesperson is at~$u$ and the set of unprobed clients
+follows. 
+\sharat{Best to avoid using client terminology.}
+Suppose the salesperson is at~$u$ and the set of unprobed clients
 is~$S$.  If $S=\varnothing$, return to~$r$.  If $u$ has a cheap neighbor
-in~$S$, probe the least-labeled such client; otherwise probe the least-labeled
+in~$S$, probe the \sharat{vertex with the smallest label. mention early on that the vertices are labeled $1,\ldots,n$.} least-labeled such client; otherwise probe the least-labeled
 client in~$S$.  Thus all unprobed cheap neighbors of the current location
 are probed before any client at distance~$2$.
 
+\sharat{Confusing text.}
 This policy may depend on~$d$, because the metric is fixed as part of the
 instance and is known before any activation outcomes are observed.
+
+\sharat{Maybe name the adaptive policy as \emph{nearest unprobed neighbor}. I am intentionally avoiding mentioning lazy in the name because the actual implementation of the policy can also be done non lazily.}
 
 \begin{lemma}[Cost of the adaptive policy]
 \label{lem:random-metric-adaptive-average}
@@ -1148,6 +1164,7 @@ the random metric and the active set.  Immediately after the salesperson
 arrives at an active client~$u$, let $S$ be the set of unprobed clients and
 suppose that exactly $s$ clients in~$S$ are active.
 
+\sharat{This part is a bit confusing as the metric was claimed to have been realized. You need to rethink how you present this section. since we are establishing an upper bound, it suffices to prove that some adaptive policy has low cost in expectation. Describe the adaptive policy precisely. Right after the description prove a lemma which captures the invariants of the adaptive policy. For example, if the adaptive tour has just arrived at an active vertex $u$ and the set of unprobed vertices is $S$, then none of the edges in $G[u+S]$ have realized their lengths. You could say that the distribution of edge lengths is identical to $G_{1+|S|,p}$ in your cost model. To do this you need to setup some clean notation early on about the distribution of edge lengths for a $k$-vertex graph.}
 We expose the random metric lazily for the purpose of the analysis.  Before
 this arrival, none of the edges $\{u,v\}$ with $v\in S$ has affected a
 decision of the policy: previous decisions inspected only edges incident to
@@ -1192,6 +1209,8 @@ For $K=0$ the cost is~$0$.  Averaging over~$K$ gives
     \le
     W+\frac1\theta.
 \end{align*}
+
+\sharat{The above calculation is focusing on the wrong details. The probability that $K$ is nonzero is essentially $1$. Optimizing irrelevant stuff at this level while sacrificing readability is a signature move unique to LLMs.}
 
 For the pointwise lower bound, if $K=k\ge1$, the policy travels along exactly
 $k+1$ edges, each of length at least~$1$.  Taking expectation over the active
@@ -3219,7 +3238,7 @@ whose cost, together with the cost of a tour on the backbone, is at most
 $O(\log(n+1))\optpost$.  Second, the part of this circulation passing through
 clients outside the backbone can be rounded so that each such client chooses
 one ordered pair of backbone vertices.  The rounding does not increase cost
-and leaves only $O(\log(n+1))$ weighted imbalance across every interval of
+and leaves only $O(\log(n+1))$ \sharat{The difference between $\log n$ and $\log (n+1)$ is insignificant. There's no reason for worrying about this difference.} weighted imbalance across every interval of
 the backbone order.  Third, after the activation set is known, Hoffman's
 circulation theorem converts the active rounded chords into a closed walk
 whose edge multiplicities are $O(\log(n+1))$, with high probability over the
@@ -3979,6 +3998,10 @@ implementation.
 % ============================================================
 \chapter{Approximate A Priori TSP via Dynamic Programming}\label{ch:dp}
 
+\sharat{Better title: Almost-Optimal A Priori Tours via Dynamic Programming}
+
+\sharat{Rephrase. Our main focus in this chapter is to obtain almost-optimal a priori tours for StochTSP. Since a priori and a posteriori optimums are the same for deterministic instances of TSP and the latter problem is APX-hard, P vs. NP conjecture rules out polynomial time approximation schemes for the a priori problem. 
+}
 We give a deterministic $(1+\varepsilon)$-approximation algorithm for
 a~priori TSP on directed metrics.  For every fixed $\varepsilon>0$, its
 running time is $c_\varepsilon^n\poly(n)$.
