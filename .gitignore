@@ -35,3 +35,9 @@ texbuild/
 
 # no tmp folder
 tmp/
+
+# Independent Rethlas checkout used for proof generation and verification.
+# It has its own Git root so Codex does not inherit this thesis repo's prompts.
+rethlas-thesis/
+
+output/
