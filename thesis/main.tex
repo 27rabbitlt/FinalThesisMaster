@@ -23,6 +23,10 @@
 
 \pagenumbering{Roman}
 \input{preamble/title}
+\hypersetup{
+  pdftitle={\thesistitle},
+  pdfauthor={\thesisauthor}
+}
 \maketitlepage
 \pagenumbering{roman}
 
@@ -374,7 +378,7 @@ research.
 % ============================================================
 \chapter{Adaptivity Gap for Symmetric \StochTSP{}}\label{ch:sym-adapt}
 
-In this chapter we focus on symmetric StochTSP. \sharat{Should be a macro. I believe you will be switching between \StochTSP{} and \StochTSP\ based on the use case.}
+In this chapter we focus on symmetric \StochTSP{}.
 The main result of this chapter is that the adaptivity gap is at least~$2$.
 We give two qualitatively different constructions.
 In \Cref{sec:cycle-subdivided-construction}, we establish the
@@ -1415,14 +1419,16 @@ tour dominate $\log(n!)$. \sharat{Never heard of anyone use the terminology of a
 
 \providecommand{\Gammaone}{\Gamma_{1}}
 
-This chapter gives a sharp result for symmetric \StochTSP{} instances with
-one stochastic vertex.  We first construct a balanced three-chain family
-with one vertex active with probability~$1/2$.  Its clairvoyance gap is
+This chapter determines the exact worst-case clairvoyance gap for symmetric
+\StochTSP{} instances with one stochastic vertex of activation
+probability~$1/2$.  We first construct a balanced three-chain family.  Its
+clairvoyance gap is
 \[
   \frac{10m+2}{9m+2}>\frac{11}{10}
 \]
-for every integer $m\ge3$, and converges to~$10/9$.  We then prove a matching
-upper bound for this activation probability.
+for every integer $m\ge3$ and converges to~$10/9$.  We then prove a
+probability-dependent upper bound for every symmetric instance with one
+stochastic vertex; at probability~$1/2$, it matches the limiting lower bound.
 
 More generally, for $p\in[0,1]$, let
 \[
@@ -1492,6 +1498,20 @@ vertex other than $s$ is deterministic, and $s$ is active with probability
 $1/2$.  Denote the resulting balanced-three-chain instance by
 $\mathcal{I}_m^{\mathrm{BTC}}$.
 \end{construction}
+
+All listed graph edges are geodesic.  Indeed, an alternative to a chain edge
+must leave and re-enter that chain and therefore has length greater than~$2$.
+The shortest alternatives to an outer edge, to the phase edge $b_mc_0$, and
+to either phase edge incident to $s$ have respective lengths at least
+\[
+  U+P,
+  \qquad
+  2U+H,
+  \qquad
+  3P,
+\]
+all strictly larger than the corresponding edge length.  Thus the costs of
+the tours below can be read directly from the displayed graph edges.
 
 \Cref{fig:balanced-three-chain} shows the topology of the construction.
 The edge lengths are chosen by balancing the intended tours against the
@@ -1591,7 +1611,9 @@ In particular,
 For every ordered pair of metric vertices, fix one shortest path in the
 underlying graph, choosing the reverse path for the reverse ordered
 pair.  Replacing every metric edge of a tour by its fixed shortest path gives
-an \emph{expanded closed walk} of exactly the same cost.  A traversal of one
+an \emph{expanded closed walk} of exactly the same cost.  This expansion is
+only a geometric representation of the movement: passing through an
+intermediate graph vertex neither probes nor serves it.  A traversal of one
 of the seven non-chain edges in \cref{eq:outer-edges,eq:phase-edges} is called
 a \emph{crossing}.  Crossings are counted with multiplicity.
 
@@ -1662,7 +1684,7 @@ least two crossings incident to $A$, each of cost $U$, and at least two
 crossings incident to $s$, each of cost $P$.  By
 \cref{lem:chain-contribution}(i), its cost is at least
 \[
-  3H+2U+2V=L_1.
+  3H+2U+2P=L_1.
 \]
 Thus a tour of cost below $L_1$ does not traverse $s$.
 
@@ -1701,7 +1723,7 @@ Now suppose $x,y,z$ are even.  Connectivity implies that at least two of them
 are positive.  If $z>0$, then there are at least two $B$--$C$ crossings and at
 least two crossings incident to $A$, so the total cost is at least
 \[
-  3H+2U+2V=L_1.
+  3H+2U+2P=L_1.
 \]
 Assume therefore that $z=0$.  Then $x,y\ge2$.  If $x+y\ge6$, the total cost is
 at least $3H+6U>L_1$.  The only remaining possibility is
@@ -1711,10 +1733,13 @@ at least $3H+6U>L_1$.  The only remaining possibility is
   z=0.
 \]
 If $B$ or $C$ uses the same endpoint twice, the total internal contribution is
-at least $4H$, and the cost is greater than $L_1$.  Otherwise both $B$ and $C$
-use opposite endpoints.  Hence each of the four outer edges is used exactly
-once.  By \cref{lem:chain-contribution}(iii), the internal contribution is at
-least
+at least $4H$, and hence the total cost is at least
+\[
+  4H+4U=L_1+4>L_1.
+\]
+Otherwise both $B$ and $C$ use opposite endpoints.  Hence each of the four
+outer edges is used exactly once.  By
+\cref{lem:chain-contribution}(iii), the internal contribution is at least
 \[
   H+H+(2H-4)=4H-4.
 \]
@@ -1743,11 +1768,11 @@ skeleton
 \end{lemma}
 
 \begin{proof}
-Any expanded closed walk serving $s$ has at least two crossings incident to
-$A$, each of cost $U$, and at least two crossings incident to $s$, each of cost
-$P$.  Therefore
+Let $W$ be any expanded closed walk serving all active vertices.  It has at
+least two crossings incident to $A$, each of cost $U$, and at least two
+crossings incident to $s$, each of cost $P$.  Therefore
 \[
-  \cost(W)\ge3H+2U+2V=L_1
+  \cost(W)\ge3H+2U+2P=L_1
 \]
 by \cref{lem:chain-contribution}(i), and $T_1$ attains this value.
 
@@ -1772,9 +1797,10 @@ cost is at least
 Thus strict inequality forces exactly the skeleton in
 \cref{eq:active-skeleton}, up to reversal.
 
-If $N_\times=5$, let $N_A$ be the number of crossings incident to $A$ and $N_s$ the
-number incident to $s$.  Both are positive and even.  Every crossing is either
-incident to $A$, incident to $s$, or is a $B$--$C$ crossing.  Therefore
+If $N_\times=5$, let $N_A$ and $N_s$ be the numbers of crossings incident to
+$A$ and $s$, respectively, and let $N_{BC}$ count the $B$--$C$ crossings.
+The first two numbers are positive and even.  Every crossing belongs to
+exactly one of these three categories, so
 $N_\times=5$ forces
 \[
   N_A=2,
@@ -1783,16 +1809,18 @@ $N_\times=5$ forces
   \qquad
   N_{BC}=1.
 \]
-The crossing cost is at least $2U+3V$, and hence the total cost is at least
-$L_1+P$.
+The crossing cost is at least $2U+3P$, and hence the total cost is at least
+\[
+  3H+2U+3P=L_1+P.
+\]
 
 Finally, if $N_\times\ge6$, the two mandatory $A$-crossings and two mandatory
 $s$-crossings are supplemented by at least two further crossings.  Every
 additional crossing costs at least $U$, so
 \[
   \cost(W)
-  \ge3H+4U+2V
-  >3H+2U+3V
+  \ge3H+4U+2P
+  >3H+2U+3P
   =L_1+P,
 \]
 where the strict inequality is $2U>P$.  This proves the rigidity statement.
@@ -1823,18 +1851,28 @@ three crossings in \cref{eq:inactive-skeleton}.  By
 \cref{lem:active-rigidity}, the active expanded walk uses only the four
 crossings in \cref{eq:active-skeleton}.
 
-In the active skeleton, the component immediately preceding $s$ is either
-$C$ or, under reversal, $B$.  That chain has exactly two crossing incidences in
-the entire active expanded walk, so all probes of its deterministic vertices must
-occur in its unique component interval.  Moreover, the crossing by which the
-walk enters that interval must occur before the probe of $s$.  Indeed, if the
-entry crossing occurred only as part of the post-probe movement to the active
-vertex $s$, none of the vertices of the preceding chain could have been probed
-in that interval before $s$; serving them later would require re-entering the
-chain and would create additional crossings.
+No movement in the active execution can pass through $s$ before it is probed:
+such a transit would already use two crossings incident to~$s$, while the
+mandatory post-probe movement to the active vertex~$s$ would use another;
+the active skeleton has only two.  Contract the active expanded walk to its
+four-cycle.  It starts in $A$, so the first visit to $s$ is preceded by one of
+the quotient paths
+\[
+  A-C-s
+  \qquad\text{or}\qquad
+  A-B-s.
+\]
+The corresponding chain $X\in\{B,C\}$ has exactly two crossing incidences in
+the entire walk: one from $A$ and one to $s$.  The $X$--$s$ crossing occurs in
+the movement immediately after the remote probe of the active vertex~$s$.
+The $A$--$X$ crossing must occur earlier.  Otherwise the execution has not
+entered $X$ before probing~$s$, so none of the deterministic vertices of~$X$
+has been probed: probing any one of them would force an immediate movement
+into~$X$.  After the movement to~$s$, both crossings incident to $X$ would
+already have been used, and serving any remaining vertex of~$X$ would require
+an additional crossing, contradicting the active rigidity lemma.
 
-Consequently, before the probe of $s$, the common expanded prefix has already
-used either
+Thus, before probing $s$, the common expanded prefix has already used either
 \[
   a_mc_0
   \qquad\text{or}\qquad
@@ -1877,7 +1915,7 @@ For an adaptive upper bound, follow the order of $T_1$ and probe $s$ upon
 reaching $c_m$.  If $s$ is active, the realized tour is exactly $T_1$.  If it
 is inactive, probe $b_0$ next.  The metric distance satisfies
 \[
-  d(c_m,b_0)\le d(c_m,s)+d(s,b_0)=2V,
+  d(c_m,b_0)\le d(c_m,s)+d(s,b_0)=2P,
 \]
 which is exactly the cost of the two phase edges used by the active branch.
 Thus both realized costs are at most $L_1$, and
@@ -1926,12 +1964,12 @@ outer edges.  By \cref{lem:chain-contribution}(iii), its cost is at least
 \]
 We need this value to be at least the cost of the intended active tour,
 \[
-  L_1=3H+2U+2V.
+  L_1=3H+2U+2P.
 \]
 To make the outer edges as short as possible without allowing this competitor
 below~$L_1$, we impose equality:
 \[
-  4H-4+4U=3H+2U+2V.
+  4H-4+4U=3H+2U+2P.
 \]
 Together with $P=2H$, this gives
 \[
@@ -2222,10 +2260,26 @@ For the three-chain family,
   \Delta=L_1-L_0=4m.
 \]
 The neighbors of $s$ in $T_1$ are $c_m$ and $b_0$, and
-$d(c_m,b_0)=2V$, so shortcutting $s$ saves $\beta=0$.  A direct check of the
-three internal-edge families and the three crossing edges of $T_0$ shows that
-every insertion surcharge is at least $2V$; equality holds, for example, on
-the edge $a_mb_0$.  Thus $\alpha=2V=8m$.  Consequently,
+the graph distances to $s$ are
+\[
+  d(s,b_j)=P+2j,
+  \qquad
+  d(s,c_j)=P+2(m-j),
+  \qquad
+  d(s,a_j)=P+U+2\min\{j,m-j\}.
+\]
+The paths $c_m,s,b_0$ and
+$c_m,c_{m-1},\ldots,c_0,b_m,b_{m-1},\ldots,b_0$ both have length~$2P$.
+Conversely, every $c_m$--$b_0$ path that avoids $s$ either uses the phase edge
+$c_0b_m$, at cost at least $H+P+H=2P$, or connects the two chains through
+$A$, at cost at least $2U+H=2P+4$.  Hence $d(c_m,b_0)=2P$, and shortcutting
+$s$ saves $\beta=0$.
+
+The displayed distance formulas also determine every insertion surcharge in
+$T_0$.  On the edge $b_{j-1}b_j$ it is
+$2P+4j-4$, and on $c_{j-1}c_j$ it is $2P+4(m-j)$.  On every internal edge of
+$A$ it is at least $2P+2U-2>2P$.  Each of the three crossing edges of $T_0$
+has surcharge exactly~$2P$.  Therefore $\alpha=2P=8m$.  Consequently,
 \[
   \frac{\Delta}{\ell_0}\longrightarrow\frac14,
   \qquad
@@ -4275,25 +4329,29 @@ Rearranging proves~\cref{eq:long-gap-truncation}.
 
 \section{The block objective}\label{sec:dp-block-objective}
 
-After truncating the pairwise objective, we still need to optimize the remaining 
-pairs. To achieve this efficiently, we partition vertices into blocks and optimize 
-the order blocks instead of the order of vertices. We call the new optimization objective
-\emph{block objective}.
-We again prove that block objective is a good approximation, which is explained in 
-details in \cref{lem:block-comparison}.
+The truncated objective still depends on the relative order of individual
+vertices.  Our goal is to compress most of these order decisions into an
+order of blocks, while summarizing the internal order of each block by a
+single precomputed value.  The remaining problem is that the exact coefficient of a
+pair depends on the inactive probabilities of all vertices between its
+endpoints, including vertices in the two endpoint blocks. And enumerating the set
+of vertices in between is inefficient.
 
-To obtain such a partition, we keep vertices with large activation
-probability in singleton blocks and group the remaining vertices into blocks
-of small total activation probability.  For a pair whose endpoints lie in
-different blocks, $F_\eta$ retains the inactivity probabilities of the
-complete intervening blocks but omits the factors contributed inside the two
-endpoint blocks.  Omitting these factors gives an upper bound, while the small
-mass of each nonsingleton block controls the resulting overestimate.  The
-block form also allows the dynamic program in the next section to evaluate a
-new block using only a bounded suffix of the preceding blocks.
+We solve this problem by placing every vertex of large activation
+probability in a singleton block and requiring every remaining block to have
+small total activation probability.  Within such a small block, every
+inactive product $Q$ is close to~$1$, so we can approximate it by~$1$ and optimize a
+simpler internal objective.  For a pair in different blocks, we retain the
+inactive products of the complete intervening blocks but omit the two
+partial products inside the endpoint blocks.  These omissions give an upper
+bound, and the small block masses control the resulting overestimate.  The
+surrogate obtained from these two approximations is the \emph{block
+objective}.
 
-Fix $0<\delta<1/4$ and recall that $q_v=1-p_v$.  A non-root vertex is \emph{heavy} if
-$p_v>\delta/2$ and \emph{light} otherwise.  For a set of non-root vertices~$B$, write
+We first specify what blocks are allowed.  Fix $0<\delta<1/4$ and recall
+that $q_v=1-p_v$.  A non-root vertex is \emph{heavy} if
+$p_v>\delta/2$ and \emph{light} otherwise.  For a set of non-root
+vertices~$B$, write
 \[
     \mu(B):=\sum_{v\in B}p_v,
     \qquad
@@ -4301,12 +4359,18 @@ $p_v>\delta/2$ and \emph{light} otherwise.  For a set of non-root vertices~$B$, 
 \]
 For the root block $\{r\}$, set $q(\{r\})=1$.
 
+Heavy vertices must remain singletons.  Light vertices may be grouped as long
+as their total mass is at most~$\delta$; this upper bound makes the two
+approximations above accurate.  We also prevent a run of light blocks from
+being split into arbitrarily many blocks of tiny mass.  Except for the first
+block in such a run, every light block must have mass at least~$\delta/2$.
+This lower bound will later ensure that the dynamic program needs to remember
+only a bounded number of recent blocks.
+
+\begin{samepage}
 \begin{definition}[Admissible blocks and partitions]\label{def:admissible-partition}
-A block is \emph{admissible} if it is either
-\begin{enumerate}[label=(\alph*)]
-    \item a singleton containing one heavy vertex, or
-    \item a nonempty set of light vertices with total mass at most~$\delta$.
-\end{enumerate}
+A block is \emph{admissible} if it is either a singleton containing one heavy
+vertex or a nonempty set of light vertices with total mass at most~$\delta$.
 An ordered partition $(B_1,\dots,B_m)$ is admissible if all its blocks are
 admissible and, whenever $B_{t-1}$ and $B_t$ are both light blocks,
 \[
@@ -4315,17 +4379,40 @@ admissible and, whenever $B_{t-1}$ and $B_t$ are both light blocks,
 Thus, in every consecutive run of light blocks, only the first block may have
 mass below~$\delta/2$.
 \end{definition}
+\end{samepage}
 
-For a light block~$B$, define
+Fix an admissible ordered partition
+$\mathcal B=(B_1,\dots,B_m)$ and introduce the two root blocks
+\[
+    B_0=B_{m+1}:=\{r\}.
+\]
+We now formalize the two parts of the block objective.
+
+First consider pairs whose endpoints lie in the same block.
+Let $B$ be a light block and let $\tau$ be an order of its vertices.  For
+$x<_\tau y$, the inactivity factor contributed by the vertices of~$B$
+between $x$ and~$y$ satisfies
+\[
+    \prod_{x<_\tau z<_\tau y}q_z
+    \ge
+    1-\sum_{z\in B}p_z
+    \ge 1-\delta.
+\]
+Thus this factor is uniformly close to~$1$, regardless of the precise
+separation of $x$ and~$y$ inside the block.  We replace it by~$1$ but still
+choose the internal order that gives the smallest resulting contribution.
+This gives the definition
 \begin{equation}\label{eq:internal-block-cost}
     I(B)
     :=
     \min_{\tau}
     \sum_{x<_\tau y}p_xp_y d(x,y),
 \end{equation}
-where the minimum is over all orders~$\tau$ of~$B$.  For a heavy singleton
-and for the root block, set $I=0$.  The values $I(B)$, together with a
-minimizing order, can be computed by the recurrence
+where the minimum is over all orders~$\tau$ of~$B$.  For heavy singletons and
+root blocks, set $I(B)=0$.
+
+The value $I(B)$ and a minimizing order can be computed by choosing the last
+vertex of the order:
 \begin{equation}\label{eq:internal-block-recurrence}
     I(B)
     =
@@ -4339,17 +4426,22 @@ minimizing order, can be computed by the recurrence
 Indeed, the second term is exactly the contribution of the pairs whose last
 vertex is~$y$.
 
-Given an admissible ordered partition
-$\mathcal B=(B_1,\dots,B_m)$, order each light block according to a minimizer in
-\cref{eq:internal-block-cost}, and concatenate the block orders.  Denote the
-resulting a~priori tour by~$T_{\mathcal B}$.  Put
-$B_0=B_{m+1}=\{r\}$ and recall that $p_r=1$.  Define
+Next consider endpoints in two different blocks $B_i$ and~$B_j$, where
+$i<j$.  Their exact inactive factor contains the product of three parts:
+the vertices after the first endpoint in~$B_i$, all complete blocks strictly
+between $B_i$ and~$B_j$, and the vertices before the second endpoint
+in~$B_j$.  The first and third parts depend on the internal endpoint
+positions.  We drop these two partial-block factors and retain only the
+product over complete intervening blocks.  To aggregate the remaining base
+costs between two blocks, define
 \[
     C(B_i,B_j)
     :=
     \sum_{x\in B_i}\sum_{y\in B_j}p_xp_y d(x,y).
 \]
-Define the \emph{block objective} by
+As in the pairwise truncation from \cref{sec:dp-pairwise-objective}, we keep a block pair only when the retained
+inactivity product exceeds~$\eta$.  Combining the internal and cross-block
+contributions gives the block objective
 \begin{equation}\label{eq:block-objective}
     F_\eta(\mathcal B)
     :=
@@ -4359,21 +4451,44 @@ Define the \emph{block objective} by
                      \prod_{i<t<j}q(B_t)>\eta}}
     \left(\prod_{i<t<j}q(B_t)\right)C(B_i,B_j).
 \end{equation}
-The first sum accounts for pairs whose endpoints lie in the same block.  The
-second sum accounts for pairs in different blocks whenever the inactivity
-product of the complete intervening blocks exceeds~$\eta$.
+The first sum summarizes pairs within the same block.  The second sum
+summarizes pairs in different blocks using only the inactivity probabilities
+of the complete intervening blocks.
 
-\begin{lemma}[Comparison with the exact objective]\label{lem:block-comparison}
-The block objective satisfies the following two inequalities.
+Finally, order every light block according to a minimizer in
+\cref{eq:internal-block-cost} and concatenate the block orders, with the root
+at the beginning and end.  Denote the resulting a~priori tour by
+$T_{\mathcal B}$.  To justify minimizing the block objective, we need two
+comparisons.  First, $F_\eta(\mathcal B)$ should be close to the cost of its
+corresponding tour $T_{\mathcal B}$; otherwise, a small block value could hide
+a tour with large true cost.  Second, every a~priori tour~$T$ should admit an
+admissible consecutive partition~$\mathcal B_T$ whose block value is not much
+larger than $\cost(T)$.  Applied to an optimal tour, this ensures that the
+minimum block value is not much larger than~$\optprior$.  The next lemma makes
+both comparisons precise.
+
+\begin{lemma}\label{lem:block-objective-bounds}
+The block objective satisfies the following inequalities.
 \begin{enumerate}[label=(\roman*)]
     \item For every admissible ordered partition~$\mathcal B$,
-    \begin{equation}\label{eq:block-objective-dominates-local}
+    \begin{align}
         \cost^{\loc}_{\eta}(T_{\mathcal B})
-        \le F_\eta(\mathcal B).
+        &\le F_\eta(\mathcal B),
+        \label{eq:block-objective-dominates-local}\\
+        F_\eta(\mathcal B)
+        &\le(1-\delta)^{-2}\cost(T_{\mathcal B}).
+        \label{eq:block-objective-faithful-upper}
+    \end{align}
+    Consequently, if $\alpha>0$, $\kappa:=(1+\alpha)^2$, and
+    $\kappa\eta^\alpha<1$, then
+    \begin{equation}\label{eq:block-objective-two-sided}
+        \frac{1-\kappa\eta^\alpha}{\kappa}\cost(T_{\mathcal B})
+        \le F_\eta(\mathcal B)
+        \le \frac{1}{(1-\delta)^2}\cost(T_{\mathcal B}).
     \end{equation}
 
     \item For every a~priori tour~$T$, there is an admissible ordered
-    partition $\mathcal B_T$ into consecutive sets of~$T$ such that
+    partition $\mathcal B_T$, consecutive in~$T$, such that
     \begin{equation}\label{eq:block-objective-from-order}
         F_\eta(\mathcal B_T)
         \le(1-\delta)^{-2}\cost(T).
@@ -4382,8 +4497,19 @@ The block objective satisfies the following two inequalities.
 \end{lemma}
 
 \begin{proof}
-For~(i), first consider endpoints $x\in B_i$ and $y\in B_j$ with $i<j$.
-In the tour $T_{\mathcal B}$, their exact coefficient is
+We first record the estimate that controls every omitted partial-block
+factor.  If~$B$ is a light block and $B'\subseteq B$, then
+\begin{equation}\label{eq:partial-block-factor}
+    q(B')
+    \ge 1-\sum_{v\in B'}p_v
+    \ge 1-\delta.
+\end{equation}
+For a heavy singleton or a root block, the corresponding factor equals~$1$.
+
+For the first inequality in~(i), fix an admissible ordered
+partition~$\mathcal B$ and consider
+endpoints $x\in B_i$ and $y\in B_j$ with $i<j$.  In the tour
+$T_{\mathcal B}$, their exact coefficient is
 \[
     p_xp_y\,
     q(B_i^{>x})\,
@@ -4392,39 +4518,59 @@ In the tour $T_{\mathcal B}$, their exact coefficient is
 \]
 where $B_i^{>x}$ denotes the vertices of $B_i$ after~$x$, and
 $B_j^{<y}$ the vertices of $B_j$ before~$y$.  If $(x,y)$ is retained in
-$\cost^{\loc}_{\eta}$, then its exact inactivity probability exceeds
-$\eta$.  Therefore the product over the complete intervening blocks also
-exceeds $\eta$, so the corresponding block pair occurs in
-\cref{eq:block-objective}.  Dropping the two endpoint factors can only
-increase its coefficient.  If both endpoints lie in the same light block~$B$,
-then their exact coefficient is at most $p_xp_y$, and the sum of these upper
-bounds in the chosen internal order is exactly~$I(B)$.  Summing over all
-retained pairs proves~\cref{eq:block-objective-dominates-local}.
+$\cost^{\loc}_{\eta}(T_{\mathcal B})$, then its exact inactivity probability
+exceeds~$\eta$.  Removing the two endpoint-block factors can only increase
+that probability, so the product over the complete intervening blocks also
+exceeds~$\eta$.  Hence the corresponding block pair occurs in
+\cref{eq:block-objective}, with a coefficient at least as large as the exact
+one.
 
-For~(ii), keep every heavy vertex as a singleton.  In each maximal consecutive
-run of light vertices in~$T$, scan from right to left.  Close a block as soon
-as its mass reaches~$\delta/2$, and continue with the remaining prefix of the
-run.  Every closed block has mass in $[\delta/2,\delta]$, because every light
-vertex has probability at most~$\delta/2$.  The only possible block of mass
-below~$\delta/2$ is the leftmost block of the run.  The resulting partition
-$\mathcal B_T$ is therefore admissible.
+If both endpoints lie in the same light block~$B$, their exact inactivity
+factor is at most~$1$.  Their total retained contribution is therefore at
+most the corresponding sum of $p_xp_y d(x,y)$ in the chosen internal order,
+which is exactly~$I(B)$.  Summing these bounds over all retained pairs proves
+\cref{eq:block-objective-dominates-local}.
+
+For the second inequality in~(i), first consider a cross-block term of
+$F_\eta(\mathcal B)$.  Relative to the exact coefficient of the same pair in
+$T_{\mathcal B}$, its coefficient omits only the two partial-block factors
+$q(B_i^{>x})$ and $q(B_j^{<y})$.  Each is either~$1$ or at least $1-\delta$
+by~\cref{eq:partial-block-factor}.  Hence the block coefficient is at most
+$(1-\delta)^{-2}$ times the exact coefficient.  Now let~$B$ be a light block
+and let $W_B(T_{\mathcal B})$ denote the exact contribution of the pairs
+internal to~$B$.  The internal order of $T_{\mathcal B}$ realizes~$I(B)$,
+and every inactivity factor between two vertices of~$B$ is at least
+$1-\delta$.  Therefore
+\[
+    I(B)\le \frac{1}{1-\delta}W_B(T_{\mathcal B}).
+\]
+The cross-block sum in $F_\eta$ contains only a subset of all cross-block
+pairs, so summing these comparisons gives
+\cref{eq:block-objective-faithful-upper}.
+Combining~\cref{eq:block-objective-dominates-local} with
+\cref{lem:long-gap-truncation} proves
+\cref{eq:block-objective-two-sided}.
+
+For~(ii), start from an arbitrary a~priori tour~$T$ and keep every heavy vertex
+as a singleton.  In each maximal consecutive run of light vertices, scan from
+right to left.  Close a block as soon as its mass reaches~$\delta/2$, and then
+continue with the remaining prefix of the run.  Since every light vertex has
+probability at most~$\delta/2$, each closed block has mass in
+$[\delta/2,\delta]$.  Only the leftmost block of a run may have mass below
+$\delta/2$.  The resulting consecutive partition~$\mathcal B_T$ is therefore
+admissible.
 
 Consider a cross-block term of $F_\eta(\mathcal B_T)$ with endpoints
 $x\in B_i$ and $y\in B_j$, where $i<j$.  Relative to the exact coefficient of
 this pair in~$T$, the corresponding term of $F_\eta(\mathcal B_T)$ omits
 only the factors corresponding to the vertices after~$x$ in~$B_i$ and
-before~$y$ in~$B_j$.  For a heavy singleton or
-a root block, the corresponding factor is~$1$.  For a light block~$B$,
-\[
-    q(B')\ge1-\sum_{v\in B'}p_v\ge1-\delta
-    \qquad\text{for every }B'\subseteq B.
-\]
-Thus every cross-block coefficient in $F_\eta(\mathcal B_T)$ is at most
+before~$y$ in~$B_j$.  By~\cref{eq:partial-block-factor}, every cross-block
+coefficient in $F_\eta(\mathcal B_T)$ is at most
 $(1-\delta)^{-2}$ times the corresponding exact coefficient in~$T$.
 
-Finally, let $B$ be a light block, and retain the order induced by~$T$ on~$B$.
-If $W_B(T)$ denotes the exact contribution of pairs with both endpoints
-in~$B$, then
+It remains to compare the internal terms.  Let $B$ be a light block and retain
+the order induced by~$T$ on~$B$.  If $W_B(T)$ denotes the exact contribution
+of pairs with both endpoints in~$B$, then
 \[
     I(B)
     \le
@@ -4436,6 +4582,13 @@ The second inequality holds because every inactivity factor between two
 vertices of~$B$ is at least $q(B)\ge1-\delta$.  Summing the cross-block and
 internal comparisons proves~\cref{eq:block-objective-from-order}.
 \end{proof}
+
+Part~(i) says that the block objective is a two-sided approximation to the
+cost of every tour that it represents.  Part~(ii) says that every a~priori
+tour, and in particular an optimal one, has an admissible consecutive
+partition whose block value is within a factor $(1-\delta)^{-2}$ of its cost.
+Together, these comparisons explain why minimizing $F_\eta$ is a valid
+surrogate for minimizing the exact tour cost.
 
 \section{The dynamic program}\label{sec:dp-dynamic-program}
 
@@ -4552,11 +4705,11 @@ $O(n2^n)$ time and is absorbed in the same bound.
 
 \section{Approximation guarantee}\label{sec:dp-approximation}
 
-We now combine the truncation lemma, the block comparison, and the exact
-dynamic program.  Choosing their parameters as functions of the target error
-$\varepsilon$ makes the accumulated multiplicative loss at most
-$1+\varepsilon$ while keeping the running-time base dependent only on
-$\varepsilon$.
+The dynamic program minimizes $F_\eta$ exactly over admissible partitions.
+It remains to choose the parameters so that the tour represented by this
+minimum has cost at most $(1+\varepsilon)\optprior$.  Since the parameters
+depend only on~$\varepsilon$, this choice will keep the running-time base
+dependent only on~$\varepsilon$.
 
 \begin{theorem}\label{thm:apriori-ptas}
 For every fixed $0<\varepsilon\le1$, a~priori TSP on symmetric or asymmetric
@@ -4570,88 +4723,59 @@ $c_\varepsilon^n\poly(n)$ and returning an a~priori tour~$\widehat T$ such that
 \begin{proof}
 Set
 \[
-    \delta:=\frac{\varepsilon}{16},
+    \gamma:=\frac{\varepsilon}{100},
     \qquad
-    \alpha:=\frac{\varepsilon}{32},
+    \delta:=\alpha:=\gamma,
     \qquad
-    \eta:=\left(\frac{\varepsilon}{64}\right)^{32/\varepsilon}.
+    \eta:=\gamma^{1/\gamma}.
 \]
-Then
-\[
-    \eta^\alpha=\frac{\varepsilon}{64}.
-\]
+Then $\eta^\alpha=\gamma$.
 
 Let $T^*$ be an optimal a~priori tour.  By
-\cref{lem:block-comparison}(ii), there is an admissible ordered partition
+\cref{lem:block-objective-bounds}(ii), there is an admissible ordered partition
 $\mathcal B^*$ into consecutive sets of~$T^*$ such that
 \[
     F_\eta(\mathcal B^*)
-    \le(1-\delta)^{-2}\cost(T^*)
-    =(1-\delta)^{-2}\optprior.
+    \le(1-\gamma)^{-2}\optprior.
 \]
 Let $\widehat{\mathcal B}$ be a partition minimizing $F_\eta$, as computed by
 \cref{lem:local-dp}, and put
-$\widehat T:=T_{\widehat{\mathcal B}}$.  \Cref{lem:block-comparison}(i)
-gives
-\[
-    \cost^{\loc}_{\eta}(\widehat T)
-    \le F_\eta(\widehat{\mathcal B})
-    \le F_\eta(\mathcal B^*)
-    \le(1-\delta)^{-2}\optprior.
-\]
-Applying \cref{lem:long-gap-truncation},
+$\widehat T:=T_{\widehat{\mathcal B}}$ and $\kappa:=(1+\gamma)^2$.  Since
+$0<\gamma\le1/100$, we have $\kappa\gamma<1$.  Hence
+\cref{lem:block-objective-bounds}(i), the optimality of
+$\widehat{\mathcal B}$, and the preceding bound,
 \begin{equation}\label{eq:final-approximation-chain}
-    \cost(\widehat T)
-    \le
-    \frac{(1+\alpha)^2}
-         {1-(1+\alpha)^2\eta^\alpha}
-    (1-\delta)^{-2}\optprior.
+    \begin{aligned}
+        \cost(\widehat T)
+        &\le \frac{\kappa}{1-\kappa\gamma}
+               F_\eta(\widehat{\mathcal B})\\
+        &\le \frac{\kappa}{1-\kappa\gamma}
+               F_\eta(\mathcal B^*)\\
+        &\le \frac{\kappa}{1-\kappa\gamma}
+               (1-\gamma)^{-2}\optprior.
+    \end{aligned}
 \end{equation}
 
-Put $\kappa:=(1+\alpha)^2$.  Since $0<\varepsilon\le1$,
+Moreover, $\kappa\le1+3\gamma$ and
+$\kappa\gamma\le2\gamma$.  Using $(1-x)^{-1}\le1+2x$ for
+$0\le x\le1/2$, we obtain
 \[
-    \kappa
-    =1+\frac{\varepsilon}{16}+\frac{\varepsilon^2}{1024}
-    \le1+\frac{\varepsilon}{8}
-    \le\frac98.
+    \frac{\kappa}{1-\kappa\gamma}(1-\gamma)^{-2}
+    \le(1+3\gamma)(1+4\gamma)^2
+    \le1+12\gamma
+    \le1+\varepsilon.
 \]
-Therefore
-\[
-    \kappa\eta^\alpha
-    =\kappa\frac{\varepsilon}{64}
-    \le\frac{9\varepsilon}{512}
-    <\frac{\varepsilon}{32}.
-\]
-Using $(1-x)^{-1}\le1+2x$ for $0\le x\le1/2$, we get
-\begin{align*}
-    \frac{\kappa}{1-\kappa\eta^\alpha}
-    &\le
-    \left(1+\frac{\varepsilon}{8}\right)
-    \left(1+\frac{\varepsilon}{16}\right)\\
-    &\le 1+\frac{25\varepsilon}{128}
-    <1+\frac{\varepsilon}{4}.
-\end{align*}
-Also,
-\[
-    (1-\delta)^{-2}
-    \le(1-2\delta)^{-1}
-    =\frac{1}{1-\varepsilon/8}
-    \le1+\frac{\varepsilon}{4}.
-\]
-Substituting these bounds into~\cref{eq:final-approximation-chain} yields
-\[
-    \cost(\widehat T)
-    \le
-    \left(1+\frac{\varepsilon}{4}\right)^2\optprior
-    \le(1+\varepsilon)\optprior.
-\]
+Together with~\cref{eq:final-approximation-chain}, this proves the claimed
+approximation guarantee.
+
 Finally,
 \[
     \log(1/\eta)
-    =\frac{32}{\varepsilon}\log\frac{64}{\varepsilon},
+    =\frac{1}{\gamma}\log\frac{1}{\gamma},
 \]
-so $\delta$ and~$\eta$ depend only on~$\varepsilon$.  The running time remains
-$c_\varepsilon^n\poly(n)$.
+which depends only on~$\varepsilon$.  Since $\delta$ also depends only on
+$\varepsilon$, \cref{lem:local-dp} shows that
+the running time remains $c_\varepsilon^n\poly(n)$.
 \end{proof}
 
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
