@@ -391,9 +391,8 @@ in the Erdős--Rényi model.
 \section{The cycle-subdivided clique construction}
 \label{sec:cycle-subdivided-construction}
 
-This section gives an explicit construction of instances that prove a lower bound
-of $5/4$ for the adaptivity gap, i.e., between a~priori and adaptive \StochTSP{}. \sharat{the correct phrasing is i.e., the ratio between a~priori and adaptive optima.}
-\sharat{Good thinking in regards to writing a priori as a~priori. This could be a macro. Same for a~posteriori.}
+This section gives an explicit family of instances for which the ratio between
+the a~priori and adaptive optima tends to~$5/4$.
 The construction begins with a complete graph, selects a
 Hamiltonian cycle, and inserts one vertex of activation probability~$1/2$ on
 each edge of that cycle.
@@ -414,10 +413,10 @@ has root $r:=b_1$ and vertex set
 V_n:=\{b_1,\dots,b_n\}\cup\{s_1,\dots,s_n\}.
 \]
 The underlying distance function is the shortest-path metric induced
-by~$\Sub(K_n;C_n)$. \sharat{Tip: you only emphasize the always-active part and not vertices.} The vertices $b_1,\dots,b_n$ are the
-\emph{always-active vertices}: the root~$b_1$ is always active by definition,
+by~$\Sub(K_n;C_n)$.  The vertices $b_1,\dots,b_n$ are the
+\emph{always-active} vertices: the root~$b_1$ is always active by definition,
 and every non-root vertex $b_2,\dots,b_n$ is active with probability~$1$.
-The vertices $s_1,\dots,s_n$ are the \emph{semi-active vertices}, each active
+The vertices $s_1,\dots,s_n$ are the \emph{semi-active} vertices, each active
 independently with probability~$1/2$.
 
 \begin{theorem}\label{thm:cycle-subdivision}
@@ -481,21 +480,19 @@ $\optprior=\frac{15}{8}n$.
 
 \begin{lemma}\label{lem:cycle-adapt}
 For every $n\ge 7$, the instance $\mathcal{I}_n^{\mathrm{CSC}}$ satisfies
-$\frac32n\le\optadapt\le \frac32n+6$.
+$\frac32n\le\optadapt\le \frac32n+5$.
 \end{lemma}
-
-\sharat{The cref bug is being an annoyance here. It's calling lemmas 2.3 and 2.4 as theorems. This happens with more recent tex live distributions. A quick hack is to roll back to tex live version of 2023 in Settings -> compiler -> tex live version.}
 
 \begin{proof}[Proof of \cref{thm:cycle-subdivision}]
 By \cref{lem:cycle-prior,lem:cycle-adapt},
 \[
     \optprior=\frac{15}{8}n,
     \qquad
-    \frac32n\le\optadapt\le\frac32n+6.
+    \frac32n\le\optadapt\le\frac32n+5.
 \]
 Therefore
 \[
-    \frac{15n/8}{3n/2+6}
+    \frac{15n/8}{3n/2+5}
     \le
     \frac{\optprior}{\optadapt}
     \le
@@ -503,7 +500,7 @@ Therefore
     =\frac54.
 \]
 The lower bound also converges to~$5/4$, so the ratio converges to~$5/4$ as
-$n$ grows \sharat{tends to infinity}.
+$n\to\infty$.
 \end{proof}
 
 
@@ -767,10 +764,12 @@ vertex belongs to exactly one such segment, so
     \sum_{j=1}^n k_j=n.
 \]
 Because all always-active vertices are present in every realization, the realized
-tour decomposes into these segment contributions.  Applying
+tour decomposes into these segment contributions.  Taking expectation over
+$A\sim\mathcal Q$ and applying
 \cref{lem:cycle-segment-bound}, we obtain
 \begin{align*}
-    \E[\cost(T|_A)]
+    \cost(T)
+    &=\E_{A\sim\mathcal Q}[\cost(T|_A)]\\
     &=
     \sum_{j=1}^n\Phi(u_j;W_j;u_{j+1})\\
     &\ge
@@ -779,7 +778,6 @@ tour decomposes into these segment contributions.  Applying
     =
     \frac{15}{8}n.
 \end{align*}
-\sharat{The expectation expression has an $A$ which needs context. Maybe say $A \sim p$. Also, mention that the expectation is the a~priori cost of $T$, here and also two other places where odd and even $T$'s are given. What did we decide in terms of an explicit named cost function for a priori cost? Is everything loaded into one cost function?}
 Since $T$ was arbitrary,
 \[
     \optprior\ge\frac{15}{8}n.
@@ -807,13 +805,14 @@ This tour has $m$ nonempty segments, namely
 \]
 each with expected contribution $11/4$, together with $m$ direct edges
 between always-active vertices, each of length~$1$.  Hence
-\[
-    \E[\cost(T^{\mathrm{even}}|_A)]
-    =
+\begin{align*}
+    \cost(T^{\mathrm{even}})
+    &=\E_{A\sim\mathcal Q}[\cost(T^{\mathrm{even}}|_A)]\\
+    &=
     m\left(\frac{11}{4}+1\right)
     =
     \frac{15}{8}n.
-\]
+\end{align*}
 
 \medskip
 \noindent\textbf{Odd \(n\).}
@@ -838,7 +837,8 @@ with expected contribution $29/8$, together with $m-1$ segments
 each contributing $11/4$, and $m+1$ direct edges between always-active vertices,
 each of length~$1$.  Therefore
 \begin{align*}
-    \E[\cost(T^{\mathrm{odd}}|_A)]
+    \cost(T^{\mathrm{odd}})
+    &=\E_{A\sim\mathcal Q}[\cost(T^{\mathrm{odd}}|_A)]\\
     &=
     \frac{29}{8}
     +(m-1)\frac{11}{4}
@@ -860,7 +860,27 @@ $15n/8$.  Together with the lower bound, this proves
 \label{sec:cycle-adaptive-policy}
 
 We now prove \cref{lem:cycle-adapt} by first giving a universal lower bound and
-then constructing an adaptive policy with asymptotically matching cost.
+then analyzing an adaptive policy with asymptotically matching cost.
+
+\paragraph{The alternating-sweep policy.}
+Let
+\[
+P \;:=\; (b_2,\,s_2,\,b_3,\,\dots,\,s_{n-1},\,b_n)
+\]
+be viewed as an ordered path.  The policy first probes $s_1$, then $s_n$, and
+then the always-active vertex~$b_2$.  Its current location is now~$b_2$, and it
+begins sweeping along~$P$ toward~$b_n$.
+
+At every subsequent step, the unprobed vertices of~$P$ form a contiguous
+subpath, and the current location is a probed always-active vertex adjacent to
+one end of that subpath.  The policy probes the semi-active vertex at this end.
+If it is active, the policy visits it, probes the next always-active vertex in
+the current direction if one remains, and continues the sweep.  If it is
+inactive, the current location is unchanged; the policy probes the
+always-active vertex at the opposite end of the remaining subpath and reverses
+the sweep direction.  When no unprobed vertex remains, the policy returns to
+the root.  This rule preserves the stated invariant and therefore defines the
+policy until every non-root vertex has been probed.
 
 \begin{proof}[Proof of \cref{lem:cycle-adapt}]
 Every realization contains the $n$ always-active vertices.  If $Y$ denotes the
@@ -871,28 +891,7 @@ least~$1$, so every adaptive policy has expected cost at least
     \E[n+Y]=n+\frac n2=\frac32n.
 \]
 
-\sharat{Pull the alternating-sweep policy outside the proof environment. Also, nice to include a figure. Draw the figure at a later point. for now only textual stuff needs to be prioritized.}
-
-We use the following alternating-sweep policy~$\pi$.  Let
-\[
-P \;:=\; (b_2,\,s_2,\,b_3,\,\dots,\,s_{n-1},\,b_n),
-\]
-be viewed as an ordered path.  The policy first probes $s_1$, then $s_n$, and
-then the always-active vertex~$b_2$.  It is now located at~$b_2$ and begins
-sweeping along~$P$ toward~$b_n$.
-%
-At every subsequent step, the unprobed vertices of~$P$ form a contiguous
-subpath, and the salesperson is at a probed always-active vertex adjacent to
-one end of that subpath.  The policy probes the semi-active vertex at this
-end.  If it is active, the salesperson visits it, probes the next
-always-active vertex in the current direction if one remains, and continues
-the sweep.  If it is inactive, the salesperson stays in place, probes the
-always-active vertex at the opposite end of the remaining subpath, and
-reverses the sweep direction.  When no unprobed vertex remains, the salesperson returns
-to the root.  This rule preserves the stated invariant and therefore defines
-the policy until every non-root vertex has been probed.
-
-We next bound its cost for an arbitrary realization~$A$ \sharat{of the set of active vertices}. The movement
+For the upper bound, fix an activation set~$A$.  The movement
 generated by the preliminary probes is a shortcut of the walk
 $(r,s_1,s_n,b_2)$ and therefore costs at most
 \[
@@ -920,40 +919,24 @@ every realization,
 \]
 Since $\E[X]=(n-2)/2$, it follows that
 \[
-    \cost(\pi)=\E_A[\cost(T(A;\pi))]
-    \le \frac32n+5
-    \le \frac32n+6.
+    \cost(\pi)=\E_{A\sim\mathcal Q}[\cost(T(A;\pi))]
+    \le \frac32n+5.
 \]
-\sharat{Any reason why $3n/2+5 \leq 3n/2+6$ is needed?}
 Together with the preceding lower bound, this proves the lemma.
 \end{proof}
 
 \section{Randomizing the metric}
 \label{sec:random-metric-gap}
 
-\sharat{The transition to this section is abrupt. Maybe some additional context is needed. We use Erdos Renyi graph to decide which pairs of vertices are cheap makes it sound like we were doing that in the previous section.}
-
-
-\sharat{replace cheap with nearby or short depending on whether you are referring to neighbors or edge lengths.}
-
-We use an Erd\H{o}s--R\'enyi graph to decide which pairs of vertices are
-cheap.  An edge of the graph has distance~$1$, and a nonedge has distance~$2$.
-The vertices themselves have a much smaller activation probability, so the
-shortcut of a fixed a~priori order usually sees only a sparse selection of
-the cheap edges.  By contrast, an adaptive policy can probe all cheap
-unprobed neighbors of its current location before it makes a distance-$2$
-move.
-
-\sharat{The below para can be divided into two smaller para and used as the story for sub-sections on a priori and adaptive tour costs. It's too much detail at the current point. The intro para I wrote does the job for now.}
-
-Two simple observations drive the proof.  First, the random graph is
-invariant under relabeling the non-root vertices.  It therefore suffices to
-show that the canonical order $r,1,\ldots,n,r$ has unusually low expected
-cost with probability much smaller than~$1/n!$; a union bound then covers all
-a~priori orders.  Second, if $s$ active vertices remain when the policy is at
-a fresh vertex, the probability that at least one of them is a cheap neighbor
-is $1-(1-\theta)^s$.  Thus the adaptive policy has a good chance of paying
-only~$1$ for its next move until very few active vertices remain.
+Unlike the preceding explicit construction, we now randomize the metric.  An
+Erd\H{o}s--R\'enyi graph determines which vertex pairs have distance~$1$;
+nonedges have distance~$2$.  Up to an additive $O(1)$ term, which is
+asymptotically negligible because the expected number of active vertices tends
+to infinity, every realized tour has cost between~$|A|$ and~$2|A|$.  Thus
+factor~$2$ is the largest separation possible within this family.  We show
+that, with positive probability over the sampled metric, every a~priori tour
+has expected cost $(2-o(1))np$, whereas one adaptive policy has expected cost
+$(1+o(1))np$.
 
 The random graph is only a probabilistic-method device.  At the end of the
 argument we fix a deterministic realization, which is then known completely
@@ -1015,16 +998,15 @@ Thus a pair has distance~$1$ with probability~$\theta$ and distance~$2$
 otherwise.  Let $H(D)$ be the graph whose edge set is
 $\{e:X_e=1\}$.  Then $H(D)\sim G_{n+1,\theta}$, and for $k\ge1$ we use
 $G_{k,\theta}$ for the same distribution on any fixed set of $k$ vertices.
-We call the edges of~$H(D)$ \emph{cheap} \sharat{short would be a better descriptor}.  Every realization of~$D$ is a
+We call the edges of~$H(D)$ \emph{short}.  Every realization of~$D$ is a
 symmetric $(1,2)$-TSP metric.
 For every deterministic realization~$d$ of~$D$, let
 $\mathcal{I}_n^{\mathrm{RM}}(d)$ denote the resulting random-metric
 \StochTSP{} instance on~$V$ with root~$r$: its metric is~$d$, and its
 non-root vertices are activated independently with probability~$p$.
 
-Let $A$ be the random active set and let
-$K:=|A|\sim\operatorname{Binomial}(n,p)$. 
-\sharat{Rephrase. Let $A$ be the random set of active vertices, and let $K \coloneqq |A|$. Note $K$ is distributed as $\operatorname{Binomial}(n,p)$.}
+Let $A$ be the random set of active vertices, and let $K:=|A|$.  Then
+$K\sim\operatorname{Binomial}(n,p)$.
 Define
 \begin{equation}\label{eq:random-metric-baseline}
     W
@@ -1033,28 +1015,29 @@ Define
     =
     np+1-q^n.
 \end{equation}
-\sharat{Is there any benefit of working with such an exact expression for $W$? Would the proof breakdown if we just used $W \geq np$? If there's no issue, then we don't even need $W$. Just work with $np$ everywhere since a lower bound on the cost of an a posteriori tour is simply the expected number of active vertices, which is exactly $np$.}
+Since $np=n/(\log n)^4\to\infty$ and $0\le1-q^n\le1$,
+\[
+    W=np+O(1)=(1+o(1))np.
+\]
 For a nonempty realization with $K=k$, every feasible tour has exactly
-$k+1$ traveled edges. \sharat{weird language mix-up. traveling makes sense when you are describing the process of a salesperson executing the tour. for us, a tour is a mathematical object (a set of edges). say something like: every tour contains/uses $k+1$ edges.} Since all distances are at least~$1$, $W$ is a
+$k+1$ edges.  Since all distances are at least~$1$, $W$ is a
 lower bound on the expected cost of every benchmark.  Moreover,
 \begin{equation}\label{eq:random-metric-baseline-lower-bound}
     W\ge np=\frac{n}{(\log n)^4}.
 \end{equation}
 
-\sharat{Ideally, you should have the following para somewhere at the beginning of this section. Let me help you with the phrasing. In this section, we use the probabilistic method to show the existence of a metric on $n$ vertices, for some sufficiently large $n$, which gives rise to a \StochTSP{} instance with an adaptivity gap of $2-o(1)$. As alluded to earlier, the metrics we consider only have distances $1$ (short) or $2$ (long). Thus, for any realization $A$ of active vertices (excluding the root), the a~posteriori cost is at least $|A|$, while the a~priori cost is at most $2|A|$. Therefore, to establish a lower bound of $2-o(1)$ on the adaptivity gap necessitates us to show that for almost all realizations $A$, some adaptive tour has cost $(1+o(1))|A|$, while every a~priori tour has cost $(2-o(1))|A|$. We now give a formal description of the random metric and the choice of activation probabilities for which the above claimed properties hold.}
-% 
-
 \subsection{A uniform lower bound for a priori tours}
 \label{sec:random-metric-prior-bound}
-
-\sharat{search for sales or salesperson throughout this chapter and get rid of the usage for consistency. I would use language like: the tour is currently at so and so vertex. for the activation set $A$, the realized tour is a shortcutting of the a~priori tour to only retain the active vertices (equiv, to skip the inactive vertices).}
 
 We next show that, with high probability over the metric, every a~priori tour
 has nearly the same large expected cost.  For a fixed order, its expected cost
 over the activations is a weighted sum of the independent random distances.
 The weights are the probabilities that the corresponding pairs become
 consecutive in the shortcut.  We identify these weights, bound their squared
-sum, and then apply Hoeffding's inequality.
+sum, and then apply Hoeffding's inequality.  The random graph is invariant
+under relabeling the non-root vertices, so a sufficiently strong tail bound for
+the canonical order $r,1,\ldots,n,r$ applies to every order by symmetry.  A
+union bound over the at most $n!$ orders then gives a simultaneous lower bound.
 
 By the definition of a~priori cost in~\cref{sec:stoch-tsp-benchmarks}, for a
 deterministic realization~$d$ of~$D$ and an a~priori tour
@@ -1063,10 +1046,10 @@ deterministic realization~$d$ of~$D$ and an a~priori tour
 \]
 we write
 \[
-    C_d(T):=\E_A[\cost_d(T|_A)]=\cost_d(T).
+    C_d(T):=\E_{A\sim\mathcal Q}[\cost_d(T|_A)]=\cost_d(T).
 \]
 
-\sharat{Good habit to recall $q = 1-p$.}
+Recall that $q=1-p$.
 
 \begin{lemma}[Expected-cost expansion]\label{lem:random-metric-expansion}
 For $i\in[n]$, define
@@ -1090,7 +1073,7 @@ The coefficients in~\cref{eq:random-metric-expansion} sum to~$W$.
 
 \begin{proof}
 The edge from $r$ to $v_i$ is used when $v_i$ is active and
-$v_1,\ldots,v_{i-1}$ are inactive, which \sharat{occurs with} has probability $pq^{i-1}$.
+$v_1,\ldots,v_{i-1}$ are inactive, which occurs with probability $pq^{i-1}$.
 Similarly, the edge from $v_i$ to~$r$ is used with probability
 $pq^{n-i}$.  For $i<j$, the vertices $v_i$ and $v_j$ are consecutive
 active vertices in the shortcut precisely when both are active and all vertices
@@ -1141,7 +1124,7 @@ Since $np^2\to\infty$, we have $4p\le np^3$ for all sufficiently
 large~$n$.  Adding the two estimates proves the claim.
 \end{proof}
 
-\begin{lemma}[All master tours are expensive]
+\begin{lemma}[Uniform a~priori lower bound]
 \label{lem:random-metric-prior}
 With probability $1-o(1)$ over the random metric~$D$,
 \[
@@ -1161,8 +1144,8 @@ coefficients sum to~$W$,
     \qquad
     \E_D[C_D(T_0)]=(2-\theta)W.
 \]
-Thus the canonical tour is unusually cheap only if the weighted number of
-cheap shortcut pairs is unusually large.
+Thus the canonical tour has unusually low cost only if the total coefficient
+weight of distance-$1$ shortcut pairs is unusually large.
 
 Set $\varepsilon:=1/\log n$.  The event
 \[
@@ -1184,8 +1167,7 @@ Hence the weighted Hoeffding bound~\cref{eq:weighted-hoeffding} gives
     \right).
 \]
 For all sufficiently large~$n$, the coefficient bound
-\cref{lem:random-metric-coefficients} applies; together with
-\cref{eq:random-metric-baseline-lower-bound} \sharat{Saying $W \geq np$ is more informative than giving a reference to where it's shown}, it gives
+\cref{lem:random-metric-coefficients} applies; together with $W\ge np$, it gives
 \begin{align*}
     \P_D\left[
         C_D(T_0)\le(2-\theta-\varepsilon)W
@@ -1214,22 +1196,25 @@ The conclusion follows because
 $\theta=\varepsilon=1/\log n$.
 \end{proof}
 
-\subsection{A cheap adaptive policy}\label{sec:random-metric-adaptive-policy}
+\subsection{A low-cost adaptive policy}\label{sec:random-metric-adaptive-policy}
 
 To complement the uniform lower bound, we construct a policy that exhausts
-cheap unprobed neighbors before making a distance-$2$ move.  We bound the
-average cost of this policy over the random metric and then fix a metric
+distance-$1$ unprobed neighbors before making a distance-$2$ move.  If $s$
+active vertices remain when the policy reaches a fresh vertex, the probability
+that at least one of them is a distance-$1$ neighbor is
+$1-(1-\theta)^s$.  We bound the average cost of this policy over the random
+metric and then fix a metric
 realization for which this bound and the preceding a~priori bound hold
 simultaneously.
 
-Fix a deterministic realization~$d$ in the support of~$D$.  Its cheap-edge
+Fix a deterministic realization~$d$ in the support of~$D$.  Its short-edge
 graph $H(d)$, and hence the whole metric, is known before any activations are
 probed.  Define the \emph{nearest-unprobed-neighbor policy}~$\pi_d$ as follows.
 At a state $(u,S)$ with $S\ne\varnothing$, choose a vertex~$v\in S$ that
 minimizes $d(u,v)$, breaking ties by the labels $1,\ldots,n$, and probe~$v$.
 If $S=\varnothing$, return to~$r$.  Equivalently, the policy probes every
-cheap unprobed neighbor of its current location before it probes a vertex at
-distance~$2$.
+distance-$1$ unprobed neighbor of its current location before it probes a
+vertex at distance~$2$.
 
 The metric is sampled in advance and is known to the policy.  For the
 analysis, however, we may reveal its independent edge variables only when
@@ -1243,7 +1228,7 @@ location.  Initially, when $u=r$, and immediately after every arrival at a
 new active vertex~$u$, let $S$ be the set of unprobed vertices.  Conditional
 on the complete exposure and probe history so far, no edge induced by
 $\{u\}\cup S$ has been exposed.  Consequently, the conditional distribution
-of the cheap-edge graph induced by $\{u\}\cup S$ is
+of the short-edge graph induced by $\{u\}\cup S$ is
 $G_{1+|S|,\theta}$, independently of the activation states on~$S$.
 \end{lemma}
 
@@ -1251,7 +1236,7 @@ $G_{1+|S|,\theta}$, independently of the activation states on~$S$.
 At the initial state no metric edge has been exposed.  Suppose the invariant
 holds at a current vertex~$u$.  Reveal the edges $\{u,v\}$ for $v\in S$;
 these are the only metric variables needed to determine the probes made while
-the salesperson remains at~$u$.  If an active probed vertex~$v$ is reached,
+the policy remains at~$u$.  If an active probed vertex~$v$ is reached,
 let $S'\subseteq S\setminus\{v\}$ be the vertices still unprobed.  The edges
 induced by $\{v\}\cup S'$ were not among the edges just exposed, and they
 were not exposed earlier by the induction hypothesis.  Independence of the
@@ -1264,7 +1249,8 @@ of the activation states on~$S'$.  This proves the invariant by induction.
 \label{lem:random-metric-adaptive-average}
 Let
 \[
-    U(d):=\E_A[\cost_d(\pi_d,A)].
+    U(d):=\cost_d(\pi_d)
+    =\E_{A\sim\mathcal Q}[\cost_d(T(A;\pi_d))].
 \]
 Then $U(d)\ge W$ for every~$d$, and
 \[
@@ -1278,22 +1264,22 @@ Then $U(d)\ge W$ for every~$d$, and
 
 \begin{proof}
 Fix $k\ge1$ and condition on $K=k$.  Consider the execution jointly over
-the random metric and the active set.  Immediately after the salesperson
+the random metric and the active set.  Immediately after the policy
 arrives at an active vertex~$u$, let $S$ be the set of unprobed vertices and
 suppose that exactly $s$ vertices in~$S$ are active.
 
 By \cref{lem:random-metric-fresh-edges}, the edges from~$u$ to these $s$
-active vertices are conditionally independent, and each is cheap with
-probability~$\theta$.  The next traveled edge has length~$2$ exactly when
-none of them is cheap.  Its conditional expected length is therefore
+active vertices are conditionally independent, and each is short with
+probability~$\theta$.  The next edge used has length~$2$ exactly when
+none of them is short.  Its conditional expected length is therefore
 \[
     1+(1-\theta)^s.
 \]
 As the policy visits the $k$ active vertices, the value of~$s$ before the
-successive traveled edges is $k,k-1,\ldots,1$.  The final return to the root
+successive edges used is $k,k-1,\ldots,1$.  The final return to the root
 costs at most~$2$.  Hence
 \begin{align*}
-    \E_{D,A}[\cost_D(\pi_D,A)\mid K=k]
+    \E_{D,A}[\cost_D(T(A;\pi_D))\mid K=k]
     &\le
     \sum_{s=1}^k\bigl(1+(1-\theta)^s\bigr)+2\\
     &\le
@@ -1310,18 +1296,20 @@ For $K=0$ the cost is~$0$.  Averaging over~$K$ gives
     \le W+\frac1\theta.
 \]
 
-For the pointwise lower bound, if $K=k\ge1$, the policy travels along exactly
+For the pointwise lower bound, if $K=k\ge1$, the realized tour uses exactly
 $k+1$ edges, each of length at least~$1$.  Taking expectation over the active
 set gives $U(d)\ge W$.
 \end{proof}
 
-\begin{lemma}[A good policy for most sampled metrics]
-\label{lem:random-metric-adaptive-whp}
-Let
+Since $W\ge np$,
 \[
-    \delta_n:=\frac1{\sqrt{\theta W}}.
+    \theta W\ge\frac{n}{(\log n)^5}\longrightarrow\infty.
 \]
-Then $\delta_n=o(1)$ \sharat{It's weird to claim $\delta_n = o(1)$ in a lemma statement. I would simply mention it as a fact: Let $\delta_n \coloneqq \frac1{\sqrt{\theta W}} = o(1)$. Also, why is the definition of $\delta_n$ listed on a new line? It's not like it's an important quantity that is referred to later.} and
+Set $\delta_n:=1/\sqrt{\theta W}=o(1)$.  The following lemma shows that the
+adaptive optimum is at most $(1+o(1))np$ for most sampled metrics.
+
+\begin{lemma}[High-probability adaptive upper bound]
+\label{lem:random-metric-adaptive-whp}
 \[
     \P_D\bigl[
         \optadapt(\mathcal{I}_n^{\mathrm{RM}}(D))
@@ -1331,15 +1319,8 @@ Then $\delta_n=o(1)$ \sharat{It's weird to claim $\delta_n = o(1)$ in a lemma st
 \]
 \end{lemma}
 
-\sharat{The auto-generated names (by LLMs, I believe) for lemmas look patronizing. These descriptions can be used as introductory text before the lemma is stated. Something like: the following lemma shows that the adaptive optimum is $(1+o(1))np$}
-
 \begin{proof}
-By~\cref{eq:random-metric-baseline-lower-bound},
-\[
-    \theta W\ge\frac{n}{(\log n)^5}\longrightarrow\infty,
-\]
-and hence $\delta_n=o(1)$.  The nonnegative random
-variable $U(D)-W$ satisfies
+The nonnegative random variable $U(D)-W$ satisfies
 \[
     \E_D[U(D)-W]\le\frac1\theta
 \]
@@ -1402,15 +1383,6 @@ hand, every adaptive policy has expected cost at least~$W$.  Thus
 \]
 Combining the two bounds proves that the ratio converges to~$2$.
 \end{proof}
-
-\begin{remark}[Choice of parameters]
-The particular powers of $\log n$ are chosen for clarity rather than
-optimality.  The three relevant requirements are that $\theta\to0$, that
-$\theta W\to\infty$, and that the concentration exponent for a fixed master
-tour dominate $\log(n!)$. \sharat{Never heard of anyone use the terminology of a concentration exponent. LLM lingo again.} The choices above make these conditions immediate.
-\end{remark}
-
-\sharat{The remark should be discarded because it's incorrect. The current choice is clearly optimal because no other choice of parameters can give an adaptivity gap greater than $2$.}
 
 % ============================================================
 % CHAPTER 3: CLAIRVOYANCE GAP — SYMMETRIC
