@@ -97,15 +97,16 @@ We obtain the following results.
     obliviousness gap.
 
     \item \textbf{Clairvoyance gap for symmetric metrics} (\cref{ch:sym-clair}).
-    We give a balanced three-chain family with one stochastic client of
+    We give a balanced three-chain family with one stochastic vertex of
     activation probability~$1/2$ whose ratios converge to~$10/9$.  We also
     prove the upper bound
     \[
         \frac{\optadapt}{\optpost}\le\frac{2+p}{2+p^2}
     \]
-    for every symmetric instance with one stochastic client of activation
-    probability~$p$.  The bounds match at $p=1/2$, so the exact supremum in
-    that setting is~$10/9$ (\cref{thm:sym-clair}).
+    for every symmetric instance with one stochastic vertex of activation
+    probability~$p$.  The right-hand side is maximized at
+    $p=\sqrt6-2$, giving the uniform upper bound
+    $(2+\sqrt6)/4$ for this class.
 
     \item \textbf{Clairvoyance gap lower bound for asymmetric metrics} (\cref{ch:asym-clair}).
     We first define a recursive family of directed instances for which
@@ -361,8 +362,8 @@ in their standard forms.
 
 \Cref{ch:sym-adapt} proves an adaptivity-gap lower bound of~$2$ for symmetric metrics, beginning with an explicit construction based on cycle-subdivided cliques and then strengthening it through a probabilistic construction.
 \Cref{ch:sym-clair} proves a symmetric clairvoyance-gap lower bound
-of~$10/9$ and determines the exact gap for one stochastic vertex of
-activation probability~$1/2$.
+of~$10/9$ and establishes a probability-dependent upper bound for
+symmetric instances with one stochastic vertex.
 \Cref{ch:asym-clair} first constructs an asymmetric recursive instance
 with clairvoyance gap tending to~$4/3$, and then strengthens the lower bound
 to~$3/2$ using a layered-poset construction.
@@ -1391,31 +1392,28 @@ Combining the two bounds proves that the ratio converges to~$2$.
 
 \providecommand{\Gammaone}{\Gamma_{1}}
 
-This chapter determines the exact worst-case clairvoyance gap for symmetric
-\StochTSP{} instances with one stochastic vertex of activation
-probability~$1/2$.  We first construct a balanced three-chain family.  Its
-clairvoyance gap is
+This chapter proves that the clairvoyance gap for symmetric \StochTSP{} is at
+least~$10/9$.  We construct a balanced three-chain family with one stochastic
+vertex of activation probability~$1/2$ for which
 \[
-  \frac{10m+2}{9m+2}>\frac{11}{10}
+  \frac{\optadapt}{\optpost}
+  =\frac{10m+2}{9m+2}
+  \longrightarrow\frac{10}{9}.
 \]
-for every integer $m\ge3$ and converges to~$10/9$.  We then prove a
-probability-dependent upper bound for every symmetric instance with one
-stochastic vertex; at probability~$1/2$, it matches the limiting lower bound.
+The lower bound arises because the active and inactive realizations have
+different optimal order, while an adaptive policy must begin
+probing before knowing which order is required.
 
-More generally, for $p\in[0,1]$, let
+As a complementary result, we prove that every symmetric instance with one
+stochastic vertex of activation probability~$p\in[0,1]$ satisfies
 \[
-  \Gammaone(p)
-  :=\sup_{\mathcal I}
-  \frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)},
+  \frac{\optadapt}{\optpost}\le\frac{2+p}{2+p^2}.
 \]
-where the supremum ranges over symmetric instances with exactly one
-stochastic vertex of activation probability~$p$ and any number of
-deterministic non-root vertices.  We prove
+The right-hand side is maximized at $p=\sqrt6-2$, giving the uniform
+one-stochastic-vertex bound
 \[
-  \Gammaone(p)\le\frac{2+p}{2+p^2}.
+  \frac{\optadapt}{\optpost}\le\frac{2+\sqrt6}{4}.
 \]
-At $p=1/2$, the construction and upper bound coincide, giving
-$\Gammaone(1/2)=10/9$.
 
 \section{The balanced three-chain construction}\label{sec:balanced-three-chain}
 
@@ -1869,10 +1867,10 @@ Therefore
   \frac{\optadapt(\mathcal{I}_m^{\mathrm{BTC}})}
        {\optpost(\mathcal{I}_m^{\mathrm{BTC}})}
   =\frac{20m+4}{18m+4}
-  =\frac{10m+2}{9m+2}
-  >\frac{11}{10},
+  =\frac{10m+2}{9m+2},
 \]
-and the ratio converges to $10/9$ as $m\to\infty$.
+and the ratio converges to $10/9$ as $m\to\infty$.  Consequently, the
+clairvoyance gap for symmetric \StochTSP{} is at least~$10/9$.
 \end{theorem}
 
 \begin{proof}
@@ -1906,13 +1904,6 @@ where the last equality follows from \cref{eq:Ldifference}.  This contradicts
 \cref{lem:prefix-incompatibility}.  Hence every adaptive policy has expected
 cost at least $L_1$, proving
 $\optadapt(\mathcal{I}_m^{\mathrm{BTC}})=L_1$.
-
-Finally,
-\[
-  \frac{10m+2}{9m+2}>\frac{11}{10}
-  \quad\Longleftrightarrow\quad
-  m>2.
-\]
 \end{proof}
 
 \subsection{Why these edge lengths?}\label{sec:three-chain-edge-lengths}
@@ -1957,6 +1948,16 @@ natural tight balance for this construction.
 
 \section{A general upper bound with one stochastic vertex}
 \label{sec:one-stochastic-upper-bound}
+
+For $p\in[0,1]$, let
+\[
+  \Gammaone(p)
+  :=\sup_{\mathcal I}
+  \frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)},
+\]
+where the supremum ranges over symmetric instances with exactly one
+stochastic vertex of activation probability~$p$ and any number of
+deterministic non-root vertices.
 
 We now consider an arbitrary symmetric metric instance with exactly one
 stochastic vertex $s$, active with probability $p\in(0,1)$.  Let $D$ be the
@@ -2104,6 +2105,11 @@ Equivalently,
 \[
   \Gammaone(p)\le\frac{2+p}{2+p^2}.
 \]
+Moreover, the right-hand side is maximized at $p=\sqrt6-2$, and hence
+\[
+  \Gammaone(p)\le\frac{2+\sqrt6}{4}
+  \qquad\text{for every }p\in[0,1].
+\]
 \end{theorem}
 
 \begin{proof}
@@ -2177,55 +2183,30 @@ Since $\delta\ge p/2$,
   =\frac{1+p/2}{1+p^2/2}
   =\frac{2+p}{2+p^2}.
 \]
-This proves the theorem.
+This proves the probability-dependent bound.
+
+Finally, for
+\[
+  f(p):=\frac{2+p}{2+p^2},
+\]
+the sign of
+\[
+  f'(p)=\frac{2-4p-p^2}{(2+p^2)^2}
+\]
+changes from positive to negative at the unique point
+$p=\sqrt6-2$ in~$[0,1]$.  Therefore $f$ is maximized there, with
+\[
+  f(\sqrt6-2)=\frac{2+\sqrt6}{4}.
+\]
 \end{proof}
 
-\begin{theorem}[Exact unbiased one-vertex gap]\label{thm:sym-clair}
-Among symmetric instances with exactly one stochastic vertex of probability
-$1/2$,
-\[
-  \Gammaone\!\left(\frac12\right)=\frac{10}{9}.
-\]
-\end{theorem}
+At $p=1/2$, the bound in \cref{thm:general-upper} equals~$10/9$, and
+\cref{thm:three-chain-cost} shows that it is tight within the
+one-stochastic-vertex class.
 
-\begin{proof}
-By \cref{thm:general-upper},
-\[
-  \Gammaone\!\left(\frac12\right)
-  \le
-  \frac{2+1/2}{2+(1/2)^2}
-  =\frac{10}{9}.
-\]
-By \cref{thm:three-chain-cost}, the three-chain family has ratios converging
-to $10/9$.  Hence the supremum is exactly $10/9$.
-\end{proof}
-
-\begin{remark}[Maximum of the general upper bound]
-The function
-\[
-  f(p):=\frac{2+p}{2+p^2}
-\]
-is maximized at
-\[
-  p=\sqrt6-2,
-\]
-where
-\[
-  f(p)=\frac{2+\sqrt6}{4}\approx1.112372.
-\]
-Thus every symmetric instance with one stochastic vertex, with arbitrary
-activation probability, satisfies
-\[
-  \frac{\optadapt}{\optpost}
-  \le\frac{2+\sqrt6}{4}.
-\]
-The present construction settles the unbiased case exactly; whether the
-probability-dependent bound is attainable for biased $p$ is a separate
-question.
-\end{remark}
-
-\begin{remark}[Extremal parameters of the construction]
-For the three-chain family,
+\begin{remark}[Tightness parameters of the construction]
+The three-chain family asymptotically attains the equality conditions in the
+proof of \cref{thm:general-upper} at $p=1/2$.  Indeed,
 \[
   \ell_0=L_0=16m+4,
   \qquad
@@ -4763,7 +4744,7 @@ We summarize the main results of this thesis in the following table.
 \textbf{Result} & \textbf{Metric} & \textbf{Reference} \\
 \midrule
 Adaptivity gap $\ge 2$ & Symmetric & \cref{thm:random-metric-gap} \\
-Clairvoyance gap $\ge 10/9$ & Symmetric & \cref{thm:sym-clair} \\
+Clairvoyance gap $\ge 10/9$ & Symmetric & \cref{thm:three-chain-cost} \\
 Clairvoyance gap $\ge 3/2$ & Asymmetric & \cref{thm:layered-poset-gap} \\
 Backbone rounding and offline walk & Asymmetric & \cref{thm:backbone-circulation-rounding,thm:offline-backbone-walk} \\
 $(1{+}\varepsilon)$-approx.\ for a~priori TSP & Both & \cref{thm:apriori-ptas} \\
@@ -4780,9 +4761,9 @@ work.
     \item \textbf{Symmetric clairvoyance gap.}
     What is the correct supremum of the clairvoyance gap for symmetric \StochTSP{}?
     The balanced three-chain construction gives a lower bound
-    of~$10/9$.  \Cref{thm:sym-clair} shows that this is exact when
-    there is one stochastic vertex of activation probability~$1/2$, but a
-    matching upper bound for unrestricted symmetric instances remains open.
+    of~$10/9$.  The upper bound in \cref{thm:general-upper} applies when
+    there is exactly one stochastic vertex, but a matching upper bound for
+    unrestricted symmetric instances remains open.
 
     \item \textbf{Symmetric adaptivity gap.}
     Our probabilistic construction gives a lower bound of~$2$, while the

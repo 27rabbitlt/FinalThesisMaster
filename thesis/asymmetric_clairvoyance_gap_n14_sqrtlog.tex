@@ -1,0 +1,418 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=29mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!55!black]{hyperref}
+\usepackage[nameinlink,capitalize,noabbrev]{cleveref}
+
+\allowdisplaybreaks
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pp}{\mathbb P}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\opt}{\operatorname{OPT}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\divg}{\operatorname{div}}
+
+\title{Tail-batched active chords:\\an $O(n^{1/4}\sqrt{\log(n+1)})$ attack on the asymmetric clairvoyance gap}
+\author{Proof addendum}
+\date{5 August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note closes the square-root discrepancy bottleneck in the
+$O(n^{1/3})$ proof.  The backbone is sampled at rate $\alpha p_i$, so it has
+only $O(1+\alpha\mu)$ vertices while its circulation costs
+$O(\log(n+1)/\alpha)$ times the posterior optimum.  All outside clients with
+the same chord tail are probed in chord-head order.  A causal, marginally
+unbiased controller chooses one or four copies of every activated chord.  It
+has the two simultaneous properties
+\[
+  \E[A_i k_i]=2p_i
+  \quad\text{and}\quad
+  \sup_t\E\exp\!\left(c\left|
+       \sum_{i\le t}(A_i k_i-2p_i)\right|\right)=O(1).
+\]
+Thus the auxiliary flow can still be fixed before probing, while the error of
+one tail is subexponential rather than the square root of its probability
+mass.  Errors belonging to distinct tails are independent, so the global
+cyclic-interval discrepancy is
+$O(\sqrt{|R|\log(n+1)}+\log(n+1))$.  Optimizing $\alpha$ gives a
+$\widetilde O(\mu^{1/3})$ low-probability policy.  Probability thresholding
+then gives $O(n^{1/4}\sqrt{\log(n+1)})$.
+\end{abstract}
+
+\section{Statement}
+
+We use the stochastic directed-metric TSP model and the notation of the
+supplied $n^{1/3}$ proof note.  In particular, $B=\E[\opt(A)]$,
+$\mu=\sum_i p_i$, probing is free and remote, and an active client must be
+visited immediately.
+
+Put
+\[
+  L:=\max\{1,\log(n+1)\}.
+\]
+
+\begin{theorem}\label{thm:main}
+Every instance on $n$ clients has a causal randomized policy of expected cost
+\[
+  O\!\left(n^{1/4}\sqrt L\right)\opt_{\rm post}.
+\]
+The public and internal randomness can be fixed by averaging if a
+deterministic policy is desired.
+\end{theorem}
+
+The new ingredient is the following low-probability statement.
+
+\begin{proposition}[thinned-backbone policy]\label{prop:low}
+Let $W$ be a subinstance, let
+\[
+ p_*:=\max_{i\in W}p_i\le\frac14,
+ \qquad \mu:=\sum_{i\in W}p_i,
+ \qquad B:=\opt_{\rm post}(W).
+\]
+For every $0<\alpha\le1$, there is a causal policy of expected cost at most
+\begin{equation}\label{eq:low-alpha}
+ O\!\left(
+   \frac L\alpha+\sqrt{p_*\mu}
+   +\sqrt{\alpha\mu L}+L
+ \right)B.
+\end{equation}
+Consequently, choosing
+$\alpha=\min\{1,(L/\max\{\mu,L\})^{1/3}\}$ gives
+\begin{equation}\label{eq:low-optimized}
+ O\!\left(L+L^{2/3}\mu^{1/3}+\sqrt{p_*\mu}\right)B.
+\end{equation}
+\end{proposition}
+
+\section{An unbiased mean-reverting multiplicity controller}
+
+The point of the next lemma is the conjunction of marginal unbiasedness and
+exponential tightness.  A usual bang--bang controller has the latter but not
+the former; independent randomized multiplicities have the former but retain
+square-root fluctuation.
+
+\begin{lemma}[one-dimensional controller]\label{lem:controller}
+Let $q_1,\ldots,q_T\in[0,1/4]$ and let $A_t$ be independent Bernoulli
+variables of means $q_t$.  There is a causal rule which, after observing
+$A_t=1$, chooses $K_t\in\{1,4\}$, such that
+\begin{align}
+  \E[A_tK_t]&=2q_t &&(t\in[T]),\label{eq:marginal}\\
+  X_t&:=\sum_{j\le t}(A_jK_j-2q_j),\label{eq:state}\\
+  \sup_{t\le T}\E e^{c|X_t|}&\le C.\label{eq:exp-moment}
+\end{align}
+for universal constants $c,C>0$.  Decisions for disjoint input sequences can
+be made with independent randomness.
+\end{lemma}
+
+\begin{proof}
+We give the distributional controller explicitly.  Suppose the law of
+$X_{t-1}$ has already been determined.  Attach an independent uniform rank
+inside every atom and let $D_t$ be the bottom one third of this ranked law.
+On $A_t=1$, use $K_t=4$ when $X_{t-1}\in D_t$ and $K_t=1$ otherwise.  At a
+split atom the rank supplies the required randomization.  Hence
+\[
+  \Pp(X_{t-1}\in D_t)=\frac13,
+  \qquad \E[K_t\mid A_t=1]=\frac13\,4+\frac23\,1=2.
+\]
+The current activation is independent of the old state, which proves
+\eqref{eq:marginal}.  It also gives $\E X_t=0$ for every $t$.
+
+For completeness, we record the quantile-drift calculation.  We use the
+following elementary rearrangement inequality.  If $Z$ has mean zero and
+$H(Z)$ equals $4$ on the bottom third of the ranked law of $Z$ and $1$ on the
+top two thirds, then, for $0<c\le1/32$,
+\begin{equation}\label{eq:quantile-covariance}
+ \E\bigl[(H(Z)-2)\sinh(cZ)\bigr]
+ \le-\frac16\bigl(\E\cosh(cZ)-1\bigr).
+\end{equation}
+To verify it, split at zero and at the one-third quantile.  On the bottom
+third the coefficient is $2$, and on its complement it is $-1$.
+Monotonicity shows that the average of $\sinh(cZ)$ on the former set is no
+larger than on the latter.  In the two cases in which the quantile lies to
+the left or to the right of zero, use respectively
+\[
+ \sinh u\ge\cosh u-1\quad(u\ge0),
+ \qquad
+ -\sinh u\ge\cosh u-1\quad(u\le0),
+\]
+and use $\E Z=0$ for the part straddling zero.  After multiplying by the
+set masses $1/3$ and $2/3$, this gives
+\eqref{eq:quantile-covariance}; the constant $1/6$ leaves slack for a split
+atom.
+
+Apply this with $Z=X_{t-1}$, $q=q_t$, and
+$D:=A_tH(Z)-2q$.  Conditional on $Z$,
+\[
+ \E[D\mid Z]=q(H(Z)-2),
+ \qquad |D|\le4,
+ \qquad \E[D^2\mid Z]\le17q.
+\]
+Taylor's theorem and
+$\cosh(c(Z+u))\le e^{c|u|}\cosh(cZ)$ give
+\begin{align*}
+ \E\cosh(cX_t)
+ &\le \E\cosh(cZ)
+   +cq\E[(H(Z)-2)\sinh(cZ)]
+   +\frac{17}{2}c^2qe^{4c}\E\cosh(cZ)\\
+ &\le\left(1-\frac{cq}{12}\right)\E\cosh(cZ)
+   +\frac{cq}{6}
+\end{align*}
+after decreasing the universal $c$ if necessary.  Starting from $X_0=0$,
+induction gives $\sup_t\E\cosh(cX_t)\le2$.  Since
+$e^{c|x|}\le2\cosh(cx)$, this proves \eqref{eq:exp-moment} with $C=4$.
+Every choice uses only the old state, its known law, fresh internal
+randomness, and the current activation, so it is causal.
+\end{proof}
+
+Two consequences will be used repeatedly.  First, for every $s,t$,
+Cauchy--Schwarz and \eqref{eq:exp-moment} give
+\begin{equation}\label{eq:increment-exp}
+  \E\exp\!\left(\frac c2|X_t-X_s|\right)\le C.
+\end{equation}
+Second, $\E X_t=0$.  Thus every interval increment of one controller is a
+centered subexponential random variable with universal parameters.
+
+\section{A thinned posterior backbone}
+
+\begin{lemma}[thinned certificate]\label{lem:thin}
+For every $0<\alpha\le1$ there are a fixed backbone
+$R=S\cup\{r\}$, a rooted tour $T_R$, and a fractional circulation $z$ of the
+same form as in the $n^{1/3}$ note such that, writing $m=|R|$,
+\begin{align}
+ \cost(T_R)&\le O(B),\label{eq:tour-cost}\\
+ \cost(z)&\le O(LB/\alpha),\label{eq:z-cost}\\
+ m&\le O(1+\alpha\mu).\label{eq:m-size}
+\end{align}
+Every outside client $i$ has incoming and outgoing $z$-degree $p_i$, and
+there are no arcs between two outside clients.
+\end{lemma}
+
+\begin{proof}
+Sample $S$ with independent probabilities $\alpha p_i$, independently of a
+posterior sample $A$.  Put $C=A\cup S$, take a tie-broken optimal tour on
+$C\cup\{r\}$, and use the padded-segment circulation construction from the
+$n^{1/3}$ note.  Conditional on $C$, a vertex of $C$ is in $A\setminus S$
+with probability
+\[
+ \frac{p_i(1-\alpha p_i)}{p_i+\alpha p_i-\alpha p_i^2}
+ =\frac{1-\alpha p_i}{1+\alpha-\alpha p_i}
+ \le\frac1{1+\alpha}.
+\]
+The classifications are independent.  Hence the longest outside run has
+conditional expectation $O(L/\alpha)$.  Averaging the padded circulation
+over $A$ therefore gives
+\[
+ \E_S\cost(z^S)
+ \le O(L/\alpha)\E\opt(A\cup S)
+ \le O(LB/\alpha),
+\]
+because $S$ is stochastically dominated by a posterior sample and
+$\opt(A\cup S)\le\opt(A)+\opt(S)$.  Also
+$\E\opt(S)\le B$ and $\E(|S|+1)=1+\alpha\mu$.  Apply averaging to the sum of
+these three nonnegative quantities after their respective normalizations and
+fix a suitable outcome $S$.
+\end{proof}
+
+Fix the certificate.  Let $U=W\setminus S$.  Couple flow through every
+$i\in U$ into $x_{i,ab}$, $a,b\in R$, and let $y$ be the backbone-to-backbone
+part, exactly as in the $n^{1/3}$ note.  Independently sample one public pair
+$P_i=(a_i,b_i)$ with probability $x_{i,ab}/p_i$.  Put
+\[
+ b(P):=\sum_{i\in U}p_i(e_{a_i}-e_{b_i}),
+ \qquad
+ \bar b:=\E_Pb(P).
+\]
+Then $\divg(y)=-\bar b$, expected sampled-detour cost equals the detour part
+of $z$, and the interval maximal inequality gives
+\begin{equation}\label{eq:endpoint-error}
+ \E_P\max_I|2(b(P)-\bar b)(I)|
+ \le32\Bigl(\sum_{i\in U}p_i^2\Bigr)^{1/2}
+ \le32\sqrt{p_*\mu}.
+\end{equation}
+
+Apply the integer interval-balancing lemma from the $n^{1/3}$ note to
+$2y$, target vector $2b(P)$, and cycle $T_R$.  It gives a public nonnegative
+integer flow $N(P)$ satisfying
+\begin{align}
+ \cost(N(P))
+ &\le2\cost(y)+
+ \left(2\max_I|(b(P)-\bar b)(I)|+1\right)\cost(T_R),
+ \label{eq:N-cost}\\
+ \max_I|(2b(P)+\divg N(P))(I)|&\le1.
+ \label{eq:N-balance}
+\end{align}
+
+\section{Tail batching and global interval discrepancy}
+
+For each $a\in R$, order all outside clients with $a_i=a$ by the cyclic
+position of $b_i$; break ties publicly.  Run an independent copy of
+\cref{lem:controller} on this list, with $q_t=p_i$.  When $i$ is probed and
+active, the controller chooses $k_i\in\{1,4\}$.  If it is inactive, put
+$k_i=0$.  For a head prefix $J$ define the row error
+\[
+ X_a(J):=\sum_{\substack{i:a_i=a\\b_i\in J}}
+          (A_i k_i-2p_i),
+\]
+where a cut through a tied group uses the fixed tie order.  For a general
+head interval use the corresponding difference of two prefixes.
+
+\begin{lemma}[row aggregation]\label{lem:rows}
+For the final selected chord multiset,
+\begin{equation}\label{eq:row-bound}
+ \E\max_{I\text{ cyclic interval}}
+ \left|\sum_{i\in U}(A_i k_i-2p_i)
+                  \chi_I(a_i,b_i)\right|
+ \le O(\sqrt{mL}+L).
+\end{equation}
+Moreover, for each $i$,
+\begin{equation}\label{eq:two-p}
+ \E[A_i k_i]=2p_i.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Equation \eqref{eq:two-p} is \eqref{eq:marginal}.  Fix a cyclic interval
+$I\subseteq R$.  Put
+\begin{equation}\label{eq:row-decomp}
+ \Delta_I:=\sum_{a\in I}X_a(R)-\sum_{a\in R}X_a(I).
+\end{equation}
+The variables belonging to different tails $a$ are independent.  Every
+summand in either sum in \eqref{eq:row-decomp} is centered, and
+\eqref{eq:increment-exp} says that it has a universal subexponential norm.
+Bernstein's inequality therefore gives, for every fixed $I$ and $u\ge0$,
+\[
+ \Pp\left(|\Delta_I|>u\right)
+ \le4\exp\left[-c_0\min\left\{\frac{u^2}{m},u\right\}\right].
+\]
+There are at most $m^2$ cyclic intervals.  A union bound and tail integration
+give \eqref{eq:row-bound}; replacing $\log(m+1)$ by $L$ only weakens the
+bound.
+\end{proof}
+
+For the final public-and-realized chord multiset
+\[
+ F:=N(P)\cup\{k_i\text{ copies of }a_i\to b_i:A_i=1\},
+\]
+\eqref{eq:N-balance} and \cref{lem:rows} imply
+\begin{equation}\label{eq:Lambda}
+ \E[\Lambda(F)\mid P]
+ \le O(\sqrt{mL}+L).
+\end{equation}
+
+\section{Causal execution and cost}
+
+At a virtual backbone vertex $a$, use the following priority rule.
+\begin{enumerate}[leftmargin=2em]
+ \item Use an unused copy of a previously revealed selected chord leaving
+ $a$, if one exists.
+ \item Otherwise probe the next client in the head-ordered list at $a$.
+ Inactive probes do not move.  If the client is active, run the controller,
+ create $k_i$ copies, serve $i$ immediately along the first copy, and end the
+ virtual detour at $b_i$.
+ \item Once the list is exhausted, use an unused auxiliary arc of $N(P)$
+ leaving $a$, if one exists.
+ \item If none of the preceding actions applies, advance on the backbone
+ cycle.
+\end{enumerate}
+Probe a backbone client at its first virtual visit.  Maintain the actual
+position and pending-walk invariant from the causal-virtual-execution lemma in
+the $n^{1/3}$ note.
+
+This is a causal stack walk on the final multiset $F$.  Although a selected
+chord is revealed only when its client is probed, a fallback cycle edge out of
+$a$ is not used until the whole list at $a$ and every revealed outgoing copy
+have been exhausted.  Therefore the proof of the active-first stack lemma
+applies verbatim: if a cycle edge is the last one used for the first time,
+then at that moment all lists and all chord stacks have been exhausted.
+Consequently every backbone edge is used at most $\Lambda(F)+1$ times, plus
+one final scan for residual inactive probes.
+
+For every realization the actual cost is at most
+\begin{equation}\label{eq:virtual-cost}
+ \cost(N(P))+
+ \sum_{i\in U}A_i k_i
+       \bigl(d(a_i,i)+d(i,b_i)\bigr)
+ +(\Lambda(F)+2)\cost(T_R).
+\end{equation}
+Take expectation.  By \eqref{eq:two-p}, the expected detour term is exactly
+twice the sampled weighted detour cost.  Average \eqref{eq:N-cost} over $P$
+and use \eqref{eq:endpoint-error}; then use
+\eqref{eq:Lambda}, \eqref{eq:tour-cost}, \eqref{eq:z-cost}, and
+\eqref{eq:m-size}.  This gives
+\begin{align*}
+ \E\cost(\text{policy})
+ &\le O\left(\cost(z)+
+   \bigl(\sqrt{p_*\mu}+\sqrt{mL}+L\bigr)\cost(T_R)\right)\\
+ &\le O\left(\frac L\alpha+\sqrt{p_*\mu}
+   +\sqrt{\alpha\mu L}+L\right)B.
+\end{align*}
+This proves \cref{prop:low}.  Notice that every multiplicity is selected at
+the instant its activation is revealed; no posterior information is used.
+
+\section{Threshold optimization}
+
+We finish the proof of \cref{thm:main}.  Put
+\[
+ \tau:=\min\left\{\frac14,(nL^2)^{-1/4}\right\},
+ \qquad
+ H:=\{i:p_i\ge\tau\},
+ \qquad
+ W:=\{i:p_i<\tau\}.
+\]
+The fixed-tour binning lemma from the $n^{1/3}$ note gives a causal policy on
+$H$ of expected cost at most
+\[
+ O(1/\tau)\opt_{\rm post}(H)
+ =O(n^{1/4}\sqrt L)\opt_{\rm post}.
+\]
+For $W$, $p_*\le\tau$ and $\mu\le n\tau$.  Apply
+\eqref{eq:low-optimized}:
+\begin{align*}
+ L^{2/3}\mu^{1/3}
+ &\le L^{2/3}(n\tau)^{1/3}
+ =O(n^{1/4}\sqrt L),\\
+ \sqrt{p_*\mu}
+ &\le\sqrt{n\tau^2}
+ =O(n^{1/4}/\sqrt L).
+\end{align*}
+The additive $L$ is smaller after adjusting the universal constant.  Execute
+the two policies successively from and back to the depot.  Monotonicity of
+the posterior tour optimum and concatenation prove the theorem.
+
+\section{What changed relative to the previous proof}
+
+The old policy fixes one copy of every realized chord, so one tail containing
+probability mass $M$ contributes a Bernoulli error of order $\sqrt M$.
+Here all chords with that tail form a single causal controller.  The
+controller reuses an active chord either once or four times; its marginal is
+exactly two copies, which is why the deterministic auxiliary flow remains
+available before probing.  The error of the whole tail is $O(1)$ at any fixed
+head interval and $O(\log n)$ uniformly over its scan.  Only the number of
+tails, namely the backbone size, now enters through a square root.  Thinning
+the backbone is therefore useful: the two polynomial terms are
+\[
+  \frac L\alpha
+  \qquad\text{and}\qquad
+  \sqrt{\alpha\mu L},
+\]
+whose balance is $L^{2/3}\mu^{1/3}$.  This is precisely the leverage supplied
+by repeated activated arcs.
+
+\end{document}
