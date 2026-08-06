@@ -143,7 +143,7 @@ We obtain the following results.
     We give a $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP on
     both symmetric and asymmetric metrics, running in time
     $c_\varepsilon^n\poly(n)$ (\cref{thm:apriori-ptas}).
-    The algorithm discards pairs for which the probability that all intervening clients are inactive is tiny, losing only a negligible amount, and then uses a dynamic program whose state stores just the relevant suffix of the partial order.
+    The algorithm discards pairs for which the probability that all \sharat{rephrase. intervening doesn't have the correct ring.} intervening clients are inactive is tiny, losing only a negligible amount, and then uses a dynamic program whose state stores just the relevant suffix of the partial order.
 \end{enumerate}
 
 \section{Related work}\label{sec:related}
@@ -3099,6 +3099,8 @@ one selector.  If it enters the stage in row~$r$ and leaves in column~$c$,
 any other active selector must fit the complementary cell $(3-r,3-c)$ on the
 second run.
 
+\sharat{Maybe replacing intervening with intermediate or inner or blah that comes in between so and so is better. Do this throughout the thesis.}
+
 This observation also explains why remote probes do not evade the
 construction.  If a policy probes a selector in a future stage before the
 first run has served the intervening gates, an active answer jumps past one
@@ -4220,6 +4222,8 @@ The following lemma then bounds the cost of the retained pairs.
 
 \sharat{$\kappa$ is unnecessary in the lemma statement. It's OK for an expression to look complicated, but an equation should never give the impression that there are more degrees of freedom than intended. \eqref{eq:long-gap-truncation} makes it look like there are 3 parameters.}
 
+\sharat{I might have a way to ensure that $\eta$ only depends polynomially on $\epsilon$. ChatGPT wrote a proof that I haven't verified yet. See pairwisetruncationetaepsilonsquared.pdf in the thesis folder.}
+
 \begin{lemma}[Pairwise truncation bound]
 \label{lem:long-gap-truncation}
 \sharat{Rephrase: Let $\epsilon \in (0,1)$ be an error parameter and let $\eta \in [0,\epsilon^{1/\epsilon}]$. 
@@ -4312,7 +4316,7 @@ probability in a singleton block and requiring every remaining block to have
 small total activation probability.  Within such a small block, every
 inactive product $Q$ is close to~$1$, so we can approximate it by~$1$ and optimize a
 simpler internal objective.  For a pair in different blocks, we retain the
-inactive products of the complete intervening blocks but omit the two
+inactive products of the complete \sharat{intermediate} intervening blocks but omit the two
 partial products inside the endpoint blocks.  These omissions give an upper
 bound, and the small block masses control the resulting overestimate.  The
 surrogate obtained from these two approximations is the \emph{block
@@ -4360,7 +4364,7 @@ We now formalize the two parts of the block objective.
 
 First consider pairs whose endpoints lie in the same block.
 Let $B$ be a light block and let $\tau$ be an order of its vertices.  For
-$x<_\tau y$, the inactivity factor contributed by the vertices of~$B$
+$x<_\tau y$, the inactivity factor contributed by the vertices of~$B$ \sharat{strictly}
 between $x$ and~$y$ satisfies
 \[
     \prod_{x<_\tau z<_\tau y}q_z
@@ -4396,13 +4400,14 @@ vertex of the order:
 Indeed, the second term is exactly the contribution of the pairs whose last
 vertex is~$y$.
 
+\sharat{Label these endpoints as say $x$ and $y$ for clarity.}
 Next consider endpoints in two different blocks $B_i$ and~$B_j$, where
 $i<j$.  Their exact inactive factor contains the product of three parts:
-the vertices after the first endpoint in~$B_i$, all complete blocks strictly
-between $B_i$ and~$B_j$, and the vertices before the second endpoint
+\sharat{the vertices in $B_i$ that come after $x$} the vertices after the first endpoint in~$B_i$, all complete blocks strictly
+between $B_i$ and~$B_j$, and \sharat{the vertices in $B_j$ that come before $y$} the vertices before the second endpoint
 in~$B_j$.  The first and third parts depend on the internal endpoint
 positions.  We drop these two partial-block factors and retain only the
-product over complete intervening blocks.  To aggregate the remaining base
+product over complete \sharat{intermediate} intervening blocks.  To aggregate the remaining base
 costs between two blocks, define
 \[
     C(B_i,B_j)
@@ -4423,7 +4428,7 @@ contributions gives the block objective
 \end{equation}
 The first sum summarizes pairs within the same block.  The second sum
 summarizes pairs in different blocks using only the inactivity probabilities
-of the complete intervening blocks.
+of the complete intervening blocks. \sharat{Inactivity probability doesn't sound good. Use intermediate, middle or inner instead of intervening.}
 
 Finally, order every light block according to a minimizer in
 \cref{eq:internal-block-cost} and concatenate the block orders, with the root
@@ -4436,6 +4441,8 @@ admissible consecutive partition~$\mathcal B_T$ whose block value is not much
 larger than $\cost(T)$.  Applied to an optimal tour, this ensures that the
 minimum block value is not much larger than~$\optprior$.  The next lemma makes
 both comparisons precise.
+
+\sharat{$\alpha$ and $\kappa$ should not appear in these calculations. You simply pick an error parameter $\epsilon$ and then $\eta = \epsilon^2$ should get the job done.}
 
 \begin{lemma}\label{lem:block-objective-bounds}
 The block objective satisfies the following inequalities.
@@ -4548,6 +4555,7 @@ of pairs with both endpoints in~$B$, then
     \le
     \frac{1}{1-\delta}W_B(T).
 \]
+\sharat{The first inequality holds by the definition of $I(B)$ (see \Cref{eq:internal-block-cost}).}
 The second inequality holds because every inactivity factor between two
 vertices of~$B$ is at least $q(B)\ge1-\delta$.  Summing the cross-block and
 internal comparisons proves~\cref{eq:block-objective-from-order}.
@@ -4637,7 +4645,7 @@ $\eta$, so its total activation mass is less than
 $\log(1/\eta)$.  Otherwise, deleting the first retained block leaves an
 inactivity product greater than~$\eta$, so the remaining blocks have total
 activation mass less than $\log(1/\eta)$; the first retained block has mass at
-most~$1$.  Thus the total activation mass of a relevant suffix is less than
+most~$1$ \sharat{from a heavy vertex I am assuming?}.  Thus the total activation mass of a relevant suffix is less than
 \[
     M_\eta:=\log(1/\eta)+1.
 \]
@@ -4746,6 +4754,7 @@ Finally,
 which depends only on~$\varepsilon$.  Since $\delta$ also depends only on
 $\varepsilon$, \cref{lem:local-dp} shows that
 the running time remains $c_\varepsilon^n\poly(n)$.
+\sharat{This proof needs clean up once the truncation loss lemma becomes more direct.}
 \end{proof}
 
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
