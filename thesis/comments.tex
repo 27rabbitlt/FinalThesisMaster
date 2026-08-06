@@ -31,3 +31,231 @@
 \end{itemize}
 
 \end{document}
+
+
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\loc}{\mathrm{loc}}
+
+\begin{document}
+
+\begin{lemma}[Pairwise truncation bound]
+\label{lem:long-gap-truncation}
+Let $0<\eps\le 1$ and $0<\eta\le \eps^2/16$.  For any a~priori
+tour~$T$, we have
+\[
+    \cost^{\loc}_{\eta}(T)
+    \le
+    \cost(T)
+    \le
+    (1+\eps)\cost^{\loc}_{\eta}(T).
+\]
+\end{lemma}
+
+\begin{proof}
+The first inequality is immediate because the truncated cost omits only
+nonnegative terms.  We prove the second inequality.
+
+For $0\le i<j\le n+1$, let
+\[
+    w_{ij}\coloneqq p_i p_j Q(i,j),
+\]
+and write
+\[
+    C\coloneqq\cost(T),
+    \qquad
+    C_\eta\coloneqq\cost^{\loc}_{\eta}(T),
+    \qquad
+    D_\eta\coloneqq C-C_\eta.
+\]
+Thus, $D_\eta$ is the total contribution of the discarded pairs, namely
+those pairs $(i,j)$ for which $Q(i,j)\le\eta$.
+
+Fix a discarded pair $(i,j)$.  Independently sample the activation states of
+the vertices strictly between $v_i$ and $v_j$, conditional on at least one of
+them being active.  This conditioning event has probability
+\[
+    1-Q(i,j)\ge 1-\eta.
+\]
+Together with $v_i$ and $v_j$, the sampled active vertices form a path in the
+order in which they occur in~$T$.  Denote its edge set by $P_{ij}$.  By the
+triangle inequality,
+\[
+    d_{ij}
+    \le
+    \sum_{(a,b)\in P_{ij}} d_{ab}.
+\]
+We use this inequality to charge $w_{ij}d_{ij}$ to the edges of the random
+path~$P_{ij}$.
+
+Fix a target pair $(a,b)$ with $w_{ab}>0$, and let $\Gamma_{ab}$ be the
+expected coefficient charged to $d_{ab}$.  A source pair $(i,j)$ can charge
+$(a,b)$ only if $i\le a<b\le j$.  If $(i,j)\ne(a,b)$, then, before
+conditioning, the probability that $a$ and $b$ are consecutive on the sampled
+path is
+\[
+    Q(a,b)
+    p_a^{\mathbf 1[i<a]}
+    p_b^{\mathbf 1[b<j]}.
+\]
+Conditioning increases this probability by at most a factor $1/(1-\eta)$.
+After dividing by $w_{ab}$ and separating the three possible strict-containment
+patterns, we obtain
+\begin{align}
+\frac{\Gamma_{ab}}{w_{ab}}
+\le \frac{1}{1-\eta}
+\biggl(&
+    \sum_{\substack{j>b\\Q(a,j)\le\eta}} p_jQ(a,j)
+    +
+    \sum_{\substack{i<a\\Q(i,b)\le\eta}} p_iQ(i,b)
+    \notag\\
+    &+
+    \sum_{\substack{i<a,\ j>b\\Q(i,j)\le\eta}}
+        p_ip_jQ(i,j)
+\biggr).
+\label{eq:congestion}
+\end{align}
+
+The first two sums in~\eqref{eq:congestion} are each at most~$\eta$.  Indeed,
+$Q(a,j)$ is nonincreasing in~$j$, so the indices satisfying $Q(a,j)\le\eta$
+form a suffix, and telescoping gives
+\[
+    \sum_{\substack{j>b\\Q(a,j)\le\eta}}p_jQ(a,j)
+    \le \eta.
+\]
+The second sum is bounded symmetrically.
+
+It remains to bound the third sum in~\eqref{eq:congestion}.  Set
+\[
+    H\coloneqq (1-p_a)Q(a,b)(1-p_b),
+    \qquad
+    x_i\coloneqq Q(i,a),
+    \qquad
+    y_j\coloneqq Q(b,j).
+\]
+For $i<a<b<j$, we have $Q(i,j)=Hx_iy_j$.  Moreover, telescoping gives
+\[
+    \sum_{i<a}p_ix_i=1,
+    \qquad
+    \sum_{j>b}p_jy_j=1.
+\]
+If either index set is empty, the third sum is zero.  If $H\le\eta$, it is at
+most~$H$ and hence at most~$\eta$.  Suppose, therefore, that $H>\eta$, and put
+$t\coloneqq\eta/H$.  For every $z>0$, telescoping on the right gives
+\[
+    \sum_{\substack{j>b\\y_j\le z}}p_jy_j
+    \le \min\{1,z\}.
+\]
+Terms with $x_i=0$ vanish.  Consequently,
+\begin{align*}
+    \sum_{\substack{i<a,\ j>b\\Q(i,j)\le\eta}}
+        p_ip_jQ(i,j)
+    &=
+    H\sum_{\substack{i<a\\x_i>0}}p_ix_i
+        \sum_{\substack{j>b\\y_j\le t/x_i}}p_jy_j\\
+    &\le
+    H\sum_{i<a}p_i\min\{x_i,t\}.
+\end{align*}
+
+We use the following elementary survival-product estimate:
+\begin{equation}
+    \sum_{i<a}p_i\min\{Q(i,a),t\}
+    \le
+    t\left(1+\ln\frac1t\right)
+    \qquad (0<t<1).
+\label{eq:survival-product}
+\end{equation}
+To verify it, recall that $x_i=Q(i,a)$ is nondecreasing in~$i$ and that
+\[
+    x_{i-1}=(1-p_i)x_i.
+\]
+If $x_0>t$, then
+\[
+    \sum_{i<a}p_i\min\{x_i,t\}
+    =t\sum_{i<a}p_i
+    \le t\left(1+\ln\frac1{x_0}\right)
+    \le t\left(1+\ln\frac1t\right).
+\]
+Otherwise, let $\ell$ be the largest index for which $x_\ell\le t$, and put
+$x\coloneqq x_{\ell+1}$ and $z\coloneqq x_\ell$.  Since
+$z=(1-p_{\ell+1})x$, telescoping and the inequality
+$u\le-\ln(1-u)$ give
+\begin{align*}
+    \sum_{i<a}p_i\min\{x_i,t\}
+    &\le
+    z+t\left(1-\frac{z}{x}+\ln\frac1x\right)\\
+    &\le
+    t\left(2-\frac{t}{x}+\ln\frac1x\right)\\
+    &\le
+    t\left(1+\ln\frac1t\right).
+\end{align*}
+The last inequality is equivalent to
+$1-t/x+\ln(t/x)\le0$, which follows from $\ln u\le u-1$.
+This proves~\eqref{eq:survival-product}.
+
+Applying~\eqref{eq:survival-product}, the third sum in
+\eqref{eq:congestion} is at most
+\[
+    Ht\left(1+\ln\frac1t\right)
+    =
+    \eta\left(1+\ln\frac{H}{\eta}\right)
+    \le
+    \eta\left(1+\ln\frac1\eta\right).
+\]
+It follows from~\eqref{eq:congestion} that every target pair has congestion at
+most
+\[
+    \beta(\eta)
+    \coloneqq
+    \frac{\eta\bigl(3+\ln(1/\eta)\bigr)}{1-\eta}.
+\]
+Pairs with $w_{ab}=0$ receive no charge, so summing over all target pairs gives
+\[
+    D_\eta\le \beta(\eta)C.
+\]
+Therefore,
+\begin{equation}
+    C_\eta
+    \ge
+    \bigl(1-\beta(\eta)\bigr)C.
+\label{eq:retained-fraction}
+\end{equation}
+
+The function $\beta$ is increasing on $(0,1)$.  Since
+$\eta\le\eps^2/16\le1/16$, we have
+\begin{align*}
+    \beta(\eta)
+    &\le
+    \beta\left(\frac{\eps^2}{16}\right)\\
+    &\le
+    \frac{\eps^2}{15}
+    \left(3+\ln 16+2\ln\frac1\eps\right)\\
+    &\le
+    \frac{\eps^2}{15}
+    \left(4+\frac{2}{\eps}\right)\\
+    &\le
+    \frac{2\eps}{5}
+    \le
+    \frac{\eps}{1+\eps}.
+\end{align*}
+Here we used $\ln(1/\eps)\le 1/\eps-1$, $\ln 16<3$, and
+$0<\eps\le1$.  Substituting this bound into~\eqref{eq:retained-fraction}
+gives
+\[
+    C_\eta
+    \ge
+    \frac{C}{1+\eps},
+\]
+which is the desired second inequality.
+\end{proof}
+
+\end{document}
