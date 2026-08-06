@@ -36,13 +36,17 @@
 
 We study the stochastic traveling salesperson problem, where each non-root
 vertex is active independently according to a given probability and all active vertices must be
-served at minimum expected travel cost.
+\sharat{visited not served} served at minimum expected travel cost.
+
+\sharat{Only the a posteriori and a priori solutions can be called benchmarks as they are existing models that have been studied a lot. Our model of adaptivity is new. Make this para as a discussion between the two extremes. Do mention that for symmetric metrics the gap between these two benchmarks is a constant, whereas it is polynomial for asymmetric case. Then end the para by saying that the thesis introduces a new model of adaptive TSP with the goal of understanding whether adaptivity can help with obtaining better stochastic tours.}
 
 There are three common benchmarks that differ in when the active vertices are revealed
 and when the decisions are made: an a~posteriori solution knows the complete
 active set in advance and decides the tour after the active vertices are revealed,
 an adaptive solution decides which vertex to probe next based on past information,
 and an a~priori solution commits to a fixed tour ordering before any activations are known.
+
+\sharat{Since your thesis is quite long, it makes sense to group the results into two paras. First you can talk about the gap results that are based on various constructions. It's your call whether you want to state every single result explicitly or just that you obtain new/improved lower bounds for every single setting: obliviousness gap for both, adaptivity for both, clairvoyance gap for both and single stochastic vertex case. You should only state the best possible results for each. The second para can be dedicated for algorithmic results. Talk about the $\tilde{O}(n^{1/3})$-approximate adaptive policy first. Then mention the a priori DP.}
 
 We compare the three benchmarks and give lower bounds for the gap between them.
 For symmetric distances, we construct instances with an adaptivity gap approaching~$2$ and
@@ -194,7 +198,8 @@ distinct $x,y\in V$, and
     \qquad\forall x,y,z\in V.
 \]
 The metric is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y\in V$;
-otherwise distances are directed.
+otherwise distances are directed. 
+\sharat{Directed metric is wrong/non-standard usage. Just say metric. Rephrase: A metric $d$ is said to be \emph{symmetric} if blah happens. Replace the otherwise part by saying something like: unless specified, metrics are assumed to be asymmetric.}
 
 A \emph{tour} on a subset $S\subseteq V$ containing the root is a cyclic
 sequence $T=(r,u_1,\ldots,u_k,r)$, where $k=|S|-1$ and
@@ -224,6 +229,7 @@ We consider three benchmarks for \StochTSP{}, distinguished by how much the solu
 
 \begin{enumerate}
     \item \textbf{A posteriori TSP.}
+        \sharat{It's best to avoid talking about a post solutions as an algorithmic question because the problem in itself is NP hard. Maybe emphasize that $T_A$ has cost $\opt(A)$. The reason for this is quite simple: an entity with clairvoyance can be assumed to also have unbounded computational power.}
         An \emph{a~posteriori solution} is a family
         $\mathcal{S}=(T_A)_{A\subseteq V^\circ}$, where $T_A$ is a tour on
         $A\cup\{r\}$ for each activation set~$A$.
@@ -231,7 +237,7 @@ We consider three benchmarks for \StochTSP{}, distinguished by how much the solu
         \[
         \cost(\mathcal{S}) := \E_{A\sim\mathcal Q}\bigl[\cost(T_A)\bigr].
         \]
-        Since each $T_A$ can be chosen independently, the optimum is
+        Since each $T_A$ can be chosen independently \sharat{don't use the word independently outside of stochastic context. find a synonym that doesn't add to the confusion. Ideally I would just define $T_A$ to be an optimal tour on $A$ and be done with it.}, the optimum is
         \[
         \optpost := \min_{\mathcal{S}}\,\cost(\mathcal{S}) = \E_{A\sim\mathcal Q}\bigl[\opt(A)\bigr].
         \]
@@ -239,7 +245,7 @@ We consider three benchmarks for \StochTSP{}, distinguished by how much the solu
     \item \textbf{A priori (nonadaptive) TSP.}
         An \emph{a~priori tour} is a tour
         $T=(r,v_1,\ldots,v_n,r)$ on~$V$, where
-        $V^\circ=\{v_1,\ldots,v_n\}$.
+        $V^\circ=\{v_1,\ldots,v_n\}$. \sharat{Calling an a priori tour as a tour is confusing. Maybe say something like: An a priori tour is a cyclic permutation of all vertices that starts and ends at $r$.}
         For a realization~$A$, the \emph{shortcut} $T\vert_A$ is obtained by retaining only the vertices in $A\cup\{r\}$ in the cyclic order prescribed by~$T$.
         If $A=\emptyset$, set $T\vert_A=(r)$.  Otherwise, if
         $1 \leq i_1 < i_2 < \cdots < i_{|A|} \leq n$ are such that
@@ -4183,15 +4189,16 @@ the final approximation bound are given in \Cref{sec:dp-approximation}.
 
 We begin by rewriting the expected shortcut cost as a sum over pairs of
 vertices in the a~priori order.  A pair contributes precisely when its two
-endpoints are active and every intervening vertex is inactive.  This exact
+endpoints are active and every \sharat{intermediate} intervening vertex is inactive.  This exact
 decomposition identifies the low-probability terms that can later be
 discarded.
 
+\sharat{It's not a good practice to write simple things as equations on a new line. $T=(v_0 = r,v_1,\dots,v_n,v_{n+1} = r)$ can be written inline.}
 Let
 \[
     T=(r,v_1,\dots,v_n,r)
 \]
-be an a~priori tour, where $V^\circ=\{v_1,\dots,v_n\}$.  Put
+be an a~priori tour, where $V^\circ=\{v_1,\dots,v_n\}$. \sharat{For any $0 \leq i < j \leq n+1$, we use the shorthands $p_i$ and $d_{ij}$ to denote $p_{v_{i}}$ and $d(v_i,v_j)$, respectively, and we define $Q(i,j):=\prod_{i<k<j}(1-p_k)$, with the convention that an empty product equals $1$.} Put
 $v_0=v_{n+1}=r$ and $p_0=p_{n+1}:=p_r=1$.  For brevity,
 write
 \[
@@ -4203,7 +4210,7 @@ For $0\le i<j\le n+1$, define
 \[
     Q(i,j):=\prod_{i<k<j}(1-p_k).
 \]
-Thus $Q(i,j)$ is the probability that every vertex strictly between $v_i$ and
+Thus, $Q(i,j)$ is the probability that every vertex strictly between $v_i$ and
 $v_j$ is inactive.  The expected cost of $T$ is
 \begin{equation}\label{eq:apriori-pairwise}
     \cost(T)
@@ -4213,7 +4220,7 @@ $v_j$ is inactive.  The expected cost of $T$ is
 Indeed, the term indexed by $(i,j)$ is paid exactly when $v_i$ and $v_j$ are
 consecutive active vertices in the shortcut of~$T$.
 
-For $0<\eta<1$, define the truncated cost by retaining only pairs for which
+For \sharat{a threshold parameter $\eta \in (0,1)$, blah} $0<\eta<1$, define the truncated cost \sharat{of an a~priori tour $T$ to be the RHS of \eqref{eq:apriori-pairwise} without the pairs $(i,j)$ for which $Q_{i,j} \leq \eta$. That is:} by retaining only pairs for which
 $Q(i,j)>\eta$:
 \begin{equation}\label{eq:local-pair-cost}
     \cost^{\loc}_{\eta}(T)
@@ -4226,9 +4233,18 @@ For any vector $s=(s_v)_{v\in V^\circ}$ with $s_v\in[0,1]$, let
 $\cost_s(T)$ denote the expected cost of~$T$ when the vertices are active
 independently with probabilities~$s_v$.  In particular, $\cost_p(T)=\cost(T)$.
 The following lemma then bounds the cost of the retained pairs.
+\sharat{The following lemma shows that the choice of the threshold parameter can be used to control the approximation loss between the (full) cost and the truncated cost. The stuff that you do for the final proof should be done here. If you want a $(1+\epsilon)$ loss between truncated and full cost, then you should say that taking $\eta = \Omega(\epsilon)^{O(1/\epsilon)}$ does the job.}
+
+\sharat{Use "for every tour" when you state the lemma in a ratio form and the RHS is a uniform upper bound on all a priori tours. Use "for any tour" when both the LHS and RHS have a dependency on the tour.}
+
+\sharat{$\kappa$ is unnecessary in the lemma statement. It's OK for an expression to look complicated, but an equation should never give the impression that there are more degrees of freedom than intended. \eqref{eq:long-gap-truncation} makes it look like there are 3 parameters.}
 
 \begin{lemma}[Pairwise truncation bound]
 \label{lem:long-gap-truncation}
+\sharat{Rephrase: Let $\epsilon \in (0,1)$ be an error parameter and let $\eta \in [0,\epsilon^{1/\epsilon}]$. 
+For any a~priori tour~$T$, we have: \[ \cost(T)
+    \le (1+\epsilon) \cost^{\loc}_{\eta}(T).\]
+}
 Let $\alpha>0$,  $\kappa:=(1+\alpha)^2$, and suppose that
 $0<\eta<1$ and $\kappa\eta^\alpha<1$.  Then every a~priori tour~$T$
 satisfies
@@ -4251,6 +4267,7 @@ non-root vertex~$v$ with probability $1-(1-p_v)^\alpha$.  Then
 $\widetilde A:=A\cup A^+$ has independent activation probabilities
 $\widetilde p_v$.
 
+\sharat{Rephrase: The coupling argument is straightforward because you described a strategy for always ensuring that $\widetilde A \supset A$. That's what coupling is. You don't need to give the exact mapping from probability measure of $p$ to that of $\widetilde p$. Also, put the entire coupling argument in a single para. Any notion that is small enough to be explained using at most 5-6 sentences should be in a single para.}
 For every outcome, $A\subseteq\widetilde A$, and $T\vert_A$ is obtained from
 $T\vert_{\widetilde A}$ by shortcutting vertices.  Hence the
 triangle inequality gives
@@ -4268,7 +4285,7 @@ Convexity of $x\mapsto x^{1+\alpha}$ gives
     =1-(1-p_v)^{1+\alpha}
     \le(1+\alpha)p_v.
 \]
-Moreover,
+Moreover, \sharat{$\widetilde Q$ is a definition. Use $\coloneqq$.}
 \[
     \widetilde Q(i,j)
     =\prod_{i<k<j}(1-\widetilde p_k)
