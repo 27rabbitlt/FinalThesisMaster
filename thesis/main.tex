@@ -4275,6 +4275,8 @@ overestimate.  The
 surrogate obtained from these two approximations is the \emph{block
 objective}.
 
+\sharat{A non-root vertex is said to be $\delta$-heavy if $p_v > \delta/2$, and \emph{light} otherwise. Do the same for the definition of admissible blocks and partitions. Call them $\delta$-admissible blocks and partitions.}
+
 We first specify what blocks are allowed.  Fix $0<\delta<1/4$ and recall
 that $q_v=1-p_v$.  A non-root vertex is \emph{heavy} if
 $p_v>\delta/2$ and \emph{light} otherwise.  For a set of non-root
@@ -4394,6 +4396,8 @@ admissible consecutive partition~$\mathcal B_T$ whose block value is not much
 larger than $\cost(T)$.  Applied to an optimal tour, this ensures that the
 minimum block value is not much larger than~$\optprior$.  The next lemma makes
 both comparisons precise.
+
+\sharat{Mention that $\delta$ is some fixed parameter in the below lemma. Part (i) should say for every $\delta$-admissible ordered partition... Same for the second part.}
 
 \begin{lemma}\label{lem:block-objective-bounds}
 The block objective satisfies the following inequalities.
@@ -4782,6 +4786,8 @@ their constant care, understanding, and support in my life.
 \appendix
 \chapter{Technical Proof for Pairwise Truncation}
 \label{app:pairwise-truncation}
+
+\sharat{This section requires proper verification.}
 
 This appendix proves the charging estimate used in
 \cref{lem:long-gap-truncation}.  We use the notation for the a~priori tour,
