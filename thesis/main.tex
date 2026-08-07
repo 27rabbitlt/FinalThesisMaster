@@ -35,28 +35,30 @@
 \addcontentsline{toc}{chapter}{Abstract}
 
 We study the stochastic traveling salesperson problem, where each non-root
-vertex is active independently according to a given probability and all active vertices must be
-\sharat{visited not served} served at minimum expected travel cost.
+vertex is active independently according to a given probability and all active
+vertices must be visited at minimum expected travel cost.
 
-\sharat{Only the a posteriori and a priori solutions can be called benchmarks as they are existing models that have been studied a lot. Our model of adaptivity is new. Make this para as a discussion between the two extremes. Do mention that for symmetric metrics the gap between these two benchmarks is a constant, whereas it is polynomial for asymmetric case. Then end the para by saying that the thesis introduces a new model of adaptive TSP with the goal of understanding whether adaptivity can help with obtaining better stochastic tours.}
+The classical a~posteriori and a~priori models represent two information
+extremes.  An a~posteriori solution knows the complete active set before
+choosing its tour, whereas an a~priori solution commits to a fixed cyclic
+ordering before any activations are known.  The gap between these two
+benchmarks is constant for symmetric metrics but polynomial in the number of
+vertices for asymmetric metrics.  This thesis introduces an adaptive model
+between these extremes, in which vertices are probed sequentially and the next
+probe may depend on previous outcomes, with the goal of understanding whether
+adaptivity produces better stochastic tours.
 
-There are three common benchmarks that differ in when the active vertices are revealed
-and when the decisions are made: an a~posteriori solution knows the complete
-active set in advance and decides the tour after the active vertices are revealed,
-an adaptive solution decides which vertex to probe next based on past information,
-and an a~priori solution commits to a fixed tour ordering before any activations are known.
+We establish new separations between these models.  For symmetric metrics, we
+construct instances with adaptivity gap approaching~$2$ and clairvoyance gap
+approaching~$10/9$; for instances with one stochastic vertex, we also prove the
+uniform upper bound $(2+\sqrt6)/4$ on the clairvoyance gap.  For asymmetric
+metrics, we give a layered-poset construction showing that the clairvoyance
+gap is at least~$3/2$.
 
-\sharat{Since your thesis is quite long, it makes sense to group the results into two paras. First you can talk about the gap results that are based on various constructions. It's your call whether you want to state every single result explicitly or just that you obtain new/improved lower bounds for every single setting: obliviousness gap for both, adaptivity for both, clairvoyance gap for both and single stochastic vertex case. You should only state the best possible results for each. The second para can be dedicated for algorithmic results. Talk about the $\tilde{O}(n^{1/3})$-approximate adaptive policy first. Then mention the a priori DP.}
-
-We compare the three benchmarks and give lower bounds for the gap between them.
-For symmetric distances, we construct instances with an adaptivity gap approaching~$2$ and
-instances with a clairvoyance gap approaching~$10/9$. For asymmetric distances, we
-give a layered-poset construction showing that the clairvoyance gap is at
-least~$3/2$, strengthening a recursive family whose ratio approaches~$4/3$.
-We also establish a partial structural result for asymmetric metrics in the
-form of an offline low-cost circulation; this does not yet yield an adaptive
-policy.
-Finally, for every fixed $\varepsilon>0$, we give a deterministic
+On the algorithmic side, for asymmetric metrics we construct an adaptive
+policy with expected cost
+$O\bigl(n^{1/4}\sqrt{\log(n+1)}\bigr)\optpost$.  For every fixed
+$\varepsilon>0$, we also give a deterministic
 $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP with running time
 $c_\varepsilon^n\poly(n)$ based on dynamic programming.
 
@@ -113,7 +115,7 @@ We obtain the following results.
     $(2+\sqrt6)/4$ for this class.
 
     \item \textbf{Clairvoyance gap lower bound for asymmetric metrics} (\cref{ch:asym-clair}).
-    We first define a recursive family of directed instances for which
+    We first define an asymmetric recursive family whose ratio
     $\optadapt/\optpost$ tends to~$4/3$
     (\cref{thm:recursive-gap}).  We then give a four-star layered-poset
     construction for which
@@ -121,7 +123,7 @@ We obtain the following results.
         \liminf\frac{\optadapt}{\optpost}\ge\frac32
     \]
     (\cref{thm:layered-poset-gap}).  The construction uses independent
-    activations and a strictly positive directed metric.  We also give an
+    activations and a strictly positive asymmetric metric.  We also give an
     explicit finite member whose ratio is strictly larger than~$4/3$.
 
     \item \textbf{Partial backbone-circulation framework} (\cref{ch:circulation}).
@@ -143,7 +145,10 @@ We obtain the following results.
     We give a $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP on
     both symmetric and asymmetric metrics, running in time
     $c_\varepsilon^n\poly(n)$ (\cref{thm:apriori-ptas}).
-    The algorithm discards pairs for which the probability that all \sharat{rephrase. intervening doesn't have the correct ring.} intervening clients are inactive is tiny, losing only a negligible amount, and then uses a dynamic program whose state stores just the relevant suffix of the partial order.
+    The algorithm discards pairs for which it is very unlikely that every
+    vertex lying strictly between their endpoints is inactive, losing only a
+    negligible amount, and then uses a dynamic program whose state stores just
+    the relevant suffix of the partial order.
 \end{enumerate}
 
 \section{Related work}\label{sec:related}
@@ -191,16 +196,16 @@ Let $V$ be a finite vertex set of cardinality $n+1$, fix a distinguished
 \[
     V^\circ:=V\setminus\{r\}
 \]
-for the $n$ non-root vertices.  A \emph{directed metric} on~$V$ is a function
+for the $n$ non-root vertices.  A \emph{possibly asymmetric metric} on~$V$ is a function
 $d:V\times V\to\mathbb R_{\ge0}$ such that $d(x,x)=0$, $d(x,y)>0$ for
 distinct $x,y\in V$, and
 \[
     d(x,z)\le d(x,y)+d(y,z)
     \qquad\forall x,y,z\in V.
 \]
-The metric is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y\in V$;
-otherwise distances are directed. 
-\sharat{Directed metric is wrong/non-standard usage. Just say metric. Rephrase: A metric $d$ is said to be \emph{symmetric} if blah happens. Replace the otherwise part by saying something like: unless specified, metrics are assumed to be asymmetric.}
+A metric~$d$ is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y\in V$,
+and \emph{asymmetric} otherwise.  Unless explicitly stated otherwise, metrics
+are allowed to be asymmetric.
 
 A \emph{tour} on a subset $S\subseteq V$ containing the root is a cyclic
 sequence $T=(r,u_1,\ldots,u_k,r)$, where $k=|S|-1$ and
@@ -230,23 +235,21 @@ We consider three benchmarks for \StochTSP{}, distinguished by how much the solu
 
 \begin{enumerate}
     \item \textbf{A posteriori TSP.}
-        \sharat{It's best to avoid talking about a post solutions as an algorithmic question because the problem in itself is NP hard. Maybe emphasize that $T_A$ has cost $\opt(A)$. The reason for this is quite simple: an entity with clairvoyance can be assumed to also have unbounded computational power.}
         An \emph{a~posteriori solution} is a family
-        $\mathcal{S}=(T_A)_{A\subseteq V^\circ}$, where $T_A$ is a tour on
-        $A\cup\{r\}$ for each activation set~$A$.
+        $\mathcal{S}=(T_A)_{A\subseteq V^\circ}$, where $T_A$ is an optimal
+        tour on $A\cup\{r\}$ and therefore has cost~$\opt(A)$.
         We define
         \[
-        \cost(\mathcal{S}) := \E_{A\sim\mathcal Q}\bigl[\cost(T_A)\bigr].
-        \]
-        Since each $T_A$ can be chosen independently \sharat{don't use the word independently outside of stochastic context. find a synonym that doesn't add to the confusion. Ideally I would just define $T_A$ to be an optimal tour on $A$ and be done with it.}, the optimum is
-        \[
-        \optpost := \min_{\mathcal{S}}\,\cost(\mathcal{S}) = \E_{A\sim\mathcal Q}\bigl[\opt(A)\bigr].
+        \optpost
+        :=\cost(\mathcal{S})
+        :=\E_{A\sim\mathcal Q}\bigl[\cost(T_A)\bigr]
+        =\E_{A\sim\mathcal Q}\bigl[\opt(A)\bigr].
         \]
 
     \item \textbf{A priori (nonadaptive) TSP.}
-        An \emph{a~priori tour} is a tour
-        $T=(r,v_1,\ldots,v_n,r)$ on~$V$, where
-        $V^\circ=\{v_1,\ldots,v_n\}$. \sharat{Calling an a priori tour as a tour is confusing. Maybe say something like: An a priori tour is a cyclic permutation of all vertices that starts and ends at $r$.}
+        An \emph{a~priori tour} is a cyclic ordering of all vertices,
+        represented as $T=(r,v_1,\ldots,v_n,r)$, where
+        $V^\circ=\{v_1,\ldots,v_n\}$.
         For a realization~$A$, the \emph{shortcut} $T\vert_A$ is obtained by retaining only the vertices in $A\cup\{r\}$ in the cyclic order prescribed by~$T$.
         If $A=\emptyset$, set $T\vert_A=(r)$.  Otherwise, if
         $1 \leq i_1 < i_2 < \cdots < i_{|A|} \leq n$ are such that
@@ -1399,7 +1402,7 @@ Combining the two bounds proves that the ratio converges to~$2$.
 \providecommand{\Gammaone}{\Gamma_{1}}
 
 This chapter proves that the clairvoyance gap for symmetric \StochTSP{} is at
-least~$10/9$.  We construct a balanced three-chain family with one stochastic
+least~$10/9$.  We construct a family of instances with one stochastic
 vertex of activation probability~$1/2$ for which
 \[
   \frac{\optadapt}{\optpost}
@@ -2261,7 +2264,7 @@ $\optadapt/\optpost$ tends to~$4/3$.  At each recursive level, a clairvoyant
 tour chooses the cheaper orientation after seeing whether a new midpoint is
 active, whereas an adaptive policy must make part of this choice before
 learning that activation bit.  The second construction strengthens the lower
-bound to~$3/2$.  It embeds a layered poset into a directed metric: a
+bound to~$3/2$.  It embeds a layered poset into an asymmetric metric: a
 clairvoyant tour needs essentially two increasing chains, while every causal
 policy needs at least three increasing runs with high probability.  Both
 proofs allow a policy to interleave probes across different recursive blocks or
@@ -2269,7 +2272,7 @@ poset layers.
 
 \section{The construction}\label{sec:recursive-construction}
 
-This section defines the recursive family of directed instances.  Each block
+This section defines the recursive family of asymmetric instances.  Each block
 contains two copies of the preceding block and one new stochastic midpoint,
 joined by a directed three-cycle whose scale doubles with the level.  Complete
 port bundles make the construction independent of the entry and exit ports
@@ -2337,7 +2340,7 @@ The generating graph of every block is strongly connected.  This follows by
 induction: each child is strongly connected, and the three top-level arc
 bundles connect the two children and the new midpoint in a directed cycle.
 The root arcs preserve strong connectivity.  Hence all shortest-path
-distances are finite and define a directed metric.  Notice also that every arc
+distances are finite and define an asymmetric metric.  Notice also that every arc
 crossing the boundary of a child block is incident with one of its ports.
 
 The block $B_l$ has $|\mathcal P_l|=2^l$ permanent vertices and
@@ -2842,7 +2845,7 @@ fixed open service, so every tour costs at least $2w_l+F_l(A)$.
 
 Conversely, add a root arc before and after an optimal fixed open service.
 The resulting closed walk costs $2w_l+F_l(A)$ and serves every active vertex.
-Shortcutting repeated vertex visits in the directed metric produces a tour of
+Shortcutting repeated vertex visits in the asymmetric metric produces a tour of
 no greater cost.  This proves equality.
 \end{proof}
 
@@ -2962,7 +2965,7 @@ posterior cost approach~$2$ while the adaptive cost is at least~$3-o(1)$.
 \label{thm:layered-poset-gap}
 The clairvoyance gap for asymmetric \StochTSP{} is at least~$3/2$.
 More precisely, there is a sequence of independently activated instances
-$(\mathcal{I}_t^{\mathrm{LP}})_{t\ge2}$ on strictly positive directed metrics
+$(\mathcal{I}_t^{\mathrm{LP}})_{t\ge2}$ on strictly positive asymmetric metrics
 such that
 \[
     \liminf_{t\to\infty}
@@ -3099,8 +3102,6 @@ one selector.  If it enters the stage in row~$r$ and leaves in column~$c$,
 any other active selector must fit the complementary cell $(3-r,3-c)$ on the
 second run.
 
-\sharat{Maybe replacing intervening with intermediate or inner or blah that comes in between so and so is better. Do this throughout the thesis.}
-
 This observation also explains why remote probes do not evade the
 construction.  If a policy probes a selector in a future stage before the
 first run has served the intervening gates, an active answer jumps past one
@@ -3234,7 +3235,7 @@ bound.  Finally, $K_\pi\ge2$ implies
 \]
 \end{proof}
 
-\subsection{Embedding the poset into a directed metric}
+\subsection{Embedding the poset into an asymmetric metric}
 \label{sec:layered-poset-metric-embedding}
 
 It remains to convert the combinatorial separation into a \StochTSP{}
@@ -3370,7 +3371,7 @@ adaptive policy for asymmetric \StochTSP{}.  The starting point is the
 backbone method used for symmetric a~priori TSP~\cite{Shmoys2008}: sample a
 set of non-root vertices according to their activation probabilities, route
 the sampled vertices, and attach the remaining vertices to this backbone.  In
-a directed metric, attaching a vertex to its nearest backbone vertex is not
+an asymmetric metric, attaching a vertex to its nearest backbone vertex is not
 adequate, because the cost of entering and leaving that vertex may be very different.
 We therefore replace undirected detours by a directed circulation.
 
@@ -3853,7 +3854,7 @@ partial result of this chapter.
 
 \begin{theorem}[Backbone circulation and rounding]
 \label{thm:backbone-circulation-rounding}
-For every \StochTSP{} instance on a directed metric, there exist a backbone
+For every \StochTSP{} instance on an asymmetric metric, there exist a backbone
 $R=S\cup\{r\}$, a tour
 $T_R=(s_0,\ldots,s_{m-1},s_0)$, nonnegative backbone variables
 $(y_{ab})_{a,b\in R}$, and, for every
@@ -4172,27 +4173,15 @@ the final approximation bound are given in \Cref{sec:dp-approximation}.
 
 We begin by rewriting the expected shortcut cost as a sum over pairs of
 vertices in the a~priori order.  A pair contributes precisely when its two
-endpoints are active and every \sharat{intermediate} intervening vertex is inactive.  This exact
+endpoints are active and every vertex lying strictly between them is inactive.  This exact
 decomposition identifies the low-probability terms that can later be
 discarded.
 
-\sharat{It's not a good practice to write simple things as equations on a new line. $T=(v_0 = r,v_1,\dots,v_n,v_{n+1} = r)$ can be written inline.}
-Let
-\[
-    T=(r,v_1,\dots,v_n,r)
-\]
-be an a~priori tour, where $V^\circ=\{v_1,\dots,v_n\}$. \sharat{For any $0 \leq i < j \leq n+1$, we use the shorthands $p_i$ and $d_{ij}$ to denote $p_{v_{i}}$ and $d(v_i,v_j)$, respectively, and we define $Q(i,j):=\prod_{i<k<j}(1-p_k)$, with the convention that an empty product equals $1$.} Put
-$v_0=v_{n+1}=r$ and $p_0=p_{n+1}:=p_r=1$.  For brevity,
-write
-\[
-    p_i:=p_{v_i},
-    \qquad
-    d_{ij}:=d(v_i,v_j).
-\]
-For $0\le i<j\le n+1$, define
-\[
-    Q(i,j):=\prod_{i<k<j}(1-p_k).
-\]
+Let $T=(v_0=r,v_1,\dots,v_n,v_{n+1}=r)$ be an a~priori tour,
+where $V^\circ=\{v_1,\dots,v_n\}$.  For $0\le i<j\le n+1$, use the
+shorthands $p_i:=p_{v_i}$ and $d_{ij}:=d(v_i,v_j)$, and define
+$Q(i,j):=\prod_{i<k<j}(1-p_k)$, with the convention that an empty product
+equals~$1$.  In particular, $p_0=p_{n+1}=p_r=1$.
 Thus, $Q(i,j)$ is the probability that every vertex strictly between $v_i$ and
 $v_j$ is inactive.  The expected cost of $T$ is
 \begin{equation}\label{eq:apriori-pairwise}
@@ -4203,8 +4192,10 @@ $v_j$ is inactive.  The expected cost of $T$ is
 Indeed, the term indexed by $(i,j)$ is paid exactly when $v_i$ and $v_j$ are
 consecutive active vertices in the shortcut of~$T$.
 
-For \sharat{a threshold parameter $\eta \in (0,1)$, blah} $0<\eta<1$, define the truncated cost \sharat{of an a~priori tour $T$ to be the RHS of \eqref{eq:apriori-pairwise} without the pairs $(i,j)$ for which $Q_{i,j} \leq \eta$. That is:} by retaining only pairs for which
-$Q(i,j)>\eta$:
+For a threshold parameter $\eta\in(0,1)$, define the truncated cost of an
+a~priori tour~$T$ to be the right-hand side of
+\cref{eq:apriori-pairwise} without the pairs $(i,j)$ for which
+$Q(i,j)\le\eta$.  That is,
 \begin{equation}\label{eq:local-pair-cost}
     \cost^{\loc}_{\eta}(T)
     :=
@@ -4212,93 +4203,54 @@ $Q(i,j)>\eta$:
     p_i p_j Q(i,j)d_{ij}.
 \end{equation}
 
-For any vector $s=(s_v)_{v\in V^\circ}$ with $s_v\in[0,1]$, let
-$\cost_s(T)$ denote the expected cost of~$T$ when the vertices are active
-independently with probabilities~$s_v$.  In particular, $\cost_p(T)=\cost(T)$.
-The following lemma then bounds the cost of the retained pairs.
-\sharat{The following lemma shows that the choice of the threshold parameter can be used to control the approximation loss between the (full) cost and the truncated cost. The stuff that you do for the final proof should be done here. If you want a $(1+\epsilon)$ loss between truncated and full cost, then you should say that taking $\eta = \Omega(\epsilon)^{O(1/\epsilon)}$ does the job.}
-
-\sharat{Use "for every tour" when you state the lemma in a ratio form and the RHS is a uniform upper bound on all a priori tours. Use "for any tour" when both the LHS and RHS have a dependency on the tour.}
-
-\sharat{$\kappa$ is unnecessary in the lemma statement. It's OK for an expression to look complicated, but an equation should never give the impression that there are more degrees of freedom than intended. \eqref{eq:long-gap-truncation} makes it look like there are 3 parameters.}
-
-\sharat{I might have a way to ensure that $\eta$ only depends polynomially on $\epsilon$. ChatGPT wrote a proof that I haven't verified yet. See pairwisetruncationetaepsilonsquared.pdf in the thesis folder.}
+The following lemma shows that a polynomially small threshold suffices to
+control the approximation loss between the full and truncated costs.
 
 \begin{lemma}[Pairwise truncation bound]
 \label{lem:long-gap-truncation}
-\sharat{Rephrase: Let $\epsilon \in (0,1)$ be an error parameter and let $\eta \in [0,\epsilon^{1/\epsilon}]$. 
-For any a~priori tour~$T$, we have: \[ \cost(T)
-    \le (1+\epsilon) \cost^{\loc}_{\eta}(T).\]
-}
-Let $\alpha>0$,  $\kappa:=(1+\alpha)^2$, and suppose that
-$0<\eta<1$ and $\kappa\eta^\alpha<1$.  Then every a~priori tour~$T$
-satisfies
+Let $\rho\in(0,1]$ be an error parameter and suppose that
 \begin{equation}\label{eq:long-gap-truncation}
-    \cost(T)
-    \le
-    \frac{\kappa}{1-\kappa\eta^\alpha}\,
-    \cost^{\loc}_{\eta}(T).
+    0<\eta\le\frac{\rho^2}{16}.
 \end{equation}
+For any a~priori tour~$T$,
+\[
+    \cost^{\loc}_{\eta}(T)
+    \le \cost(T)
+    \le(1+\rho)\cost^{\loc}_{\eta}(T).
+\]
 \end{lemma}
 
 \begin{proof}
-Define the augmented activation probabilities
+The first inequality follows immediately because the truncated cost omits
+only nonnegative terms.  For the second inequality, put
 \[
-    \widetilde p_v:=1-(1-p_v)^{1+\alpha}.
+    \beta(\eta):=
+    \frac{\eta\bigl(3+\ln(1/\eta)\bigr)}{1-\eta}.
 \]
-Couple the augmented and original activation processes as follows.  First
-sample the original active set~$A$.  Independently form a set~$A^+$ by including each
-non-root vertex~$v$ with probability $1-(1-p_v)^\alpha$.  Then
-$\widetilde A:=A\cup A^+$ has independent activation probabilities
-$\widetilde p_v$.
-
-\sharat{Rephrase: The coupling argument is straightforward because you described a strategy for always ensuring that $\widetilde A \supset A$. That's what coupling is. You don't need to give the exact mapping from probability measure of $p$ to that of $\widetilde p$. Also, put the entire coupling argument in a single para. Any notion that is small enough to be explained using at most 5-6 sentences should be in a single para.}
-For every outcome, $A\subseteq\widetilde A$, and $T\vert_A$ is obtained from
-$T\vert_{\widetilde A}$ by shortcutting vertices.  Hence the
-triangle inequality gives
+The discarded-pair charging bound proved in
+\cref{lem:discarded-pair-charging} gives
 \[
-    \cost(T\vert_A)\le \cost(T\vert_{\widetilde A}).
+    \cost(T)-\cost^{\loc}_{\eta}(T)
+    \le\beta(\eta)\cost(T).
 \]
-Taking expectations,
-\begin{equation}\label{eq:activation-monotonicity}
-    \cost(T)\le \cost_{\widetilde p}(T).
-\end{equation}
-
-Convexity of $x\mapsto x^{1+\alpha}$ gives
-\[
-    \widetilde p_v
-    =1-(1-p_v)^{1+\alpha}
-    \le(1+\alpha)p_v.
-\]
-Moreover, \sharat{$\widetilde Q$ is a definition. Use $\coloneqq$.}
-\[
-    \widetilde Q(i,j)
-    =\prod_{i<k<j}(1-\widetilde p_k)
-    =Q(i,j)^{1+\alpha}.
-\]
-Thus the coefficient of $d_{ij}$ under~$\widetilde p$ is at most
+The function $\beta$ is increasing on $(0,1)$.  Since
+$\eta\le\rho^2/16\le1/16$, we have
 \begin{align*}
-    \widetilde p_i\widetilde p_j\widetilde Q(i,j)
-    &\le
-    \kappa p_ip_jQ(i,j)^{1+\alpha}\\
-    &=\kappa Q(i,j)^\alpha\bigl(p_ip_jQ(i,j)\bigr).
+    \beta(\eta)
+    &\le\frac{\rho^2}{15}
+        \left(3+\ln16+2\ln\frac1\rho\right)\\
+    &\le\frac{\rho^2}{15}\left(4+\frac2\rho\right)
+    \le\frac{2\rho}{5}
+    \le\frac{\rho}{1+\rho}.
 \end{align*}
-
-Set
+Here we used $\ln(1/\rho)\le1/\rho-1$, $\ln16<3$, and
+$0<\rho\le1$.  Therefore
 \[
-    L:=\cost(T),
-    \qquad
-    L_\eta:=\cost^{\loc}_{\eta}(T).
+    \cost^{\loc}_{\eta}(T)
+    \ge\bigl(1-\beta(\eta)\bigr)\cost(T)
+    \ge\frac{\cost(T)}{1+\rho},
 \]
-On retained pairs, $Q(i,j)^\alpha\le1$; on discarded pairs,
-$Q(i,j)^\alpha\le\eta^\alpha$.  Therefore
-\[
-    L
-    \le \cost_{\widetilde p}(T)
-    \le \kappa\bigl(L_\eta+\eta^\alpha(L-L_\eta)\bigr)
-    \le \kappa L_\eta+\kappa\eta^\alpha L.
-\]
-Rearranging proves~\cref{eq:long-gap-truncation}.
+which proves the second inequality.
 \end{proof}
 
 \section{The block objective}\label{sec:dp-block-objective}
@@ -4316,9 +4268,10 @@ probability in a singleton block and requiring every remaining block to have
 small total activation probability.  Within such a small block, every
 inactive product $Q$ is close to~$1$, so we can approximate it by~$1$ and optimize a
 simpler internal objective.  For a pair in different blocks, we retain the
-inactive products of the complete \sharat{intermediate} intervening blocks but omit the two
-partial products inside the endpoint blocks.  These omissions give an upper
-bound, and the small block masses control the resulting overestimate.  The
+inactivity product over the complete blocks strictly between the endpoint
+blocks but omit the two partial products inside the endpoint blocks.  These
+omissions give an upper bound, and the small block masses control the resulting
+overestimate.  The
 surrogate obtained from these two approximations is the \emph{block
 objective}.
 
@@ -4364,8 +4317,8 @@ We now formalize the two parts of the block objective.
 
 First consider pairs whose endpoints lie in the same block.
 Let $B$ be a light block and let $\tau$ be an order of its vertices.  For
-$x<_\tau y$, the inactivity factor contributed by the vertices of~$B$ \sharat{strictly}
-between $x$ and~$y$ satisfies
+$x<_\tau y$, the inactivity factor contributed by the vertices of~$B$
+strictly between $x$ and~$y$ satisfies
 \[
     \prod_{x<_\tau z<_\tau y}q_z
     \ge
@@ -4400,14 +4353,14 @@ vertex of the order:
 Indeed, the second term is exactly the contribution of the pairs whose last
 vertex is~$y$.
 
-\sharat{Label these endpoints as say $x$ and $y$ for clarity.}
-Next consider endpoints in two different blocks $B_i$ and~$B_j$, where
-$i<j$.  Their exact inactive factor contains the product of three parts:
-\sharat{the vertices in $B_i$ that come after $x$} the vertices after the first endpoint in~$B_i$, all complete blocks strictly
-between $B_i$ and~$B_j$, and \sharat{the vertices in $B_j$ that come before $y$} the vertices before the second endpoint
-in~$B_j$.  The first and third parts depend on the internal endpoint
-positions.  We drop these two partial-block factors and retain only the
-product over complete \sharat{intermediate} intervening blocks.  To aggregate the remaining base
+Next fix endpoints $x\in B_i$ and $y\in B_j$ in two different blocks, where
+$i<j$.  Their exact inactivity factor contains the product of three parts:
+the inactive probabilities of the vertices in~$B_i$ after~$x$, the inactive
+probabilities of all vertices in the complete blocks strictly between $B_i$
+and~$B_j$, and the inactive probabilities of the vertices in~$B_j$ before~$y$.
+The first and third parts depend on the internal endpoint positions.  We drop
+these two partial-block factors and retain only the product over the complete
+blocks strictly between the endpoint blocks.  To aggregate the remaining base
 costs between two blocks, define
 \[
     C(B_i,B_j)
@@ -4427,8 +4380,8 @@ contributions gives the block objective
     \left(\prod_{i<t<j}q(B_t)\right)C(B_i,B_j).
 \end{equation}
 The first sum summarizes pairs within the same block.  The second sum
-summarizes pairs in different blocks using only the inactivity probabilities
-of the complete intervening blocks. \sharat{Inactivity probability doesn't sound good. Use intermediate, middle or inner instead of intervening.}
+summarizes pairs in different blocks using only the product of~$q(B_t)$ over
+the complete blocks strictly between the endpoint blocks.
 
 Finally, order every light block according to a minimizer in
 \cref{eq:internal-block-cost} and concatenate the block orders, with the root
@@ -4442,8 +4395,6 @@ larger than $\cost(T)$.  Applied to an optimal tour, this ensures that the
 minimum block value is not much larger than~$\optprior$.  The next lemma makes
 both comparisons precise.
 
-\sharat{$\alpha$ and $\kappa$ should not appear in these calculations. You simply pick an error parameter $\epsilon$ and then $\eta = \epsilon^2$ should get the job done.}
-
 \begin{lemma}\label{lem:block-objective-bounds}
 The block objective satisfies the following inequalities.
 \begin{enumerate}[label=(\roman*)]
@@ -4456,10 +4407,10 @@ The block objective satisfies the following inequalities.
         &\le(1-\delta)^{-2}\cost(T_{\mathcal B}).
         \label{eq:block-objective-faithful-upper}
     \end{align}
-    Consequently, if $\alpha>0$, $\kappa:=(1+\alpha)^2$, and
-    $\kappa\eta^\alpha<1$, then
+    Consequently, if $\rho\in(0,1]$ and
+    $0<\eta\le\rho^2/16$, then
     \begin{equation}\label{eq:block-objective-two-sided}
-        \frac{1-\kappa\eta^\alpha}{\kappa}\cost(T_{\mathcal B})
+        \frac{1}{1+\rho}\cost(T_{\mathcal B})
         \le F_\eta(\mathcal B)
         \le \frac{1}{(1-\delta)^2}\cost(T_{\mathcal B}).
     \end{equation}
@@ -4497,8 +4448,8 @@ where $B_i^{>x}$ denotes the vertices of $B_i$ after~$x$, and
 $B_j^{<y}$ the vertices of $B_j$ before~$y$.  If $(x,y)$ is retained in
 $\cost^{\loc}_{\eta}(T_{\mathcal B})$, then its exact inactivity probability
 exceeds~$\eta$.  Removing the two endpoint-block factors can only increase
-that probability, so the product over the complete intervening blocks also
-exceeds~$\eta$.  Hence the corresponding block pair occurs in
+that probability, so the product over the complete blocks strictly between
+the endpoint blocks also exceeds~$\eta$.  Hence the corresponding block pair occurs in
 \cref{eq:block-objective}, with a coefficient at least as large as the exact
 one.
 
@@ -4547,7 +4498,8 @@ $(1-\delta)^{-2}$ times the corresponding exact coefficient in~$T$.
 
 It remains to compare the internal terms.  Let $B$ be a light block and retain
 the order induced by~$T$ on~$B$.  If $W_B(T)$ denotes the exact contribution
-of pairs with both endpoints in~$B$, then
+of pairs with both endpoints in~$B$, then the definition of~$I(B)$ in
+\cref{eq:internal-block-cost} and the order induced by~$T$ give
 \[
     I(B)
     \le
@@ -4555,7 +4507,6 @@ of pairs with both endpoints in~$B$, then
     \le
     \frac{1}{1-\delta}W_B(T).
 \]
-\sharat{The first inequality holds by the definition of $I(B)$ (see \Cref{eq:internal-block-cost}).}
 The second inequality holds because every inactivity factor between two
 vertices of~$B$ is at least $q(B)\ge1-\delta$.  Summing the cross-block and
 internal comparisons proves~\cref{eq:block-objective-from-order}.
@@ -4644,8 +4595,10 @@ If the whole prefix is retained, then its inactivity product exceeds
 $\eta$, so its total activation mass is less than
 $\log(1/\eta)$.  Otherwise, deleting the first retained block leaves an
 inactivity product greater than~$\eta$, so the remaining blocks have total
-activation mass less than $\log(1/\eta)$; the first retained block has mass at
-most~$1$ \sharat{from a heavy vertex I am assuming?}.  Thus the total activation mass of a relevant suffix is less than
+activation mass less than $\log(1/\eta)$.  Every admissible block has mass at
+most~$1$: a heavy block is a singleton of mass $p_v\le1$, while a light block
+has mass at most~$\delta<1$.  Thus the total activation mass of a relevant
+suffix is less than
 \[
     M_\eta:=\log(1/\eta)+1.
 \]
@@ -4701,13 +4654,12 @@ $c_\varepsilon^n\poly(n)$ and returning an a~priori tour~$\widehat T$ such that
 \begin{proof}
 Set
 \[
-    \gamma:=\frac{\varepsilon}{100},
+    \gamma:=\frac{\varepsilon}{10},
     \qquad
-    \delta:=\alpha:=\gamma,
+    \delta:=\rho:=\gamma,
     \qquad
-    \eta:=\gamma^{1/\gamma}.
+    \eta:=\frac{\gamma^2}{16}.
 \]
-Then $\eta^\alpha=\gamma$.
 
 Let $T^*$ be an optimal a~priori tour.  By
 \cref{lem:block-objective-bounds}(ii), there is an admissible ordered partition
@@ -4718,29 +4670,23 @@ $\mathcal B^*$ into consecutive sets of~$T^*$ such that
 \]
 Let $\widehat{\mathcal B}$ be a partition minimizing $F_\eta$, as computed by
 \cref{lem:local-dp}, and put
-$\widehat T:=T_{\widehat{\mathcal B}}$ and $\kappa:=(1+\gamma)^2$.  Since
-$0<\gamma\le1/100$, we have $\kappa\gamma<1$.  Hence
+$\widehat T:=T_{\widehat{\mathcal B}}$.  Since $0<\gamma\le1/10$,
 \cref{lem:block-objective-bounds}(i), the optimality of
 $\widehat{\mathcal B}$, and the preceding bound,
 \begin{equation}\label{eq:final-approximation-chain}
     \begin{aligned}
         \cost(\widehat T)
-        &\le \frac{\kappa}{1-\kappa\gamma}
-               F_\eta(\widehat{\mathcal B})\\
-        &\le \frac{\kappa}{1-\kappa\gamma}
-               F_\eta(\mathcal B^*)\\
-        &\le \frac{\kappa}{1-\kappa\gamma}
-               (1-\gamma)^{-2}\optprior.
+        &\le (1+\gamma)F_\eta(\widehat{\mathcal B})\\
+        &\le (1+\gamma)F_\eta(\mathcal B^*)\\
+        &\le (1+\gamma)(1-\gamma)^{-2}\optprior.
     \end{aligned}
 \end{equation}
 
-Moreover, $\kappa\le1+3\gamma$ and
-$\kappa\gamma\le2\gamma$.  Using $(1-x)^{-1}\le1+2x$ for
-$0\le x\le1/2$, we obtain
+Using $(1-x)^{-1}\le1+2x$ for $0\le x\le1/2$, we obtain
 \[
-    \frac{\kappa}{1-\kappa\gamma}(1-\gamma)^{-2}
-    \le(1+3\gamma)(1+4\gamma)^2
-    \le1+12\gamma
+    (1+\gamma)(1-\gamma)^{-2}
+    \le(1+\gamma)(1+2\gamma)^2
+    \le1+6\gamma
     \le1+\varepsilon.
 \]
 Together with~\cref{eq:final-approximation-chain}, this proves the claimed
@@ -4749,12 +4695,11 @@ approximation guarantee.
 Finally,
 \[
     \log(1/\eta)
-    =\frac{1}{\gamma}\log\frac{1}{\gamma},
+    =2\log\frac{4}{\gamma},
 \]
 which depends only on~$\varepsilon$.  Since $\delta$ also depends only on
 $\varepsilon$, \cref{lem:local-dp} shows that
 the running time remains $c_\varepsilon^n\poly(n)$.
-\sharat{This proof needs clean up once the truncation loss lemma becomes more direct.}
 \end{proof}
 
 \chapter{Conclusion and Future Work}\label{ch:conclusion}
@@ -4832,9 +4777,153 @@ their constant care, understanding, and support in my life.
 
 
 % ============================================================
-% APPENDIX: DECLARATION OF ORIGINALITY
+% APPENDICES
 % ============================================================
 \appendix
+\chapter{Technical Proof for Pairwise Truncation}
+\label{app:pairwise-truncation}
+
+This appendix proves the charging estimate used in
+\cref{lem:long-gap-truncation}.  We use the notation for the a~priori tour,
+the probabilities~$p_i$, the distances~$d_{ij}$, and the products~$Q(i,j)$
+from \cref{sec:dp-pairwise-objective}.
+
+\begin{lemma}[Discarded-pair charging]
+\label{lem:discarded-pair-charging}
+For every a~priori tour~$T$ and every $\eta\in(0,1)$,
+\[
+    \cost(T)-\cost^{\loc}_{\eta}(T)
+    \le
+    \frac{\eta\bigl(3+\ln(1/\eta)\bigr)}{1-\eta}\cost(T).
+\]
+\end{lemma}
+
+\begin{proof}
+Write
+\[
+    w_{ij}:=p_ip_jQ(i,j),
+    \qquad
+    D_\eta:=\cost(T)-\cost^{\loc}_{\eta}(T).
+\]
+Thus $D_\eta$ is the total contribution of the discarded pairs, namely those
+pairs $(i,j)$ for which $Q(i,j)\le\eta$.
+
+Fix a discarded pair $(i,j)$.  Draw the activation states of the vertices
+strictly between $v_i$ and~$v_j$ according to their product distribution,
+conditioned on at least one of them being active.  The conditioning event has
+probability
+\[
+    1-Q(i,j)\ge1-\eta.
+\]
+Together with $v_i$ and~$v_j$, the sampled active vertices form a path in
+their order in~$T$; denote its edge set by~$P_{ij}$.  The triangle inequality
+gives
+\[
+    d_{ij}\le\sum_{(a,b)\in P_{ij}}d_{ab}.
+\]
+We charge $w_{ij}d_{ij}$ to the edges of this random path.
+
+Fix a target pair $(a,b)$ with $w_{ab}>0$, and let $\Gamma_{ab}$ be the
+expected coefficient charged to~$d_{ab}$.  A source pair $(i,j)$ can charge
+$(a,b)$ only if $i\le a<b\le j$.  The source $(a,b)$ itself contributes
+nothing because the conditioning ensures that its sampled path contains an
+active vertex strictly between its endpoints.  Dividing the contributions of
+the other sources by~$w_{ab}$ and separating the three possible strict
+containment patterns gives
+\begin{equation}\label{eq:appendix-truncation-target-congestion}
+\frac{\Gamma_{ab}}{w_{ab}}
+\le\frac{1}{1-\eta}
+\left(
+    \sum_{\substack{j>b\\Q(a,j)\le\eta}}p_jQ(a,j)
+    +\sum_{\substack{i<a\\Q(i,b)\le\eta}}p_iQ(i,b)
+    +\sum_{\substack{i<a,\,j>b\\Q(i,j)\le\eta}}p_ip_jQ(i,j)
+\right).
+\end{equation}
+The first two sums are each at most~$\eta$.  Indeed, $Q(a,j)$ is
+nonincreasing in~$j$, so the indices satisfying $Q(a,j)\le\eta$ form a
+suffix, and telescoping gives
+\[
+    \sum_{\substack{j>b\\Q(a,j)\le\eta}}p_jQ(a,j)\le\eta.
+\]
+The second sum is bounded symmetrically.
+
+It remains to bound the third sum in
+\cref{eq:appendix-truncation-target-congestion}.  Put
+\[
+    H:=(1-p_a)Q(a,b)(1-p_b),
+    \qquad
+    x_i:=Q(i,a),
+    \qquad
+    y_j:=Q(b,j).
+\]
+For $i<a<b<j$, we have $Q(i,j)=Hx_iy_j$.  If either outside index set is
+empty, the third sum vanishes.  Otherwise, telescoping gives
+\[
+    \sum_{i<a}p_ix_i=1,
+    \qquad
+    \sum_{j>b}p_jy_j=1.
+\]
+If $H\le\eta$, the third sum is therefore at most $H\le\eta$.  Suppose
+instead that $H>\eta$, and set $t:=\eta/H\in(0,1)$.  For every $z>0$,
+telescoping on the right gives
+\[
+    \sum_{\substack{j>b\\y_j\le z}}p_jy_j\le\min\{1,z\}.
+\]
+Consequently,
+\begin{align*}
+    \sum_{\substack{i<a,\,j>b\\Q(i,j)\le\eta}}p_ip_jQ(i,j)
+    &=H\sum_{\substack{i<a\\x_i>0}}p_ix_i
+        \sum_{\substack{j>b\\y_j\le t/x_i}}p_jy_j\\
+    &\le H\sum_{i<a}p_i\min\{x_i,t\}.
+\end{align*}
+
+We use the following elementary survival-product estimate:
+\begin{equation}\label{eq:appendix-survival-product-estimate}
+    \sum_{i<a}p_i\min\{Q(i,a),t\}
+    \le t\left(1+\ln\frac1t\right)
+    \qquad(0<t<1).
+\end{equation}
+To verify it, recall that $x_i=Q(i,a)$ is nondecreasing in~$i$ and
+$x_{i-1}=(1-p_i)x_i$.  If $x_0>t$, then
+\[
+    \sum_{i<a}p_i\min\{x_i,t\}
+    =t\sum_{i<a}p_i
+    \le t\left(1+\ln\frac1{x_0}\right)
+    \le t\left(1+\ln\frac1t\right).
+\]
+Otherwise, let~$\ell$ be the largest index for which $x_\ell\le t$, and put
+$x:=x_{\ell+1}$ and $z:=x_\ell$.  Since
+$z=(1-p_{\ell+1})x$, telescoping and the inequality
+$u\le-\ln(1-u)$ give
+\begin{align*}
+    \sum_{i<a}p_i\min\{x_i,t\}
+    &\le z+t\left(1-\frac{z}{x}+\ln\frac1x\right)\\
+    &\le t\left(2-\frac{t}{x}+\ln\frac1x\right)\\
+    &\le t\left(1+\ln\frac1t\right).
+\end{align*}
+The last inequality is equivalent to
+$1-t/x+\ln(t/x)\le0$, which follows from $\ln u\le u-1$.  This proves
+\cref{eq:appendix-survival-product-estimate}.
+
+Applying the estimate, the third sum in
+\cref{eq:appendix-truncation-target-congestion} is at most
+\[
+    Ht\left(1+\ln\frac1t\right)
+    =\eta\left(1+\ln\frac{H}{\eta}\right)
+    \le\eta\left(1+\ln\frac1\eta\right).
+\]
+It follows that every target pair has congestion at most
+\[
+    \beta(\eta):=\frac{\eta\bigl(3+\ln(1/\eta)\bigr)}{1-\eta}.
+\]
+Pairs with $w_{ab}=0$ receive no charge, so summing over all target pairs
+gives
+\[
+    D_\eta\le\beta(\eta)\cost(T),
+\]
+which is the claimed inequality.
+\end{proof}
+
 \chapter{Declaration of Originality}\label{app:declaration}
 
 I hereby declare that I authored this thesis independently.  Suggestions from
