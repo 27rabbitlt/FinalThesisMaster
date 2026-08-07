@@ -1402,7 +1402,8 @@ Combining the two bounds proves that the ratio converges to~$2$.
 \providecommand{\Gammaone}{\Gamma_{1}}
 
 This chapter proves that the clairvoyance gap for symmetric \StochTSP{} is at
-least~$10/9$.  We construct a family of instances with one stochastic
+least~$10/9$. Throughout the chapter, we only focus on symmetric instances.
+We construct a family of instances with one stochastic
 vertex of activation probability~$1/2$ for which
 \[
   \frac{\optadapt}{\optpost}
@@ -1413,25 +1414,23 @@ The lower bound arises because the active and inactive realizations have
 different optimal order, while an adaptive policy must begin
 probing before knowing which order is required.
 
-As a complementary result, we prove that every symmetric instance with one
+As a complementary result, we prove that every instance with one
 stochastic vertex of activation probability~$p\in[0,1]$ satisfies
 \[
   \frac{\optadapt}{\optpost}\le\frac{2+p}{2+p^2}.
 \]
-The right-hand side is maximized at $p=\sqrt6-2$, giving the uniform
-one-stochastic-vertex bound
+The right-hand side is maximized at $p=\sqrt6-2$, giving the bound
 \[
   \frac{\optadapt}{\optpost}\le\frac{2+\sqrt6}{4}.
 \]
 
 \section{The balanced three-chain construction}\label{sec:balanced-three-chain}
 
-We now construct a symmetric instance whose inactive and active realizations
-have different optimal crossing patterns.  Three deterministic chains force
-most of the tour cost, while a single stochastic vertex determines which of
-two competing patterns is cheaper.  The edge lengths below balance these
-patterns so that a posteriori tours can choose between them but an adaptive
-policy cannot realize both optimal choices.
+In this section We now construct a family of instances with one stochastic vertex showing clairvoyance gap lower bound $10/9$.
+We achieve this by making inactive and active realizations to have conflict 
+optimal order to visit.  We construct three deterministic chains and a stochastic
+vertex deciding which of two conflict patterns is cheaper.  The a posteriori tours
+can choose between them but an adaptive policy cannot realize both optimal orders.
 
 Fix an integer $m\ge3$ and set
 \begin{equation}\label{eq:HUP}
@@ -1441,9 +1440,8 @@ Fix an integer $m\ge3$ and set
   \qquad
   P:=4m=2H.
 \end{equation}
-Thus $U<P$ and $2U>P$.
 
-\begin{construction}[Three chains and one stochastic vertex]\label{con:three-chain}
+\begin{construction}\label{con:three-chain}
 The underlying undirected graph contains the root $r=a_0$, one
 stochastic vertex $s$, and three paths
 \[
