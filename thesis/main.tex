@@ -352,6 +352,8 @@ The same upper bound carries over to the clairvoyance gap and the adaptivity gap
 For asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025} show that the obliviousness gap is $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 Moreover, the construction in Section~3.1 of~\cite{Christalla2025} also implies an adaptivity gap of $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 
+\sharat{This subsection should be moved to prelims chapter. It's OK for a chapter to be short.}
+
 \subsection{Probabilistic inequalities}\label{sec:probabilistic-inequalities}
 
 We use the following weighted form of Hoeffding's inequality.  Let
@@ -2264,9 +2266,13 @@ active, whereas an adaptive policy must make part of this choice before
 learning that activation bit.  The second construction strengthens the lower
 bound to~$3/2$.  It embeds a layered poset into an asymmetric metric: a
 clairvoyant tour needs essentially two increasing chains, while every causal
-policy needs at least three increasing runs with high probability.  Both
+policy needs at least three increasing runs with high probability. \sharat{It's my first time hearing causal policies. They haven't been defined. Sounds like LLM talk. Try to write this para in your own words. Only allow LLMs to rephrase the grammar and not the technical part.} Both
 proofs allow a policy to interleave probes across different recursive blocks or
 poset layers.
+
+\sharat{There should only be two sections in this chapter.}
+
+\sharat{}
 
 \section{The construction}\label{sec:recursive-construction}
 
@@ -2971,6 +2977,7 @@ such that
          {\optpost(\mathcal{I}_t^{\mathrm{LP}})}
     \ge\frac32.
 \]
+\sharat{independently activated instances is unnecessary. That is all we deal with in this thesis. strictly positive asymmetric metrics is also unnecessary. it's not adding any new information. you can take any instance of StochTSP and perturbe it slightly }
 \end{theorem}
 
 \subsection{The four-star layered poset}\label{sec:four-star-layered-poset}
