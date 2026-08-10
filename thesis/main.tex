@@ -3031,25 +3031,24 @@ backbone.  In an asymmetric metric, a nearest-backbone detour is not adequate
 because entering and leaving a client can have very different costs.  We
 therefore encode the attachments by a directed circulation.
 
-The proof has two stages.  We first develop the structural circulation and
-endpoint-rounding framework.  It gives a low-cost fractional circulation and
-shows how its outside-client paths can be rounded to directed chords while
-controlling imbalance on every interval of the backbone order.  This also
-yields an offline bounded-multiplicity walk and isolates the obstacle to an
-adaptive execution.
+The difficulty is not merely to find inexpensive attachments.  Once the
+active clients are realized, their directed attachments need not be balanced,
+and correcting this imbalance after seeing the realization would violate
+adaptivity.  The proof therefore balances the attachments in expectation
+before any client is probed and treats the realized imbalance as a centered
+random process.
 
-We then remove that obstacle by changing what is rounded.  Publicly sample one
-backbone chord for each outside client, correct the resulting weighted
-endpoint divergence along the backbone cycle, and round the auxiliary flow to
-an integer flow.  Its \emph{mean} imbalance is at most one on every cyclic
-interval.  During execution, only the independent activation indicators
-fluctuate; a one-dimensional maximal inequality bounds their maximum interval
-imbalance.  An active-first stack walk implements the chords adaptively.  This
-gives a low-mass bound of $O(\log n+\sqrt\mu)\optpost$, where~$\mu$ is the
-expected number of active clients.  Finally, separating clients at activation
-probability $n^{-1/3}$ balances the low-mass policy against a fixed tour for
-the high-probability clients and proves
-\cref{thm:asymmetric-clairvoyance-upper}.
+We first construct a low-cost fractional circulation on a sampled backbone.
+We then publicly sample one backbone chord for each outside client and round
+an auxiliary flow whose divergence nearly cancels the weighted chord
+divergence on every cyclic interval.  During execution, only the independent
+activation indicators fluctuate; a one-dimensional maximal inequality bounds
+their maximum interval imbalance, and an active-first stack walk implements
+the chords adaptively.  This gives a low-mass bound of
+$O(\log n+\sqrt\mu)\optpost$, where~$\mu$ is the expected number of active
+clients.  Finally, separating clients at activation probability $n^{-1/3}$
+balances this policy against a fixed tour for the high-probability clients and
+proves \cref{thm:asymmetric-clairvoyance-upper}.
 
 \section{The backbone circulation relaxation}
 \label{sec:circulation-lp}
@@ -3105,9 +3104,10 @@ a detour to each outside vertex.
 \label{sec:low-cost-circulation}
 
 We next show that the backbone tour and the circulation can be chosen to have
-small total cost.  The logarithmic factor comes from the longest consecutive
-run of outside vertices on an optimal tour through two independent
-realizations.
+small total cost.  The construction cuts an optimal tour through two
+independent realizations at the backbone vertices.  Its only loss is the
+largest number of outside vertices in one resulting segment; this longest run
+has expectation $O(\log n)$.
 
 Let $A\subseteq V^\circ$ be an activation set sampled independently of~$S$,
 using the same probabilities~$(p_v)_{v\in V^\circ}$, and put $C:=A\cup S$.
@@ -3157,7 +3157,7 @@ vertex:
     Z(S):=\E_A[M(A,S)\mid S].
 \end{equation}
 
-\begin{lemma}[Longest outside run]\label{lem:circulation-longest-run}
+\begin{lemma}\label{lem:circulation-longest-run}
 For every integer $t\ge1$ and every fixed set~$C$ with
 $\P(A\cup S=C)>0$,
 \[
@@ -3244,7 +3244,7 @@ The final adaptive construction needs a slightly more careful consequence of
 the same averaging argument.  In particular, the backbone tour itself must
 cost $O(\optpost)$ rather than merely $O(\log n)\optpost$.
 
-\begin{lemma}[Ordinary-backbone certificate]
+\begin{lemma}[Backbone certificate]
 \label{lem:ordinary-backbone-certificate}
 Fix an induced subinstance on a client set $W\subseteq V^\circ$, and write
 \[
@@ -3283,6 +3283,19 @@ universal constant.  Fix that outcome, take~$T_R$ to be an optimal tour on
 $R$, and enlarge~$C_1$ if necessary.
 \end{proof}
 
+\begin{remark}[An offline variant]
+By boosting the backbone and rounding each outside client to one chord with
+small interval discrepancy, Hoffman's circulation theorem~\cite{Hoffman1960}
+yields, after the active set is known, an Eulerian circulation whose used
+edges have multiplicity $O(\log n)$.  This construction depends on the entire
+activation realization and hence gives no adaptive policy; we therefore omit
+its proof and turn directly to the causal rounding argument.
+\end{remark}
+
+% The longer boosted-backbone, endpoint-rounding, and offline-Eulerian-flow
+% argument is retained below as archival source, but is excluded from the
+% thesis.  It is independent of the adaptive proof that follows.
+\iffalse
 \subsection{A boosted backbone}
 \label{sec:boosted-backbone}
 
@@ -3816,25 +3829,22 @@ from and back to that cycle.  It therefore has an Euler tour, which is the
 claimed closed walk~$W_A$.
 \end{proof}
 
-\section{From the offline circulation to an adaptive policy}
+\fi
+
+\section{An adaptive circulation policy}
 \label{sec:adaptive-circulation}
 
-For $W\subseteq V^\circ$, write
+The adaptive construction must choose its endpoint assignments and auxiliary
+flow before it learns which clients are active.  For an induced subinstance
+on $W\subseteq V^\circ$, write
 \[
     \optpost(W):=\E[\opt(A\cap W)]
 \]
-and let $\optadapt(W)$ denote the adaptive optimum of the induced subinstance
-on $W\cup\{r\}$.
-
-The preceding results identify the obstruction but still choose the final
-circulation after seeing~$A$.  We now close this gap.  The key change is to
-return to the ordinary-backbone certificate of
-\cref{lem:ordinary-backbone-certificate}, whose backbone tour costs only
-$O(\optpost)$, and to make all endpoint and auxiliary-flow choices before any
-activation is probed.  The integer auxiliary flow will cancel the
-\emph{expected} divergence of the client chords on every cyclic interval up
-to one unit.  The realization then contributes only a centered sum of
-independent Bernoulli variables.
+and let $\optadapt(W)$ denote its adaptive optimum.  We turn the backbone
+certificate of \cref{lem:ordinary-backbone-certificate} into such a policy.
+The auxiliary flow cancels the \emph{expected} divergence of the client
+chords on every cyclic interval up to one unit; the realization then
+contributes only a centered sum of independent Bernoulli variables.
 
 \subsection{Endpoint sampling and maximal inequalities}
 \label{sec:adaptive-endpoint-sampling}
@@ -3879,9 +3889,14 @@ this order and a pair $(a,b)\in R\times R$, define
 \[
     \chi_I(a,b):=\1_{\{a\in I\}}-\1_{\{b\in I\}}.
 \]
-We use the following one-dimensional maximal estimates.
+Every linear interval is the difference of two prefixes of the backbone
+order, and every cyclic interval is a linear interval or its complement.
+Consequently, ordinary maximal inequalities for partial sums control all
+cyclic-interval imbalances without a union bound.  We use the following two
+forms: the first for the activation variables and the second for the public
+endpoint samples.
 
-\begin{lemma}[Interval maximal inequalities]
+\begin{lemma}
 \label{lem:adaptive-interval-maximal}
 Let all ordered pairs have endpoints in a fixed cyclically ordered set.
 \begin{enumerate}[label=\textup{(\roman*)}]
@@ -3988,9 +4003,12 @@ Moreover, \cref{eq:adaptive-endpoint-sampling} gives
 \subsection{Deterministic auxiliary-flow rounding}
 \label{sec:integer-auxiliary-rounding}
 
-We next round the auxiliary backbone flow.  Unlike the Hoffman circulation in
-\cref{sec:offline-backbone-walk}, this integer flow is fixed from the public
-endpoint outcome~$P$ and does not depend on the activation set.
+Endpoint sampling fixes the weighted divergence~$b(P)$, while the fractional
+backbone flow has divergence~$-\bar b$.  The discrepancy~$b(P)-\bar b$ is
+small on every cyclic interval in expectation.  The next step corrects this
+discrepancy along the backbone cycle and rounds the corrected flow to an
+integer one.  The resulting auxiliary flow depends only on the public
+endpoint outcome~$P$, not on the activation set.
 
 \begin{lemma}[Integer interval balancing]
 \label{lem:integer-interval-balancing}
@@ -4088,6 +4106,11 @@ probed, and every auxiliary copy will be used.
 \subsection{Adaptive traversal}
 \label{sec:adaptive-stack-traversal}
 
+After the activations are realized, the active client chords and the public
+auxiliary arcs form a multiset of chords on the backbone cycle.  Their
+interval imbalance determines how often the policy must use the cycle edges.
+The following traversal rule realizes this relationship directly.
+
 For a multiset~$F$ of directed chords between vertices of a directed cycle,
 put
 \[
@@ -4124,7 +4147,7 @@ For fixed $P$, $N(P)$, and activation set~$A$, let
     F(A,P):=N(P)\cup\{a_i\to b_i:i\in A\cap U\}.
 \]
 
-\begin{lemma}[Adaptive virtual execution]
+\begin{lemma}
 \label{lem:adaptive-virtual-execution}
 For fixed public $P$ and~$N(P)$, there is an adaptive policy whose
 actual cost on every realization~$A$ is at most
@@ -4176,7 +4199,11 @@ to~$r$ is a shortcut of the pending walk.  Apply
 \subsection{The low-mass policy}
 \label{sec:low-mass-adaptive-policy}
 
-\begin{lemma}[Zero posterior value]
+We can now combine the public preprocessing with the adaptive traversal.  The
+only realization-dependent loss is the interval imbalance of the centered
+activation indicators, whose expected maximum is $O(\sqrt\mu)$.
+
+\begin{lemma}
 \label{lem:zero-posterior-policy}
 If $\optpost(W)=0$, then the induced subinstance on~$W$ has an adaptive policy
 of expected cost zero.
@@ -4204,7 +4231,7 @@ where $C_3$ is universal.
 
 \begin{proof}
 If $\optpost(W)=0$, use \cref{lem:zero-posterior-policy}.  Otherwise use the
-ordinary-backbone certificate, sample the public endpoint pairs~$P$, and
+backbone certificate, sample the public endpoint pairs~$P$, and
 construct~$N(P)$ as above.  Condition on~$P$.  For every cyclic interval~$I$,
 \cref{eq:integer-balancing-interval} gives
 \[
@@ -4247,10 +4274,14 @@ activation realization.
 \section{Threshold optimization and the clairvoyance-gap bound}
 \label{sec:asymmetric-threshold-optimization}
 
-We finish by combining the low-mass policy with a fixed tour for clients of
-large activation probability.
+For a probability threshold~$\tau$, clients below the threshold have total
+activation mass at most $n\tau$, so the preceding policy costs
+$O(\log n+\sqrt{n\tau})\optpost$.  Clients above the threshold admit a fixed
+tour with factor $O(1/\tau)$.  The following two lemmas justify combining the
+subinstances and establish the fixed-tour bound; we then choose~$\tau$ to
+balance the two factors.
 
-\begin{lemma}[Concatenating subinstance policies]
+\begin{lemma}
 \label{lem:adaptive-policy-concatenation}
 Let $W_1,\ldots,W_k$ be disjoint client sets.  If $W_j$ has an adaptive policy
 of expected cost at most $\alpha_j\optpost(W_j)$, then executing these
@@ -4300,7 +4331,7 @@ Set $\tau:=n^{-1/3}$ and split the client set into
     W:=\{v\in V^\circ:p_v<\tau\}.
 \]
 By \cref{lem:high-probability-fixed-tour}, the high-probability clients have a
-    adaptive policy of expected cost at most
+adaptive policy of expected cost at most
 \[
     \left\lceil\frac1\tau\right\rceil\optpost(H)
     \le2n^{1/3}\optpost.
@@ -4319,14 +4350,11 @@ where $\log(n+1)=O(1+n^{1/3})$.  Execute the two policies successively and
 apply \cref{lem:adaptive-policy-concatenation}.
 \end{proof}
 
-The polynomial exponent comes from balancing the two dominant terms.  A
-threshold~$\tau$ costs $1/\tau$ for the high-probability fixed tour and
-$\sqrt{n\tau}$ for the low-mass policy; equality occurs at
-$\tau=n^{-1/3}$.  The deterministic auxiliary-flow rounding is what leaves
-only the centered activation process at runtime, so the maximal inequality
-incurs no union-bound logarithm.  Improving the exponent within this
-framework would therefore require a better treatment of at least one of
-these two threshold terms.
+The deterministic auxiliary-flow rounding leaves only the centered
+activation process at runtime, so the maximal inequality incurs no
+union-bound logarithm.  Improving the exponent within this framework would
+therefore require a better treatment of either the $1/\tau$ fixed-tour term
+or the $\sqrt{n\tau}$ low-mass term.
 
 
 % ============================================================
