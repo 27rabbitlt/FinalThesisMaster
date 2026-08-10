@@ -351,25 +351,9 @@ The same upper bound carries over to the clairvoyance gap and the adaptivity gap
 For asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025} show that the obliviousness gap is $O(\sqrt{n})$ and $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 Moreover, the construction in Section~3.1 of~\cite{Christalla2025} also implies an adaptivity gap of $\Omega(n^{1/4} \cdot \log^{-1}n)$.
 
-\sharat{This subsection should be moved to prelims chapter. It's OK for a chapter to be short.}
-
-\subsection{Probabilistic inequalities}\label{sec:probabilistic-inequalities}
-
-We use the following weighted form of Hoeffding's inequality.  Let
-$Y_1,\ldots,Y_m$ be independent random variables with
-$Y_i\in[a_i,b_i]$ almost surely.  Then, for every $t>0$,
-\begin{equation}\label{eq:weighted-hoeffding}
-    \P\left[\sum_{i=1}^m(Y_i-\E[Y_i])\ge t\right]
-    \le
-    \exp\left(-\frac{2t^2}{\sum_{i=1}^m(b_i-a_i)^2}\right).
-\end{equation}
-In particular, if the $X_i$ are independent Bernoulli random variables and
-$c_i\ge0$, then~\cref{eq:weighted-hoeffding} applies to
-$Y_i=c_iX_i\in[0,c_i]$.  We also use the union bound and Markov's inequality
-in their standard forms.
-
 \section{Organization}\label{sec:organization}
 
+\Cref{ch:preliminaries} collects the probabilistic tools used later.
 \Cref{ch:sym-adapt} proves an adaptivity-gap lower bound of~$2$ for symmetric metrics, beginning with an explicit construction based on cycle-subdivided cliques and then strengthening it through a probabilistic construction.
 \Cref{ch:sym-clair} proves a symmetric clairvoyance-gap lower bound
 of~$10/9$ and establishes a probability-dependent upper bound for
@@ -385,7 +369,139 @@ asymmetric clairvoyance gap.
 research.
 
 % ============================================================
-% CHAPTER 2: ADAPTIVITY GAP — SYMMETRIC
+% CHAPTER 2: PRELIMINARIES
+% ============================================================
+\chapter{Preliminaries}\label{ch:preliminaries}
+
+\section{Probabilistic tools}\label{sec:probabilistic-inequalities}
+
+This section collects the probabilistic tools used throughout the thesis.
+
+\subsection{Elementary bounds}
+
+For events $E_1,\ldots,E_m$, the union bound gives
+\begin{equation}\label{eq:union-bound}
+    \P\left(\bigcup_{i=1}^m E_i\right)
+    \le\sum_{i=1}^m\P(E_i).
+\end{equation}
+For every nonnegative random variable~$Z$ and every $t>0$, Markov's
+inequality gives
+\begin{equation}\label{eq:markov}
+    \P(Z\ge t)\le\frac{\E[Z]}{t}.
+\end{equation}
+If $N$ is a nonnegative integer-valued random variable, its expectation can
+be recovered from its upper tails:
+\begin{equation}\label{eq:tail-sum}
+    \E[N]=\sum_{t=1}^{\infty}\P(N\ge t).
+\end{equation}
+
+We repeatedly use the following two bounds for products of inactivity
+probabilities.  For $x_1,\ldots,x_m\in[0,1]$,
+\begin{equation}\label{eq:bernoulli-product-bounds}
+    1-\sum_{i=1}^m x_i
+    \le\prod_{i=1}^m(1-x_i)
+    \le\exp\left(-\sum_{i=1}^m x_i\right).
+\end{equation}
+The left inequality follows by induction, or equivalently from the union
+bound, and the right inequality follows from $1-x\le\e^{-x}$.
+
+We also use the standard monotone coupling of product distributions.
+\begin{lemma}[Monotone product coupling]\label{lem:monotone-product-coupling}
+Let $A$ and $B$ be random subsets of a finite ground set~$U$, with independent
+inclusion probabilities $(\alpha_v)_{v\in U}$ and $(\beta_v)_{v\in U}$,
+respectively.  If $\alpha_v\le\beta_v$ for every~$v$, then they can be coupled
+so that $A\subseteq B$ almost surely.  Consequently, every nondecreasing
+function $F:2^U\to\mathbb R$ satisfies
+\[
+    \E[F(A)]\le\E[F(B)]
+\]
+whenever the expectations exist.
+\end{lemma}
+\begin{proof}
+Choose independent uniform random variables $U_v$ on~$[0,1]$ and put
+$A:=\{v:U_v\le\alpha_v\}$ and $B:=\{v:U_v\le\beta_v\}$.
+\end{proof}
+
+Finally, we use the averaging principle without further mention: a
+real-valued random variable attains a value no larger than its expectation
+on some outcome, and every positive-probability event contains at least one
+outcome.
+
+\subsection{Concentration for independent sums}
+
+Let $X_1,\ldots,X_m$ be independent Bernoulli random variables, put
+$X:=\sum_iX_i$, and write $\mu:=\E[X]$.  We use the additive
+Chernoff--Bernstein bounds
+\begin{align}
+    \P(X\ge\mu+s)
+    &\le\exp\left(-\frac{s^2}{2(\mu+s/3)}\right)
+    &&\text{for }s\ge0,
+    \label{eq:chernoff-upper}\\
+    \P(X\le\mu-s)
+    &\le\exp\left(-\frac{s^2}{2\mu}\right)
+    &&\text{for }0\le s\le\mu.
+    \label{eq:chernoff-lower}
+\end{align}
+In particular, for every $t\ge0$,
+\begin{equation}\label{eq:chernoff-useful}
+    \P(X>2\mu+t)\le\e^{-t/3},
+    \qquad
+    \P(X<\mu/2)\le\e^{-\mu/8}.
+\end{equation}
+The first consequence follows from \cref{eq:chernoff-upper} with
+$s=\mu+t$, using
+\[
+    \frac{(\mu+t)^2}{2(\mu+(\mu+t)/3)}\ge\frac t3,
+\]
+and the second follows from \cref{eq:chernoff-lower} with $s=\mu/2$.
+
+We also use the following weighted form of Hoeffding's inequality.  Let
+$Y_1,\ldots,Y_m$ be independent random variables with
+$Y_i\in[a_i,b_i]$ almost surely.  Then, for every $t>0$,
+\begin{equation}\label{eq:weighted-hoeffding}
+    \P\left[\sum_{i=1}^m(Y_i-\E[Y_i])\ge t\right]
+    \le
+    \exp\left(-\frac{2t^2}{\sum_{i=1}^m(b_i-a_i)^2}\right).
+\end{equation}
+In particular, if the $X_i$ are independent Bernoulli random variables and
+$c_i\ge0$, then~\cref{eq:weighted-hoeffding} applies to
+$Y_i=c_iX_i\in[0,c_i]$.
+
+\subsection{Maximal inequalities and symmetrization}
+
+Let $Z_1,\ldots,Z_m$ be independent centered random variables with finite
+second moments, and put $S_k:=\sum_{i=1}^kZ_i$.  The $L^2$ maximal inequality
+for the martingale $(S_k)_{k=0}^m$ gives
+\begin{equation}\label{eq:l2-maximal}
+    \E\left[\max_{0\le k\le m}|S_k|\right]
+    \le
+    \left(\E\left[\max_{0\le k\le m}|S_k|^2\right]\right)^{1/2}
+    \le2\left(\sum_{i=1}^m\E[Z_i^2]\right)^{1/2}.
+\end{equation}
+
+We also use the standard symmetrization inequality.  Let
+$W_1,\ldots,W_m$ be independent random variables, let $\mathcal F$ be a
+finite family of tuples $f=(f_1,\ldots,f_m)$ of real-valued functions, and
+let $\varepsilon_1,\ldots,\varepsilon_m$ be independent Rademacher signs,
+independent of the~$W_i$.  Assume that all random variables in the display
+below are integrable.  Then
+\begin{equation}\label{eq:symmetrization}
+\begin{split}
+    &\E\left[
+      \sup_{f\in\mathcal F}
+      \left|\sum_{i=1}^m
+      \bigl(f_i(W_i)-\E[f_i(W_i)]\bigr)\right|
+      \right]\\
+    &\qquad\le
+      2\E\left[
+      \sup_{f\in\mathcal F}
+      \left|\sum_{i=1}^m\varepsilon_i f_i(W_i)\right|
+      \right].
+\end{split}
+\end{equation}
+
+% ============================================================
+% CHAPTER 3: ADAPTIVITY GAP — SYMMETRIC
 % ============================================================
 \chapter{Adaptivity Gap for Symmetric \StochTSP{}}\label{ch:sym-adapt}
 
@@ -1194,7 +1310,8 @@ For all sufficiently large~$n$, the coefficient bound
 For any other a~priori tour~$T$, a permutation of the non-root labels maps
 $T$ to~$T_0$.  Because the distribution of~$D$ is invariant under every such
 permutation, the same tail bound holds for~$C_D(T)$.  There are at most $n!$
-master tours with the root fixed, so a union bound shows that the probability
+master tours with the root fixed, so the union bound~\cref{eq:union-bound}
+shows that the probability
 that some tour violates the claimed lower bound is at most
 \[
     n!\exp\bigl(-n(\log n)^2\bigr)
@@ -1335,7 +1452,8 @@ The nonnegative random variable $U(D)-W$ satisfies
 \[
     \E_D[U(D)-W]\le\frac1\theta
 \]
-by \cref{lem:random-metric-adaptive-average}.  Markov's inequality gives
+by \cref{lem:random-metric-adaptive-average}.  Markov's inequality
+\cref{eq:markov} gives
 \begin{align*}
     \P_D[U(D)>(1+\delta_n)W]
     &=
@@ -1396,7 +1514,7 @@ Combining the two bounds proves that the ratio converges to~$2$.
 \end{proof}
 
 % ============================================================
-% CHAPTER 3: CLAIRVOYANCE GAP — SYMMETRIC
+% CHAPTER 4: CLAIRVOYANCE GAP — SYMMETRIC
 % ============================================================
 \chapter{Clairvoyance Gap for Symmetric Metrics}\label{ch:sym-clair}
 
@@ -2239,7 +2357,7 @@ At $p=1/2$, the bound in \cref{thm:general-upper} equals~$10/9$, and
 one-semi-active-vertex class.
 
 % ============================================================
-% CHAPTER 4: CLAIRVOYANCE GAP — ASYMMETRIC
+% CHAPTER 5: CLAIRVOYANCE GAP — ASYMMETRIC
 % ============================================================
 \chapter{Clairvoyance Gap for Asymmetric Metrics}\label{ch:asym-clair}
 
@@ -2403,7 +2521,7 @@ large but $Lp^3$ to be small.  The asymmetric metric below makes its tour
 cost essentially equal to the number of increasing runs, turning this local
 conflict into a clairvoyance gap.
 
-\subsection{The construction}\label{sec:four-star-layered-poset}
+\subsection{The construction and its tour cost}\label{sec:four-star-layered-poset}
 
 \begin{construction}\label{con:layered-poset}
 Fix an integer $L\ge1$ and parameters $p,\varepsilon\in(0,1)$.  For each
@@ -2540,7 +2658,16 @@ policy instead left in column~$2$, the exact pair $A_i,D_i$ would create the
 same problem.  A posterior solution avoids either conflict because it chooses
 both cells after seeing the pair.
 
-\subsection{From increasing runs to tour cost}
+We next relate the poset structure directly to the cost of a tour.  For a
+realization~$A$, write a tour on the active vertices as
+\[
+    T=(r,v_1,\ldots,v_N,r).
+\]
+Cut the non-root sequence $(v_1,\ldots,v_N)$ after every index~$j$ for
+which $v_j\not<v_{j+1}$ in~$P_L$.  The resulting maximal contiguous
+segments are the \emph{increasing runs} of~$T$.  Thus, within each run,
+every vertex is below the next vertex in the poset.  Let $K(T)$ denote the
+number of increasing runs of~$T$.
 
 The metric in \cref{con:layered-poset} makes the poset interpretation exact.
 Forward moves within an increasing run are cheap, whereas every break between
@@ -2549,8 +2676,8 @@ runs costs one unit.
 \begin{lemma}
 \label{lem:layered-poset-metric}
 The function $d_\varepsilon$ is a strictly positive directed metric.  If a
-realization has $N$ active vertices and a service order has $K$ maximal
-increasing runs, then its closed-tour cost is exactly
+realization has $N$ active vertices and a tour~$T$ has $K=K(T)$ increasing
+runs, then its cost is exactly
 \begin{equation}\label{eq:layered-poset-run-cost}
     \varepsilon N+(1-\varepsilon)K.
 \end{equation}
@@ -2574,7 +2701,7 @@ inequalities involving a root arc follow in the same way.  Thus all directed
 triangle inequalities hold, and all distances between distinct vertices are
 positive.
 
-The two root legs contribute~$1$.  Within the service order, the $N-K$
+The two root legs contribute~$1$.  Within the tour, the $N-K$
 transitions inside increasing runs cost~$\varepsilon$, and the $K-1$ breaks
 between runs cost~$1$.  Hence the total is
 \[
@@ -2582,18 +2709,17 @@ between runs cost~$1$.  Hence the total is
     =\varepsilon N+(1-\varepsilon)K.
 \]
 By Dilworth's theorem~\cite{Dilworth1950}, the minimum number of increasing chains covering a
-finite poset equals its width.  Concatenating the chains gives a service order
-with that many runs, while the runs of every service order form a chain
-cover.  Minimizing the preceding expression proves
+finite poset equals its width.  Concatenating the chains gives a tour with at
+most that many increasing runs, while the increasing runs of every tour form
+a chain cover.  Minimizing the preceding expression proves
 \cref{eq:layered-poset-posterior-identity}.
 \end{proof}
 
-The remainder of the proof compares these two quantities.  After seeing the
-realization, two chains suffice except for the excess selectors in stages
-with at least three active selectors, yielding expected width
-$2+O(Lp^3)$.  For an adaptive policy, repeated exact-pair conflicts make the
-probability of using only two runs at most
-$(1-p^2(1-p)^2)^L$.
+After seeing the realization, two chains can cover the active vertices
+except that there exists a stage with at least three active selectors.
+For an adaptive policy, there is conflict in each stage (proven in details in \cref{sec:adaptive-obstruction}),
+such that the probability of using only two runs is at most $(1-p^2(1-p)^2)^L$.
+Thus we create a gap of $3/2$.
 
 \subsection{The posterior chain cover}\label{sec:posterior-chain-cover}
 
@@ -2606,26 +2732,29 @@ Let $Z_i$ be the number of active selectors in stage~$i$, so
 $Z_i\sim\operatorname{Binomial}(4,p)$.  For a realization~$A$, write
 $P_L[A]$ for the subposet induced by its active vertices.
 
-\begin{lemma}
+\begin{lemma}[A posteriori cost of the layered-poset instance]
 \label{lem:layered-poset-width}
-Every realization satisfies
+For every $L\ge1$ and $p,\varepsilon\in(0,1)$, the a~posteriori optimum
+satisfies
 \[
     2
-    \le\operatorname{width}(P_L[A])
-    \le2+\sum_{i=1}^L(Z_i-2)_+.
+    \le
+    \optpost\bigl(\mathcal I^{\mathrm{LP}}(L,p,\varepsilon)\bigr)
+    \le
+    2+6\varepsilon L+4Lp^3.
 \]
-Consequently,
+In particular, if $\varepsilon L=o(1)$ and $Lp^3=o(1)$, then
 \[
-    2
-    \le\E[\operatorname{width}(P_L[A])]
-    \le2+L(4p^3-2p^4)
-    \le2+4Lp^3.
+    \optpost\bigl(\mathcal I^{\mathrm{LP}}(L,p,\varepsilon)\bigr)
+    =2+o(1).
 \]
 \end{lemma}
 
 \begin{proof}
-Every gate layer is an always-active two-element antichain, which proves the lower
-bound.
+Every gate layer is an always-active two-element antichain, so
+$\operatorname{width}(P_L[A])\ge2$ for every realization.  Also $N\ge2$.
+Thus \cref{eq:layered-poset-posterior-identity} gives
+$\opt(A)\ge2$, proving the lower bound.
 
 For the upper bound, consider a stage with exactly two active selectors.
 There are only six possible pairs.  The following table assigns each selector
@@ -2663,21 +2792,48 @@ Finally,
     &=4p^3(1-p)+2p^4\\
     &=4p^3-2p^4,
 \end{align*}
-and Dilworth's theorem proves the remaining claims.
+so linearity of expectation gives
+\[
+    \E[\operatorname{width}(P_L[A])]
+    \le 2+L(4p^3-2p^4)
+    \le 2+4Lp^3.
+\]
+Moreover,
+\[
+    \E[N]=2(L+1)+4Lp.
+\]
+Taking expectations in
+\cref{eq:layered-poset-posterior-identity} therefore gives
+\[
+    \optpost\bigl(\mathcal I^{\mathrm{LP}}(L,p,\varepsilon)\bigr)
+    \le
+    \varepsilon\bigl(2(L+1)+4Lp\bigr)
+    +(1-\varepsilon)(2+4Lp^3)
+    \le2+6\varepsilon L+4Lp^3.
+\]
+The $2+o(1)$ conclusion follows immediately
+when $\varepsilon L=o(1)$ and $Lp^3=o(1)$.
 \end{proof}
 
 \subsection{The adaptive obstruction}\label{sec:adaptive-obstruction}
 
 We next show why an adaptive policy cannot reproduce the posterior chain
-cover.  Writing the service order as increasing runs turns a two-run execution
-into a sequence of local routing decisions.  At each untouched stage, a probe
-can force one such decision before the policy knows which compatible routing
-will be required.
+cover.  For a realization~$A$, consider the realized tour $T(A;\pi)$ induced
+by the policy and decompose it into the increasing runs defined above.
+Suppose this tour has only two such runs.  Because every gate layer contains two
+incomparable always-active vertices, each run must contain exactly one gate
+from every layer.  Thus, when the two runs pass from gate layer
+$G_{i-1}$ to gate layer~$G_i$, the policy effectively chooses one
+entrance-to-exit transition for each run.  These two transitions determine
+which active selectors at stage~$i$ can be placed in the two runs.  The
+difficulty is that, at an untouched stage, probing a selector may force the
+policy to choose one of these transitions before it has learned which other
+selectors are active and therefore which pair of transitions will work.
 
-Fix an adaptive policy and one realization.  List the active vertices in the
-order in which the policy serves them.  An \emph{increasing run} is a maximal
-contiguous part of this list in which every vertex is below the next vertex
-in~$P_L$.  Let $K_\pi$ be the number of such runs.
+Fix an adaptive policy~$\pi$ and one realization~$A$, and let
+\[
+    K_\pi:=K\bigl(T(A;\pi)\bigr).
+\]
 
 Every gate layer forces $K_\pi\ge2$.  Moreover, on the event $K_\pi\le2$,
 the two runs form a two-chain cover of all always-active gates.  Each run
@@ -2687,142 +2843,107 @@ one selector.  If it enters the stage in row~$r$ and leaves in column~$c$,
 any other active selector must fit the complementary cell $(3-r,3-c)$ on the
 second run.
 
-This observation also explains why remote probes do not evade the
-construction.  If a policy probes a selector in a future stage before the
-first run has served the intervening gates, an active answer jumps past one
-gate in each intervening layer.  The second run cannot contain both gates of
-such a layer, so $K_\pi\le2$ is then impossible.  Remote probes with inactive outcomes cause
-no movement and will be allowed in the product argument below.
+We first explain why adaptive policy does not benefit from probing a future stage.
+Suppose that the policy probes a vertex above a gate
+layer~$G_j$ before visiting either gate in that layer.  If the probed vertex is
+active, the current run has moved past~$G_j$.  Both gates in~$G_j$ remain to be
+visited, and, since they are incomparable, they require two further increasing
+runs.  Together with the current run, this gives at least three runs.
 
-Put
-\[
-    h:=p^2(1-p)^2.
-\]
+In particular, probing a gate in~$G_k$ while an earlier gate layer~$G_j$,
+$j<k$, is still completely unvisited always forces a third run, because every
+gate is active.  A selector above such a skipped layer might be inactive, but
+its probe can be postponed because activation is independent.
+To see this, let a modified policy pretend that every prematurely
+probed selector is inactive and defer the actual probe until its predecessor
+gate layer has been reached.  Whenever the selector really is inactive, the
+modified policy can follow exactly the same continuation as the original
+policy.  Whenever it is active, the original policy already requires at least
+three runs by the preceding argument.  Thus every realization on which the
+original policy uses only two runs is also successful for the modified policy.
+Thus we may therefore restrict attention to \emph{stage-respecting} policies:
+while forming the first run, they visit the stages in order and do not probe
+selectors of a stage before reaching its predecessor gate layer.
+Then we prove any stage-respecting policy would need three runs with high probability.
 
-\begin{lemma}
-\label{lem:four-star-local}
-Fix the input row of the first run at one stage.  Every deterministic adaptive
-strategy fails to preserve a two-run routing on at least one realization
-having exactly two active selectors.  Its one-stage success probability is
-therefore at most~$1-h$.  The same statement holds if the strategy is given
-an arbitrary advice string independent of the four local activation bits.
-\end{lemma}
 
-\begin{proof}
-Follow the strategy on the branch on which every selector probed before the
-output gate is inactive.  If the strategy chooses an output gate without
-probing any selector, every exact two-active realization is fatal.  Probing
-one of the two selectors before the second run reaches its predecessor gate
-skips an unserved gate and forces a third run; waiting leaves two incomparable
-selectors for the single second run.
 
-Otherwise, let $X$ be the first probed selector.  Follow the branch on which
-$X$ is active and every later selector probed before the output gate is
-inactive.  If $X$ is incompatible with the input row, this branch already
-cannot belong to a two-run routing, and any exact pair containing~$X$ is
-fatal.  We may therefore assume that the strategy assigns~$X$ to a cell
-$(r,c)$ compatible with its input row and chosen output column.
-
-Exactly two of the four selectors allow cell~$(r,c)$: the row-$r$ selector
-and the column-$c$ selector.  Let $Y\ne X$ be the other one.  Consider the realization in which
-exactly $X$ and~$Y$ are active.  If the strategy probes~$Y$ before taking
-the output gate, then it sees two incomparable active selectors before the
-first run leaves the stage, so the two-run event has already failed.  Suppose
-instead that it probes~$Y$ later.  If the second run has not yet reached its
-predecessor gate in stage~$i$, probing the active vertex~$Y$ jumps past an unserved
-gate of that run and forces a third run.  Once the second run has reached
-that predecessor, it must use the complementary cell $(3-r,3-c)$, but neither
-selector that allows $(r,c)$ allows this cell.  Probing~$Y$ then
-or after leaving the stage also forces a third run.  Since every selector
-must eventually be probed, the exact $\{X,Y\}$ realization is fatal in all
-cases.
-
-Thus one exact-pair atom is always excluded from the success event.  Every
-such atom has probability $p^2(1-p)^2=h$.  Conditioning on independent advice
-merely selects a deterministic local strategy, so it does not change the
-argument.
-\end{proof}
-
-\paragraph{Handling interleaved probes.}
-The policy need not finish one stage before probing another.  The next lemma
-shows that this freedom does not remove the local loss: the conditional
-success probabilities can be multiplied even under arbitrary interleaving.
-
-\begin{lemma}
+\begin{lemma}[Adaptive cost of the layered-poset instance]
 \label{lem:four-star-product}
-Every adaptive policy, including a randomized policy making arbitrary remote
-probes, satisfies
+For every $L\ge1$ and $p,\varepsilon\in(0,1)$, the adaptive optimum
+satisfies
 \[
-    \P(K_\pi\le2)\le(1-h)^L.
+    \optadapt\bigl(\mathcal I^{\mathrm{LP}}(L,p,\varepsilon)\bigr)
+    \ge
+    3-3\varepsilon-\bigl(1-p^2(1-p)^2\bigr)^L.
 \]
-Consequently,
+In particular, if $\varepsilon=o(1)$ and
+$Lp^2(1-p)^2\to\infty$, then
 \[
-    \E[K_\pi]\ge3-(1-h)^L.
+    \optadapt\bigl(\mathcal I^{\mathrm{LP}}(L,p,\varepsilon)\bigr)
+    \ge3-o(1).
 \]
 \end{lemma}
-
 \begin{proof}
-We first fix a deterministic policy.  View the preservation of two runs as a
-finite reachability problem with one independent four-bit component per
-stage.  A component becomes \emph{ready} when the first run reaches its input
-gate and remains unresolved until all its selectors have been probed and the
-second-run routing, if needed, has been completed.  For a ready unresolved
-stage, let $\Psi(s)$ be the optimal conditional probability of completing a
-valid local routing from its current local state~$s$.  The state records the
-input row, all local answers seen so far, any selector placed on the first
-run, its output column, whether the first run has left the stage, and whether
-the second run has reached its complementary input gate.  In particular, a
-probe with an active selector outcome after the first-run output but before that complementary
-input gate is reached is a failed state, by the argument in the proof of
-\cref{lem:four-star-local}.  The Bellman definition gives
-\begin{equation}\label{eq:four-star-bellman}
-    \E[\Psi(s_{\mathrm{next}})\mid s]\le \Psi(s)
-\end{equation}
-for every local action.  At an untouched stage,
-\cref{lem:four-star-local} gives $\Psi(s)\le1-h$, for either input row and
-conditional on any observations outside the stage.
+Suppose the adaptive policy is currently at gate layer~$G_{i-1}$.  By
+symmetry, we may assume that it is at~$g_{i-1}^1$.  If the policy goes directly
+to the next gate layer without probing any selector, then any active selectors
+in stage~$i$ have been left behind.  When two selectors are active, their
+incomparability forces two further runs, so the policy uses at least three runs
+in total.  Thus, when analyzing the event $K_\pi\le2$, we may assume that the
+policy probes a selector before leaving the stage.
 
-For a future stage that is not yet ready, assign an upper potential as
-follows.  Its potential is $1-h$ before any premature local probe, it is~$1$
-after one or more such probes have all answered inactive, and it is~$0$ if
-one answers active.  The last case makes $K_\pi\le2$ impossible by the gate
-argument preceding \cref{lem:four-star-local}.  The first premature probe
-changes the expected potential by at most
+Let~$X$ be the first selector probed. If $X=B_i$,
+then $X$ is not above~$g_{i-1}^1$.  Visiting it already
+ends the first increasing run, and the two incomparable gates in~$G_i$ force
+two further runs.
+
+It remains to consider $X\in\{A_i,C_i,D_i\}$.  The policy must choose an
+output gate~$g_i^c$ and thereby assign~$X$ to the cell~$(1,c)$.  Exactly one
+other selector~$Y$ also allows this cell (so assigning $X$ to cell~$(1,c)$ creates
+a conflict).  If $X=A_i$, then $Y=C_i$ when
+$c=1$ and $Y=D_i$ when $c=2$.  If $X=C_i$ or~$D_i$, then $Y=A_i$.
+
+Now consider the realization in which exactly $X$ and~$Y$ are active.  If the
+policy probes~$Y$ before taking the output gate, the two incomparable active
+selectors already split the tour into another run, while the two gates in $G_i$
+still have to be covered.  If the policy probes~$Y$ later, the second
+increasing chain must use the complementary cell~$(2,3-c)$, but neither~$X$
+nor~$Y$ allows that cell.  In either case, two increasing runs do not
+suffice.
+
+Thus, no matter how the policy acts, in every stage there is at least one pair
+of selectors that forces the policy to use three runs when exactly that pair
+is active.  A particular pair is exactly the active set with probability
+$p^2(1-p)^2$.
+
+Set $h:=p^2(1-p)^2$.  Since the stages are independent, multiplying these
+conditional probabilities gives
 \[
-    p\cdot0+(1-p)\cdot1
-    =1-p
-    \le1-h,
+    \P(K_\pi\le2)\le\prod_{i=1}^L(1-h)=(1-h)^L.
 \]
-where $h\le p$.  Further premature probes start from potential~$1$ and have
-expected next potential at most~$1$.
-
-Take the product of the $L$ local potentials, using factor~$1$ only after all
-local selectors have been resolved and a valid two-chain routing has been
-completed, and factor~$0$ for a failed stage.  After the first run leaves a
-stage, its exact Bellman factor remains in the product until the second-run
-part of that stage is resolved.  A selector probe changes only one factor.
-When the first run reaches a new input gate, an untouched factor becomes an
-exact Bellman value at most~$1-h$, while a prematurely probed factor becomes
-an exact conditional value at most~$1$.  Gate probes that violate the forced
-layer order make the two-run event impossible and may also set the product
-to zero.  Hence
-\cref{eq:four-star-bellman} and the preceding premature-probe estimate make
-the product a nonnegative supermartingale under arbitrary interleaving.
-
-Its initial value is at most $(1-h)^L$.  At termination it is the indicator
-that every stage admits the required local two-chain routing.  The event
-$K_\pi\le2$ implies this terminal event, so taking expectations proves
-\[
-    \P(K_\pi\le2)\le(1-h)^L.
-\]
-For a randomized policy, condition on its private seed and average the same
-bound.  Finally, $K_\pi\ge2$ implies
+The same bound holds for a randomized policy after conditioning on its
+private seed.
+Finally, $K_\pi\ge2$ implies
 \[
     \E[K_\pi]
     \ge2+\P(K_\pi\ge3)
     =3-\P(K_\pi\le2)
     \ge3-(1-h)^L.
 \]
+By \cref{lem:layered-poset-metric} and
+$\E[N]=2(L+1)+4Lp$, every adaptive policy~$\pi$ therefore satisfies
+\begin{align*}
+    \E[\cost(\pi)]
+    &\ge
+    \varepsilon\bigl(2(L+1)+4Lp\bigr)
+    +(1-\varepsilon)\bigl(3-(1-h)^L\bigr)\\
+    &\ge3-3\varepsilon-(1-h)^L.
+\end{align*}
+Taking the infimum over all policies proves the first claim.  If
+$\varepsilon=o(1)$ and $Lh\to\infty$, then
+$(1-h)^L\le\e^{-Lh}=o(1)$ by
+\cref{eq:bernoulli-product-bounds}, proving the second claim.
 \end{proof}
 
 \begin{theorem}[Layered-poset lower bound]
@@ -2852,38 +2973,24 @@ and define the resulting instance by
     \mathcal{I}_t^{\mathrm{LP}}
     :=\mathcal{I}^{\mathrm{LP}}(L,p,\varepsilon).
 \]
-Its expected number of active vertices is
+Here $\varepsilon L=t^{-5}=o(1)$ and $Lp^3=t^{-1}=o(1)$, so
+\cref{lem:layered-poset-width} directly gives
 \[
-    \E[N]=2(L+1)+4Lp=O(L),
-\]
-so $\varepsilon\E[N]=o(1)$.  \Cref{lem:layered-poset-width} and
-$Lp^3=t^{-1}$ give
-\[
-    \optpost(\mathcal{I}_t^{\mathrm{LP}})
-    \le
-    \varepsilon\E[N]
-    +(1-\varepsilon)(2+4Lp^3)
-    =2+o(1).
+    \optpost(\mathcal{I}_t^{\mathrm{LP}})=2+o(1).
 \]
 
 On the adaptive side,
 \[
-    Lh
-    =Lp^2(1-p)^2
+    Lp^2(1-p)^2
     =t(1-t^{-2})^2
     \longrightarrow\infty.
 \]
-Hence $(1-h)^L\le\e^{-Lh}=o(1)$.
-\Cref{lem:four-star-product,lem:layered-poset-metric} imply, for every
-policy~$\pi$,
+Since also $\varepsilon=o(1)$,
+\cref{lem:four-star-product} directly gives
 \[
-    \E[\cost(\pi)]
-    \ge
-    \varepsilon\E[N]
-    +(1-\varepsilon)\bigl(3-(1-h)^L\bigr)
-    =3-o(1).
+    \optadapt(\mathcal{I}_t^{\mathrm{LP}})\ge3-o(1).
 \]
-Taking the infimum over policies and combining the two estimates yields
+Combining the two estimates yields
 \[
     \liminf_{t\to\infty}
     \frac{\optadapt(\mathcal{I}_t^{\mathrm{LP}})}
@@ -2893,7 +3000,7 @@ Taking the infimum over policies and combining the two estimates yields
 \end{proof}
 
 % ============================================================
-% CHAPTER 5: BACKBONE CIRCULATIONS AND ROUNDING
+% CHAPTER 6: BACKBONE CIRCULATIONS AND ROUNDING
 % ============================================================
 \chapter{Backbone Circulations and Rounding for Asymmetric \StochTSP{}}
 \label{ch:circulation}
@@ -3078,9 +3185,11 @@ backbone is
 \]
 The conditioning factors over vertices, so these classifications remain
 independent.  A run of length~$t$ can start in at most~$n$ positions of the
-fixed cyclic tour.  A union bound therefore gives the claimed tail estimate.
+fixed cyclic tour.  The union bound~\cref{eq:union-bound} therefore gives the
+claimed tail estimate.
 
-Let $L:=\lceil\log_2(\max\{n,2\})\rceil$.  The tail-sum formula yields
+Let $L:=\lceil\log_2(\max\{n,2\})\rceil$.  The tail-sum formula
+\cref{eq:tail-sum} yields
 \[
     \E[M(A,S)\mid A\cup S=C]
     \le
@@ -3222,7 +3331,8 @@ The calculation in the proof of
     \E_B[\cost(z^B)]
     =O(\log n)\optpost.
 \]
-By Markov's inequality, after choosing absolute constants $D_0$ and~$K_0$
+By Markov's inequality~\cref{eq:markov}, after choosing absolute constants
+$D_0$ and~$K_0$
 large enough, both
 \[
     Z(B)\le D_0\log n
@@ -3238,8 +3348,10 @@ none is good is at most $4^{-\lambda}$.  Moreover,
     \P(v\in S_0)=1-(1-p_v)^\lambda
     \le\min\{1,\lambda p_v\}=\widehat p_v.
 \]
-Thus a product sample~$S$ with marginals~$\widehat p_v$ can be coupled with~$S_0$ so
-that $S_0\subseteq S$.
+The inequality is the left-hand bound in
+\cref{eq:bernoulli-product-bounds} applied to $\lambda$ copies of~$p_v$.
+Thus, by \cref{lem:monotone-product-coupling}, a product sample~$S$ with
+marginals~$\widehat p_v$ can be coupled with~$S_0$ so that $S_0\subseteq S$.
 
 Suppose $B^j$ is good.  The same vector~$z^{B^j}$ remains feasible when the
 backbone is enlarged from~$B^j$ to~$S$.  Indeed, every vertex still outside
@@ -3259,14 +3371,15 @@ fixed~$j$, vertex memberships are independent with
     =\min\left\{\frac1\lambda,p_v\right\}
     \le p_v.
 \]
-By a monotone coupling, $\E[\opt(S_j)]\le\optpost$.  Concatenating tours for
+By \cref{lem:monotone-product-coupling} and the monotonicity of~$\opt(\cdot)$,
+$\E[\opt(S_j)]\le\optpost$.  Concatenating tours for
 the sets~$S_j$ at the root and shortcutting gives
 \[
     \opt(S)\le\sum_{j=1}^{\lambda}\opt(S_j),
     \qquad
     \E[\opt(S)]\le\lambda\optpost.
 \]
-Markov's inequality therefore gives
+Markov's inequality~\cref{eq:markov} therefore gives
 $\opt(S)\le4\lambda\optpost$ with probability at least~$3/4$.
 For a sufficiently large choice of~$c$, this event and the existence of a
 good~$B^j$ have positive joint probability.  Fix an outcome in their
@@ -3581,23 +3694,25 @@ $1-(n+1)^{-5}$ over the activation set~$A$, every $X\subseteq R$ satisfies
 
 \begin{proof}
 Fix $X$ with $k:=\iota(X)\ge1$.  The variable $F_A^-(X)$ is a sum of independent
-Bernoulli variables with mean~$\mu^-(X)$.  A standard Chernoff bound gives,
-for every $t\ge0$,
+Bernoulli variables with mean~$\mu^-(X)$.  The upper-tail bound in
+\cref{eq:chernoff-useful} gives, for every $t\ge0$,
 \[
     \P\bigl(F_A^-(X)>2\mu^-(X)+t\bigr)\le\e^{-t/3}.
 \]
 For the other direction, if $\mu^+(X)\le t$, then
 \cref{eq:cut-concentration-out} holds automatically with~$t$ in place of
 its additive term.  If $\mu^+(X)>t$, a violation implies
-$F_A^+(X)<\mu^+(X)/2$, whose probability is at most
+$F_A^+(X)<\mu^+(X)/2$, whose probability is at most, by the lower-tail bound
+in~\cref{eq:chernoff-useful},
 \[
     \e^{-\mu^+(X)/8}\le\e^{-t/8}.
 \]
 
 There are at most $|R|^{2k}\le(n+1)^{2k}$ subsets of a cyclic order having
 $k$ interval components: it is enough to choose their $2k$ boundary
-positions.  Set $t=C_0k\log n$, choose $C_0$ sufficiently large, and take
-a union bound over all $k\ge1$ and both inequalities.  The resulting failure
+positions.  Set $t=C_0k\log n$, choose $C_0$ sufficiently large, and apply
+the union bound~\cref{eq:union-bound} over all $k\ge1$ and both inequalities.
+The resulting failure
 probability is at most $(n+1)^{-5}$.  The two sets with $k=0$ satisfy both
 inequalities trivially.
 \end{proof}
@@ -3801,7 +3916,7 @@ For part~\textup{(i)}, split the prefix process as
 \]
 Order the indices by the positions of their tails.  The tail sums at prefix
 boundaries form a subset of the partial sums in this order; ties may be
-ordered arbitrarily.  The $L^2$ maximal inequality gives
+ordered arbitrarily.  The $L^2$ maximal inequality~\cref{eq:l2-maximal} gives
 \[
     \E\max_j\left|\sum_{\ell\le j}X_\ell\right|
     \le2\left(\sum_i\E[X_i^2]\right)^{1/2}.
@@ -3809,8 +3924,9 @@ ordered arbitrarily.  The $L^2$ maximal inequality gives
 The same argument applies after ordering the heads.  The triangle inequality
 and the factor two for cyclic intervals prove~\textup{(i)}.
 
-For part~\textup{(ii)}, first consider the random tails.  Symmetrization with
-independent Rademacher signs~$\varepsilon_i$ gives
+For part~\textup{(ii)}, first consider the random tails.  The symmetrization
+inequality~\cref{eq:symmetrization}, with independent Rademacher
+signs~$\varepsilon_i$, gives
 \begin{align*}
     &\E\max_k\left|\sum_iw_i
       \bigl(\1_{\{a_i\in J_k\}}-\P(a_i\in J_k)\bigr)\right|\\
@@ -3818,8 +3934,8 @@ independent Rademacher signs~$\varepsilon_i$ gives
       \1_{\{a_i\in J_k\}}\right|
     \le4\left(\sum_iw_i^2\right)^{1/2}.
 \end{align*}
-For the last inequality, condition on all tails, order them, and apply the
-same $L^2$ maximal inequality to the partial sums of
+For the last inequality, condition on all tails, order them, and apply
+\cref{eq:l2-maximal} to the partial sums of
 $\varepsilon_iw_i$.  Repeat for the heads, then use the triangle inequality
 and the factor two for cyclic intervals.
 \end{proof}
@@ -4214,7 +4330,7 @@ these two threshold terms.
 
 
 % ============================================================
-% CHAPTER 6: ALMOST-OPTIMAL A PRIORI TOURS
+% CHAPTER 7: ALMOST-OPTIMAL A PRIORI TOURS
 % ============================================================
 \chapter{Almost-Optimal A Priori Tours via Dynamic Programming}\label{ch:dp}
 
@@ -4307,7 +4423,12 @@ The discarded-pair charging bound proved in
     \cost(T)-\cost^{\loc}_{\eta}(T)
     \le\beta(\eta)\cost(T).
 \]
-The function $\beta$ is increasing on $(0,1)$.  Since
+The function $\beta$ is increasing on $(0,1)$ because
+\[
+    \beta'(\eta)
+    =\frac{2+\eta-\ln\eta}{(1-\eta)^2}>0.
+\]
+Since
 $\eta\le\rho^2/16\le1/16$, we have
 \begin{align*}
     \beta(\eta)
@@ -4349,10 +4470,8 @@ overestimate.  The
 surrogate obtained from these two approximations is the \emph{block
 objective}.
 
-\sharat{A non-root vertex is said to be $\delta$-heavy if $p_v > \delta/2$, and \emph{light} otherwise. Do the same for the definition of admissible blocks and partitions. Call them $\delta$-admissible blocks and partitions.}
-
 We first specify what blocks are allowed.  Fix $0<\delta<1/4$ and recall
-that $q_v=1-p_v$.  A non-root vertex is \emph{heavy} if
+that $q_v=1-p_v$.  A non-root vertex is \emph{$\delta$-heavy} if
 $p_v>\delta/2$ and \emph{light} otherwise.  For a set of non-root
 vertices~$B$, write
 \[
@@ -4362,7 +4481,7 @@ vertices~$B$, write
 \]
 For the root block $\{r\}$, set $q(\{r\})=1$.
 
-Heavy vertices must remain singletons.  Light vertices may be grouped as long
+$\delta$-heavy vertices must remain singletons.  Light vertices may be grouped as long
 as their total mass is at most~$\delta$; this upper bound makes the two
 approximations above accurate.  We also prevent a run of light blocks from
 being split into arbitrarily many blocks of tiny mass.  Except for the first
@@ -4371,11 +4490,11 @@ This lower bound will later ensure that the dynamic program needs to remember
 only a bounded number of recent blocks.
 
 \begin{samepage}
-\begin{definition}[Admissible blocks and partitions]\label{def:admissible-partition}
-A block is \emph{admissible} if it is either a singleton containing one heavy
+\begin{definition}[$\delta$-admissible blocks and partitions]\label{def:admissible-partition}
+A block is \emph{$\delta$-admissible} if it is either a singleton containing one $\delta$-heavy
 vertex or a nonempty set of light vertices with total mass at most~$\delta$.
-An ordered partition $(B_1,\dots,B_m)$ is admissible if all its blocks are
-admissible and, whenever $B_{t-1}$ and $B_t$ are both light blocks,
+An ordered partition $(B_1,\dots,B_m)$ is \emph{$\delta$-admissible} if all its blocks are
+$\delta$-admissible and, whenever $B_{t-1}$ and $B_t$ are both light blocks,
 \[
     \mu(B_t)\ge\delta/2.
 \]
@@ -4384,7 +4503,7 @@ mass below~$\delta/2$.
 \end{definition}
 \end{samepage}
 
-Fix an admissible ordered partition
+Fix a $\delta$-admissible ordered partition
 $\mathcal B=(B_1,\dots,B_m)$ and introduce the two root blocks
 \[
     B_0=B_{m+1}:=\{r\}.
@@ -4411,7 +4530,7 @@ This gives the definition
     \min_{\tau}
     \sum_{x<_\tau y}p_xp_y d(x,y),
 \end{equation}
-where the minimum is over all orders~$\tau$ of~$B$.  For heavy singletons and
+where the minimum is over all orders~$\tau$ of~$B$.  For $\delta$-heavy singletons and
 root blocks, set $I(B)=0$.
 
 The value $I(B)$ and a minimizing order can be computed by choosing the last
@@ -4465,18 +4584,17 @@ at the beginning and end.  Denote the resulting a~priori tour by
 $T_{\mathcal B}$.  To justify minimizing the block objective, we need two
 comparisons.  First, $F_\eta(\mathcal B)$ should be close to the cost of its
 corresponding tour $T_{\mathcal B}$; otherwise, a small block value could hide
-a tour with large true cost.  Second, every a~priori tour~$T$ should admit an
-admissible consecutive partition~$\mathcal B_T$ whose block value is not much
+a tour with large true cost.  Second, every a~priori tour~$T$ should admit a
+$\delta$-admissible consecutive partition~$\mathcal B_T$ whose block value is not much
 larger than $\cost(T)$.  Applied to an optimal tour, this ensures that the
 minimum block value is not much larger than~$\optprior$.  The next lemma makes
 both comparisons precise.
 
-\sharat{Mention that $\delta$ is some fixed parameter in the below lemma. Part (i) should say for every $\delta$-admissible ordered partition... Same for the second part.}
-
 \begin{lemma}\label{lem:block-objective-bounds}
+Fix $\delta\in(0,1/4)$ and $\eta\in(0,1)$.
 The block objective satisfies the following inequalities.
 \begin{enumerate}[label=(\roman*)]
-    \item For every admissible ordered partition~$\mathcal B$,
+    \item For every $\delta$-admissible ordered partition~$\mathcal B$,
     \begin{align}
         \cost^{\loc}_{\eta}(T_{\mathcal B})
         &\le F_\eta(\mathcal B),
@@ -4493,7 +4611,7 @@ The block objective satisfies the following inequalities.
         \le \frac{1}{(1-\delta)^2}\cost(T_{\mathcal B}).
     \end{equation}
 
-    \item For every a~priori tour~$T$, there is an admissible ordered
+    \item For every a~priori tour~$T$, there is a $\delta$-admissible ordered
     partition $\mathcal B_T$, consecutive in~$T$, such that
     \begin{equation}\label{eq:block-objective-from-order}
         F_\eta(\mathcal B_T)
@@ -4510,9 +4628,11 @@ factor.  If~$B$ is a light block and $B'\subseteq B$, then
     \ge 1-\sum_{v\in B'}p_v
     \ge 1-\delta.
 \end{equation}
-For a heavy singleton or a root block, the corresponding factor equals~$1$.
+The first inequality is the left-hand bound in
+\cref{eq:bernoulli-product-bounds}.
+For a $\delta$-heavy singleton or a root block, the corresponding factor equals~$1$.
 
-For the first inequality in~(i), fix an admissible ordered
+For the first inequality in~(i), fix a $\delta$-admissible ordered
 partition~$\mathcal B$ and consider
 endpoints $x\in B_i$ and $y\in B_j$ with $i<j$.  In the tour
 $T_{\mathcal B}$, their exact coefficient is
@@ -4557,14 +4677,14 @@ Combining~\cref{eq:block-objective-dominates-local} with
 \cref{lem:long-gap-truncation} proves
 \cref{eq:block-objective-two-sided}.
 
-For~(ii), start from an arbitrary a~priori tour~$T$ and keep every heavy vertex
+For~(ii), start from an arbitrary a~priori tour~$T$ and keep every $\delta$-heavy vertex
 as a singleton.  In each maximal consecutive run of light vertices, scan from
 right to left.  Close a block as soon as its mass reaches~$\delta/2$, and then
 continue with the remaining prefix of the run.  Since every light vertex has
 probability at most~$\delta/2$, each closed block has mass in
 $[\delta/2,\delta]$.  Only the leftmost block of a run may have mass below
 $\delta/2$.  The resulting consecutive partition~$\mathcal B_T$ is therefore
-admissible.
+$\delta$-admissible.
 
 Consider a cross-block term of $F_\eta(\mathcal B_T)$ with endpoints
 $x\in B_i$ and $y\in B_j$, where $i<j$.  Relative to the exact coefficient of
@@ -4592,14 +4712,14 @@ internal comparisons proves~\cref{eq:block-objective-from-order}.
 
 Part~(i) says that the block objective is a two-sided approximation to the
 cost of every tour that it represents.  Part~(ii) says that every a~priori
-tour, and in particular an optimal one, has an admissible consecutive
+tour, and in particular an optimal one, has a $\delta$-admissible consecutive
 partition whose block value is within a factor $(1-\delta)^{-2}$ of its cost.
 Together, these comparisons explain why minimizing $F_\eta$ is a valid
 surrogate for minimizing the exact tour cost.
 
 \section{The dynamic program}\label{sec:dp-dynamic-program}
 
-We now minimize $F_\eta$ exactly over all admissible ordered partitions.
+We now minimize $F_\eta$ exactly over all $\delta$-admissible ordered partitions.
 Consider a partial partition
 \[
     (B_0,B_1,\dots,B_t),
@@ -4628,7 +4748,7 @@ over all represented prefixes, of the internal terms of the placed blocks plus
 all cross-block terms whose right endpoint has already been placed.  The
 initial state is $(\emptyset,(B_0))$ with value~$0$.
 
-A feasible next block~$B$ is either a singleton containing an unplaced heavy
+A feasible next block~$B$ is either a singleton containing an unplaced $\delta$-heavy
 vertex or a nonempty set of unplaced light vertices with
 $\mu(B)\le\delta$.  If the last block of the current prefix and~$B$ are both
 light, we additionally require $\mu(B)\ge\delta/2$.  Suppose
@@ -4647,7 +4767,7 @@ using the cross-block part of~\cref{eq:dp-increment} and internal cost zero.
 
 \begin{lemma}[Correctness and running time of the DP]\label{lem:local-dp}
 For fixed $\delta$ and~$\eta$, the dynamic program minimizes
-$F_\eta$ over all admissible ordered partitions and runs in time
+$F_\eta$ over all $\delta$-admissible ordered partitions and runs in time
 $c_{\delta,\eta}^n\poly(n)$.
 \end{lemma}
 
@@ -4662,9 +4782,10 @@ Appending more blocks only multiplies this product by numbers in~$[0,1]$.
 Hence a forgotten block can never occur in a future term of~$F_\eta$.  The
 state therefore contains precisely the information needed to evaluate every
 continuation, and the recurrence is an exact shortest-path computation over all
-admissible partial partitions.
+$\delta$-admissible partial partitions.
 
-It remains to bound the number of states.  We use the elementary inequality
+It remains to bound the number of states.  The upper bound in
+\cref{eq:bernoulli-product-bounds} gives
 \[
     \prod_{v\in S}(1-p_v)
     \le \exp\left(-\sum_{v\in S}p_v\right).
@@ -4673,15 +4794,15 @@ If the whole prefix is retained, then its inactivity product exceeds
 $\eta$, so its total activation mass is less than
 $\log(1/\eta)$.  Otherwise, deleting the first retained block leaves an
 inactivity product greater than~$\eta$, so the remaining blocks have total
-activation mass less than $\log(1/\eta)$.  Every admissible block has mass at
-most~$1$: a heavy block is a singleton of mass $p_v\le1$, while a light block
+activation mass less than $\log(1/\eta)$.  Every $\delta$-admissible block has mass at
+most~$1$: a $\delta$-heavy block is a singleton of mass $p_v\le1$, while a light block
 has mass at most~$\delta<1$.  Thus the total activation mass of a relevant
 suffix is less than
 \[
     M_\eta:=\log(1/\eta)+1.
 \]
 
-Every retained heavy singleton has mass greater than~$\delta/2$, and every
+Every retained $\delta$-heavy singleton has mass greater than~$\delta/2$, and every
 retained light block except the first one in a light run has mass at least
 $\delta/2$.  Let $\mathcal G$ be the collection of these blocks.  Since their
 total mass is less than $M_\eta$,
@@ -4689,7 +4810,7 @@ total mass is less than $M_\eta$,
     |\mathcal G|<2\frac{M_\eta}{\delta}.
 \]
 Every remaining retained block is the first light block of a light run.  The
-number of light runs is at most one more than the number of retained heavy
+number of light runs is at most one more than the number of retained $\delta$-heavy
 blocks, and hence at most $|\mathcal G|+1$.  Therefore the number of retained
 non-root-vertex blocks is at most
 \[
@@ -4714,7 +4835,7 @@ $O(n2^n)$ time and is absorbed in the same bound.
 
 \section{Approximation guarantee}\label{sec:dp-approximation}
 
-The dynamic program minimizes $F_\eta$ exactly over admissible partitions.
+The dynamic program minimizes $F_\eta$ exactly over $\delta$-admissible partitions.
 It remains to choose the parameters so that the tour represented by this
 minimum has cost at most $(1+\varepsilon)\optprior$.  Since the parameters
 depend only on~$\varepsilon$, this choice will keep the running-time base
@@ -4740,7 +4861,7 @@ Set
 \]
 
 Let $T^*$ be an optimal a~priori tour.  By
-\cref{lem:block-objective-bounds}(ii), there is an admissible ordered partition
+\cref{lem:block-objective-bounds}(ii), there is a $\delta$-admissible ordered partition
 $\mathcal B^*$ into consecutive sets of~$T^*$ such that
 \[
     F_\eta(\mathcal B^*)
@@ -4864,8 +4985,6 @@ their constant care, understanding, and support in my life.
 \chapter{Technical Proof for Pairwise Truncation}
 \label{app:pairwise-truncation}
 
-\sharat{This section requires proper verification.}
-
 This appendix proves the charging estimate used in
 \cref{lem:long-gap-truncation}.  We use the notation for the a~priori tour,
 the probabilities~$p_i$, the distances~$d_{ij}$, and the products~$Q(i,j)$
@@ -4910,9 +5029,29 @@ Fix a target pair $(a,b)$ with $w_{ab}>0$, and let $\Gamma_{ab}$ be the
 expected coefficient charged to~$d_{ab}$.  A source pair $(i,j)$ can charge
 $(a,b)$ only if $i\le a<b\le j$.  The source $(a,b)$ itself contributes
 nothing because the conditioning ensures that its sampled path contains an
-active vertex strictly between its endpoints.  Dividing the contributions of
-the other sources by~$w_{ab}$ and separating the three possible strict
-containment patterns gives
+active vertex strictly between its endpoints.  For any other containing
+source, the unconditioned probability that $(a,b)$ is an edge of the sampled
+path is
+\[
+    Q(a,b)\,
+    p_a^{\1_{\{i<a\}}}
+    p_b^{\1_{\{b<j\}}}.
+\]
+The occurrence of this edge already implies that the conditioning event holds,
+so its conditional probability is the displayed quantity divided by
+$1-Q(i,j)$.  Multiplying by~$w_{ij}$ and dividing by~$w_{ab}$ gives,
+respectively, the three ratios
+\[
+    \frac{p_jQ(a,j)}{1-Q(a,j)},
+    \qquad
+    \frac{p_iQ(i,b)}{1-Q(i,b)},
+    \qquad
+    \frac{p_ip_jQ(i,j)}{1-Q(i,j)}
+\]
+when $(i,j)=(a,j)$ with $j>b$, when $(i,j)=(i,b)$ with $i<a$, and when
+$i<a<b<j$.  Every source under consideration is discarded, so each
+denominator is at least $1-\eta$.  Summing the three containment patterns
+gives
 \begin{equation}\label{eq:appendix-truncation-target-congestion}
 \frac{\Gamma_{ab}}{w_{ab}}
 \le\frac{1}{1-\eta}
@@ -4924,11 +5063,30 @@ containment patterns gives
 \end{equation}
 The first two sums are each at most~$\eta$.  Indeed, $Q(a,j)$ is
 nonincreasing in~$j$, so the indices satisfying $Q(a,j)\le\eta$ form a
-suffix, and telescoping gives
+suffix.  If this suffix is nonempty, let $j_0$ be its first index.  For
+$j\le n$,
 \[
-    \sum_{\substack{j>b\\Q(a,j)\le\eta}}p_jQ(a,j)\le\eta.
+    p_jQ(a,j)=Q(a,j)-Q(a,j+1),
 \]
-The second sum is bounded symmetrically.
+while the final root satisfies
+$p_{n+1}Q(a,n+1)=Q(a,n+1)$.  Therefore
+\[
+    \sum_{\substack{j>b\\Q(a,j)\le\eta}}p_jQ(a,j)
+    =\sum_{j=j_0}^{n+1}p_jQ(a,j)
+    =Q(a,j_0)
+    \le\eta.
+\]
+Similarly, $Q(i,b)$ is nondecreasing in~$i$, so the indices in the second
+sum form a prefix.  If $i_0$ is its last index, then
+\[
+    \sum_{\substack{i<a\\Q(i,b)\le\eta}}p_iQ(i,b)
+    =\sum_{i=0}^{i_0}p_iQ(i,b)
+    =Q(i_0,b)
+    \le\eta,
+\]
+where the telescoping uses
+$p_iQ(i,b)=Q(i,b)-Q(i-1,b)$ for $i\ge1$ and
+$p_0Q(0,b)=Q(0,b)$.  An empty suffix or prefix contributes zero.
 
 It remains to bound the third sum in
 \cref{eq:appendix-truncation-target-congestion}.  Put
@@ -4946,9 +5104,17 @@ empty, the third sum vanishes.  Otherwise, telescoping gives
     \qquad
     \sum_{j>b}p_jy_j=1.
 \]
+For example, the first identity follows from
+\[
+    p_0Q(0,a)+\sum_{i=1}^{a-1}
+       \bigl(Q(i,a)-Q(i-1,a)\bigr)
+    =Q(a-1,a)=1,
+\]
+and the second is its right-hand analogue, including the terminal root.
 If $H\le\eta$, the third sum is therefore at most $H\le\eta$.  Suppose
 instead that $H>\eta$, and set $t:=\eta/H\in(0,1)$.  For every $z>0$,
-telescoping on the right gives
+the indices satisfying $y_j\le z$ form a suffix, so the same right-hand
+telescoping gives
 \[
     \sum_{\substack{j>b\\y_j\le z}}p_jy_j\le\min\{1,z\}.
 \]
@@ -4974,10 +5140,21 @@ $x_{i-1}=(1-p_i)x_i$.  If $x_0>t$, then
     \le t\left(1+\ln\frac1{x_0}\right)
     \le t\left(1+\ln\frac1t\right).
 \]
+Here
+$\sum_{i<a}p_i\le1+\sum_{i=1}^{a-1}-\ln(1-p_i)
+=1+\ln(1/x_0)$.
 Otherwise, let~$\ell$ be the largest index for which $x_\ell\le t$, and put
 $x:=x_{\ell+1}$ and $z:=x_\ell$.  Since
-$z=(1-p_{\ell+1})x$, telescoping and the inequality
-$u\le-\ln(1-u)$ give
+$z=(1-p_{\ell+1})x$, we have
+\[
+    \sum_{i=0}^{\ell}p_ix_i=z,
+    \qquad
+    \sum_{i=\ell+1}^{a-1}p_i
+    \le1-\frac zx+\ln\frac1x.
+\]
+The first identity telescopes, while the second follows from
+$p_{\ell+1}=1-z/x$ and
+$p_i\le-\ln(1-p_i)$ for $i\ge\ell+2$.  Consequently,
 \begin{align*}
     \sum_{i<a}p_i\min\{x_i,t\}
     &\le z+t\left(1-\frac{z}{x}+\ln\frac1x\right)\\
@@ -4999,8 +5176,12 @@ It follows that every target pair has congestion at most
 \[
     \beta(\eta):=\frac{\eta\bigl(3+\ln(1/\eta)\bigr)}{1-\eta}.
 \]
-Pairs with $w_{ab}=0$ receive no charge, so summing over all target pairs
-gives
+Pairs with $w_{ab}=0$ receive no charge.  Indeed, if $p_a=0$ or $p_b=0$,
+the target cannot appear as an active internal vertex, and a source having it
+as an endpoint has zero weight.  If $Q(a,b)=0$, some vertex strictly between
+$a$ and~$b$ is active with probability one, so $(a,b)$ cannot be an edge of
+any sampled path.  We may therefore sum the congestion bound over all target
+pairs to obtain
 \[
     D_\eta\le\beta(\eta)\cost(T),
 \]
