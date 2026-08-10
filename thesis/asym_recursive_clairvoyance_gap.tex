@@ -1,158 +1,729 @@
-\documentclass[11pt]{article}
+%! TeX program = lualatex
+\documentclass[12pt,a4paper,oneside]{report}
 
-\usepackage[a4paper,margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsthm,mathtools}
-\usepackage{microtype}
-\usepackage[hidelinks]{hyperref}
+\input{preamble/usepackages}
+\input{preamble/theoremenv}
+\input{preamble/mathdefs}
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
-\newtheorem{remark}{Remark}
-
-\newcommand{\E}{\mathbb{E}}
-\newcommand{\ind}{\mathbf{1}}
-\newcommand{\OPT}{\operatorname{OPT}}
-\newcommand{\optpost}{\operatorname{OPT}_{\mathrm{post}}}
-\newcommand{\optadapt}{\operatorname{OPT}_{\mathrm{adapt}}}
-
-\title{A Recursive Triangle-like Asymmetric Instance with Clairvoyance Gap Tending to $4/3$}
-\author{}
-\date{}
+\hypersetup{
+  pdftitle={A Recursive Triangle Construction for Asymmetric StochTSP},
+  pdfauthor={}
+}
 
 \begin{document}
-\maketitle
+\pagenumbering{roman}
 
-\section{The construction}
+\begin{titlepage}
+\centering
+\vspace*{0.18\textheight}
+{\LARGE\bfseries A Recursive Triangle Construction\\[0.35em]
+for Asymmetric \StochTSP{}\par}
+\vspace{1.5em}
+{\large A standalone technical note\par}
+\vfill
+\end{titlepage}
 
-We define a family of asymmetric stochastic TSP instances.  Distances are taken to be the directed shortest-path metric induced by the directed edges described below.  The depot is always present.  The client vertices are independent, with probabilities $1/2$.
+\clearpage
+\pagenumbering{arabic}
+\chapter{Recursive-Triangle Clairvoyance Gap}
 
-For every integer $l\geq 0$, define a directed recursive block $B_l$.  Each block has a set of permanent vertices, denoted $P_l$.  These permanent vertices will be deterministic.  For $l=0$, the block $B_0$ consists of a single permanent vertex.
+This note records a natural recursive generalization of the four-vertex
+directed-triangle example.  Its clairvoyance-gap ratio tends to~$4/3$.
+The construction is not included in the main thesis because the layered-poset
+construction gives the stronger ratio~$3/2$, while the recursive proof
+requires substantially more decomposition machinery.
 
-For $l\geq 1$, the block $B_l$ is obtained from two disjoint copies of $B_{l-1}$, denoted $B_{l-1}^{\mathrm L}$ and $B_{l-1}^{\mathrm R}$, together with a new midpoint vertex $m_l$.  
-
-Let $w_l := 2^{l-1}$, then for every permanent vertex $u \in P(B_{l-1}^{\mathrm L})$ and every permanent vertex $v\in P(B_{l-1}^{\mathrm R})$, add a directed edge
-$u \to v$ of length $w_l$.
-For every $v \in P(B_{l-1}^{\mathrm R})$, add a directed edge $v\to m_l $ of length $w_l$.  
-For every $u \in P(B_{l-1}^{\mathrm L})$, add a directed edge $m_l \to u$ of length $w_l$. 
-Thus, after contracting the two child blocks, the top level of $B_l$ is the directed triangle
+At depth one, take the root~$r=a$, two further permanent vertices~$b,c$, and
+one independently active midpoint~$d$ with activation probability~$1/2$.
+All generating arcs have unit length:
 \[
-    B_{l-1}^{\mathrm L}
-    \longrightarrow
-    B_{l-1}^{\mathrm R}
-    \longrightarrow
-    m_l
-    \longrightarrow
-    B_{l-1}^{\mathrm L},
+  a\leftrightarrow b,\qquad
+  a\leftrightarrow c,\qquad
+  b\to c\to d\to b.
 \]
-where each displayed arc has length $w_l$.
+Thus the arc $c\to b$ of a bidirected triangle has been subdivided into
+$c\to d\to b$.  When $d$ is inactive the posterior tour costs~$3$, and when
+it is active the posterior tour costs~$4$, so $\optpost=7/2$.  A
+one-step Bellman calculation over the first probe gives $\optadapt=4$.
+The depth-one gap is therefore~$8/7$.
 
-The permanent set of $B_l$ is
+\section{The construction}\label{sec:recursive-construction}
+
+This section defines the recursive family of asymmetric instances.  Each block
+contains two copies of the preceding block and one new stochastic midpoint,
+joined by a directed three-cycle whose scale doubles with the level.  Complete
+port bundles make the construction independent of the entry and exit ports
+chosen by a tour or policy.
+
+For a copy~$C$ of a recursive block, write $\mathcal P(C)$ for its
+\emph{permanent vertices}, which will also serve as its \emph{ports}, and
+write $\mathcal M(C)$ for its midpoint vertices.  For the canonical block
+$B_k$, abbreviate these sets by $\mathcal P_k$ and $\mathcal M_k$.
+
+The block $B_0$ consists of one permanent vertex and has no midpoint.  For
+$k\ge1$, let
 \[
-    P_l := P(B_{l-1}^{\mathrm L})\cup P(B_{l-1}^{\mathrm R}).
+    w_k:=2^{k-1}.
 \]
-Thus $|P_l|=2^l$.  All permanent vertices are active with probability $1$.  Every midpoint vertex is active independently with probability $1/2$.
-
-The full instance $I_l$ is obtained by adding a depot $r$.  For every permanent vertex $u \in P_l$, add directed edges
+Construct $B_k$ from disjoint copies $B_{k-1}^{\mathrm L}$ and
+$B_{k-1}^{\mathrm R}$ and a new midpoint~$m_k$.  Add the following arcs,
+all of length~$w_k$:
+\begin{itemize}
+    \item $x\to y$ for every
+    $x\in\mathcal P(B_{k-1}^{\mathrm L})$ and
+    $y\in\mathcal P(B_{k-1}^{\mathrm R})$;
+    \item $y\to m_k$ for every
+    $y\in\mathcal P(B_{k-1}^{\mathrm R})$; and
+    \item $m_k\to x$ for every
+    $x\in\mathcal P(B_{k-1}^{\mathrm L})$.
+\end{itemize}
+Thus, after contracting the two children, the top level is the directed
+triangle
 \[
-    r \to u,
+    B_{k-1}^{\mathrm L}
+    \longrightarrow
+    B_{k-1}^{\mathrm R}
+    \longrightarrow
+    m_k
+    \longrightarrow
+    B_{k-1}^{\mathrm L}.
+\]
+Set
+\[
+    \mathcal P_k
+    :=
+    \mathcal P(B_{k-1}^{\mathrm L})
+    \cup
+    \mathcal P(B_{k-1}^{\mathrm R}),
     \qquad
-    u \to r,
+    \mathcal M_k
+    :=
+    \mathcal M(B_{k-1}^{\mathrm L})
+    \cup
+    \mathcal M(B_{k-1}^{\mathrm R})
+    \cup\{m_k\}.
 \]
-each of length $w_l=2^{l-1}$.
+Every permanent vertex is active with probability~$1$, and every midpoint is
+active independently with probability~$1/2$.
 
-\section{Statement}
+For $l\ge1$, the full recursive-block instance
+$\mathcal{I}_l^{\mathrm{REC}}$ is obtained from $B_l$ by adding the
+root~$r$ and, for every $x\in\mathcal P_l$, the two arcs $r\to x$ and
+$x\to r$, each of length~$w_l$.  Distances in
+$\mathcal{I}_l^{\mathrm{REC}}$ are the directed shortest-path distances in
+this generating graph.
+
+The generating graph of every block is strongly connected.  This follows by
+induction: each child is strongly connected, and the three top-level arc
+bundles connect the two children and the new midpoint in a directed cycle.
+The root arcs preserve strong connectivity.  Hence all shortest-path
+distances are finite and define an asymmetric metric.  Notice also that every arc
+crossing the boundary of a child block is incident with one of its ports.
+
+The block $B_l$ has $|\mathcal P_l|=2^l$ permanent vertices and
+$|\mathcal M_l|=2^l-1$ midpoints.  For $1\le k\le l$, it contains
+$2^{l-k}$ midpoint vertices introduced at level~$k$, each associated with
+the length scale~$w_k$.
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{tikzpicture}[
+        >=Stealth,
+        block/.style={
+            draw,
+            dashed,
+            rounded corners,
+            minimum width=3.0cm,
+            minimum height=1.45cm,
+            align=center
+        },
+        every edge/.style={draw,->,thick}
+    ]
+        \node[block] (L) at (0,0)
+            {$B_{k-1}^{\mathrm L}$\\[-0.1em]\scriptsize ports
+            $\mathcal P(B_{k-1}^{\mathrm L})$};
+        \node[block] (R) at (5.2,0)
+            {$B_{k-1}^{\mathrm R}$\\[-0.1em]\scriptsize ports
+            $\mathcal P(B_{k-1}^{\mathrm R})$};
+        \node[draw,circle,minimum size=8mm] (M) at (2.6,-2.0) {$m_k$};
+        \node[draw,circle,minimum size=8mm] (D) at (2.6,2.0) {$r$};
+
+        \draw[->,thick] (L) -- node[above] {$w_k$} (R);
+        \draw[->,thick] (R.south) to[bend left=12]
+            node[right] {$w_k$} (M.east);
+        \draw[->,thick] (M.west) to[bend left=12]
+            node[left] {$w_k$} (L.south);
+        \draw[->] (D) to[bend right=12] node[left] {$w_l$} (L.north);
+        \draw[->] (L.north) to[bend right=12] (D);
+        \draw[->] (D) to[bend left=12] node[right] {$w_l$} (R.north);
+        \draw[->] (R.north) to[bend left=12] (D);
+    \end{tikzpicture}
+    \caption{A recursive block and the root arcs in the full instance.
+    An arrow incident with a child represents the complete bundle of arcs
+    incident with its ports.  The root appears only at the top level, where
+    $k=l$.}
+    \label{fig:recursive-asymmetric-block}
+\end{figure}
+
+\section{Statement}\label{sec:recursive-statement}
+
+The recursive construction is designed so that both benchmarks admit exact
+cost recurrences.  We first state the resulting ratio and the two cost
+evaluations from which it follows.  The remaining sections then develop the
+decomposition tools needed to prove those evaluations.
 
 \begin{theorem}\label{thm:recursive-gap}
-For every $l\geq 1$, the instance $I_l$ satisfies
+For every $l\ge1$, the instance $\mathcal{I}_l^{\mathrm{REC}}$ satisfies
 \[
-    \optpost(I_l) \le (3l+4)2^{l-2},
-\]
-and
-\[
-    \optadapt(I_l) \ge (l+1)2^l.
-\]
-Consequently,
-\[
-    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    \frac{\optadapt(\mathcal{I}_l^{\mathrm{REC}})}
+         {\optpost(\mathcal{I}_l^{\mathrm{REC}})}
     =
-    \frac{4(l+1)}{3l+4}
-    \longrightarrow
-    \frac43.
+    \frac{4(l+1)}{3l+4}.
 \]
+As $l\to\infty$, these ratios approach~$4/3$, so the asymmetric
+clairvoyance gap is at least~$4/3$.
 \end{theorem}
 
-The rest of the note proves the theorem.
+The theorem follows from the next two exact cost evaluations.
 
-\section{A posteriori cost}
-
-We explicitly give an a posteriori solution. The solution works in a recursive way. Since a posteriori algorithm knows
-certain vertices would be active or not, we can make recursive decisions based on this.
-
-For a block $B_l$, if the midpoint $m_l$ is active, then we first recursively traverse $B_{l-1}^R$, then we visit $m_l$, finally we 
-recursively traverse $B_{l-1}^L$; if the midpoint $m_l$ is inactive, then we first traverse $B_{l-1}^L$, then we traverse $B_{l-1}^R$.
-If we denote the cost of such recursive algorithm traversing $B_l$, excluding the cost of the first step goes from root $r$ and the last step
-goes back to $r$, to be $T_l$, then we have the recurrence equation:
-
-\begin{align*}
-    T_l = 2 T_{l-1} + \frac{3}{2} 2^{l-1} 
-\end{align*}
-
-Together with the initial condition that $T_1 = 3/2$, we have $T_l = \frac{3}{4} l 2^l$. Adding the cost of root, we have that for 
-such a posteriori solution, the expected cost is $(\frac{3}{4}l+1) 2^l$. Thus we have:
-
-\begin{align*}
-   \optpost \le  (\frac{3}{4}l+1) 2^l
-\end{align*}
-
-
-\section{Adaptive cost}
-
-We now analyze the optimal adaptive policy.  
-
-
-
-\section{The ratio}
-
-Combining the two formulas,
+\begin{lemma}[A posteriori cost]\label{lem:post-cost}
+For every $l\ge1$,
 \[
-    \frac{\optadapt(I_l)}{\optpost(I_l)}
+    \optpost(\mathcal{I}_l^{\mathrm{REC}})=(3l+4)2^{l-2}.
+\]
+\end{lemma}
+
+\begin{lemma}[Adaptive cost]\label{lem:adapt-cost}
+For every $l\ge1$,
+\[
+    \optadapt(\mathcal{I}_l^{\mathrm{REC}})=(l+1)2^l.
+\]
+\end{lemma}
+
+\begin{proof}[Proof of \cref{thm:recursive-gap}]
+\Cref{lem:post-cost,lem:adapt-cost} give
+\[
+    \frac{\optadapt(\mathcal{I}_l^{\mathrm{REC}})}
+         {\optpost(\mathcal{I}_l^{\mathrm{REC}})}
     =
     \frac{(l+1)2^l}{(3l+4)2^{l-2}}
     =
     \frac{4(l+1)}{3l+4}.
 \]
-Therefore
-\[
-    \lim_{l\to\infty}
-    \frac{\optadapt(I_l)}{\optpost(I_l)}
-    =
-    \frac43.
-\]
-For example, when $l=3$,
-\[
-    \optpost(I_3)=26,
-    \qquad
-    \optadapt(I_3)=32,
-\]
-and hence
-\[
-    \frac{\optadapt(I_3)}{\optpost(I_3)}
-    =
-    \frac{32}{26}
-    =
-    \frac{16}{13}
-    \approx 1.23077.
-\]
-For $l=4$, the formulas give
-\[
-    \optpost(I_4)=64,
-    \qquad
-    \optadapt(I_4)=80,
-\]
-so the ratio is $5/4$.
+The right-hand side tends to~$4/3$.
+\end{proof}
 
-\begin{remark}
-In the implementation, the depot should be treated as always present.  Thus, if the list of activation probabilities includes the depot as vertex $0$, its probability should be $1$, not $1/2$.  The midpoint probabilities are $1/2$, and the permanent leaves have probability $1$.
-\end{remark}
+\section{Decomposition tools}\label{sec:recursive-decomposition}
+
+If the two children of every block were served in two uninterrupted visits,
+the desired recurrences would follow immediately.  A general tour or policy
+may instead leave a child, do work elsewhere, and later return.  We therefore
+define local open-service values and show how to charge every additional
+piece of a child service to an arc at its parent's level.
+
+\subsection{Open services and expanded executions}
+\label{sec:recursive-open-services}
+
+To analyze repeated entries into a recursive child, we replace a closed tour
+temporarily by an open service with freely chosen endpoint ports.  Expanding
+metric movements back into generating arcs then exposes the child pieces and
+top-level crossings that will be charged separately.
+
+For a copy~$C$ of $B_k$, let $d_C$ be the directed shortest-path metric of
+the generating subgraph induced by~$C$.  For a fixed active-midpoint set
+$A\subseteq\mathcal M(C)$, a \emph{fixed open service} is a directed walk
+inside~$C$ that starts and ends at ports and visits every vertex in
+$\mathcal P(C)\cup A$.  Its two endpoint ports are free choices, and repeated
+vertices are allowed.  Let $F_k(A)$ be its minimum cost.  Shortcutting repeated
+visits in the metric shows that allowing walks does not change this optimum.
+
+For adaptive services we use the following boundary relaxation.  Initially
+the policy is in an abstract exterior state.  It must probe every vertex of~$C$
+exactly once.  Probes returning an inactive outcome before the first movement
+leave the policy in the exterior state.  When the first active vertex~$v$ is probed, the policy
+chooses an entry port $a\in\mathcal P(C)$ and is charged $d_C(a,v)$; the
+external movement to~$a$ is not charged.  Thereafter the usual adaptive rules
+apply with metric~$d_C$.  Once all vertices have been probed, the policy chooses
+an exit port $b\in\mathcal P(C)$ and, if its current position is~$x$, is
+charged $d_C(x,b)$ for the final internal movement.  Let $G_k$ be the minimum
+expected cost of such an
+\emph{adaptive open service}, where the expectation is over the independent
+midpoint activations in~$C$.  The standard backward-induction argument for the adaptive model shows
+that history dependence and private randomization
+cannot improve this finite boundary-state problem.  For the single-port block,
+\[
+    F_0(\emptyset)=G_0=0.
+\]
+
+For cost accounting, fix once and for all a shortest generating-graph walk for
+each ordered pair of vertices.  Whenever a metric move is made, \emph{expand}
+it into this walk.  Passing through a vertex in an expanded walk neither probes
+nor serves that vertex.  Every non-root arc occurrence in an expanded walk
+belongs to a unique recursive level.
+
+Fix a child block~$C$.  Cut an expanded execution at every crossing of the
+boundary of~$C$, including multiple crossings made during a single metric
+move.  A \emph{$C$-piece} is a maximal internal portion containing at least
+one service event in~$C$; it enters and leaves at ports.  Initial and terminal
+port endpoints are treated as boundary crossings.  Internal portions that
+only transit through~$C$ may be omitted from the list of pieces, but their
+arcs remain included in the total internal cost~$Z$.  Omitting such transit
+can only decrease the cost of the local service constructed below.  Probes of
+inactive vertices made outside~$C$ cause no movement and do not create pieces.
+
+\begin{lemma}[Ports and interrupted services]\label{lem:block-excursions}
+Let $C$ be a copy of~$B_k$.
+\begin{enumerate}
+    \item Any two ports of~$C$ can be joined inside~$C$ by a directed walk of
+    length at most $w_{k+1}=2w_k$ when $k\ge1$; for $k=0$, the block has only
+    one port and the corresponding bound is~$0\le w_1$.
+    \item Suppose $C$ occurs as a child of a copy of~$B_{k+1}$.  If a
+    fixed-realization service is split into $N\ge1$ $C$-pieces, $Z$ is the
+    total cost of all arc occurrences internal to~$C$, and
+    $A_C\subseteq\mathcal M(C)$ is the active-midpoint set, then
+    \begin{equation}\label{eq:post-excursion}
+        Z+w_{k+1}(N-1)\ge F_k(A_C).
+    \end{equation}
+    \item Under the same embedding, suppose an adaptive service is split into
+    a random number $N\ge1$ of $C$-pieces, possibly according to observations
+    outside~$C$.  Then
+    \begin{equation}\label{eq:adapt-excursion}
+        \E[Z]+w_{k+1}\E[N-1]\ge G_k.
+    \end{equation}
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We first prove the port bound by induction on~$k$.  It is immediate for
+$k=0$.  Let $k\ge1$ and let $x,y$ be ports of~$C$.  If they lie in the same
+child, induction gives an internal walk of length at most~$w_k$.  If $x$ lies
+in the left child and $y$ in the right, the direct level-$k$ arc has length
+$w_k$.  In the reverse direction, the two-arc walk through~$m_k$ has length
+$2w_k=w_{k+1}$.  This proves the first statement.
+
+For a fixed realization, retain the $N$ pieces in their original order.
+Between consecutive pieces, join the preceding exit port to the next entry
+port by an internal walk of length at most~$w_{k+1}$.  Together with all
+service-containing internal portions, these connectors form a fixed open
+service of~$C$.  Its cost is at most $Z+w_{k+1}(N-1)$, proving
+\cref{eq:post-excursion}.
+
+For the adaptive statement, let $\xi$ consist of the complete activation
+vector outside~$C$, together with any private random seed used by the original
+policy.  Sample $\xi$ at time zero.  It is independent of all activations
+inside~$C$.  We run a virtual copy of the original execution: probes outside
+$C$ receive the corresponding pre-sampled coordinate of~$\xi$ only when that
+vertex is virtually probed, and their movements update only the virtual
+position in the ambient execution; probes inside~$C$ use the actual local
+  outcomes.  Thus every decision depends only on observations revealed inside
+  $C$, even though the virtual exterior behavior may depend on them.
+
+Consider two consecutive probes with active outcomes in~$C$.  If they belong to the same
+piece, the internal portion of the original expanded movement connects them.
+If they belong to different pieces, concatenate three internal walks: the
+suffix leading from the first vertex to the preceding exit port, a
+port-to-port connector of length at most~$w_{k+1}$, and the prefix from the
+next entry port to the second vertex.  The local metric distance between the
+two vertices is no larger than this concatenated walk.  The first piece uses
+the free-entry convention, and the final internal suffix supplies the terminal
+movement to an exit port.  Local probes with inactive outcomes cause no movement.  This
+construction also covers arbitrarily many boundary crossings within one
+expanded metric move.
+
+For every joint realization, the resulting local strategy has cost at most
+$Z+w_{k+1}(N-1)$.  Averaging over the independent seed~$\xi$ and the
+activations in~$C$ gives a randomized, possibly history-dependent open service
+with expected cost at most the left-hand side of
+\cref{eq:adapt-excursion}.  By backward induction for the finite local state
+space, a deterministic Markov open service is no more expensive.  Its cost is
+at least~$G_k$, proving \cref{eq:adapt-excursion}.
+\end{proof}
+
+\subsection{Top-level accounting}\label{sec:recursive-accounting}
+
+At one recursive node, contract the two children to symbols $L$ and $R$ and
+write $M$ for the new midpoint.  The level arcs form
+\[
+    L\longrightarrow R\longrightarrow M\longrightarrow L,
+\]
+each of unit length after scaling by the common factor~$w$.  In the full
+instance add the root symbol~$r$ and the unit arcs
+$r\leftrightarrow L$ and $r\leftrightarrow R$.
+
+Let $N_L$ and $N_R$ be the numbers of service pieces in the two children, and
+let $H$ be the number of top-level arc \emph{occurrences} in the expanded
+execution, counted with multiplicity.  In the closed case, $H$ also counts all
+root-arc occurrences, including intermediate passages through~$r$.  Define
+\[
+    \widehat H:=H-(N_L-1)-(N_R-1).
+\]
+
+\begin{lemma}[Top-level accounting]\label{lem:top-accounting}
+The following bounds hold.
+\begin{enumerate}
+    \item For a fixed realization, an open service satisfies
+    \begin{equation}\label{eq:open-top-fixed}
+        \widehat H\ge1+\1_{\{M\text{ active}\}},
+    \end{equation}
+    while a service starting and ending at~$r$ satisfies
+    \begin{equation}\label{eq:closed-top-fixed}
+        \widehat H\ge3+\1_{\{M\text{ active}\}}.
+    \end{equation}
+    \item For an adaptive service, when $M$ is independently active with
+    probability~$1/2$,
+    \begin{equation}\label{eq:open-top-adapt}
+        \E[\widehat H]\ge2
+    \end{equation}
+    in the open case, and
+    \begin{equation}\label{eq:closed-top-adapt}
+        \E[\widehat H]\ge4
+    \end{equation}
+    in the case starting and ending at~$r$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+For every piece of $L$ except its first, charge the last top-level arc
+occurrence by which the execution enters $L$ before that piece.  Charge pieces
+of~$R$ analogously.  These charged occurrences are distinct, one for each
+extra piece.  All other top-level arc occurrences are uncharged, so their
+number is exactly~$\widehat H$.
+
+In an open fixed-realization service with $M$ inactive, the first entry into
+whichever child is not the starting child is uncharged, giving
+$\widehat H\ge1$.  If $M$ is active, its service requires another uncharged
+entry, giving $\widehat H\ge2$.  In the closed case, the first entries used to
+serve $L$ and $R$ and the final return to~$r$ are three distinct uncharged
+occurrences.  An active~$M$ requires a fourth.  This proves
+\cref{eq:open-top-fixed,eq:closed-top-fixed}.
+
+We next record the equality cases when $M$ is inactive.  Contract every child
+service piece to its letter in $\{L,R\}$.  Without the root, the minimum
+numbers of top-level arcs between consecutive letters are
+\[
+    c(L,R)=1,\qquad c(R,L)=2,\qquad
+    c(L,L),c(R,R)\ge3.
+\]
+The piece word contains both letters, and a word with $t$ letters has exactly
+$t-2$ charged entries.  If $t=2$, the adjusted costs of the words $LR$ and
+$RL$ are respectively~$1$ and~$2$.  If $t\ge3$, the transition table shows
+that the sum of transition costs minus $(t-2)$ is at least~$2$: an additional
+equal letter costs at least three before its one-unit charge, while any
+additional alternation that includes a return $R\to L$ costs two.  Therefore
+\begin{equation}\label{eq:open-equality-trace}
+    \widehat H=1
+    \quad\Longrightarrow\quad
+    \text{there is one piece per child and the trace is }L\to R.
+\end{equation}
+
+In the closed quotient, entering the first child and returning from the last
+each cost one arc.  Intermediate use of the root gives
+$c(L,L),c(R,R)\ge2$, while $c(L,R)=1$ and $c(R,L)=2$ remain valid.  For two
+pieces, $r\to L\to R\to r$ has adjusted cost~$3$, whereas the reverse order
+has cost~$4$.  For $t\ge3$, the transition sum is at least~$t$, so after
+adding the two boundary arcs and subtracting $t-2$ charged entries the adjusted
+cost is at least~$4$.  Hence
+\begin{equation}\label{eq:closed-equality-trace}
+    \widehat H=3
+    \quad\Longrightarrow\quad
+    \text{there is one piece per child and the trace is }
+    r\to L\to R\to r.
+\end{equation}
+These classifications include pure transit, repeated pieces, and intermediate
+root passages, since all their top-level arc occurrences were retained in
+$H$.
+
+For the adaptive bounds, condition on all activation bits except that of~$M$
+and, if present, on the policy's private seed.  Couple the executions with
+$M$ inactive and active, and denote their adjusted counts by
+$\widehat H_0$ and~$\widehat H_1$.
+
+We will repeatedly use the following elementary counting observation.  If
+$t$ specified arc occurrences are unavoidable and at most $s$ of those
+occurrences can be charged to extra child pieces, then
+$\widehat H\ge t-s$.  Indeed, every other charged occurrence must be one of
+the remaining $H-t$ occurrences, so subtracting all charges can cancel at
+most $s$ of the specified occurrences.  This observation allows the active
+execution to create arbitrarily many additional pieces without weakening the
+counts below.
+
+In the open case, the fixed bounds give $\widehat H_0\ge1$ and
+$\widehat H_1\ge2$.  If $\widehat H_0\ge2$, their sum is at least~$4$.
+Otherwise \cref{eq:open-equality-trace} applies, and the two executions agree
+until $M$ is probed.  There are three possible phases.
+\begin{itemize}
+    \item If $M$ is probed in the exterior state, an active execution needs at
+    least the three occurrences $R\to M\to L\to R$.  The entry into~$M$ and
+    the first service entries into $L$ and $R$ are all uncharged, so
+    $\widehat H_1\ge3$.
+    \item If it is probed during the $L$-service, reaching $M$ requires
+    $L\to R\to M$, and subsequently serving $R$ requires
+    $M\to L\to R$.  Of these four occurrences, only $M\to L$ can be charged,
+    namely when an unfinished $L$-service is resumed there.  Hence
+    $\widehat H_1\ge4-1=3$; completing~$L$ before the probe cannot reduce the
+    count.
+    \item If it is probed during or after the $R$-service, the common prefix
+    already contains the uncharged first entry $L\to R$.  Serving $M$ and
+    reaching a terminal port requires $R\to M\to L$.  All service in~$L$ was
+    completed in the common prefix, so $M\to L$ is pure transit or terminal
+    movement and cannot be charged.  These three specified occurrences are
+    therefore uncharged.  If an unfinished $R$-service is later re-entered,
+    its charged entry is an additional occurrence and does not reduce this
+    bound.
+\end{itemize}
+Thus $\widehat H_1\ge3$ whenever $\widehat H_0=1$, and in all cases
+\[
+    \widehat H_0+\widehat H_1\ge4.
+\]
+Averaging the equiprobable values of~$M$ proves
+\cref{eq:open-top-adapt}.
+
+In the closed case, the fixed bounds give $\widehat H_0\ge3$ and
+$\widehat H_1\ge4$.  The desired pair sum is immediate when
+$\widehat H_0\ge4$.  If $\widehat H_0=3$, then
+\cref{eq:closed-equality-trace} applies.  Again the executions agree until
+$M$ is probed.
+\begin{itemize}
+    \item If $M$ is probed at the initial root, an active execution needs at
+    least the five occurrences $r\to R\to M\to L\to R\to r$.  They consist
+    of the entry into~$M$, the first service entries into both children, the
+    final return, and the necessary transit before~$M$; none is chargeable.
+    Thus $\widehat H_1\ge5$.
+    \item If it is probed during the $L$-service, the necessary occurrences
+    are
+    \[
+        r\to L\to R\to M\to L\to R\to r.
+    \]
+    There are six of them, and only $M\to L$ can be charged, when an
+    unfinished $L$-service is resumed.  Hence
+    $\widehat H_1\ge6-1=5$; if $L$ is already complete, the count is no
+    smaller.
+    \item If it is probed during or after the $R$-service, the common prefix is
+    $r\to L\to R$.  If the $R$-service is complete, the five occurrences in
+    $r\to L\to R\to M\to L\to r$ are all uncharged: in particular,
+    $M\to L$ is pure transit because the $L$-service is complete.  If the
+    $R$-service is unfinished, returning to it and then to~$r$ produces six
+    specified occurrences, of which only the re-entry $L\to R$ can be
+    charged.  Both subcases give $\widehat H_1\ge5$.
+\end{itemize}
+There is no case in which $M$ is probed after a final return to~$r$, because
+the policy may return only after all vertices have been probed.  Consequently,
+$\widehat H_0+\widehat H_1\ge8$, and averaging proves
+\cref{eq:closed-top-adapt}.
+\end{proof}
+
+\subsection{Gluing relaxed block policies}\label{sec:recursive-gluing}
+
+The open-service definition allows a terminal movement to a chosen port,
+whereas the original adaptive model permits movement only after a probe with
+an active outcome
+or on the final return to the root.  The following observation justifies all
+recursive policies used below.
+
+\begin{lemma}[Policy gluing]\label{lem:block-policy-gluing}
+Consider an adaptive recursive plan obtained by concatenating adaptive open
+services of child blocks with generating-graph walks between their chosen
+ports.  The plan may make probes with inactive outcomes before entering a child, and its
+entry and exit ports may depend on the observed history.  If every terminal
+child movement is included in the stated cost of the plan, then the plan can
+be implemented by a policy in the original metric model with no larger cost.
+The same conclusion holds for recursively nested concatenations.
+\end{lemma}
+
+\begin{proof}
+Do not execute a child's terminal movement when its local service ends.
+Instead, keep the internal walk from the last active vertex to the chosen exit
+port as a pending walk.  Probes with inactive outcomes before the next entry cause no
+movement, so the pending walk remains unchanged.  When the next active
+vertex~$v$ is probed, concatenate the pending exit walk, the prescribed
+parent-level connection to the next entry port, and the next child's internal
+entry walk to~$v$.  This is a directed generating-graph walk from the current
+active vertex to~$v$; the metric distance charged by the original model is no
+larger than its length.  At the end of the full execution, concatenate the
+remaining pending walk with the prescribed return to the root.
+
+All ports and connections are chosen from information available when the
+corresponding probe returns an active outcome.  The complete arc bundles between child
+ports, and between top-level ports and the root, realize every such choice.
+The same pending-walk invariant applies at each recursive level, so nested
+terminal movements are handled by concatenation rather than by voluntary
+repositioning.  Each arc of the recursive plan is charged at most once, which
+proves the claim for the resulting adaptive, possibly finite-memory policy.
+The standard Markovization argument replaces this policy, without
+increasing expected cost, by a deterministic policy of the form $\pi(u,S)$.
+\end{proof}
+
+\section{Proof of the a posteriori cost lemma}\label{sec:recursive-posterior-proof}
+
+We evaluate the a posteriori optimum in two steps.  First, a recurrence
+expresses the optimal open service of a block through the corresponding
+services of its two children.  We then account for the initial departure from
+and final return to the root, and average the resulting identity over all
+midpoint activations.
+
+\begin{lemma}[Fixed open recurrence]\label{lem:post-rec}
+For every $k\ge1$ and every $A\subseteq\mathcal M_k$, let
+\[
+    A_{\mathrm L}:=A\cap\mathcal M(B_{k-1}^{\mathrm L}),
+    \qquad
+    A_{\mathrm R}:=A\cap\mathcal M(B_{k-1}^{\mathrm R}).
+\]
+Then
+\begin{equation}\label{eq:post-rec}
+    F_k(A)
+    =
+    F_{k-1}(A_{\mathrm L})+F_{k-1}(A_{\mathrm R})
+    +w_k\bigl(1+\1_{\{m_k\in A\}}\bigr).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Expand an arbitrary fixed open service.  Let $Z_{\mathrm L}$ and
+$Z_{\mathrm R}$ be the total costs of arcs internal to the children,
+$N_{\mathrm L}$ and $N_{\mathrm R}$ their numbers of pieces, and $H$ the
+number of top-level arc occurrences.  \Cref{lem:block-excursions,lem:top-accounting} give
+\begin{align*}
+    \cost
+    &=Z_{\mathrm L}+Z_{\mathrm R}+w_kH\\
+    &\ge F_{k-1}(A_{\mathrm L})+F_{k-1}(A_{\mathrm R})
+       +w_k\bigl(H-(N_{\mathrm L}-1)-(N_{\mathrm R}-1)\bigr)\\
+    &\ge F_{k-1}(A_{\mathrm L})+F_{k-1}(A_{\mathrm R})
+       +w_k\bigl(1+\1_{\{m_k\in A\}}\bigr).
+\end{align*}
+
+For the reverse inequality, choose optimal child services together with their
+initial and terminal ports.  If $m_k$ is inactive, serve the left child and
+use the direct length-$w_k$ port arc to enter and serve the right child.  If
+$m_k$ is active, serve the right child, use the two arcs
+$R\to m_k\to L$ of total length~$2w_k$, and then serve the left child.  The
+complete port bundles allow the required endpoint choices, so both
+constructions attain the lower bound.
+\end{proof}
+
+\begin{lemma}[Root normalization]\label{lem:recursive-root-normalization}
+For every $l\ge1$ and every $A\subseteq\mathcal M_l$,
+\begin{equation}\label{eq:recursive-root-normalization}
+    \opt(\mathcal P_l\cup A)=2w_l+F_l(A).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Expand a tour on $\{r\}\cup\mathcal P_l\cup A$.  Every internal occurrence of
+the root in a vertex-to-vertex expanded path has the form
+$x\to r\to y$ for ports $x,y\in\mathcal P_l$ and costs~$2w_l$.  By the port
+bound in \cref{lem:block-excursions}, it can be replaced by an internal
+$x$-to-$y$ walk of length at most $w_{l+1}=2w_l$.  Replace every such
+occurrence.  Only the first departure from and the final return to the root
+remain.  Each contributes one root arc of length~$w_l$; this remains true
+when the first or last served vertex is a midpoint, because its expanded path
+enters or leaves $B_l$ through a port.  Removing these two root arcs leaves a
+fixed open service, so every tour costs at least $2w_l+F_l(A)$.
+
+Conversely, add a root arc before and after an optimal fixed open service.
+The resulting closed walk costs $2w_l+F_l(A)$ and serves every active vertex.
+Shortcutting repeated vertex visits in the asymmetric metric produces a tour of
+no greater cost.  This proves equality.
+\end{proof}
+
+\begin{proof}[Proof of \cref{lem:post-cost}]
+Let $\overline F_k:=\E[F_k(A)]$, where the expectation is over the midpoint
+activations in~$B_k$.  Since $m_k$ is active with probability~$1/2$,
+\[
+    \overline F_k
+    =
+    2\overline F_{k-1}+\frac32w_k,
+    \qquad
+    \overline F_0=0.
+\]
+Equivalently, summing over the $2^{k-j}$ level-$j$ midpoints gives
+\begin{equation}\label{eq:expected-open-post}
+    \overline F_k
+    =
+    \frac32\sum_{j=1}^k2^{k-j}w_j
+    =
+    \frac32\sum_{j=1}^k2^{k-1}
+    =
+    3k2^{k-2}.
+\end{equation}
+Taking expectations in \cref{eq:recursive-root-normalization} and using
+$2w_l=2^l$ yields
+\begin{equation}\label{eq:post-value-recursive}
+    \optpost(\mathcal{I}_l^{\mathrm{REC}})
+    =
+    2^l+3l2^{l-2}
+    =
+    (3l+4)2^{l-2}.
+\end{equation}
+\end{proof}
+
+\section{Proof of the adaptive cost lemma}\label{sec:recursive-adaptive-proof}
+
+The adaptive analysis follows the same decomposition, but the two executions
+obtained from an inactive or active top-level midpoint share a common history
+until that midpoint is probed.  The accounting lemmas convert this adaptive
+constraint into the open-service recurrence below; we then lift it to the
+closed instance.
+
+\begin{lemma}[Adaptive open recurrence]\label{lem:adapt-rec}
+For every $k\ge1$,
+\begin{equation}\label{eq:adapt-rec}
+    G_k=2G_{k-1}+2w_k.
+\end{equation}
+Consequently, $G_k=k2^k$.
+\end{lemma}
+
+\begin{proof}
+Consider an arbitrary adaptive open service and use the decomposition from the
+proof of \cref{lem:post-rec}.  The adaptive part of
+\cref{lem:block-excursions} and the open part of
+\cref{lem:top-accounting} give
+\begin{align*}
+    \E[\cost]
+    &=\E[Z_{\mathrm L}+Z_{\mathrm R}+w_kH]\\
+    &\ge2G_{k-1}
+      +w_k\E\bigl[H-(N_{\mathrm L}-1)-(N_{\mathrm R}-1)\bigr]\\
+    &\ge2G_{k-1}+2w_k.
+\end{align*}
+
+For the reverse inequality, use optimal adaptive open services in the two
+children.  First serve the left child, then cross to and serve the right
+child, and finally probe~$m_k$.  If $m_k$ is inactive, terminate at the chosen
+right-child exit port.  If it is active, use $R\to m_k\to L$ and terminate at
+a left-child port.  \Cref{lem:block-policy-gluing} makes this recursive
+description a legal adaptive open service.  Its top-level cost is $w_k$ when
+$m_k$ is inactive and $3w_k$ when it is active, hence its expected top-level
+cost is~$2w_k$.  Equality follows.  Induction from $G_0=0$ and
+$w_k=2^{k-1}$ gives $G_k=k2^k$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{lem:adapt-cost}]
+Expand an arbitrary adaptive policy for~$\mathcal{I}_l^{\mathrm{REC}}$ and
+decompose its work in the two top-level children.
+\Cref{lem:block-excursions,lem:top-accounting}, now
+using the closed quotient, give
+\begin{align*}
+    \E[\cost]
+    &=\E[Z_{\mathrm L}+Z_{\mathrm R}+w_lH]\\
+    &\ge2G_{l-1}
+      +w_l\E\bigl[H-(N_{\mathrm L}-1)-(N_{\mathrm R}-1)\bigr]\\
+    &\ge2G_{l-1}+4w_l.
+\end{align*}
+
+For a matching policy, start at the root, recursively serve the left child
+and then the right child, and finally probe~$m_l$.
+\Cref{lem:block-policy-gluing} realizes the relaxed child interfaces as legal
+metric movements.  If $m_l$ is inactive, the top-level trace is
+$r\to L\to R\to r$ and costs~$3w_l$.  If it is active, the trace is
+$r\to L\to R\to m_l\to L\to r$ and costs~$5w_l$.  Its expected top-level
+cost is therefore~$4w_l$, so the lower bound is attained.  Using
+$G_{l-1}=(l-1)2^{l-1}$ and $w_l=2^{l-1}$ gives
+\begin{equation}\label{eq:adapt-value-recursive}
+    \optadapt(\mathcal{I}_l^{\mathrm{REC}})
+    =
+    2G_{l-1}+4w_l
+    =
+    (l+1)2^l.
+\end{equation}
+\end{proof}
 
 \end{document}
