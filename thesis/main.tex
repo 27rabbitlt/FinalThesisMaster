@@ -132,13 +132,13 @@ We obtain the following results.
     We prove that every asymmetric instance admits an adaptive policy
     of expected cost $O(n^{1/3})\optpost$
     (\cref{thm:asymmetric-clairvoyance-upper}).  The proof starts from a
-    low-cost backbone circulation.  After assigning each outside client a
-    public directed backbone chord, we round an auxiliary fractional flow to
-    an integer flow whose mean imbalance is at most one on every cyclic
-    interval.  A maximal inequality controls the remaining Bernoulli
-    imbalance, and an active-first stack walk turns the rounded object into a
-    adaptive policy.  Splitting clients at probability $n^{-1/3}$ gives the
-    stated bound.
+    low-cost backbone circulation.  One randomized iterative-rounding
+    procedure simultaneously assigns each outside client a directed backbone
+    chord and makes the auxiliary backbone flow integral, while keeping the
+    imbalance of every cyclic interval within $O(\log^2 n)$.  A maximal
+    inequality controls the remaining Bernoulli imbalance, and an active-first
+    stack walk turns the rounded object into an adaptive policy.  Splitting
+    clients at probability $n^{-1/3}$ gives the stated bound.
 
     \item \textbf{Approximate a~priori TSP} (\cref{ch:dp}).
     We give a $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP on
@@ -361,7 +361,7 @@ symmetric instances with one semi-active vertex.
 \Cref{ch:asym-clair} motivates the asymmetric obstruction through a
 recursive-triangle family with ratio tending to~$4/3$, then proves the
 stronger lower bound~$3/2$ using a layered-poset construction.
-\Cref{ch:circulation} develops the backbone-circulation and integer-flow
+\Cref{ch:circulation} develops a backbone-circulation and joint randomized
 rounding framework and uses it to prove an $O(n^{1/3})$ upper bound on the
 asymmetric clairvoyance gap.
 \Cref{ch:dp} presents the $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP.
@@ -467,7 +467,7 @@ In particular, if the $X_i$ are independent Bernoulli random variables and
 $c_i\ge0$, then~\cref{eq:weighted-hoeffding} applies to
 $Y_i=c_iX_i\in[0,c_i]$.
 
-\subsection{Maximal inequalities and symmetrization}
+\subsection{Maximal inequalities}
 
 Let $Z_1,\ldots,Z_m$ be independent centered random variables with finite
 second moments, and put $S_k:=\sum_{i=1}^kZ_i$.  The $L^2$ maximal inequality
@@ -477,27 +477,6 @@ for the martingale $(S_k)_{k=0}^m$ gives
     \le
     \left(\E\left[\max_{0\le k\le m}|S_k|^2\right]\right)^{1/2}
     \le2\left(\sum_{i=1}^m\E[Z_i^2]\right)^{1/2}.
-\end{equation}
-
-We also use the standard symmetrization inequality.  Let
-$W_1,\ldots,W_m$ be independent random variables, let $\mathcal F$ be a
-finite family of tuples $f=(f_1,\ldots,f_m)$ of real-valued functions, and
-let $\varepsilon_1,\ldots,\varepsilon_m$ be independent Rademacher signs,
-independent of the~$W_i$.  Assume that all random variables in the display
-below are integrable.  Then
-\begin{equation}\label{eq:symmetrization}
-\begin{split}
-    &\E\left[
-      \sup_{f\in\mathcal F}
-      \left|\sum_{i=1}^m
-      \bigl(f_i(W_i)-\E[f_i(W_i)]\bigr)\right|
-      \right]\\
-    &\qquad\le
-      2\E\left[
-      \sup_{f\in\mathcal F}
-      \left|\sum_{i=1}^m\varepsilon_i f_i(W_i)\right|
-      \right].
-\end{split}
 \end{equation}
 
 % ============================================================
@@ -3005,60 +2984,64 @@ Combining the two estimates yields
 \chapter{Backbone Circulations and Rounding for Asymmetric \StochTSP{}}
 \label{ch:circulation}
 
-This chapter proves the following upper bound on the value of clairvoyance in
+In this chapter, we prove an upper bound on the clairvoyance gap for
 asymmetric \StochTSP{}.
 
 \begin{theorem}[Asymmetric clairvoyance-gap upper bound]
 \label{thm:asymmetric-clairvoyance-upper}
 There is a universal constant~$C$ such that every asymmetric \StochTSP{}
-instance on $n$ non-root vertices admits an adaptive policy~$\pi$ with
+instance with $n$ non-root vertices admits an adaptive policy~$\pi$ with
 \[
-    \cost(\pi)\le C(1+n^{1/3})\optpost.
+    \cost(\pi)\le Cn^{1/3}\optpost.
 \]
 Consequently, the clairvoyance gap for asymmetric metrics is
 $O(n^{1/3})$.
 \end{theorem}
 
-The proof is existential; we do not claim that the policy can be computed in
-polynomial time.  The bound improves the $O(\sqrt n)$ estimate inherited from
-the asymmetric obliviousness-gap bound of
-Christalla, Puhlmann, and Traub~\cite{Christalla2025}.
+This improves the $O(\sqrt n)$ bound implied by the asymmetric
+obliviousness gap bound from Christalla et al.~\cite{Christalla2025}.
 
-The starting point is the backbone method for symmetric a~priori
-TSP~\cite{Shmoys2008}.  Sample clients according to their activation
-probabilities, route the sampled clients, and attach the others to this
-backbone.  In an asymmetric metric, a nearest-backbone detour is not adequate
-because entering and leaving a client can have very different costs.  We
-therefore encode the attachments by a directed circulation.
+We start from sampling vertices according to their activation probability and then
+try to attach the unsampled vertices to the sampled backbone.
+This backbone method from symmetric a~priori TSP~\cite{Shmoys2008} does not automatically
+work in asymmetric case because an unsampled vertex
+may have two different nearest backbone vertices since entering and leaving a vertex can have different costs.
+Then the difficulty is that: in symmetric case the detour to visit an unsampled vertex
+always comes back to the original backbone vertex, thus the backbone tour can continue;
+while in asymmetric case, we might leave the backbone vertex, and come back to another
+backbone vertex, thus some intermediate backbone vertices are skipped.
+We then expect the attachment to have the balancing property that for any continuous
+interval of backbone vertices, it has balanced incoming and outgoing degree. This leads to
+the idea of circulation.
 
-The difficulty is not merely to find inexpensive attachments.  Once the
-active clients are realized, their directed attachments need not be balanced,
-and correcting this imbalance after seeing the realization would violate
-adaptivity.  The proof therefore balances the attachments in expectation
-before any client is probed and treats the realized imbalance as a centered
-random process.
+We first construct a low-cost fractional circulation based on a sampled
+backbone.  We then use one randomized rounding procedure to assign every
+unsampled vertex a backbone chord and simultaneously make the auxiliary
+backbone flow integral.  The rounded object has $O(\log^2 n)$ imbalance on
+every cyclic interval.  An active-chord-first policy consequently has cost
+$O(\log^2(n+1)+\sqrt\mu)\optpost$, where~$\mu$ is the probability mass.
+Finally, dividing vertices at activation-probability threshold~$n^{-1/3}$
+balances this policy against a fixed tour for the high-probability vertices
+and proves \cref{thm:asymmetric-clairvoyance-upper}.
 
-We first construct a low-cost fractional circulation on a sampled backbone.
-We then publicly sample one backbone chord for each outside client and round
-an auxiliary flow whose divergence nearly cancels the weighted chord
-divergence on every cyclic interval.  During execution, only the independent
-activation indicators fluctuate; a one-dimensional maximal inequality bounds
-their maximum interval imbalance, and an active-first stack walk implements
-the chords adaptively.  This gives a low-mass bound of
-$O(\log n+\sqrt\mu)\optpost$, where~$\mu$ is the expected number of active
-clients.  Finally, separating clients at activation probability $n^{-1/3}$
-balances this policy against a fixed tour for the high-probability clients and
-proves \cref{thm:asymmetric-clairvoyance-upper}.
+\section{Backbone circulation and randomized joint rounding}
+\label{sec:circulation-preprocessing}
 
-\section{The backbone circulation relaxation}
+This section develops all static ingredients needed by the adaptive policy.
+We first construct a low-cost fractional circulation attaching the clients
+outside a sampled backbone to a tour on that backbone.  We then round the
+client attachments and the auxiliary backbone flow jointly, before any
+activation is observed.
+
+\subsection{A low-cost backbone circulation}
 \label{sec:circulation-lp}
+\label{sec:low-cost-circulation}
 
-We first formalize the fractional object that attaches vertices outside a
-sampled backbone to a tour on that backbone.  Each outside vertex receives
-the prescribed expected in- and out-degree, while forbidding arcs between two
-outside vertices makes every such attachment pass through the backbone.
+Call an unsampled client an \emph{outside client}.  We require every outside
+client~$v$ to have fractional in-degree and out-degree~$p_v$, and forbid flow
+between two outside clients.
 
-Independently include each non-root vertex $v\in V^\circ$ in a random set~$S$ with
+Independently include each vertex $v\in V^\circ$ in a random set~$S$ with
 probability~$p_v$.  We call
 \[
     R:=S\cup\{r\}
@@ -3091,92 +3074,88 @@ For a fixed choice of~$S$, consider the following circulation relaxation:
 \end{equation}
 For a feasible vector~$z$, write
 \[
-    \cost(z):=\sum_{u,v\in V}d(u,v)z_{uv},
+    \cost(z):=\sum_{u,v\in V}d(u,v)z_{uv}.
 \]
-and let $c(S)$ denote the optimum value of
-$\mathrm{CIRC}(S)$.  The prohibition on arcs between two
-outside vertices makes the intended structure explicit: flow that visits an
-outside vertex enters from the backbone and immediately returns to the
-backbone.  Thus the relaxation is a fractional directed analogue of assigning
+The circulation does not allow flow between outside vertices,
+forcing that it visits an outside vertex  from the backbone and immediately returns to the
+backbone.  Thus the circulation is a fractional analogue of assigning
 a detour to each outside vertex.
 
-\section{A low-cost fractional circulation}
-\label{sec:low-cost-circulation}
+We next bound the circulation cost on average over the sampled backbone.
 
-We next show that the backbone tour and the circulation can be chosen to have
-small total cost.  The construction cuts an optimal tour through two
-independent realizations at the backbone vertices.  Its only loss is the
-largest number of outside vertices in one resulting segment; this longest run
-has expectation $O(\log n)$.
+For an induced subinstance on $W\subseteq V^\circ$, write
+\[
+    \optpost(W):=\E[\opt(A\cap W)]
+\]
+and let $\optadapt(W)$ denote its adaptive optimum.
 
-Let $A\subseteq V^\circ$ be an activation set sampled independently of~$S$,
-using the same probabilities~$(p_v)_{v\in V^\circ}$, and put $C:=A\cup S$.
-Fix an optimal tour~$T_C$ on $C\cup\{r\}$.  Cutting this tour at the vertices
-of~$R$ produces directed segments
+Let $\widetilde A\subseteq V^\circ$ be an auxiliary activation sample,
+independent of~$S$ and using the same probabilities
+$(p_v)_{v\in V^\circ}$, and put $C:=\widetilde A\cup S$.  For every possible
+set~$C$, fix one optimal rooted tour~$T_C$, with tie-breaking depending only
+on~$C$.  Cutting this tour at the vertices
+of~$R:=S\cup\{r\}$ produces directed segments
 \[
     P_j=(s_j,u_{j,1},\ldots,u_{j,k_j},s_{j+1}),
 \]
 where $s_j,s_{j+1}\in R$ and every internal vertex belongs to
-$A\setminus S$.  Indices on the vertices of~$R$ are cyclic.  Define
+$\widetilde A\setminus S$.  Indices on the vertices of~$R$ are cyclic.  Define
 \[
-    M(A,S):=\max_j k_j.
+    M(\widetilde A,S):=\max_j k_j.
 \]
 
 For every segment~$P_j$, send one unit of flow along
 $s_j\to u_{j,\ell}\to s_{j+1}$ for each $1\le\ell\le k_j$, and send
-$M(A,S)-k_j$ units directly from $s_j$ to~$s_{j+1}$.  Denote the resulting
-flow by~$z^{A,S}$.  Every outside vertex in $A\setminus S$ has one unit of
+$M(\widetilde A,S)-k_j$ units directly from $s_j$ to~$s_{j+1}$.  Denote the
+resulting flow by~$z^{\widetilde A,S}$.  Every outside vertex in
+$\widetilde A\setminus S$ has one unit of
 incoming and outgoing flow.  Moreover, every backbone vertex has
-$M(A,S)$ units entering from the preceding segment and the same amount
-leaving along the next segment, so $z^{A,S}$ is a circulation.
+$M(\widetilde A,S)$ units coming from the preceding segment and the same
+amount leaving to the next segment, so $z^{\widetilde A,S}$ is a circulation.
 
-By the directed triangle inequality, the cost of each two-arc detour
-$s_j\to u_{j,\ell}\to s_{j+1}$, as well as the direct arc
+By triangle inequality, the cost of each detour
+$s_j\to u_{j,\ell}\to s_{j+1}$, as well as the arc
 $s_j\to s_{j+1}$, is at most the length of~$P_j$.  Consequently,
 \begin{equation}\label{eq:realization-circulation-cost}
-    \cost(z^{A,S})
-    \le M(A,S)\cost(T_C)
-    =M(A,S)\opt(C).
+    \cost(z^{\widetilde A,S})
+    \le M(\widetilde A,S)\cost(T_C)
+    =M(\widetilde A,S)\opt(C).
 \end{equation}
 
-For a fixed backbone~$S$, average this construction over~$A$:
+For a fixed backbone~$S$, averaging this construction over~$\widetilde A$
+gives
 \[
-    z^S:=\E_A[z^{A,S}].
+    z^S:=\E_{\widetilde A}[z^{\widetilde A,S}].
 \]
-If $i\in U$, then $i$ receives one unit of flow exactly when $i\in A$.
+If $i\in U$, then $i$ receives one unit of flow exactly when
+$i\in\widetilde A$.
 Hence its expected incoming and outgoing flow is~$p_i$.  All other
 constraints in~\cref{eq:backbone-circulation-lp} are preserved under
 averaging, so $z^S$ is feasible for $\mathrm{CIRC}(S)$.
-The fixed-pair construction also gives the same degree at every backbone
-vertex:
-\begin{equation}\label{eq:ordinary-backbone-degree}
-    z^S(\delta^+(s))=z^S(\delta^-(s))
-    =Z(S)
-    \quad\forall s\in R,
-    \qquad
-    Z(S):=\E_A[M(A,S)\mid S].
-\end{equation}
+
+We bound the expected cost of this construction through the longest segment
+between consecutive backbone vertices.
 
 \begin{lemma}\label{lem:circulation-longest-run}
 For every integer $t\ge1$ and every fixed set~$C$ with
-$\P(A\cup S=C)>0$,
+$\P(\widetilde A\cup S=C)>0$,
 \[
-    \P\bigl(M(A,S)\ge t\mid A\cup S=C\bigr)
+    \P\bigl(M(\widetilde A,S)\ge t\mid \widetilde A\cup S=C\bigr)
     \le n2^{-t}.
 \]
 In particular,
 \[
-    \E\bigl[M(A,S)\mid A\cup S=C\bigr]
-    =O(\log n).
+    \E\bigl[M(\widetilde A,S)\mid \widetilde A\cup S=C\bigr]
+    =O(\log(n+1)).
 \]
 \end{lemma}
 
 \begin{proof}
-Condition on $A\cup S=C$.  The tour~$T_C$ is then fixed.  For each
+Condition on $\widetilde A\cup S=C$.  The tour~$T_C$ is fixed by~$C$.  For each
 $v\in C$, the conditional probability that it is active but outside the
 backbone is
 \[
-    \P(v\in A\setminus S\mid v\in A\cup S)
+    \P(v\in\widetilde A\setminus S\mid v\in\widetilde A\cup S)
     =
     \frac{p_v(1-p_v)}{1-(1-p_v)^2}
     =
@@ -3188,109 +3167,61 @@ independent.  A run of length~$t$ can start in at most~$n$ positions of the
 fixed cyclic tour.  The union bound~\cref{eq:union-bound} therefore gives the
 claimed tail estimate.
 
-Let $L:=\lceil\log_2(\max\{n,2\})\rceil$.  The tail-sum formula
+Let $L:=\lceil\log_2(n+1)\rceil$.  The tail-sum formula
 \cref{eq:tail-sum} yields
 \[
-    \E[M(A,S)\mid A\cup S=C]
+    \E[M(\widetilde A,S)\mid \widetilde A\cup S=C]
     \le
     L+\sum_{t>L}n2^{-t}
-    =O(\log n).
+    =O(\log(n+1)).
 \]
 \end{proof}
 
-\begin{proposition}[Low-cost backbone and circulation]
-\label{prop:low-cost-backbone-circulation}
-If $S$ is sampled independently with $\P(v\in S)=p_v$, then
-\[
-    \E_S\bigl[\opt(S)+c(S)\bigr]
-    \le O(\log n)\optpost.
-\]
-Consequently, there exists a fixed backbone~$S$ for which
-\[
-    \opt(S)+c(S)
-    \le O(\log n)\optpost.
-\]
-\end{proposition}
+We keep the backbone random for now.  The deterministic choice will be made
+only after the cost of the resulting adaptive policy has been assembled.
 
-\begin{proof}
-The random set~$S$ has the same distribution as an activation set, and hence
+\begin{lemma}
+\label{lem:average-backbone-cost}
+Let $W\subseteq V^\circ$, and apply the preceding construction to the
+subinstance induced by~$W$.  If $S\subseteq W$ is sampled with the activation
+probabilities and $z^S$ is the resulting feasible circulation, then
 \[
-    \E_S[\opt(S)]=\optpost.
-\]
-Using the feasible solution~$z^S$, linearity of cost, and
-\cref{eq:realization-circulation-cost,lem:circulation-longest-run}, we obtain
-\begin{align*}
-    \E_S[c(S)]
-    &\le \E_S[\cost(z^S)]\\
-    &=\E_{A,S}[\cost(z^{A,S})]\\
-    &\le\E_{A,S}[M(A,S)\opt(A\cup S)]\\
-    &\le O(\log n)\,\E_{A,S}[\opt(A\cup S)].
-\end{align*}
-For every pair~$A,S$, concatenate optimal tours on
-$A\cup\{r\}$ and $S\cup\{r\}$ and shortcut repeated vertices.  The directed
-triangle inequality gives
-\[
-    \opt(A\cup S)\le\opt(A)+\opt(S).
-\]
-Both terms on the right have expectation~$\optpost$, so
-\[
-    \E_S[c(S)]\le O(\log n)\optpost.
-\]
-Adding the expected backbone-tour cost proves the first statement.  The
-existence statement follows by averaging.
-\end{proof}
-
-The final adaptive construction needs a slightly more careful consequence of
-the same averaging argument.  In particular, the backbone tour itself must
-cost $O(\optpost)$ rather than merely $O(\log n)\optpost$.
-
-\begin{lemma}[Backbone certificate]
-\label{lem:ordinary-backbone-certificate}
-Fix an induced subinstance on a client set $W\subseteq V^\circ$, and write
-\[
-    B:=\optpost(W):=\E[\opt(A\cap W)].
-\]
-If $B>0$, there are a set $S\subseteq W$, a tour~$T_R$ on
-$R:=S\cup\{r\}$, and a feasible circulation~$z$ for the analogue of
-$\mathrm{CIRC}(S)$ on $W\cup\{r\}$ such that
-\[
-    \cost(T_R)\le C_1B,
+    \E_S[\opt(S)]=\optpost(W),
     \qquad
-    \cost(z)\le C_1\max\{1,\log(n+1)\}B
+    \E_S[\cost(z^S)]
+    \le C_{\mathrm{back}}\log(n+1)\,\optpost(W)
 \]
-for a universal constant~$C_1$.
+for a universal constant~$C_{\mathrm{back}}$.
 \end{lemma}
 
 \begin{proof}
-Apply the preceding random-backbone construction to the induced subinstance
-on $W\cup\{r\}$ and retain its averaged witness~$z^S$.  Because~$S$ has the
-posterior distribution on~$W$,
+Put $B:=\optpost(W)$, let $\widetilde A\subseteq W$ be an independent
+auxiliary activation sample, and write $C:=\widetilde A\cup S$.  Since~$S$
+has the same distribution as~$\widetilde A$,
 \[
     \E_S[\opt(S)]=B.
 \]
-The proof of \cref{prop:low-cost-backbone-circulation}, with the ambient
-value~$n$ kept in the longest-run estimate, gives
-\[
-    \E_S[\cost(z^S)]\le C_2\max\{1,\log(n+1)\}B
-\]
-for a universal constant~$C_2$.  Hence the nonnegative random variable
-\[
-    \frac{\opt(S)}{B}
-    +\frac{\cost(z^S)}{C_2\max\{1,\log(n+1)\}B}
-\]
-has expectation at most~$2$.  Some outcome makes both summands at most a
-universal constant.  Fix that outcome, take~$T_R$ to be an optimal tour on
-$R$, and enlarge~$C_1$ if necessary.
+By linearity of cost, \cref{eq:realization-circulation-cost}, and
+\cref{lem:circulation-longest-run},
+\begin{align*}
+    \E_S[\cost(z^S)]
+    &=\E_{\widetilde A,S}[\cost(z^{\widetilde A,S})]\\
+    &\le \E_{\widetilde A,S}
+       [M(\widetilde A,S)\opt(\widetilde A\cup S)]\\
+    &=\E_C\!\left[
+        \opt(C)\E[M(\widetilde A,S)\mid \widetilde A\cup S=C]
+      \right]\\
+    &\le c_{\mathrm{back}}\log(n+1)\,
+       \E_{\widetilde A,S}[\opt(\widetilde A\cup S)]\\
+    &\le c_{\mathrm{back}}\log(n+1)\,
+       \E_{\widetilde A,S}[\opt(\widetilde A)+\opt(S)]\\
+    &=2c_{\mathrm{back}}\log(n+1)\,B,
+\end{align*}
+where $c_{\mathrm{back}}$ is universal.  The penultimate inequality follows by
+concatenating optimal tours for~$\widetilde A$ and~$S$ at the root and
+shortcutting.
+Taking $C_{\mathrm{back}}:=2c_{\mathrm{back}}$ proves the claim.
 \end{proof}
-
-\begin{remark}[An offline variant]
-By boosting the backbone and rounding each outside client to one chord with
-small interval discrepancy, Hoffman's circulation theorem~\cite{Hoffman1960}
-yields, after the active set is known, an Eulerian circulation whose used
-edges have multiplicity $O(\log n)$.  This construction depends on the entire
-activation realization and hence gives no adaptive policy; we therefore omit
-its proof and turn directly to the causal rounding argument.
-\end{remark}
 
 % The longer boosted-backbone, endpoint-rounding, and offline-Eulerian-flow
 % argument is retained below as archival source, but is excluded from the
@@ -3334,12 +3265,12 @@ probabilities~$(\widehat p_v)_{v\in V^\circ}$.
 \begin{proof}
 First consider one ordinary sample~$B$, in which each non-root vertex~$v$ is included
 with probability~$p_v$, and the averaged witness~$z^B$ constructed above.
-\Cref{eq:ordinary-backbone-degree,lem:circulation-longest-run} give
+Put $Z(B):=\E_A[M(A,B)\mid B]$.  By
+\cref{lem:circulation-longest-run},
 \[
     \E_B[Z(B)]=O(\log n).
 \]
-The calculation in the proof of
-\cref{prop:low-cost-backbone-circulation} also gives
+The proof of \cref{lem:average-backbone-cost} also gives
 \[
     \E_B[\cost(z^B)]
     =O(\log n)\optpost.
@@ -3831,35 +3762,24 @@ claimed closed walk~$W_A$.
 
 \fi
 
-\section{An adaptive circulation policy}
-\label{sec:adaptive-circulation}
+\subsection{Joint randomized rounding}
+\label{sec:joint-circulation-rounding}
 
-The adaptive construction must choose its endpoint assignments and auxiliary
-flow before it learns which clients are active.  For an induced subinstance
-on $W\subseteq V^\circ$, write
+The endpoint assignments and auxiliary arcs must be chosen before the policy
+learns which clients are active.  We obtain both objects in one randomized
+rounding procedure, independent of the activations.  It preserves their
+combined cost in expectation and leaves only $O(\log^2 n)$ imbalance on every
+cyclic interval for every rounding outcome.
+
+Fix an induced subinstance on $W\subseteq V^\circ$ and one possible
+realization~$S\subseteq W$ of the independent backbone sample.  Apply the
+construction of \cref{sec:low-cost-circulation} within~$W$, set
 \[
-    \optpost(W):=\E[\opt(A\cap W)]
+    R:=S\cup\{r\},
+    \qquad U:=W\setminus S,
+    \qquad z:=z^S,
 \]
-and let $\optadapt(W)$ denote its adaptive optimum.  We turn the backbone
-certificate of \cref{lem:ordinary-backbone-certificate} into such a policy.
-The auxiliary flow cancels the \emph{expected} divergence of the client
-chords on every cyclic interval up to one unit; the realization then
-contributes only a centered sum of independent Bernoulli variables.
-
-\subsection{Endpoint sampling and maximal inequalities}
-\label{sec:adaptive-endpoint-sampling}
-
-Fix an induced subinstance on $W\subseteq V^\circ$ and write
-\[
-    \mu:=\sum_{i\in W}p_i,
-    \qquad
-    B:=\optpost(W),
-    \qquad
-    L:=\max\{1,\log(n+1)\}.
-\]
-Assume for now that $B>0$.  Fix the set~$S$, backbone
-$R=S\cup\{r\}$, tour~$T_R$, and circulation~$z$ supplied by
-\cref{lem:ordinary-backbone-certificate}, and put $U:=W\setminus S$.
+and let~$T_R$ be an optimal tour on~$R$.
 
 Because $z$ has no arcs between two outside clients, its incoming and
 outgoing flow at each $i\in U$ can be coupled into variables
@@ -3889,224 +3809,183 @@ this order and a pair $(a,b)\in R\times R$, define
 \[
     \chi_I(a,b):=\1_{\{a\in I\}}-\1_{\{b\in I\}}.
 \]
-Every linear interval is the difference of two prefixes of the backbone
-order, and every cyclic interval is a linear interval or its complement.
-Consequently, ordinary maximal inequalities for partial sums control all
-cyclic-interval imbalances without a union bound.  We use the following two
-forms: the first for the activation variables and the second for the public
-endpoint samples.
-
-\begin{lemma}
-\label{lem:adaptive-interval-maximal}
-Let all ordered pairs have endpoints in a fixed cyclically ordered set.
-\begin{enumerate}[label=\textup{(\roman*)}]
-    \item If $(a_i,b_i)$ are fixed and $X_i$ are independent centered random
-    variables, then
-    \[
-        \E\max_I\left|\sum_iX_i\chi_I(a_i,b_i)\right|
-        \le8\left(\sum_i\E[X_i^2]\right)^{1/2}.
-    \]
-    \item If $P_i=(a_i,b_i)$ are independent random pairs and $w_i\ge0$ are
-    fixed, then
-    \[
-        \E\max_I\left|\sum_iw_i
-        \bigl(\chi_I(P_i)-\E[\chi_I(P_i)]\bigr)\right|
-        \le16\left(\sum_iw_i^2\right)^{1/2}.
-    \]
-\end{enumerate}
-The maxima range over all cyclic intervals.
-\end{lemma}
-
-\begin{proof}
-Let $J_k:=\{s_0,\ldots,s_k\}$ be a prefix.  A linear interval is the
-difference of two prefixes, and a wrapped cyclic interval is the complement
-of a linear interval.  Since $\chi_R(a,b)=0$, the maximum over cyclic
-intervals is at most twice the maximum over prefixes.
-
-For part~\textup{(i)}, split the prefix process as
+For nonnegative vectors~$\xi=(\xi_{i,ab})$ and
+$\eta=(\eta_{ab})$, define the outgoing-minus-incoming imbalance of~$I$ by
 \[
-    \sum_iX_i\chi_{J_k}(a_i,b_i)
-    =\sum_iX_i\1_{\{a_i\in J_k\}}
-     -\sum_iX_i\1_{\{b_i\in J_k\}}.
+    \Delta_{\xi,\eta}(I)
+    :=
+    \sum_{i\in U}\sum_{a,b\in R}\chi_I(a,b)\xi_{i,ab}
+    +\sum_{a,b\in R}\chi_I(a,b)\eta_{ab}.
 \]
-Order the indices by the positions of their tails.  The tail sums at prefix
-boundaries form a subset of the partial sums in this order; ties may be
-ordered arbitrarily.  The $L^2$ maximal inequality~\cref{eq:l2-maximal} gives
-\[
-    \E\max_j\left|\sum_{\ell\le j}X_\ell\right|
-    \le2\left(\sum_i\E[X_i^2]\right)^{1/2}.
-\]
-The same argument applies after ordering the heads.  The triangle inequality
-and the factor two for cyclic intervals prove~\textup{(i)}.
-
-For part~\textup{(ii)}, first consider the random tails.  The symmetrization
-inequality~\cref{eq:symmetrization}, with independent Rademacher
-signs~$\varepsilon_i$, gives
-\begin{align*}
-    &\E\max_k\left|\sum_iw_i
-      \bigl(\1_{\{a_i\in J_k\}}-\P(a_i\in J_k)\bigr)\right|\\
-    &\qquad\le2\E\max_k\left|\sum_i\varepsilon_iw_i
-      \1_{\{a_i\in J_k\}}\right|
-    \le4\left(\sum_iw_i^2\right)^{1/2}.
-\end{align*}
-For the last inequality, condition on all tails, order them, and apply
-\cref{eq:l2-maximal} to the partial sums of
-$\varepsilon_iw_i$.  Repeat for the heads, then use the triangle inequality
-and the factor two for cyclic intervals.
-\end{proof}
-
-For every $i\in U$ with $p_i>0$, independently sample one public endpoint
-pair $P_i=(a_i,b_i)$ according to
-\begin{equation}\label{eq:adaptive-endpoint-sampling}
-    \P(P_i=(a,b))=\frac{x_{i,ab}}{p_i}.
-\end{equation}
-If $p_i=0$, put $P_i=(r,r)$.  Define zero-sum divergence vectors on~$R$ by
-\begin{align}
-    \bar b_s
-    &:=\sum_{i\in U}\sum_{a,b\in R}x_{i,ab}
-       \bigl(\1_{\{a=s\}}-\1_{\{b=s\}}\bigr),
-    \label{eq:adaptive-mean-divergence}\\
-    b_s(P)
-    &:=\sum_{i\in U}p_i
-       \bigl(\1_{\{a_i=s\}}-\1_{\{b_i=s\}}\bigr).
-    \label{eq:adaptive-sampled-divergence}
-\end{align}
-For a flow~$f$ on~$R$, let
-\[
-    \operatorname{div}(f)_s:=\sum_{t\in R}f_{st}-\sum_{t\in R}f_{ts}.
-\]
-Since~$z$ is a circulation,
-\begin{equation}\label{eq:adaptive-y-divergence}
-    \operatorname{div}(y)=-\bar b.
-\end{equation}
-By \cref{lem:adaptive-interval-maximal}\textup{(ii)},
-\begin{equation}\label{eq:adaptive-gamma-bound}
-    \E_P[\Gamma(P)]
-    \le16\left(\sum_{i\in U}p_i^2\right)^{1/2}
-    \le16\sqrt\mu,
-\end{equation}
-where
-\[
-    \Gamma(P):=
-    \max_I\left|\sum_{s\in I}\bigl(b_s(P)-\bar b_s\bigr)\right|.
-\]
-Moreover, \cref{eq:adaptive-endpoint-sampling} gives
-\begin{align}
-    &\E_P\left[\sum_{i\in U}p_i
-      \bigl(d(a_i,i)+d(i,b_i)\bigr)\right] \notag\\
-    &\qquad=
-      \sum_{i\in U}\sum_{a,b\in R}x_{i,ab}
-      \bigl(d(a,i)+d(i,b)\bigr).
-    \label{eq:adaptive-sampled-detour-cost}
-\end{align}
-
-\subsection{Deterministic auxiliary-flow rounding}
-\label{sec:integer-auxiliary-rounding}
-
-Endpoint sampling fixes the weighted divergence~$b(P)$, while the fractional
-backbone flow has divergence~$-\bar b$.  The discrepancy~$b(P)-\bar b$ is
-small on every cyclic interval in expectation.  The next step corrects this
-discrepancy along the backbone cycle and rounds the corrected flow to an
-integer one.  The resulting auxiliary flow depends only on the public
-endpoint outcome~$P$, not on the activation set.
-
-\begin{lemma}[Integer interval balancing]
-\label{lem:integer-interval-balancing}
-Let $C=(s_0,\ldots,s_{m-1},s_0)$ be a directed cycle, and let~$y$ be a
-nonnegative fractional flow on the complete directed graph on its vertices
-with $\operatorname{div}(y)=-\bar b$ for a real zero-sum vector~$\bar b$.
-For another real zero-sum vector~$b$, put
-\[
-    \Gamma:=\max_I\left|\sum_{s\in I}(b_s-\bar b_s)\right|.
-\]
-There is a nonnegative integer flow~$N$ such that
-\begin{align}
-    \cost(N)&\le\cost(y)+(\Gamma+1)\cost(C),
-    \label{eq:integer-balancing-cost}\\
-    \left|\sum_{s\in I}
-      \bigl(b_s+\operatorname{div}(N)_s\bigr)\right|&\le1
+Summing flow conservation over the backbone vertices in~$I$ gives
+\begin{equation}\label{eq:adaptive-fractional-interval-balance}
+    \Delta_{x,y}(I)=0
     \qquad\text{for every cyclic interval }I.
-    \label{eq:integer-balancing-interval}
-\end{align}
+\end{equation}
+
+\begin{lemma}[Joint randomized rounding]
+\label{lem:joint-circulation-rounding}
+There is a randomized procedure, independent of the client activations, that
+outputs an ordered pair $(a_i,b_i)\in R\times R$ for every $i\in U$ with
+$p_i>0$ and a nonnegative integer vector $N=(N_{ab})_{a,b\in R}$.  Every
+outcome satisfies
+\[
+    \lfloor y_{ab}\rfloor\le N_{ab}\le\lceil y_{ab}\rceil
+    \qquad\forall a,b\in R,
+\]
+and, for every cyclic interval~$I$,
+\begin{equation}
+    \left|
+     \sum_{i\in U:p_i>0}p_i\chi_I(a_i,b_i)
+       +\sum_{a,b\in R}N_{ab}\chi_I(a,b)
+     \right|
+      \le C_{\mathrm{round}}\log^2(n+1),
+    \label{eq:joint-rounding-interval}
+\end{equation}
+where $C_{\mathrm{round}}$ is universal.  Moreover, if~$\rho$ denotes the
+internal randomness of the procedure, then
+\begin{equation}
+    \E_\rho\!\left[
+      \sum_{i\in U:p_i>0}p_i
+       \bigl(d(a_i,i)+d(i,b_i)\bigr)
+      +\sum_{a,b\in R}d(a,b)N_{ab}
+    \right]
+    =\cost(z).
+    \label{eq:joint-rounding-cost}
+\end{equation}
 \end{lemma}
 
 \begin{proof}
-If $m=1$, both divergence vectors vanish and $N=0$ works.  Assume $m\ge2$.
-Put $\delta:=\bar b-b$ and
-\[
-    E_j:=\sum_{h=0}^j\delta_{s_h}.
-\]
-Thus $E_{m-1}=0$.  The difference of two $E$-values is the sum of~$\delta$
-over a cyclic interval, and hence
-$\max_jE_j-\min_jE_j\le\Gamma$.  Put
-\[
-    h_j:=E_j-\min_\ell E_\ell
-\]
-units of flow on the cycle edge $s_j\to s_{j+1}$.  Then
-$0\le h_j\le\Gamma$ and, with cyclic indices,
-\[
-    \operatorname{div}(h)_{s_j}
-    =h_j-h_{j-1}=\delta_{s_j}.
-\]
-Consequently, $w:=y+h$ is nonnegative,
-$\operatorname{div}(w)=-b$, and
-\begin{equation}\label{eq:first-divergence-correction}
-    \cost(w)\le\cost(y)+\Gamma\cost(C).
-\end{equation}
+If $m=1$, every chord is a loop and has zero interval imbalance.  Keep the
+unique client variable for each positive-probability client and round
+$y_{rr}$ to its floor or ceiling with expectation~$y_{rr}$.  Since
+$d(r,r)=0$, the expected-cost identity and the discrepancy bound follow.
+Assume henceforth that $m\ge2$.
 
-Write $t:=\operatorname{div}(w)=-b$ and
-$T_j:=\sum_{h=0}^jt_{s_h}$.  For $j<m-1$, round~$T_j$ to a nearest
-integer~$Q_j$; put $Q_{m-1}=0$ and $Q_{-1}:=Q_{m-1}$.  Define
+Introduce variables~$\xi_{i,ab}$, initialized at~$x_{i,ab}$, with bounds
 \[
-    q_{s_j}:=Q_j-Q_{j-1},
+    0\le \xi_{i,ab}\le p_i,
+\]
+and variables~$\eta_{ab}$, initialized at~$y_{ab}$, with bounds
+\[
+    \lfloor y_{ab}\rfloor\le\eta_{ab}\le\lceil y_{ab}\rceil.
+\]
+These bounds are fixed throughout the procedure.
+We preserve every outside-client equation
+\begin{equation}\label{eq:joint-rounding-client-equation}
+    \sum_{a,b\in R}\xi_{i,ab}=p_i.
+\end{equation}
+We also preserve selected interval equations
+$\Delta_{\xi,\eta}(D)=0$.
+
+Pad the linear order $s_0,\ldots,s_{m-1}$ with empty positions to the next
+power of two, and let~$\mathfrak D$ be the dyadic interval family given by
+the resulting binary tree.  We identify each tree node with its intersection
+with the actual backbone positions, ignoring empty padded leaves.  Put
+\[
+    h:=\lceil\log_2m\rceil,
     \qquad
-    e_j:=Q_j-T_j.
+    L:=8(h+1).
 \]
-Then $q$ is an integer zero-sum vector, $|e_j|\le1/2$, and
-\begin{equation}\label{eq:rounded-divergence-error}
-    q_{s_j}-t_{s_j}=e_j-e_{j-1}.
-\end{equation}
-Put $k_j:=e_j-\min_\ell e_\ell$ units on $s_j\to s_{j+1}$.  Then
-$0\le k_j\le1$, \cref{eq:rounded-divergence-error} gives
-$\operatorname{div}(k)=q-t$, and $w':=w+k$ is a nonnegative flow of integer
-divergence~$q$ satisfying
-\begin{equation}\label{eq:second-divergence-correction}
-    \cost(w')\le\cost(w)+\cost(C).
-\end{equation}
+Call a variable \emph{live} when it lies strictly between its two bounds.
+An interval equation is retained while at least~$L$ live variables have
+nonzero coefficient in it, and is discarded permanently once fewer than
+$L$ live variables touch it.  Initially all interval equations hold by
+\cref{eq:adaptive-fractional-interval-balance}.
 
-Consider the bounded flow polytope
+Let $F_x$ and~$F_y$ be the sets of live $\xi$- and $\eta$-variables, and put
+$F:=F_x\cup F_y$.  If $F=\emptyset$, terminate.  Otherwise, let~$c_1$ be the
+number of client equations containing a live variable.  Such an equation
+cannot contain exactly one live variable:
+all its other variables are in~$\{0,p_i\}$, so
+\cref{eq:joint-rounding-client-equation} would force the remaining variable
+to one of its bounds.  Hence
 \[
-    \lfloor w'_e\rfloor\le f_e\le\lceil w'_e\rceil,
+    c_1\le\frac{|F_x|}{2}\le\frac{|F|}{2}.
+\]
+Let~$c_2$ be the number of retained interval equations.  Each backbone
+position belongs to at most~$h+1$ dyadic intervals, so every chord variable
+has nonzero coefficient in at most~$2(h+1)$ such equations.  Counting
+incidences gives
+\[
+    c_2L\le2(h+1)|F|,
+    \qquad\text{and hence}\qquad
+    c_2\le\frac{|F|}{4}.
+\]
+Thus $c_1+c_2<|F|$.  The homogeneous system associated with the retained
+equalities has a nonzero direction supported on~$F$.
+
+Move maximally in both signs of this direction until a live variable first
+reaches a bound.  More explicitly, for maximal $\alpha,\beta>0$, let
+\[
+    q^+:=q+\alpha d,
     \qquad
-    \operatorname{div}(f)=q.
+    q^-:=q-\beta d,
 \]
-It is nonempty because it contains~$w'$.  The node--arc incidence matrix is
-totally unimodular, and all bounds and right-hand sides are integral.  Thus a
-minimum-cost solution~$N$ is integral.  Since $w'$ itself is feasible,
-$\cost(N)\le\cost(w')$, which proves
-\cref{eq:integer-balancing-cost}.
-
-Finally, $\operatorname{div}(N)=q$ and $t=-b$, so
+where~$q$ is the current vector of live variables and~$d$ is the chosen
+direction.  Choose $q^+$ with probability $\beta/(\alpha+\beta)$ and $q^-$
+with probability $\alpha/(\alpha+\beta)$.  Both points preserve all retained
+equalities and make at least one additional variable nonlive, while
 \[
-    \sum_{s\in I}\bigl(b_s+\operatorname{div}(N)_s\bigr)
-    =\sum_{s\in I}(q_s-t_s).
+    \E[q^{\mathrm{next}}\mid q]=q.
 \]
-By \cref{eq:rounded-divergence-error}, the last sum is a difference of two
-$e$-values for every cyclic interval, and its absolute value is at most~$1$.
-This proves \cref{eq:integer-balancing-interval}.
+Repeating therefore terminates with every $\xi$-variable in~$\{0,p_i\}$ and
+every $\eta$-variable integral.  Each coordinate is a martingale throughout
+the procedure.
+
+For $p_i>0$, \cref{eq:joint-rounding-client-equation} now implies that exactly
+one variable~$\xi_{i,a_ib_i}$ equals~$p_i$.  Put $N_{ab}:=\eta_{ab}$.  The
+martingale property gives
+\[
+    \P_\rho\bigl((a_i,b_i)=(a,b)\bigr)=\frac{x_{i,ab}}{p_i},
+    \qquad
+    \E_\rho[N_{ab}]=y_{ab}.
+\]
+Taking expectations in the rounded objective and using
+\cref{eq:adaptive-coupling-cost} proves~\cref{eq:joint-rounding-cost}.
+
+Consider a dyadic equation when it is discarded.  Its imbalance is still
+zero, and fewer than~$L$ live variables touch it.  Only those variables can
+subsequently change.  A client variable changes by at most~$p_i\le1$, and a
+backbone variable changes by at most one because its bounds are consecutive
+integers.  Therefore its final imbalance has absolute value at most~$L$.
+Every linear interval has a canonical decomposition into $O(h+1)$ disjoint
+dyadic intervals.  A wrapped cyclic interval is the complement of a linear
+interval, and the imbalance of~$R$ is identically zero.  Additivity therefore
+gives final discrepancy $O((h+1)L)=O(\log^2(n+1))$ for every cyclic interval,
+which proves~\cref{eq:joint-rounding-interval}.
 \end{proof}
 
-For each public endpoint outcome~$P$, apply
-\cref{lem:integer-interval-balancing} with $C=T_R$, $b=b(P)$, $\bar b$ from
-\cref{eq:adaptive-mean-divergence}, and $y$ from
-\cref{eq:adaptive-y-divergence}.  Denote the resulting finite integer multiset
-of auxiliary backbone arcs by~$N(P)$.  It is chosen before any activation is
-probed, and every auxiliary copy will be used.
+Since $R$ is finite and $N_{ab}\le\lceil y_{ab}\rceil$ for every pair, every
+rounding outcome produces a finite multiset~$N$.  It need not be a
+circulation by itself; only its combined imbalance with the selected client
+chords will be used.
+
+\begin{remark}[Why an offline completion is insufficient]
+If the active set were known in advance, one could repair the imbalance of
+the realized chord multiset by adding backbone flow and then extract an Euler
+tour.  Since this repair depends on the full activation realization, it does
+not define an adaptive policy.  The next section instead traverses the fixed
+rounded objects causally.
+\end{remark}
+
+\section{An adaptive circulation policy}
+\label{sec:adaptive-circulation}
+
+The fractional construction and randomized rounding are now complete.  For
+the moment, fix a backbone~$S$ and one outcome~$\rho$ of the rounding.  The
+resulting pairs~$(a_i,b_i)$ and multiset~$N$ depend only on this preprocessing,
+not on the actual activation set.  For a client with $p_i=0$, set
+$(a_i,b_i):=(r,r)$; such a client is certainly inactive, but this convention
+ensures that it is included in the probing lists below.  We now turn these
+fixed rounded objects into a causal traversal.  Once the activation set is
+realized, the only additional interval imbalance is a centered sum of
+independent Bernoulli variables.
 
 \subsection{Adaptive traversal}
 \label{sec:adaptive-stack-traversal}
 
-After the activations are realized, the active client chords and the public
+After the activations are realized, the active client chords and the fixed
 auxiliary arcs form a multiset of chords on the backbone cycle.  Their
 interval imbalance determines how often the policy must use the cycle edges.
 The following traversal rule realizes this relationship directly.
@@ -4117,7 +3996,7 @@ put
     \Lambda(F):=\max_I\left|\sum_{e\in F}\chi_I(e)\right|.
 \]
 
-\begin{lemma}[Active-first stack walk]
+\begin{lemma}
 \label{lem:active-first-stack-walk}
 Starting at the root, repeatedly use an unused outgoing chord at the current
 cycle vertex if one exists; otherwise use the next directed cycle edge.  Once
@@ -4142,24 +4021,27 @@ this same edge again.  Its final multiplicity is one, and all other
 multiplicities are at most $\Lambda(F)+1$.
 \end{proof}
 
-For fixed $P$, $N(P)$, and activation set~$A$, let
+For an activation set~$A$, let
 \[
-    F(A,P):=N(P)\cup\{a_i\to b_i:i\in A\cap U\}.
+    F(A):=N\uplus\biguplus_{i\in A\cap U}\{a_i\to b_i\},
 \]
+where $N_{ab}$ denotes the multiplicity of the auxiliary arc~$a\to b$.
 
 \begin{lemma}
 \label{lem:adaptive-virtual-execution}
-For fixed public $P$ and~$N(P)$, there is an adaptive policy whose
+The rounded pairs and auxiliary multiset define a causal strategy whose
 actual cost on every realization~$A$ is at most
 \begin{align}
-    &\sum_{a,b\in R}N_{ab}(P)d(a,b)
+    &\sum_{a,b\in R}N_{ab}d(a,b)
     +\sum_{i\in A\cap U}\bigl(d(a_i,i)+d(i,b_i)\bigr)\notag\\
     &\hspace{32mm}
-    +(\Lambda(F(A,P))+2)\cost(T_R).
+    +(\Lambda(F(A))+2)\cost(T_R).
     \label{eq:adaptive-virtual-cost}
 \end{align}
 Every client is probed, and every active client is visited immediately after
-it is probed.
+it is probed.  Consequently, there is an adaptive policy in the formal sense
+of \cref{sec:stoch-tsp-benchmarks} whose expected cost is no larger than that
+of this strategy.
 \end{lemma}
 
 \begin{proof}
@@ -4172,7 +4054,8 @@ $a_i\to i\to b_i$.  Once the outside list at~$a$ is exhausted, take an unused
 auxiliary chord leaving~$a$, if one exists; otherwise advance along the next
 backbone-cycle edge.  Continue until all clients have been probed, all
 auxiliary copies have been used, and the virtual walk has returned to~$r$.
-Every choice uses only public data and outcomes already revealed.
+Every choice uses only fixed preprocessing data and outcomes already
+revealed.
 
 Maintain a pending directed walk from the actual position to the virtual
 backbone position.  A virtual cycle or auxiliary arc is appended without
@@ -4181,27 +4064,29 @@ probed, the direct actual move to it costs at most the pending length, after
 which the pending walk is empty.  If an active outside client~$i$ is found
 while the virtual position is~$a_i$, the direct move to~$i$ costs at most the
 old pending length plus $d(a_i,i)$; the new pending walk is $i\to b_i$.
-Inactive probes cause no movement.  Inductively,
-\[
-    \text{actual cost paid}+\text{pending length}
-    \le\text{virtual length charged}.
-\]
+Inactive probes cause no movement.  Thus, inductively, the actual cost paid
+plus the pending length is at most the virtual length charged.
 
-After the last chord of~$F(A,P)$ is used, some inactive clients may remain
+After the last chord of~$F(A)$ is used, some inactive clients may remain
 unprobed after the last active client in a tail list.  One additional complete
 backbone scan exhausts all such residual lists; every remaining probe is then
 inactive.  At termination the virtual position is~$r$, so the actual return
 to~$r$ is a shortcut of the pending walk.  Apply
 \cref{lem:active-first-stack-walk} to obtain
 \cref{eq:adaptive-virtual-cost}.
+The strategy is therefore nonanticipating.  The Bellman--Markovization
+argument in \cref{sec:stoch-tsp-benchmarks} yields a formal adaptive policy
+of no larger expected cost.
 \end{proof}
 
 \subsection{The low-mass policy}
 \label{sec:low-mass-adaptive-policy}
 
-We can now combine the public preprocessing with the adaptive traversal.  The
-only realization-dependent loss is the interval imbalance of the centered
-activation indicators, whose expected maximum is $O(\sqrt\mu)$.
+We can now combine the activation-independent randomized preprocessing with
+the adaptive traversal.  Every rounding outcome contributes only
+$O(\log^2 n)$ interval discrepancy, and the remaining realization-dependent
+loss is the centered activation imbalance, whose expected maximum is
+$O(\sqrt\mu)$.
 
 \begin{lemma}
 \label{lem:zero-posterior-policy}
@@ -4223,52 +4108,104 @@ For every $W\subseteq V^\circ$ with
 $\mu=\sum_{i\in W}p_i$,
 \[
     \optadapt(W)
-    \le C_3\bigl(L+\sqrt{\mu+1}\bigr)\optpost(W),
-    \qquad L=\max\{1,\log(n+1)\},
+    \le C_3\bigl(\log^2(n+1)+\sqrt\mu\bigr)\optpost(W),
 \]
 where $C_3$ is universal.
 \end{proposition}
 
 \begin{proof}
-If $\optpost(W)=0$, use \cref{lem:zero-posterior-policy}.  Otherwise use the
-backbone certificate, sample the public endpoint pairs~$P$, and
-construct~$N(P)$ as above.  Condition on~$P$.  For every cyclic interval~$I$,
-\cref{eq:integer-balancing-interval} gives
+Put $B:=\optpost(W)$.  If $B=0$, use
+\cref{lem:zero-posterior-policy}.  Otherwise, let~$S\subseteq W$ be an
+auxiliary sample with the activation probabilities, independent of the
+actual activation set~$A$.  For every realization of~$S$ in its support,
+take the circulation~$z^S$ and an optimal backbone tour~$T_R^S$, and apply
+\cref{lem:joint-circulation-rounding} with independent random tape~$\rho$.
+Thus $\cost(T_R^S)=\opt(S)$.  Fix~$(S,\rho)$ temporarily.  For every cyclic
+interval~$I$, the realized imbalance decomposes as
+\begin{align*}
+    \sum_{e\in F(A)}\chi_I(e)
+    &=
+      \sum_{a,b\in R}N_{ab}\chi_I(a,b)
+      +\sum_{i\in U}p_i\chi_I(a_i,b_i)\\
+    &\qquad
+      +\sum_{i\in U}
+       \bigl(\1_{\{i\in A\}}-p_i\bigr)\chi_I(a_i,b_i).
+\end{align*}
+The absolute value of the first line is at most
+$C_{\mathrm{round}}\log^2(n+1)$ by
+\cref{eq:joint-rounding-interval}.
+
+It remains to control the centered activation term.  Put
+$X_i:=\1_{\{i\in A\}}-p_i$ for $i\in U$, so the variables~$X_i$ are
+independent, centered, and satisfy
 \[
-    \left|\E_A\sum_{e\in F(A,P)}\chi_I(e)\right|\le1.
+    \sum_{i\in U}\E[X_i^2]
+    =\sum_{i\in U}p_i(1-p_i)
+    \le\mu.
 \]
-Apply \cref{lem:adaptive-interval-maximal}\textup{(i)} to the independent
-centered variables $X_i:=\1_{\{i\in A\}}-p_i$.  Since
-$\sum_i\E[X_i^2]=\sum_i p_i(1-p_i)\le\mu$,
+For a backbone prefix $J_k:=\{s_0,\ldots,s_k\}$, write
+\[
+    Z_k:=\sum_{i\in U}X_i\chi_{J_k}(a_i,b_i)
+    =\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}
+     -\sum_{i\in U}X_i\1_{\{b_i\in J_k\}}.
+\]
+Order the clients once by the positions of their tails~$a_i$, breaking ties
+in an arbitrary fixed way.  The first process on the right, evaluated at
+prefix boundaries, is a subsequence of the partial sums in this order.  Hence
+the $L^2$ maximal inequality
+\cref{eq:l2-maximal} gives
+\[
+    \E_A\max_k
+      \left|\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}\right|
+    \le2\sqrt\mu.
+\]
+Ordering the clients by their heads~$b_i$, again with fixed tie-breaking,
+gives the same bound for the second process, and therefore
+\[
+    \E_A\max_k|Z_k|\le4\sqrt\mu.
+\]
+Every linear interval is the difference of two prefixes, while a wrapped
+cyclic interval is the complement of a linear interval and
+$\chi_R(a,b)=0$.  Consequently,
+\[
+    \E_A\max_I
+      \left|\sum_{i\in U}X_i\chi_I(a_i,b_i)\right|
+    \le8\sqrt\mu.
+\]
+Combining this estimate with the pathwise discrepancy bound for the first
+line yields, for every~$(S,\rho)$,
 \begin{equation}\label{eq:adaptive-active-imbalance}
-    \E_A[\Lambda(F(A,P))]\le1+8\sqrt\mu.
+    \E_A[\Lambda(F(A))]
+    \le C_{\mathrm{round}}\log^2(n+1)+8\sqrt\mu.
 \end{equation}
 
-Take activation expectation in \cref{eq:adaptive-virtual-cost}, and then average
-over~$P$.  By \cref{eq:integer-balancing-cost},
-\cref{eq:adaptive-sampled-detour-cost}, and
-\cref{eq:adaptive-gamma-bound},
-\begin{align*}
-    &\E_P[\cost(N(P))]
-    +\E_P\left[\sum_{i\in U}p_i
-      \bigl(d(a_i,i)+d(i,b_i)\bigr)\right]\\
-    &\qquad\le
-      \cost(z)+(\E_P[\Gamma(P)]+1)\cost(T_R).
-\end{align*}
-Together with \cref{eq:adaptive-active-imbalance}, this bounds the joint
-expected cost of the policy by
+Take activation expectation in the causal-strategy bound
+\cref{eq:adaptive-virtual-cost}.  By
+\cref{lem:adaptive-virtual-execution}, there is a formal adaptive
+policy~$\pi_{S,\rho}$ with no larger expected cost.  Put
 \[
-    \cost(z)+C(1+\sqrt\mu)\cost(T_R)
-    \le C'\bigl(L+\sqrt{\mu+1}\bigr)B,
+    D:=C_{\mathrm{round}}\log^2(n+1)+8\sqrt\mu+2.
 \]
-where the final inequality uses
-\cref{lem:ordinary-backbone-certificate}.
-
-The calculation averages over public endpoint preprocessing.  Some finite
-outcome~$P$ has conditional expected cost no larger than this joint average;
-fix it, together with~$N(P)$, before probing.  Thus the policy may be taken to
-be deterministic.  No object used by the policy is selected from the
-activation realization.
+Using \cref{eq:adaptive-active-imbalance} gives
+\begin{align*}
+    \cost(\pi_{S,\rho})
+    &\le
+      \sum_{a,b\in R}N_{ab}d(a,b)
+      +\sum_{i\in U}p_i\bigl(d(a_i,i)+d(i,b_i)\bigr)\\
+    &\qquad +D\cost(T_R^S).
+\end{align*}
+The quantity~$D$ is independent of both preprocessing choices.  Averaging
+first over~$\rho$ and using \cref{eq:joint-rounding-cost}, then averaging
+over~$S$ and using \cref{lem:average-backbone-cost}, gives
+\begin{align*}
+    \E_{S,\rho}[\cost(\pi_{S,\rho})]
+    &\le \E_S[\cost(z^S)]+D\E_S[\opt(S)]\\
+    &\le \bigl(C_{\mathrm{back}}\log(n+1)+D\bigr)B\\
+    &\le C_3\bigl(\log^2(n+1)+\sqrt\mu\bigr)B
+\end{align*}
+for a universal constant~$C_3$.  Hence some fixed pair~$(S,\rho)$ has policy
+cost no larger than this average.  Fixing that pair before any activation is
+probed produces a deterministic adaptive policy and proves the claim.
 \end{proof}
 
 \section{Threshold optimization and the clairvoyance-gap bound}
@@ -4276,10 +4213,10 @@ activation realization.
 
 For a probability threshold~$\tau$, clients below the threshold have total
 activation mass at most $n\tau$, so the preceding policy costs
-$O(\log n+\sqrt{n\tau})\optpost$.  Clients above the threshold admit a fixed
-tour with factor $O(1/\tau)$.  The following two lemmas justify combining the
-subinstances and establish the fixed-tour bound; we then choose~$\tau$ to
-balance the two factors.
+$O(\log^2(n+1)+\sqrt{n\tau})\optpost$.  Clients above the threshold admit a
+fixed tour with factor $O(1/\tau)$.  The following two lemmas justify
+combining the subinstances and establish the fixed-tour bound; we then
+choose~$\tau$ to balance the two factors.
 
 \begin{lemma}
 \label{lem:adaptive-policy-concatenation}
@@ -4298,7 +4235,7 @@ $A\cap W_j\subseteq A$, so directed shortcutting gives
 $\opt(A\cap W_j)\le\opt(A)$.  Take expectations and sum.
 \end{proof}
 
-\begin{lemma}[High-probability fixed tour]
+\begin{lemma}
 \label{lem:high-probability-fixed-tour}
 Suppose $p_v\ge\tau$ for every $v\in H$, where $0<\tau\le1$.  Then the
 induced subinstance on~$H$ has an adaptive policy of expected cost at most
@@ -4324,37 +4261,50 @@ through all of~$H$; each realized route is a shortcut of that fixed tour.
 \end{proof}
 
 \begin{proof}[Proof of \cref{thm:asymmetric-clairvoyance-upper}]
+The case $n=0$ is trivial, so assume $n\ge1$.
 Set $\tau:=n^{-1/3}$ and split the client set into
 \[
     H:=\{v\in V^\circ:p_v\ge\tau\},
     \qquad
     W:=\{v\in V^\circ:p_v<\tau\}.
 \]
-By \cref{lem:high-probability-fixed-tour}, the high-probability clients have a
-adaptive policy of expected cost at most
+By \cref{lem:high-probability-fixed-tour}, the high-probability clients have
+an adaptive policy~$\pi_H$ with
 \[
-    \left\lceil\frac1\tau\right\rceil\optpost(H)
-    \le2n^{1/3}\optpost.
+    \cost(\pi_H)
+    \le \left\lceil\frac1\tau\right\rceil\optpost(H).
 \]
 For the low-probability set,
 \[
     \mu(W)=\sum_{v\in W}p_v\le n\tau=n^{2/3}.
 \]
-Thus \cref{prop:adaptive-low-mass} supplies an adaptive policy of expected cost at
-most
+Thus \cref{prop:adaptive-low-mass} supplies an adaptive policy~$\pi_W$ with
 \[
-    C\bigl(L+n^{1/3}\bigr)\optpost(W)
-    \le C'\bigl(1+n^{1/3}\bigr)\optpost,
+    \cost(\pi_W)
+    \le C_3\bigl(\log^2(n+1)+n^{1/3}\bigr)\optpost(W).
 \]
-where $\log(n+1)=O(1+n^{1/3})$.  Execute the two policies successively and
-apply \cref{lem:adaptive-policy-concatenation}.
+Let~$\pi$ execute~$\pi_H$ and~$\pi_W$ successively, returning to~$r$
+between them.  By \cref{lem:adaptive-policy-concatenation},
+\begin{align*}
+    \cost(\pi)
+    &\le
+      \left(
+        \left\lceil\frac1\tau\right\rceil
+        +C_3\bigl(\log^2(n+1)+n^{1/3}\bigr)
+      \right)\optpost\\
+    &\le C^\star n^{1/3}\optpost
+\end{align*}
+for a universal constant~$C^\star$, where we used
+$\lceil1/\tau\rceil\le2n^{1/3}$ and
+$\log^2(n+1)=O(n^{1/3})$.  Enlarging the constant~$C$ in the theorem to
+$C^\star$ proves the claim.
 \end{proof}
 
-The deterministic auxiliary-flow rounding leaves only the centered
-activation process at runtime, so the maximal inequality incurs no
-union-bound logarithm.  Improving the exponent within this framework would
-therefore require a better treatment of either the $1/\tau$ fixed-tour term
-or the $\sqrt{n\tau}$ low-mass term.
+The joint rounding separates the interval imbalance into a pathwise
+$O(\log^2 n)$ discrepancy and a centered activation process of expected size
+$O(\sqrt{n\tau})$.  Thus the exponent is determined by balancing the
+$1/\tau$ fixed-tour term against the latter activation term; the logarithmic
+rounding loss is lower order at the chosen threshold.
 
 
 % ============================================================
