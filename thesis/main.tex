@@ -34,45 +34,39 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-\sharat{A general comment for the abstract is to avoid using notation or terminology that has not been defined. I will give you suggestions below.}
+We study the stochastic traveling salesperson problem on a finite set of
+vertices with travel costs satisfying the triangle inequality.  One
+designated, always-active vertex is the depot, and every other vertex is
+independently active with a given probability.  The salesperson must start
+and end at the depot, visit every active vertex, and minimize the expected
+travel cost.
 
-We study the stochastic traveling salesperson problem, where each non-root
-vertex is active independently according to a given probability and all active
-vertices must be visited at minimum expected travel cost.
+An a~posteriori solution chooses a tour after learning the complete active
+set, whereas an a~priori solution fixes an ordering of all vertices before any
+activations are revealed and visits the active vertices in that order.  We
+introduce an adaptive model between these extremes.  Vertices are probed
+remotely one at a time; whenever a probe reveals an active vertex, the
+salesperson must visit it immediately; and each next probe may depend on the
+previous outcomes.
 
-\sharat{We study the stochastic traveling salesperson problem on a finite set of vertices equipped with distances satisfying the triangle inequality, where
-there is a designated depot and every other vertex is independently active
-with a given probability. The salesperson's goal is to visit all active vertices, starting and ending at the depot, while minimizing the expected total distance traveled.}
+The \emph{adaptivity gap} is the worst-case ratio of the optimal a~priori
+expected cost to the optimal adaptive expected cost, while the
+\emph{clairvoyance gap} is the worst-case ratio of the optimal adaptive
+expected cost to the optimal a~posteriori expected cost.  For symmetric travel
+costs, we prove lower bounds of~$2$ on the adaptivity gap and~$10/9$ on the
+clairvoyance gap.  For symmetric instances in which exactly one non-depot
+vertex has activation probability in~$(0,1)$ and every other non-depot vertex
+is always active, we prove that the clairvoyance gap is at
+most~$(2+\sqrt6)/4$.  For asymmetric travel costs, we prove that the
+clairvoyance gap is at least~$3/2$.
 
-The classical a~posteriori and a~priori models represent two information
-extremes.  An a~posteriori solution knows the complete active set before
-choosing its tour, whereas an a~priori solution commits to a fixed cyclic
-ordering before any activations are known.  The gap between these two
-benchmarks is constant for symmetric metrics but polynomial in the number of
-vertices for asymmetric metrics.  This thesis introduces an adaptive model
-between these extremes, in which vertices are probed sequentially and the next
-probe may depend on previous outcomes, with the goal of understanding whether
-adaptivity produces better stochastic tours.
-
-\sharat{An a~posteriori solution chooses a tour after knowing the set of active vertices, whereas an a~priori solution fixes an ordering of all the vertices in advance and visits the active vertices according to this ordering. The ratio between the optimal expected costs in these two models is bounded by a constant for symmetric metrics (Shmoys and Talwar, 2008), but can grow polynomially with the number of vertices for asymmetric metrics (Christalla, Puhlmann, and Traub, 2026). This thesis introduces a novel adaptive model between these extremes, in which vertices are probed sequentially to reveal whether they are active, with the requirement that the salesperson must visit a vertex if probing reveals that it is active. The choice of the next vertex to probe may depend on the outcomes of previous probes.}
-
-We establish new separations between these models.  For symmetric metrics, we
-construct instances with adaptivity gap approaching~$2$ and clairvoyance gap
-approaching~$10/9$; for instances with one semi-active vertex, we also prove the uniform upper bound $(2+\sqrt6)/4$ on the clairvoyance gap.  For asymmetric metrics, we give a layered-poset construction showing that the clairvoyance gap is at least~$3/2$.
-
-\sharat{For symmetric metrics, we construct instances in which the ratio between the optimal a~priori and adaptive costs, which we call the \emph{adaptivity gap}, approaches 2, and instances in which the ratio between the optimal adaptive and a~posteriori costs, which we call the \emph{clairvoyance gap}, approaches 10/9. For instances in which only one vertex has activation probability strictly between 0 and 1, we prove that the clairvoyance gap is at most blah. For asymmetric metrics, we improve upon Christalla et al.'s lower bound of blah on the adaptivity gap to blah, and construct instances in which the clairvoyance gap approaches 3/2.}
-
-On the algorithmic side, for asymmetric metrics we construct an adaptive
-policy with expected cost
-$O(n^{1/3})\optpost$, proving an $O(n^{1/3})$ upper bound on the
-clairvoyance gap.  For every fixed
-$\varepsilon>0$, we also give a deterministic
-$(1{+}\varepsilon)$-approximation algorithm for a~priori TSP with running time
-$c_\varepsilon^n\poly(n)$ based on dynamic programming.
-
-\sharat{On the algorithmic side, for asymmetric metrics we construct an adaptive policy whose expected cost is within an $O(blah)$ factor of the optimal a~posteriori cost, where $n$ is the number of vertices. I think you forgot to include polylog terms. Use $\widetilde O$ notation if need be. Consequently, the clairvoyance gap is at most $O(n^{1/3})$. For every fixed $\varepsilon>0$, we also give a deterministic algorithm
-that computes a $(1+\varepsilon)$-approximate a~priori solution in
-time $c_\varepsilon^n\operatorname{poly}(n)$, where $c_\varepsilon$ depends only on $\varepsilon$.}
+On the algorithmic side, every asymmetric instance with $n$ non-depot vertices
+admits an adaptive policy whose expected cost is within an $O(n^{1/3})$ factor
+of the optimal a~posteriori cost.  Consequently, the asymmetric clairvoyance
+gap is $O(n^{1/3})$.  For every fixed $\varepsilon>0$, we also give a
+deterministic algorithm that computes a $(1+\varepsilon)$-approximate
+a~priori solution in time $c_\varepsilon^n\operatorname{poly}(n)$, where
+$c_\varepsilon$ depends only on~$\varepsilon$.
 
 \tableofcontents
 \clearpage
@@ -206,7 +200,11 @@ Let $V$ be a finite vertex set of cardinality $n+1$, fix a distinguished
 \[
     V^\circ:=V\setminus\{r\}
 \]
-for the $n$ non-root vertices.  A \emph{possibly asymmetric metric} on~$V$ is a function
+for the $n$ non-root vertices.  A \emph{possibly asymmetric metric}%
+\footnote{Distance functions satisfying the usual metric axioms except that
+symmetry is not required are often called \emph{quasi-metrics}; terminology
+varies across the literature.}
+on~$V$ is a function
 $d:V\times V\to\mathbb R_{\ge0}$ such that $d(x,x)=0$, $d(x,y)>0$ for
 distinct $x,y\in V$, and
 \[
@@ -215,9 +213,7 @@ distinct $x,y\in V$, and
 \]
 A metric~$d$ is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y\in V$,
 and \emph{asymmetric} otherwise.  Unless explicitly stated otherwise, metrics
-are allowed to be asymmetric. 
-
-\sharat{Maybe include a footnote that in mathematics literature asymmetric metrics are called quasi-metrics.}
+are allowed to be asymmetric.
 
 A \emph{tour} on a subset $S\subseteq V$ containing the root is a cyclic
 sequence $T=(r,u_1,\ldots,u_k,r)$, where $k=|S|-1$ and
@@ -448,9 +444,10 @@ outcome.
 
 \subsection{Concentration for independent sums}
 
+\begin{lemma}[Chernoff--Bernstein bounds]
+\label{lem:chernoff-bernstein}
 Let $X_1,\ldots,X_m$ be independent Bernoulli random variables, put
-$X:=\sum_iX_i$, and write $\mu:=\E[X]$.  We use the additive
-Chernoff--Bernstein bounds
+$X:=\sum_iX_i$, and write $\mu:=\E[X]$.  If $\mu>0$, then
 \begin{align}
     \P(X\ge\mu+s)
     &\le\exp\left(-\frac{s^2}{2(\mu+s/3)}\right)
@@ -461,46 +458,58 @@ Chernoff--Bernstein bounds
     &&\text{for }0\le s\le\mu.
     \label{eq:chernoff-lower}
 \end{align}
-In particular, for every $t\ge0$,
+In all cases, for every $t\ge0$,
 \begin{equation}\label{eq:chernoff-useful}
     \P(X>2\mu+t)\le\e^{-t/3},
     \qquad
     \P(X<\mu/2)\le\e^{-\mu/8}.
 \end{equation}
-The first consequence follows from \cref{eq:chernoff-upper} with
-$s=\mu+t$, using
+\end{lemma}
+
+If $\mu=0$, then $X=0$ almost surely and the two consequences in
+\cref{eq:chernoff-useful} are immediate.  If $\mu>0$, the first consequence
+follows from \cref{eq:chernoff-upper} with $s=\mu+t$, using
 \[
     \frac{(\mu+t)^2}{2(\mu+(\mu+t)/3)}\ge\frac t3,
 \]
 and the second follows from \cref{eq:chernoff-lower} with $s=\mu/2$.
 
-\sharat{Should be mentioned as a theorem or a lemma.}
-
-We also use the following weighted form of Hoeffding's inequality.  Let
-$Y_1,\ldots,Y_m$ be independent random variables with
+\begin{lemma}[Weighted Hoeffding inequality]
+\label{lem:weighted-hoeffding}
+Let $Y_1,\ldots,Y_m$ be independent random variables with
 $Y_i\in[a_i,b_i]$ almost surely.  Then, for every $t>0$,
 \begin{equation}\label{eq:weighted-hoeffding}
     \P\left[\sum_{i=1}^m(Y_i-\E[Y_i])\ge t\right]
     \le
     \exp\left(-\frac{2t^2}{\sum_{i=1}^m(b_i-a_i)^2}\right).
 \end{equation}
+Here the right-hand side is interpreted as~$0$ when
+$\sum_i(b_i-a_i)^2=0$; in that case the centered sum is~$0$ almost surely.
 In particular, if the $X_i$ are independent Bernoulli random variables and
 $c_i\ge0$, then~\cref{eq:weighted-hoeffding} applies to
 $Y_i=c_iX_i\in[0,c_i]$.
+\end{lemma}
 
 \subsection{Maximal inequalities}
 
-\sharat{Looks technical. Should be a named theorem.}
-
+\begin{lemma}[Maximal inequality for independent sums]
+\label{lem:maximal-independent-sums}
 Let $Z_1,\ldots,Z_m$ be independent centered random variables with finite
-second moments, and put $S_k:=\sum_{i=1}^kZ_i$.  The $L^2$ maximal inequality
-for the martingale $(S_k)_{k=0}^m$ gives
+second moments, and put $S_k:=\sum_{i=1}^kZ_i$.  Then
 \begin{equation}\label{eq:l2-maximal}
     \E\left[\max_{0\le k\le m}|S_k|\right]
     \le
     \left(\E\left[\max_{0\le k\le m}|S_k|^2\right]\right)^{1/2}
     \le2\left(\sum_{i=1}^m\E[Z_i^2]\right)^{1/2}.
 \end{equation}
+\end{lemma}
+
+\begin{proof}
+The partial sums $(S_k)_{k=0}^m$ form an $L^2$ martingale.  The first
+inequality follows from Cauchy--Schwarz, and the second is Doob's $L^2$
+maximal inequality together with
+$\E[S_m^2]=\sum_{i=1}^m\E[Z_i^2]$.
+\end{proof}
 
 % ============================================================
 % CHAPTER 3: ADAPTIVITY GAP — SYMMETRIC
@@ -1285,7 +1294,7 @@ is equivalent to
     \sum_e c_e(X_e-\theta)\ge\varepsilon W.
 \]
 The variables $X_e$ are independent and each $c_eX_e$ lies in~$[0,c_e]$.
-Hence the weighted Hoeffding bound~\cref{eq:weighted-hoeffding} gives
+Hence \cref{lem:weighted-hoeffding} gives
 \[
     \P_D\left[
         C_D(T_0)\le(2-\theta-\varepsilon)W
@@ -4105,9 +4114,7 @@ For a backbone prefix $J_k:=\{s_0,\ldots,s_k\}$, write
 Order the outside vertices once by the positions of their chord tails~$a_i$,
 breaking ties in an arbitrary fixed way.  The first process on the right,
 evaluated at prefix boundaries, is a subsequence of the partial sums in this
-order.  Hence
-the $L^2$ maximal inequality
-\cref{eq:l2-maximal} gives
+order.  Hence \cref{lem:maximal-independent-sums} gives
 \[
     \E_A\max_k
       \left|\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}\right|
