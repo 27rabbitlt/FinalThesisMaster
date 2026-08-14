@@ -34,9 +34,15 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
+\sharat{A general comment for the abstract is to avoid using notation or terminology that has not been defined. I will give you suggestions below.}
+
 We study the stochastic traveling salesperson problem, where each non-root
 vertex is active independently according to a given probability and all active
 vertices must be visited at minimum expected travel cost.
+
+\sharat{We study the stochastic traveling salesperson problem on a finite set of vertices equipped with distances satisfying the triangle inequality, where
+there is a designated depot and every other vertex is independently active
+with a given probability. The salesperson's goal is to visit all active vertices, starting and ending at the depot, while minimizing the expected total distance traveled.}
 
 The classical a~posteriori and a~priori models represent two information
 extremes.  An a~posteriori solution knows the complete active set before
@@ -48,12 +54,13 @@ between these extremes, in which vertices are probed sequentially and the next
 probe may depend on previous outcomes, with the goal of understanding whether
 adaptivity produces better stochastic tours.
 
+\sharat{An a~posteriori solution chooses a tour after knowing the set of active vertices, whereas an a~priori solution fixes an ordering of all the vertices in advance and visits the active vertices according to this ordering. The ratio between the optimal expected costs in these two models is bounded by a constant for symmetric metrics (Shmoys and Talwar, 2008), but can grow polynomially with the number of vertices for asymmetric metrics (Christalla, Puhlmann, and Traub, 2026). This thesis introduces a novel adaptive model between these extremes, in which vertices are probed sequentially to reveal whether they are active, with the requirement that the salesperson must visit a vertex if probing reveals that it is active. The choice of the next vertex to probe may depend on the outcomes of previous probes.}
+
 We establish new separations between these models.  For symmetric metrics, we
 construct instances with adaptivity gap approaching~$2$ and clairvoyance gap
-approaching~$10/9$; for instances with one semi-active vertex, we also prove the
-uniform upper bound $(2+\sqrt6)/4$ on the clairvoyance gap.  For asymmetric
-metrics, we give a layered-poset construction showing that the clairvoyance
-gap is at least~$3/2$.
+approaching~$10/9$; for instances with one semi-active vertex, we also prove the uniform upper bound $(2+\sqrt6)/4$ on the clairvoyance gap.  For asymmetric metrics, we give a layered-poset construction showing that the clairvoyance gap is at least~$3/2$.
+
+\sharat{For symmetric metrics, we construct instances in which the ratio between the optimal a~priori and adaptive costs, which we call the \emph{adaptivity gap}, approaches 2, and instances in which the ratio between the optimal adaptive and a~posteriori costs, which we call the \emph{clairvoyance gap}, approaches 10/9. For instances in which only one vertex has activation probability strictly between 0 and 1, we prove that the clairvoyance gap is at most blah. For asymmetric metrics, we improve upon Christalla et al.'s lower bound of blah on the adaptivity gap to blah, and construct instances in which the clairvoyance gap approaches 3/2.}
 
 On the algorithmic side, for asymmetric metrics we construct an adaptive
 policy with expected cost
@@ -62,6 +69,10 @@ clairvoyance gap.  For every fixed
 $\varepsilon>0$, we also give a deterministic
 $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP with running time
 $c_\varepsilon^n\poly(n)$ based on dynamic programming.
+
+\sharat{On the algorithmic side, for asymmetric metrics we construct an adaptive policy whose expected cost is within an $O(blah)$ factor of the optimal a~posteriori cost, where $n$ is the number of vertices. I think you forgot to include polylog terms. Use $\widetilde O$ notation if need be. Consequently, the clairvoyance gap is at most $O(n^{1/3})$. For every fixed $\varepsilon>0$, we also give a deterministic algorithm
+that computes a $(1+\varepsilon)$-approximate a~priori solution in
+time $c_\varepsilon^n\operatorname{poly}(n)$, where $c_\varepsilon$ depends only on $\varepsilon$.}
 
 \tableofcontents
 \clearpage
@@ -204,7 +215,9 @@ distinct $x,y\in V$, and
 \]
 A metric~$d$ is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y\in V$,
 and \emph{asymmetric} otherwise.  Unless explicitly stated otherwise, metrics
-are allowed to be asymmetric.
+are allowed to be asymmetric. 
+
+\sharat{Maybe include a footnote that in mathematics literature asymmetric metrics are called quasi-metrics.}
 
 A \emph{tour} on a subset $S\subseteq V$ containing the root is a cyclic
 sequence $T=(r,u_1,\ldots,u_k,r)$, where $k=|S|-1$ and
@@ -455,6 +468,8 @@ $s=\mu+t$, using
 \]
 and the second follows from \cref{eq:chernoff-lower} with $s=\mu/2$.
 
+\sharat{Should be mentioned as a theorem or a lemma.}
+
 We also use the following weighted form of Hoeffding's inequality.  Let
 $Y_1,\ldots,Y_m$ be independent random variables with
 $Y_i\in[a_i,b_i]$ almost surely.  Then, for every $t>0$,
@@ -468,6 +483,8 @@ $c_i\ge0$, then~\cref{eq:weighted-hoeffding} applies to
 $Y_i=c_iX_i\in[0,c_i]$.
 
 \subsection{Maximal inequalities}
+
+\sharat{Looks technical. Should be a named theorem.}
 
 Let $Z_1,\ldots,Z_m$ be independent centered random variables with finite
 second moments, and put $S_k:=\sum_{i=1}^kZ_i$.  The $L^2$ maximal inequality
