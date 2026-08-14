@@ -19,3 +19,23 @@ difficult to tell which paper is stored where, you have to search for it by your
 
 Under `thesis` folder, there is a `main.pdf` providing important problem background and definition.
 The text is stored in main.tex, main section 1 2 and 3.
+
+## Thesis notation conventions
+
+- Assume every non-root vertex has activation probability in $(0,1]$.
+  Vertices with activation probability $0$ are deleted from the instance.
+- In asymptotic notation such as $O(\cdot)$, $\Omega(\cdot)$, and
+  $\Theta(\cdot)$, write $n$, never $n+1$.  For example, write
+  $O(\log^2 n)$ rather than $O(\log^2(n+1))$.  The expression $n+1$ may still
+  be used in explicit, non-asymptotic inequalities when needed for small
+  values of~$n$.
+- In Chapter 6, use 'vertex' and 'vertices' throughout, never 'client' or
+  'clients'.
+- In Chapter 6, do not write $n+1$ anywhere, including in explicit bounds.
+  Handle the cases $n\le1$ separately and use $n$ in logarithmic bounds.
+- In Chapter 6, use 'asymmetric' rather than 'directed' for the metric,
+  triangle inequality, and shortcutting.  Describe combinatorial orientation
+  with arcs, ordered pairs, or the tour order without using 'directed'.
+- In Chapter 6, reserve 'chord' for a collapsed outside-vertex attachment or
+  an auxiliary rounded copy, 'arc' for a formal flow/multigraph arc, and
+  'edge' for a backbone edge.  Do not use 'arc' and 'chord' interchangeably.
