@@ -3031,9 +3031,7 @@ $O(n^{1/3})$.
 \end{theorem}
 
 The theorem is immediate when $n\le1$, so throughout the remainder of this
-chapter we assume that $n\ge2$.
-
-This improves the $O(\sqrt n)$ bound implied by the asymmetric
+chapter we assume that $n\ge2$. This improves the $O(\sqrt n)$ bound implied by the asymmetric
 obliviousness gap bound from Christalla et al.~\cite{Christalla2025}.
 
 We start from sampling vertices according to their activation probability and then
@@ -3062,7 +3060,7 @@ and proves \cref{thm:asymmetric-clairvoyance-upper}.
 \section{Backbone circulation and randomized joint rounding}
 \label{sec:circulation-preprocessing}
 
-This section develops all static ingredients needed by the adaptive policy.
+This section develops the ingredients needed by the adaptive policy.
 We first construct a low-cost fractional circulation attaching the vertices
 outside a sampled backbone to a tour on that backbone.  We then round the
 vertex attachments and the auxiliary backbone flow jointly, before any
@@ -3072,25 +3070,30 @@ activation is observed.
 \label{sec:circulation-lp}
 \label{sec:low-cost-circulation}
 
-Call an unsampled vertex an \emph{outside vertex}.  We require every outside
-vertex~$v$ to have fractional in-degree and out-degree~$p_v$, and forbid flow
-between two outside vertices.
-
-Independently include each vertex $v\in V^\circ$ in a random set~$S$ with
-probability~$p_v$.  We call
+Following the sampled-backbone framework of Shmoys and
+Talwar~\cite{Shmoys2008}, let $S\subseteq V^\circ$ be an auxiliary random
+set, independent of the actual activation set, obtained by including each
+vertex~$v$ independently with probability~$p_v$.  Set
 \[
     R:=S\cup\{r\}
     \qquad\text{and}\qquad
     U:=V^\circ\setminus S
 \]
-the \emph{backbone} and the set of \emph{outside vertices}, respectively.
-For a nonnegative vector~$z$ on ordered pairs, use the notation
+and call~$R$ the \emph{backbone}; the vertices in~$U$ are the \emph{outside
+vertices}.
+
+For a nonnegative vector $z=(z_{uv})_{u,v\in V}$, interpret~$z_{uv}$ as the
+amount of flow sent from~$u$ to~$v$.  The total outgoing and incoming flow at
+a vertex~$w$ are, respectively,
 \[
-    z(\delta^+(w)):=\sum_v z_{wv},
+    z(\delta^+(w)):=\sum_{v\in V} z_{wv},
     \qquad
-    z(\delta^-(w)):=\sum_u z_{uw}.
+    z(\delta^-(w)):=\sum_{u\in V} z_{uw}.
 \]
-For a fixed choice of~$S$, consider the following circulation relaxation:
+
+For a fixed choice of~$S$, consider the following minimum-cost fractional
+circulation.  Because vertex~$i$ is active with probability~$p_i$, the
+relaxation sends~$p_i$ units of flow through each outside vertex~$i\in U$:
 \begin{equation*}
 \begin{aligned}
 \min\quad
@@ -3111,24 +3114,21 @@ For a feasible vector~$z$, write
 \[
     \cost(z):=\sum_{u,v\in V}d(u,v)z_{uv}.
 \]
-The circulation does not allow flow between outside vertices,
-forcing that it visits an outside vertex  from the backbone and immediately returns to the
-backbone.  Thus the circulation is a fractional analogue of assigning
-a detour to each outside vertex.
+The constraint $z_{ij}=0, \forall i,j\in U$ ensures that every flow arc entering or
+leaving an outside vertex has an endpoint in the backbone.  Since the
+incoming and outgoing totals at~$i$ are both~$p_i$, the flow through~$i$ can
+be paired into fractional two-arc detours $a\to i\to b$ with $a,b\in R$.
 
-We next bound the circulation cost on average over the sampled backbone.
+We next bound the circulation cost on average over the sampled backbone by giving
+a solution $z^S$ to $\mathrm{CIRC}(S)$ for every choice of $S$ and bounding its expected cost
+over the random choice of~$S$.
 
-For an induced subinstance on $W\subseteq V^\circ$, write
-\[
-    \optpost(W):=\E[\opt(A\cap W)]
-\]
+For an induced subinstance on $W\subseteq V^\circ$, write $\optpost(W):=\E[\opt(A\cap W)]$
 and let $\optadapt(W)$ denote its adaptive optimum.
-
 Let $\widetilde A\subseteq V^\circ$ be an auxiliary activation sample,
-independent of~$S$ and using the same probabilities
+independent of~$S$, using the same probabilities
 $(p_v)_{v\in V^\circ}$, and put $C:=\widetilde A\cup S$.  For every possible
-set~$C$, fix one optimal rooted tour~$T_C$, with tie-breaking depending only
-on~$C$.  Cutting this tour at the vertices
+set~$C$, fix an optimal rooted tour~$T_C$.  Cutting this tour $T_C$ at the vertices
 of~$R:=S\cup\{r\}$ produces segments in tour order
 \[
     P_j=(s_j,u_{j,1},\ldots,u_{j,k_j},s_{j+1}),
@@ -3168,7 +3168,7 @@ Hence its expected incoming and outgoing flow is~$p_i$.  All other
 constraints in~\cref{eq:backbone-circulation-lp} are preserved under
 averaging, so $z^S$ is feasible for $\mathrm{CIRC}(S)$.
 
-We bound the expected cost of this construction through the longest segment
+We bound the expected cost of this construction by boudning the expectation of longest segment
 between consecutive backbone vertices.
 
 \begin{lemma}\label{lem:circulation-longest-run}
@@ -3197,8 +3197,7 @@ backbone is
     \frac{1-p_v}{2-p_v}
     \le\frac12.
 \]
-The conditioning factors over vertices, so these classifications remain
-independent.  A run of length~$t$ can start in at most~$n$ positions of the
+A run of length~$t$ can start in at most~$n$ positions of the
 fixed cyclic tour.  The union bound~\cref{eq:union-bound} therefore gives the
 claimed tail estimate.
 
@@ -3248,11 +3247,11 @@ By linearity of cost, \cref{eq:realization-circulation-cost}, and
       \right]\\
     &\le c_{\mathrm{back}}\log n\,
        \E_{\widetilde A,S}[\opt(\widetilde A\cup S)]\\
-    &\le c_{\mathrm{back}}\log n\,
+    &\overset{(*)}{\le} c_{\mathrm{back}}\log n\,
        \E_{\widetilde A,S}[\opt(\widetilde A)+\opt(S)]\\
     &=2c_{\mathrm{back}}\log n\,B,
 \end{align*}
-where $c_{\mathrm{back}}$ is universal.  The penultimate inequality follows by
+where $c_{\mathrm{back}}$ is universal.  Inequality~$(*)$ follows by
 concatenating optimal tours for~$\widetilde A$ and~$S$ at the root and
 shortcutting.
 Taking $C_{\mathrm{back}}:=2c_{\mathrm{back}}$ proves the claim.
@@ -3431,9 +3430,9 @@ in~$I$ shows that
 The goal is to replace every $x_{i,ab}$ by either~$0$ or~$p_i$.  By
 \cref{eq:coupled-outside-constraint}, this assigns every outside vertex of
 positive probability to exactly one ordered pair~$(a,b)$ of backbone
-vertices.  Preserving all subset-balance equations while doing this need not
+vertices.  Preserving all subset-balance constraints while doing this need not
 leave a direction in which to move.  We instead preserve only a laminar
-family of interval equations and discard an equation once few fractional
+family of interval constraints and discard a constraint once few fractional
 variables still touch it.
 
 \begin{lemma}[Endpoint rounding]\label{lem:circulation-endpoint-rounding}
@@ -3472,28 +3471,29 @@ nodes of the resulting binary interval tree.  Put
 \]
 Each backbone position belongs to at most $h+1$ members of~$\mathfrak D$.
 Consequently, a variable~$x_{i,ab}$ has nonzero coefficient in at most
-$2(h+1)$ of the equations
+$2(h+1)$ of the constraints
 \[
     \Delta_{x,y}(D)=0,
     \qquad D\in\mathfrak D.
 \]
 
-Call a variable \emph{live} when $0<x_{i,ab}<p_i$, and let~$F$ be the set of
-live variables.  Throughout the procedure we preserve
+Call a variable \emph{unfixed} when $0<x_{i,ab}<p_i$ and \emph{fixed} when
+$x_{i,ab}\in\{0,p_i\}$.  Let~$F$ be the set of unfixed variables.  Throughout
+the procedure we preserve
 \cref{eq:coupled-outside-constraint}.  We also preserve a dyadic interval
-equation as long as it touches at least~$L$ live variables; once fewer than
-$L$ live variables touch it, we discard it permanently.
+constraint as long as it touches at least~$L$ unfixed variables; once fewer than
+$L$ unfixed variables touch it, we discard it permanently.
 
-Let $c_1$ be the number of outside equations that contain a live variable.
-No such equation can contain exactly one live variable: after all other
-variables in the equation have values in~$\{0,p_i\}$, the equality with
+Let $c_1$ be the number of outside-vertex constraints that contain an unfixed
+variable.  No such constraint can contain exactly one unfixed variable: after
+all other variables in the constraint have values in~$\{0,p_i\}$, the equality with
 right-hand side~$p_i$ would force the remaining variable to an endpoint as
 well.  Hence
 \[
     c_1\le\frac{|F|}{2}.
 \]
-Let $c_2$ be the number of currently preserved dyadic equations.  Counting
-incidences between these equations and the live variables gives
+Let $c_2$ be the number of currently preserved dyadic constraints.  Counting
+incidences between these constraints and the unfixed variables gives
 \[
     c_2L
     \le 2(h+1)|F|,
@@ -3502,21 +3502,21 @@ and therefore $c_2\le |F|/4$.  Thus
 \[
     c_1+c_2<|F|.
 \]
-The homogeneous system associated with the preserved equalities has a
+The homogeneous system associated with the preserved equality constraints has a
 nonzero direction supported on~$F$.
 
-Move in both signs of this direction until a live variable first reaches
+Move in both signs of this direction until an unfixed variable first reaches
 either~$0$ or its upper bound~$p_i$.  The current point is a convex
 combination of the two resulting endpoints.  Since the objective in
 \cref{eq:rounding-cost} is linear, at least one endpoint has cost no larger
 than the current point; choose such an endpoint.  This preserves all current
-equalities, never increases cost, and makes at least one additional variable
-nonlive.  Repeating the step terminates with every variable in
-$\{0,p_i\}$, while all outside equations still hold.  This proves
+constraints, never increases cost, and fixes at least one additional variable.
+Repeating the step terminates with every variable in
+$\{0,p_i\}$, while all outside-vertex constraints still hold.  This proves
 \cref{eq:rounding-cost} and the first displayed properties of~$\widehat x$.
 
-Consider a dyadic equation at the moment it is discarded.  Its imbalance is
-still zero, and fewer than~$L$ of its variables are live.  Only those
+Consider a dyadic interval constraint at the moment it is discarded.  Its imbalance is
+still zero, and fewer than~$L$ of its variables are unfixed.  Only those
 variables can subsequently change.  Each changes in absolute value by at
 most $p_i\le p_{\max}$ and has coefficient in~$\{-1,0,1\}$.  It follows that
 at the end of the procedure,
@@ -3800,9 +3800,9 @@ claimed closed walk~$W_A$.
 \label{sec:joint-circulation-rounding}
 
 The endpoint assignments and auxiliary chords must be chosen before the policy
-learns which vertices are active.  We obtain both objects in one randomized
+learns which vertices are active.  We obtain both in one randomized
 rounding procedure, independent of the activations.  It preserves their
-combined cost in expectation and leaves only $O(\log^2 n)$ imbalance on every
+combined cost in expectation and leaves only $O(\log^2 n)$ flow imbalance on every
 cyclic interval for every rounding outcome.
 
 Fix an induced subinstance on $W\subseteq V^\circ$ and one possible
@@ -3876,8 +3876,7 @@ and, for every cyclic interval~$I$,
       \le C_{\mathrm{round}}\log^2 n,
     \label{eq:joint-rounding-interval}
 \end{equation}
-where $C_{\mathrm{round}}$ is universal.  Moreover, if~$\rho$ denotes the
-internal randomness of the procedure, then
+where $C_{\mathrm{round}}$ is universal.  Moreover,
 \begin{equation}
     \E_\rho\!\left[
       \sum_{i\in U}p_i
@@ -3897,49 +3896,60 @@ $d(r,r)=0$, the expected-cost identity and the discrepancy bound follow.
 Assume henceforth that $m\ge2$.
 
 Introduce variables~$\xi_{i,ab}$, initialized at~$x_{i,ab}$, with bounds
-\[
+$
     0\le \xi_{i,ab}\le p_i,
-\]
+$
 and variables~$\eta_{ab}$, initialized at~$y_{ab}$, with bounds
-\[
+$
     \lfloor y_{ab}\rfloor\le\eta_{ab}\le\lceil y_{ab}\rceil.
-\]
-These bounds are fixed throughout the procedure.
-We preserve every outside-vertex equation
-\begin{equation}\label{eq:joint-rounding-vertex-equation}
-    \sum_{a,b\in R}\xi_{i,ab}=p_i.
-\end{equation}
-We also preserve selected interval equations
-$\Delta_{\xi,\eta}(D)=0$.
+$
+These bounds remain unchanged throughout the procedure.
 
-Pad the linear order $s_0,\ldots,s_{m-1}$ with empty positions to the next
-power of two, and let~$\mathfrak D$ be the dyadic interval family given by
-the resulting binary tree.  We identify each tree node with its intersection
-with the actual backbone positions, ignoring empty padded leaves.  Put
+Let $h:=\lceil\log_2m\rceil$ and pad the linear order
+$s_0,\ldots,s_{m-1}$ with empty positions to length~$2^h$.  For
+$0\le\ell\le h$ and $0\le j<2^{h-\ell}$, define dyadic intervals
 \[
-    h:=\lceil\log_2m\rceil,
-    \qquad
-    L:=8(h+1).
+    D_{\ell,j}
+    :=\{s_k:0\le k<m,\ j2^\ell\le k<(j+1)2^\ell\}.
 \]
-Call a variable \emph{live} when it lies strictly between its two bounds.
-An interval equation is retained while at least~$L$ live variables have
-nonzero coefficient in it, and is discarded permanently once fewer than
-$L$ live variables touch it.  Initially all interval equations hold by
-\cref{eq:adaptive-fractional-interval-balance}.
+Let~$\mathfrak D$ be the family of all nonempty sets~$D_{\ell,j}$,
+and put $L:=8(h+1)$.
 
-Let $F_x$ and~$F_y$ be the sets of live $\xi$- and $\eta$-variables, and put
+The rounding procedure considers two families of equality constraints.  For each
+$i\in U$, the equality
+\begin{equation}\label{eq:joint-rounding-vertex-equation}
+    \sum_{a,b\in R}\xi_{i,ab}=p_i
+\end{equation}
+is the \emph{outside-vertex constraint} for~$i$.  For each
+$D\in\mathfrak D$, the equality
+\[
+    \Delta_{\xi,\eta}(D)=0
+\]
+is the \emph{interval constraint} for~$D$.
+
+Call a variable \emph{unfixed} when it lies strictly between its two bounds
+and \emph{fixed} when it is at either bound; fixed variables are not changed
+thereafter.  Initially, all outside-vertex constraints hold by the last
+relation in~\cref{eq:adaptive-coupling}, and all interval constraints hold by
+\cref{eq:adaptive-fractional-interval-balance}.  Every outside-vertex
+constraint is retained throughout the procedure.  An interval constraint is
+retained while at least~$L$ unfixed variables have nonzero coefficients in it
+and is discarded permanently once fewer than~$L$ do.
+
+Let $F_x$ and~$F_y$ be the sets of unfixed $\xi$- and $\eta$-variables, and put
 $F:=F_x\cup F_y$.  If $F=\emptyset$, terminate.  Otherwise, let~$c_1$ be the
-number of outside-vertex equations containing a live variable.  Such an equation
-cannot contain exactly one live variable:
+number of outside-vertex constraints containing an unfixed variable.  Such a
+constraint cannot contain exactly one unfixed variable:
 all its other variables are in~$\{0,p_i\}$, so
 \cref{eq:joint-rounding-vertex-equation} would force the remaining variable
 to one of its bounds.  Hence
 \[
     c_1\le\frac{|F_x|}{2}\le\frac{|F|}{2}.
 \]
-Let~$c_2$ be the number of retained interval equations.  Each backbone
-position belongs to at most~$h+1$ dyadic intervals, so every chord variable
-has nonzero coefficient in at most~$2(h+1)$ such equations.  Counting
+Let~$c_2$ be the number of retained interval constraints, which currently
+contain at least $L$ unfixed variables.  Each position belongs to
+at most~$h+1$ dyadic intervals, so every chord variable
+has nonzero coefficient in at most~$2(h+1)$ such constraints.  Counting
 incidences gives
 \[
     c_2L\le2(h+1)|F|,
@@ -3947,19 +3957,19 @@ incidences gives
     c_2\le\frac{|F|}{4}.
 \]
 Thus $c_1+c_2<|F|$.  The homogeneous system associated with the retained
-equalities has a nonzero direction supported on~$F$.
+equality constraints has a nonzero direction supported on~$F$.
 
-Move maximally in both signs of this direction until a live variable first
+Move maximally in both signs of this direction until an unfixed variable first
 reaches a bound.  More explicitly, for maximal $\alpha,\beta>0$, let
 \[
     q^+:=q+\alpha d,
     \qquad
     q^-:=q-\beta d,
 \]
-where~$q$ is the current vector of live variables and~$d$ is the chosen
+where~$q$ is the current vector of unfixed variables and~$d$ is the chosen
 direction.  Choose $q^+$ with probability $\beta/(\alpha+\beta)$ and $q^-$
 with probability $\alpha/(\alpha+\beta)$.  Both points preserve all retained
-equalities and make at least one additional variable nonlive, while
+constraints and fix at least one additional variable, while
 \[
     \E[q^{\mathrm{next}}\mid q]=q.
 \]
@@ -3979,24 +3989,24 @@ martingale property gives
 Taking expectations in the rounded objective and using
 \cref{eq:adaptive-coupling-cost} proves~\cref{eq:joint-rounding-cost}.
 
-Consider a dyadic equation when it is discarded.  Its imbalance is still
-zero, and fewer than~$L$ live variables touch it.  Only those variables can
-subsequently change.  A $\xi$-variable changes by at most~$p_i\le1$, and an
-$\eta$-variable changes by at most one because its bounds are consecutive
-integers.  Therefore its final imbalance has absolute value at most~$L$.
+Consider a dyadic interval constraint when it is discarded.  Its imbalance
+is still zero, and fewer than~$L$ unfixed variables touch it.  Only those
+variables can subsequently change.  A $\xi$-variable changes by at
+most~$p_i\le1$, and an $\eta$-variable changes by at most one because its
+bounds are consecutive integers.  Therefore its final imbalance has absolute
+value at most~$L$.
 Every linear interval has a canonical decomposition into $O(h+1)$ disjoint
-dyadic intervals.  A wrapped cyclic interval is the complement of a linear
-interval, and the imbalance of~$R$ is identically zero.  Additivity therefore
-gives final discrepancy $O((h+1)L)=O(\log^2 n)$ for every cyclic interval,
+dyadic intervals.  Summing the imbalance up therefore
+gives final imbalance $O((h+1)L)=O(\log^2 n)$ for every cyclic interval,
 which proves~\cref{eq:joint-rounding-interval}.
 \end{proof}
 
-The joint rounding thus leaves only $O(\log^2 n)$ deterministic imbalance
+The joint rounding thus leaves only $O(\log^2 n)$ imbalance
 on each cyclic interval.  Once the vertex activations are realized, the
 chords of active outside vertices contribute an additional centered Bernoulli
 fluctuation.  The next section controls the expected maximum of this
 fluctuation and turns the
-rounded objects into a causal adaptive policy.
+rounded circulation into an  adaptive policy.
 
 \section{An adaptive circulation policy}
 \label{sec:adaptive-circulation}
@@ -4034,14 +4044,14 @@ we define the multiset of active chords:
 
 \begin{lemma}[Edge-multiplicity bound for the virtual walk]
 \label{lem:active-first-stack-walk}
-For every realization~$A$, put $F:=F(A)$ and define its augmented maximum
-cyclic-interval imbalance by
+For every realization~$A$, put $F:=F(A)$ and define its maximum
+cyclic interval imbalance by
 \[
     \Lambda(F)
     :=1+\max_{I\text{ cyclic interval of }T_R}
       \left|\sum_{(a,b)\in F}\chi_I(a,b)\right|.
 \]
-The policy described above uses every chord in~$F$ exactly once and every
+The policy described above uses every chord in~$F$ at most once and every
 backbone edge at most~$\Lambda(F)$ times.
 \end{lemma}
 
@@ -4050,9 +4060,9 @@ If $R=\{r\}$, all its chords are loops at~$r$;
 the policy simply exhausts the list of outside vertices at~$r$, so the claim follows.
 Suppose henceforth that~$R$ has at least two vertices.  
 
-Let $c_e$ be the number of traversals of backbone edge~$e$.  Flow balance of
+Let $c_e$ be the number of usage of backbone edge~$e$.  Flow balance of
 the completed closed walk over any cyclic interval implies that the
-difference of the traversal counts of its two boundary backbone edges is
+difference of the usage of its two boundary backbone edges is
 exactly the negative of the chord imbalance.  Hence
 $|c_e-c_{e'}|\le\Lambda(F)-1$ for any two backbone edges.
 
@@ -4062,8 +4072,8 @@ backbone edge whose first use occurs last.  Before a backbone edge is first
 used, its tail list and all auxiliary chords at its tail have been exhausted.
 Hence, by this last first use, every chord has been used.  The walk then
 follows the backbone to~$r$ without using this same edge again, so this edge
-has multiplicity one.  Every other backbone edge therefore has multiplicity
-at most~$\Lambda(F)$.
+is used exactly once.  Every other backbone edge therefore is used 
+at most~$\Lambda(F)$ times.
 \end{proof}
 
 \begin{lemma}[Cost of the adaptive circulation policy]
@@ -4088,12 +4098,17 @@ imbalance decomposes as
     \sum_{e\in F(A)}\chi_I(e)
     &=
       \sum_{a,b\in R}N_{ab}\chi_I(a,b)
-      +\sum_{i\in U}p_i\chi_I(a_i,b_i)\\
+      +\sum_{i\in U}\1_{\{i\in A\}}\chi_I(a_i,b_i)\\
+    &=
+      \left(
+        \sum_{a,b\in R}N_{ab}\chi_I(a,b)
+        +\sum_{i\in U}p_i\chi_I(a_i,b_i)
+      \right)\\
     &\qquad
       +\sum_{i\in U}
        \bigl(\1_{\{i\in A\}}-p_i\bigr)\chi_I(a_i,b_i).
 \end{align*}
-The absolute value of the first line is at most
+The absolute value of the parenthesized term is at most
 $C_{\mathrm{round}}\log^2 n$ by
 \cref{eq:joint-rounding-interval}.
 
@@ -4101,54 +4116,70 @@ It remains to control the centered activation term.  Put
 $X_i:=\1_{\{i\in A\}}-p_i$ for $i\in U$, so the variables~$X_i$ are
 independent, centered, and satisfy
 \[
-    \sum_{i\in U}\E[X_i^2]
+    \sum_{i\in U}\E_A[X_i^2]
     =\sum_{i\in U}p_i(1-p_i)
     \le\mu.
 \]
-For a backbone prefix $J_k:=\{s_0,\ldots,s_k\}$, write
+To express the imbalance of prefix intervals as the difference of
+two partial-sum processes, group the variables~$X_i$ according to the tails
+and heads of their assigned chords.  For $0\le j<m$, define
 \[
-    Z_k:=\sum_{i\in U}X_i\chi_{J_k}(a_i,b_i)
-    =\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}
-     -\sum_{i\in U}X_i\1_{\{b_i\in J_k\}}.
+    Y_j^{\mathrm{tail}}
+    :=\sum_{i\in U:a_i=s_j}X_i,
+    \qquad
+    Y_j^{\mathrm{head}}
+    :=\sum_{i\in U:b_i=s_j}X_i.
 \]
-Order the outside vertices once by the positions of their chord tails~$a_i$,
-breaking ties in an arbitrary fixed way.  The first process on the right,
-evaluated at prefix boundaries, is a subsequence of the partial sums in this
-order.  Hence \cref{lem:maximal-independent-sums} gives
+The two families are not necessarily independent of each other, since the
+same variable~$X_i$ appears in one tail sum and one head sum.  Within each
+family, however, the random variables are independent and centered.  Moreover,
 \[
-    \E_A\max_k
-      \left|\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}\right|
+    \sum_{j=0}^{m-1}\E_A[(Y_j^{\mathrm{tail}})^2]
+    =\sum_{j=0}^{m-1}\E_A[(Y_j^{\mathrm{head}})^2]
+    =\sum_{i\in U}\E_A[X_i^2]
+    \le\mu.
+\]
+Thus \cref{lem:maximal-independent-sums} gives
+\[
+    \E_A\max_{0\le k<m}
+      \left|\sum_{j=0}^kY_j^{\mathrm{tail}}\right|
+    \le2\sqrt\mu,
+    \qquad
+    \E_A\max_{0\le k<m}
+      \left|\sum_{j=0}^kY_j^{\mathrm{head}}\right|
     \le2\sqrt\mu.
 \]
-Ordering the outside vertices by their chord heads~$b_i$, again with fixed
-tie-breaking, gives the same bound for the second process, and therefore
+Set $Z_{-1}:=0$.  For the backbone prefix
+$J_k:=\{s_0,\ldots,s_k\}$, its imbalance is
 \[
-    \E_A\max_k|Z_k|\le4\sqrt\mu.
+    Z_k:=\sum_{i\in U}X_i\cdot\chi_{J_k}(a_i,b_i)
+    =\sum_{j=0}^k
+      \bigl(Y_j^{\mathrm{tail}}-Y_j^{\mathrm{head}}\bigr).
 \]
-Every linear interval is the difference of two prefixes, while a wrapped
-cyclic interval is the complement of a linear interval and
-$\chi_R(a,b)=0$.  Consequently,
+The preceding two bounds and the triangle inequality imply
+\[
+    \E_A\max_{-1\le k<m}|Z_k|\le4\sqrt\mu.
+\]
+Since every chord has one tail and one head, $Z_{m-1}=0$.  For any
+cyclic interval~$I$, its imbalance can therefore be expressed as
+$Z_k-Z_\ell$ for some $k,\ell\in\{-1,0,\ldots,m-1\}$ corresponding to the
+two boundaries of~$I$.  Consequently,
 \[
     \E_A\max_I
-      \left|\sum_{i\in U}X_i\chi_I(a_i,b_i)\right|
+      \left|\sum_{i\in U}X_i\cdot\chi_I(a_i,b_i)\right|
     \le8\sqrt\mu.
 \]
-Combining this estimate with the pathwise discrepancy bound for the first
-line yields, for every~$(S,\rho)$,
+Combining this estimate with the $C_{\mathrm{round}}\log^2 n$ interval-imbalance
+bound from~\cref{eq:joint-rounding-interval} yields, for every fixed
+preprocessing outcome~$(S,\rho)$,
 \begin{equation}\label{eq:adaptive-active-imbalance}
     \E_A[\Lambda(F(A))]
     \le 1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu.
 \end{equation}
 
-Put
-\[
-    L:=1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu.
-\]
-For fixed preprocessing~$(S,\rho)$, consider first the history-dependent
-virtual strategy described above.  By \cref{lem:active-first-stack-walk},
-each chord copy is used once and every backbone edge is used at most
-$\Lambda(F(A))$ times.  Its actual route is a shortcut of the expanded
-virtual walk, so its cost for realization~$A$ is at most
+By \cref{lem:active-first-stack-walk}, for fixed preprocessing~$(S,\rho)$,
+the policy uses each chord at most once and uses every backbone edge at most
+$\Lambda(F(A))$ times, so its cost for realization~$A$ is at most
 \begin{align*}
     &\sum_{a,b\in R}N_{ab}d(a,b)
       +\sum_{i\in A\cap U}\bigl(d(a_i,i)+d(i,b_i)\bigr)\\
@@ -4162,8 +4193,10 @@ Taking expectation over~$A$, the expected strategy cost is at most
     &\qquad
       +\E_A[\Lambda(F(A))]\cost(T_R).
 \end{align*}
-By the Markovization observation in \cref{sec:stoch-tsp-benchmarks}, there is
-a formal adaptive policy~$\pi_{S,\rho}$ with no larger expected cost.  Hence
+The current policy uses historical information, for example which auxiliary chord has 
+been used. However, as we claimed in \cref{sec:stoch-tsp-benchmarks}, there is always
+an adaptive policy achieving the optimum without making use of historical information.
+Thus there exists an adaptive policy~$\pi_{S,\rho}$ with no larger expected cost.  Hence
 \begin{align*}
     \cost(\pi_{S,\rho})
     &\le
@@ -4173,27 +4206,33 @@ a formal adaptive policy~$\pi_{S,\rho}$ with no larger expected cost.  Hence
       +\E_A[\Lambda(F(A))]\cost(T_R).
 \end{align*}
 Averaging this inequality over~$\rho$ and applying
-\cref{eq:joint-rounding-cost,eq:adaptive-active-imbalance} yields, for each
-fixed~$S$,
+\cref{eq:joint-rounding-cost} yields, for each fixed~$S$,
 \[
     \E_\rho[\cost(\pi_{S,\rho})]
-    \le \cost(z^S)+L\opt(S).
+    \le \cost(z^S)
+       +\E_\rho\!\left[\E_A[\Lambda(F(A))]\right]\opt(S).
 \]
-Put $B:=\optpost(W_\tau)$.  Averaging over~$S$ and using
-\cref{lem:average-backbone-cost} now gives
+Averaging over~$S$ and using
+\cref{eq:adaptive-active-imbalance,lem:average-backbone-cost} now gives
 \begin{align*}
     \E_{S,\rho}[\cost(\pi_{S,\rho})]
-    &\le \E_S[\cost(z^S)]+L\E_S[\opt(S)]\\
-    &\le \bigl(C_{\mathrm{back}}\log n+L\bigr)B\\
-    &\le C_3\bigl(\log^2 n+\sqrt\mu\bigr)B
+    &\le \E_S[\cost(z^S)]
+      +\E_{S,\rho}\!\left[
+         \E_A[\Lambda(F(A))]\opt(S)
+       \right]\\
+    &\le \E_S[\cost(z^S)]
+      +\bigl(1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu\bigr)
+       \E_S[\opt(S)]\\
+    &\le
+      \bigl(C_{\mathrm{back}}\log n
+        +1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu\bigr)\optpost(W_\tau)\\
+    &\le C_3\bigl(\log^2 n+\sqrt\mu\bigr)\optpost(W_\tau)
 \end{align*}
 for a universal constant~$C_3$.  Hence some fixed pair~$(S,\rho)$ has policy
 cost no larger than this average.  Fixing that pair before any activation is
 probed produces the claimed adaptive policy~$\pi_\tau$.  The second inequality
 in \cref{eq:low-probability-policy} follows from~$\mu\le n\tau$, with~$C_3$
 absorbed into the $O(\cdot)$ notation.
-This conclusion also covers $B=0$, since then the nonnegative average above
-is zero.
 \end{proof}
 
 \section{Threshold optimization and the clairvoyance-gap bound}

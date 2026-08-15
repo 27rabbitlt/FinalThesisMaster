@@ -1,0 +1,336 @@
+diff --git a/thesis/main.tex b/thesis/main.tex
+index 6141519..36b43d7 100644
+--- a/thesis/main.tex
++++ b/thesis/main.tex
+@@ -4012,60 +4022,100 @@ Fix a threshold~$\tau\in(0,1]$ and let
+     \mu:=\sum_{v\in W_\tau}p_v\le n\tau.
+ \]
+ Apply the circulation and rounding technique of \cref{sec:circulation-preprocessing} to the
+ subinstance induced by~$W_\tau$.  Fix a backbone sample
+ $S\subseteq W_\tau$ and an outcome~$\rho$ of the joint rounding, and retain
+-the notation $R=S\cup\{r\}$, $U=W_\tau\setminus S$, and~$T_R$.
+-
+-The policy maintains the current position on backbone. At backbone vertex~$a$, 
+-it probes unprobed outside vertices~$i$ whose assigned chord has tail~$a_i=a$.  
+-If the probed vertex~$i$ is active, the policy visits~$i$ immediately and continues 
+-to~$b_i$; if~$i$ is inactive, it probes the next unprobed outside vertex.  Once
+-the list at~$a$ is exhausted, the policy
+-takes an unused auxiliary chord leaving~$a$, if one exists, and otherwise the
+-next backbone edge. The process continues along the backbone until every vertex has been probed,
+-and then return to~$r$.
+-
+-We then prove this policy uses every active chord at most once and every backbone edge 
+-at most $\sqrt{n\tau}$ times, thus the cost of this policy is bounded. For an activation set~$A$, 
+-we define the multiset of active chords:
+-\[
+-    F(A):=N\uplus\biguplus_{i\in A\cap U}\{a_i\to b_i\},
+-\].
+-
+-\begin{lemma}[Edge-multiplicity bound for the virtual walk]
++the notation $R=S\cup\{r\}$, $U=W_\tau\setminus S$, and~$T_R$.  For each
++backbone vertex, fix arbitrary orders on its assigned outside vertices and
++on the copies of auxiliary chords leaving it.
++
++The walk-based probing strategy maintains its current position on the
++backbone.  Whenever it first
++reaches a non-root backbone vertex, it probes that vertex.  At a backbone
++vertex~$a$, it probes the unprobed outside vertices~$i$ whose assigned chord
++has tail~$a_i=a$.  If the probed vertex~$i$ is active, the strategy visits~$i$
++immediately and continues to~$b_i$; if~$i$ is inactive, it probes the next
++unprobed outside vertex in the list at~$a$.  Once this list is exhausted, the
++strategy takes an unused auxiliary chord leaving~$a$, if one exists, and
++otherwise the next backbone edge.  Once every non-root vertex has been
++probed, the strategy stops if it is at~$r$; otherwise it continues under the
++same rule until it reaches~$r$.  It need not use the remaining auxiliary
++chords.
++All lists and auxiliary-chord stacks are finite, and the fallback backbone
++edges visit every backbone vertex cyclically.  Hence the strategy eventually
++probes every non-root vertex and terminates at~$r$.
++
++The next lemma bounds the number of times the strategy traverses each backbone
++edge.  For an activation set~$A$, let the multiset consisting of all auxiliary
++chords and all active outside chords be
++\[
++    F(A):=N\uplus\biguplus_{i\in A\cap U}\{a_i\to b_i\}.
++\]
++
++\begin{lemma}[Edge-multiplicity bound for the strategy walk]
+ \label{lem:active-first-stack-walk}
+ For every realization~$A$, put $F:=F(A)$ and define its augmented maximum
+ cyclic-interval imbalance by
+ \[
+     \Lambda(F)
+     :=1+\max_{I\text{ cyclic interval of }T_R}
+       \left|\sum_{(a,b)\in F}\chi_I(a,b)\right|.
+ \]
+-The policy described above uses every chord in~$F$ exactly once and every
+-backbone edge at most~$\Lambda(F)$ times.
++The strategy described above uses every active outside chord exactly once,
++every copy of an auxiliary chord at most once, and every backbone edge at
++most~$\Lambda(F)$ times.
+ \end{lemma}
+ 
+ \begin{proof}
+ If $R=\{r\}$, all its chords are loops at~$r$;
+-the policy simply exhausts the list of outside vertices at~$r$, so the claim follows.
++the strategy simply exhausts the list of outside vertices at~$r$, so the claim follows.
+ Suppose henceforth that~$R$ has at least two vertices.  
+ 
+-Let $c_e$ be the number of traversals of backbone edge~$e$.  Flow balance of
+-the completed closed walk over any cyclic interval implies that the
+-difference of the traversal counts of its two boundary backbone edges is
+-exactly the negative of the chord imbalance.  Hence
+-$|c_e-c_{e'}|\le\Lambda(F)-1$ for any two backbone edges.
+-
+-If some backbone edge~$e'$ is unused, then
+-$c_e=|c_e-c_{e'}|\le\Lambda(F)-1$ for every~$e$.  Otherwise consider the
+-backbone edge whose first use occurs last.  Before a backbone edge is first
+-used, its tail list and all auxiliary chords at its tail have been exhausted.
+-Hence, by this last first use, every chord has been used.  The walk then
+-follows the backbone to~$r$ without using this same edge again, so this edge
+-has multiplicity one.  Every other backbone edge therefore has multiplicity
+-at most~$\Lambda(F)$.
++Let~$G$ be the submultiset of chords actually traversed by the strategy.
++Every active outside chord is used when its outside vertex is probed, whereas
++an auxiliary-chord copy is never used more than once.  Thus the multiset
++difference $H:=F\setminus G$ consists only of unused auxiliary chords.
++Let~$c_e$ be the number of traversals of backbone edge~$e$, including the
++final return to~$r$.
++
++First suppose that some backbone edge is unused.  If every backbone edge is
++unused, there is nothing to prove.  Otherwise, fix an edge~$e$ with $c_e>0$
++and go backwards around the backbone to the first unused edge~$e'$.
++Let~$I$ be the cyclic interval whose entering boundary edge is~$e'$ and whose
++leaving boundary edge is~$e$.  Every vertex in~$I$ has its outgoing backbone
++edge traversed.  The strategy takes such an edge only after exhausting the tail
++list and all auxiliary chords at its tail.  Hence no chord in~$H$ has its
++tail in~$I$, and therefore
++\[
++    \sum_{h\in H}\chi_I(h)\le0.
++\]
++Flow balance of the completed closed walk gives
++\[
++    c_e
++    =-\sum_{g\in G}\chi_I(g)
++    =-\sum_{f\in F}\chi_I(f)+\sum_{h\in H}\chi_I(h)
++    \le
++      \left|\sum_{f\in F}\chi_I(f)\right|
++    \le\Lambda(F)-1.
++\]
++The same bound is trivial for an unused edge.
++
++Now suppose that every backbone edge is used, and let~$e^*$ be the edge whose
++first use occurs last.  Before a backbone edge is first used, its tail list
++and all auxiliary chords at its tail have been exhausted.  Thus, by the first
++use of~$e^*$, every tail list and auxiliary stack has been exhausted, so
++$G=F$.  At this point every backbone vertex has been reached, and every
++non-root backbone vertex has been probed.
++The strategy then follows the backbone to~$r$ without using~$e^*$ again, and
++hence $c_{e^*}=1$.  Flow balance over the cyclic interval between
++any edge~$e$ and~$e^*$ gives
++\[
++    |c_e-c_{e^*}|
++    \le\max_I\left|\sum_{f\in F}\chi_I(f)\right|
++    =\Lambda(F)-1.
++\]
++Therefore $c_e\le\Lambda(F)$ for every backbone edge~$e$.
+ \end{proof}
+ 
+ \begin{lemma}[Cost of the adaptive circulation policy]
+ \label{lem:adaptive-circulation-cost}
+ There is a universal constant~$C_3$ such that the induced subinstance
+@@ -4086,114 +4136,144 @@ For every fixed~$(S,\rho)$ and every cyclic interval~$I$, the realized
+ imbalance decomposes as
+ \begin{align*}
+     \sum_{e\in F(A)}\chi_I(e)
+     &=
+       \sum_{a,b\in R}N_{ab}\chi_I(a,b)
+-      +\sum_{i\in U}p_i\chi_I(a_i,b_i)\\
++      +\sum_{i\in U}\1_{\{i\in A\}}\chi_I(a_i,b_i)\\
++    &=
++      \left(
++        \sum_{a,b\in R}N_{ab}\chi_I(a,b)
++        +\sum_{i\in U}p_i\chi_I(a_i,b_i)
++      \right)\\
+     &\qquad
+       +\sum_{i\in U}
+        \bigl(\1_{\{i\in A\}}-p_i\bigr)\chi_I(a_i,b_i).
+ \end{align*}
+-The absolute value of the first line is at most
++The absolute value of the parenthesized term is at most
+ $C_{\mathrm{round}}\log^2 n$ by
+ \cref{eq:joint-rounding-interval}.
+ 
+ It remains to control the centered activation term.  Put
+ $X_i:=\1_{\{i\in A\}}-p_i$ for $i\in U$, so the variables~$X_i$ are
+ independent, centered, and satisfy
+ \[
+-    \sum_{i\in U}\E[X_i^2]
++    \sum_{i\in U}\E_A[X_i^2]
+     =\sum_{i\in U}p_i(1-p_i)
+     \le\mu.
+ \]
+-For a backbone prefix $J_k:=\{s_0,\ldots,s_k\}$, write
++To express the imbalance of prefix intervals as the difference of
++two partial-sum processes, group the variables~$X_i$ according to the tails
++and heads of their assigned chords.  For $0\le j<m$, define
+ \[
+-    Z_k:=\sum_{i\in U}X_i\chi_{J_k}(a_i,b_i)
+-    =\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}
+-     -\sum_{i\in U}X_i\1_{\{b_i\in J_k\}}.
++    Y_j^{\mathrm{tail}}
++    :=\sum_{i\in U:a_i=s_j}X_i,
++    \qquad
++    Y_j^{\mathrm{head}}
++    :=\sum_{i\in U:b_i=s_j}X_i.
+ \]
+-Order the outside vertices once by the positions of their chord tails~$a_i$,
+-breaking ties in an arbitrary fixed way.  The first process on the right,
+-evaluated at prefix boundaries, is a subsequence of the partial sums in this
+-order.  Hence \cref{lem:maximal-independent-sums} gives
++The two families are not necessarily independent of each other, since the
++same variable~$X_i$ appears in one tail sum and one head sum.  Within each
++family, however, the random variables are independent and centered.  Moreover,
+ \[
+-    \E_A\max_k
+-      \left|\sum_{i\in U}X_i\1_{\{a_i\in J_k\}}\right|
++    \sum_{j=0}^{m-1}\E_A[(Y_j^{\mathrm{tail}})^2]
++    =\sum_{j=0}^{m-1}\E_A[(Y_j^{\mathrm{head}})^2]
++    =\sum_{i\in U}\E_A[X_i^2]
++    \le\mu.
++\]
++Thus \cref{lem:maximal-independent-sums} gives
++\[
++    \E_A\max_{0\le k<m}
++      \left|\sum_{j=0}^kY_j^{\mathrm{tail}}\right|
++    \le2\sqrt\mu,
++    \qquad
++    \E_A\max_{0\le k<m}
++      \left|\sum_{j=0}^kY_j^{\mathrm{head}}\right|
+     \le2\sqrt\mu.
+ \]
+-Ordering the outside vertices by their chord heads~$b_i$, again with fixed
+-tie-breaking, gives the same bound for the second process, and therefore
++Set $Z_{-1}:=0$.  For the backbone prefix
++$J_k:=\{s_0,\ldots,s_k\}$, its centered imbalance is
++\[
++    Z_k:=\sum_{i\in U}X_i\cdot\chi_{J_k}(a_i,b_i)
++    =\sum_{j=0}^k
++      \bigl(Y_j^{\mathrm{tail}}-Y_j^{\mathrm{head}}\bigr).
++\]
++The preceding two bounds and the triangle inequality imply
+ \[
+-    \E_A\max_k|Z_k|\le4\sqrt\mu.
++    \E_A\max_{-1\le k<m}|Z_k|\le4\sqrt\mu.
+ \]
+-Every linear interval is the difference of two prefixes, while a wrapped
+-cyclic interval is the complement of a linear interval and
+-$\chi_R(a,b)=0$.  Consequently,
++Since every chord has one tail and one head, $Z_{m-1}=0$.  For any
++cyclic interval~$I$, its centered imbalance can therefore be expressed as
++$Z_k-Z_\ell$ for some $k,\ell\in\{-1,0,\ldots,m-1\}$ corresponding to the
++two boundaries of~$I$.  Consequently,
+ \[
+     \E_A\max_I
+-      \left|\sum_{i\in U}X_i\chi_I(a_i,b_i)\right|
++      \left|\sum_{i\in U}X_i\cdot\chi_I(a_i,b_i)\right|
+     \le8\sqrt\mu.
+ \]
+-Combining this estimate with the pathwise discrepancy bound for the first
+-line yields, for every~$(S,\rho)$,
++Combining this estimate with the $C_{\mathrm{round}}\log^2 n$ interval-imbalance
++bound from~\cref{eq:joint-rounding-interval} yields, for every fixed
++preprocessing outcome~$(S,\rho)$,
+ \begin{equation}\label{eq:adaptive-active-imbalance}
+     \E_A[\Lambda(F(A))]
+     \le 1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu.
+ \end{equation}
+ 
+-Put
+-\[
+-    L:=1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu.
+-\]
+-For fixed preprocessing~$(S,\rho)$, consider first the history-dependent
+-virtual strategy described above.  By \cref{lem:active-first-stack-walk},
+-each chord copy is used once and every backbone edge is used at most
+-$\Lambda(F(A))$ times.  Its actual route is a shortcut of the expanded
+-virtual walk, so its cost for realization~$A$ is at most
++For fixed preprocessing~$(S,\rho)$, consider the strategy described
++above.  By \cref{lem:active-first-stack-walk},
++every active outside chord is used exactly once, every copy of an auxiliary
++chord is used at most once, and every backbone edge is used at most
++$\Lambda(F(A))$ times.  Charging also for the unused auxiliary chords can
++only increase the bound.  Retaining the root and each active vertex when it
++is probed gives a shortcut of the strategy walk, so its cost for
++realization~$A$ is at most
+ \begin{align*}
+     &\sum_{a,b\in R}N_{ab}d(a,b)
+       +\sum_{i\in A\cap U}\bigl(d(a_i,i)+d(i,b_i)\bigr)\\
+     &\hspace{40mm}
+       +\Lambda(F(A))\cost(T_R).
+ \end{align*}
+-Taking expectation over~$A$, the expected strategy cost is at most
+-\begin{align*}
+-    &\sum_{a,b\in R}N_{ab}d(a,b)
+-      +\sum_{i\in U}p_i\bigl(d(a_i,i)+d(i,b_i)\bigr)\\
+-    &\qquad
+-      +\E_A[\Lambda(F(A))]\cost(T_R).
+-\end{align*}
+-By the Markovization observation in \cref{sec:stoch-tsp-benchmarks}, there is
+-a formal adaptive policy~$\pi_{S,\rho}$ with no larger expected cost.  Hence
++The strategy may retain the remaining auxiliary-chord stacks, which need not
++be determined by its current position and the set of unprobed vertices.  Its
++decisions are nevertheless based only on the preprocessing and outcomes
++observed so far.  By the state-reduction observation in
++\cref{sec:stoch-tsp-benchmarks}, there is therefore a formal adaptive
++policy~$\pi_{S,\rho}$ with no larger expected cost.  Taking expectation
++over~$A$ gives
+ \begin{align*}
+     \cost(\pi_{S,\rho})
+     &\le
+       \sum_{a,b\in R}N_{ab}d(a,b)
+       +\sum_{i\in U}p_i\bigl(d(a_i,i)+d(i,b_i)\bigr)\\
+     &\qquad
+       +\E_A[\Lambda(F(A))]\cost(T_R).
+ \end{align*}
+ Averaging this inequality over~$\rho$ and applying
+-\cref{eq:joint-rounding-cost,eq:adaptive-active-imbalance} yields, for each
+-fixed~$S$,
++\cref{eq:joint-rounding-cost} yields, for each fixed~$S$,
+ \[
+     \E_\rho[\cost(\pi_{S,\rho})]
+-    \le \cost(z^S)+L\opt(S).
++    \le \cost(z^S)
++       +\E_\rho\!\left[\E_A[\Lambda(F(A))]\right]\opt(S).
+ \]
+ Put $B:=\optpost(W_\tau)$.  Averaging over~$S$ and using
+-\cref{lem:average-backbone-cost} now gives
++\cref{eq:adaptive-active-imbalance,lem:average-backbone-cost} now gives
+ \begin{align*}
+     \E_{S,\rho}[\cost(\pi_{S,\rho})]
+-    &\le \E_S[\cost(z^S)]+L\E_S[\opt(S)]\\
+-    &\le \bigl(C_{\mathrm{back}}\log n+L\bigr)B\\
++    &\le \E_S[\cost(z^S)]
++      +\E_{S,\rho}\!\left[
++         \E_A[\Lambda(F(A))]\opt(S)
++       \right]\\
++    &\le \E_S[\cost(z^S)]
++      +\bigl(1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu\bigr)
++       \E_S[\opt(S)]\\
++    &\le
++      \bigl(C_{\mathrm{back}}\log n
++        +1+C_{\mathrm{round}}\log^2 n+8\sqrt\mu\bigr)B\\
+     &\le C_3\bigl(\log^2 n+\sqrt\mu\bigr)B
+ \end{align*}
+ for a universal constant~$C_3$.  Hence some fixed pair~$(S,\rho)$ has policy
+ cost no larger than this average.  Fixing that pair before any activation is
+-probed produces the claimed adaptive policy~$\pi_\tau$.  The second inequality
+-in \cref{eq:low-probability-policy} follows from~$\mu\le n\tau$, with~$C_3$
+-absorbed into the $O(\cdot)$ notation.
++probed produces the claimed adaptive policy~$\pi_\tau$.
+ This conclusion also covers $B=0$, since then the nonnegative average above
+ is zero.
+ \end{proof}
+ 
+ \section{Threshold optimization and the clairvoyance-gap bound}
+
