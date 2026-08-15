@@ -1539,11 +1539,15 @@ vertex $s$ of activation probability~$1/2$ for which
   =\frac{10m+2}{9m+2}
   \longrightarrow\frac{10}{9}.
 \]
+\sharat{What is $m$ here? Maybe just remove the $10m+2$ vs $9m+2$ discussion. As of now $10/9$ is sufficient information.}
 Throughout this chapter, all instances discussed are symmetric.
 
 The optimal visit order when $s$ is inactive conflicts with the optimal order
-when $s$ is active.  An adaptive policy, however, must begin probing before it
-learns which case applies.
+when $s$ is active.  An adaptive policy, however, must begin probing before it learns which case applies.
+
+\sharat{The optimal tour depends on whether the semi-active vertex is active or inactive, and these two cases induce different visit orders. An adaptive policy, however, must probe $s$ before it learns which case applies.}
+
+\sharat{At some point do mention that probing $s$ too early is also expensive if the vertex activates since we have to travel all the way to $s$ in that case.}
 
 As a complementary result, we prove that every instance with one
 semi-active vertex of activation probability~$p\in[0,1]$ satisfies
@@ -1555,6 +1559,7 @@ uniform bound holds for instances with exactly one semi-active vertex:
 \[
   \frac{\optadapt}{\optpost}\le\frac{2+\sqrt6}{4}.
 \]
+\sharat{Mention a rough value for $\frac{2+\sqrt6}{4}$ so that the reader knows how it compares with $10/9$.}
 
 \section{The three-chain construction}\label{sec:three-chain-construction}
 
@@ -1698,6 +1703,8 @@ Their costs are
   L_1&:=\cost(T_1)=3H+2U+2P=20m+4.
   \label{eq:L1}
 \end{align}
+
+\sharat{Think of a good replacement for the word conflict. The informal way of describing the notion is to say that the optimal visit orders are incompatible.}
 
 Intuitively, the conflict lies in which chain is visited first after~$A$:
 $T_0$ visits $B$ before $C$, whereas $T_1$ visits $C$ before $B$.
@@ -2024,6 +2031,8 @@ least~$L_1$.
 
 \subsection{The adaptive optimum}\label{sec:three-chain-adaptive-optimum}
 
+\sharat{A better notation for the three-chain superscript is to use $\mathrm{3C}$ as opposed to $\mathrm{TC}$. The $T$ could also mean two or three or ten. I see that you have hardcoded this. Consider defining a macro that can be easily updated.}
+
 \begin{theorem}[Cost of the three-chain instance]\label{thm:three-chain-cost}
 For every integer $m\ge3$, the instance $\mathcal{I}_m^{\mathrm{TC}}$ in
 \cref{con:three-chain} satisfies
@@ -2067,6 +2076,8 @@ $\optadapt(\mathcal{I}_m^{\mathrm{TC}})=L_1$.
 
 \subsection{Why these edge lengths?}\label{sec:three-chain-edge-lengths}
 
+\sharat{This subsection is not needed. Also reads like an LLM.}
+
 The choices of $U$ and $P$ are dictated by the two cost thresholds used above.
 First consider a three-crossing walk that uses the wrong pair of chain
 endpoints.  Relative to $T_0$, at least two chains
@@ -2108,6 +2119,7 @@ to~$1$.  Hence the chosen values are at the balance for this construction.
 \section{Upper bound with one semi-active vertex}
 \label{sec:one-stochastic-upper-bound}
 
+\sharat{The section heading could be improved. Something like: StochTSP with a Single Semi-Active Vertex}
 For $p\in[0,1]$, let $\Gammaone(p)$ denote the worst-case clairvoyance gap
 among symmetric instances with exactly one semi-active vertex whose activation
 probability is~$p$.  The subscript~$1$ refers to this single semi-active
@@ -2250,6 +2262,11 @@ Taking the better policy gives \cref{eq:two-policy-bound}.
 \end{proof}
 
 \subsection{Optimization of the bound}\label{sec:one-stochastic-optimization}
+
+\sharat{Call this subsection as Choice of activation probability.}
+
+\sharat{I skimmed through this chapter. The proofs are technical but the results are all plausible. They just need effort to formalize. Once someone looks at one of these figures, the result becomes apparent. They can try it for themselves. I won't be making any more comments here.}
+
 
 It remains to optimize the two-policy estimate over the insertion and
 shortcut savings permitted by the metric.  After normalizing these quantities
