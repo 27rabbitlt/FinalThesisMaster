@@ -83,9 +83,11 @@ A classical abstraction is the \emph{stochastic traveling salesperson problem} (
 The goal is to find a tour that visits all active vertices and minimizes the expected travel cost, where the cost comes from the underlying metric on vertices.
 
 An important modeling choice is whether the salesperson is allowed to adapt future decisions based on information revealed during the execution of the tour.
-In the \emph{nonadaptive} (a~priori) setting, the salesperson commits to a fixed tour before observing the realization; during execution the salesperson follows this tour while shortcutting inactive vertices.
+In the \emph{nonadaptive} (a~priori) setting, the salesperson commits to a fixed tour before observing the realization \sharat{It's best to not say "the realization". Makes it sound like the set of active vertices are realized at the same time. It's an independent distribution so the wording should not refer to one grand realization but rather a set of active vertices.}; during execution the salesperson follows this tour while shortcutting inactive vertices.
 In the \emph{adaptive} setting, decisions may depend on observations revealed along the way, allowing the tour to be adjusted on the fly.
 In the \emph{a~posteriori} setting, the salesperson has full knowledge of the realization.
+
+\sharat{These paras needs rephrasing. You jumped straight to the stochastic model. Go a bit slower. The first para can talk broadly about the importance of TSP, routing, scheduling etc. and also how uncertainty is present in real world optimization problems. Next para can talk about classical TSP. Describe the setup}
 
 A fundamental question is how much adaptivity can improve performance relative to an optimal nonadaptive tour, and how much full clairvoyance improves over the best adaptive policy.
 Note that computing an optimal adaptive policy (or an optimal a~priori tour) for \StochTSP{} is computationally hard, since the setting with $p_v=1$ for all~$v$ corresponds to the classical TSP, which is known to be APX-hard~\cite{Karpinski2015}.
@@ -3841,7 +3843,7 @@ claimed closed walk~$W_A$.
 \subsection{Joint randomized rounding}
 \label{sec:joint-circulation-rounding}
 
-\sharat{As mentioned earlier. This is a section by itself. You do not have to necessarily talk about adaptive policies at this point. The story you are telling is that there is a certain augmented chord-backbon structure that encodes post opt up to polylog factors. As long as the operations only lose polylog relative to post opt, you don't need to allude to adaptive optimum.}
+\sharat{As mentioned earlier. This is a section by itself. You do not have to necessarily talk about adaptive policies at this point. The story you are telling is that there is a certain augmented chord-backbone structure that encodes post opt up to polylog factors. As long as the operations only lose polylog relative to post opt, you don't need to allude to adaptive optimum.}
 
 The endpoint assignments and auxiliary chords must be chosen before the policy
 learns which vertices are active.  We obtain both in one randomized
@@ -5050,7 +5052,7 @@ work.
     Our results place the clairvoyance gap between~$3/2$ and
     $O(n^{1/3})$.  The lower bound comes from the layered-poset construction,
     strengthening the recursive-triangle family sketched in
-    \cref{rem:recursive-triangle}, whose ratio tends to~$4/3$;
+    \cref{rem:recursive-triangle}, whose ratio tends to~$4/3$; \sharat{Not the right place to mention the $4/3$ result.}
     the upper bound comes from the adaptive backbone-circulation policy in
     \cref{ch:circulation}.  Is the gap bounded by a constant, or must it grow
     with~$n$?
@@ -5065,9 +5067,11 @@ work.
     A more realistic direction is
     to seek a polynomial-time constant-factor approximation for a~priori
     TSP, or more generally to improve the tradeoff between running
-    time and approximation ratio.
-\end{enumerate}
+    time and approximation ratio. 
+    \sharat{The discussion around APX-hardness is irrelevant for conclusions. It belongs in the appropriate chapter. Mention that we gave an exponential time algorithm for computing a $(1+\epsilon)$ approximate a priori solution. Then focus on the pressing question: can we compute an optimal a priori solution in exponential time? Or even $2^{o(n \log n)}$ time. Recall that we always wanted to know whether $n!$ runtime is needed for computing an optimal solution. Our $1+\epsilon$ approximation was a workaround. Note $\log n! \approx n \log n$.}
 
+    \item \sharat{Mention the most important algorithmic open question of this thesis. Is there an adaptive policy for asymmetric StochTSP that is polylog approximate relative to post opt.}  
+\end{enumerate}
 
 % ============================================================
 % ACKNOWLEDGEMENTS
