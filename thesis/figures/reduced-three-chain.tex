@@ -1,0 +1,97 @@
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+      x=1cm,
+      y=1cm,
+      deterministic/.style={
+        rectangle,
+        draw=black,
+        fill=white,
+        minimum width=8.5mm,
+        minimum height=7mm,
+        inner sep=0pt,
+        font=\scriptsize
+      },
+      root/.style={deterministic,fill=gray!15},
+      stochastic/.style={
+        circle,
+        draw=black,
+        fill=gray!30,
+        minimum size=7.5mm,
+        inner sep=0pt,
+        font=\scriptsize
+      },
+      chain/.style={black,line width=0.8pt},
+      uedge/.style={black!65,densely dashed,line width=0.85pt},
+      pedge/.style={
+        black,
+        dash pattern=on 4pt off 2pt on 1pt off 2pt,
+        line width=0.85pt
+      },
+      rowlabel/.style={font=\small\bfseries,anchor=east},
+      edgelabel/.style={
+        fill=white,
+        inner sep=1.5pt,
+        font=\scriptsize
+      },
+      note/.style={font=\scriptsize,align=center}
+    ]
+
+    % The finely subdivided chain A.
+    \node[root]          (A0)  at (0, 2.7) {$a_0$};
+    \node[deterministic] (A1)  at (1.2, 2.7) {$a_1$};
+    \node[deterministic] (A2)  at (2.4, 2.7) {$a_2$};
+    \node[deterministic] (Am1) at (4.8, 2.7) {$a_{m-1}$};
+    \node[deterministic] (Am)  at (6, 2.7) {$a_m$};
+
+    % Chains B and C each have only one internal always-active vertex.
+    \node[deterministic] (Bm)   at (0, 0) {$b_m$};
+    \node[deterministic] (Bmid) at (4.4, 0) {$b_\star$};
+    \node[deterministic] (B0)   at (6, 0) {$b_0$};
+
+    \node[deterministic] (C0)   at (0,-2.7) {$c_0$};
+    \node[deterministic] (Cmid) at (1.6,-2.7) {$c_\star$};
+    \node[deterministic] (Cm)   at (6,-2.7) {$c_m$};
+
+    \node[stochastic] (S) at (7.45,-1.35) {$s$};
+
+    % Four U-edges joining A to B and C.
+    \draw[uedge] (A0)--node[edgelabel,left] {$U$} (Bm);
+    \draw[uedge] (Am)--node[edgelabel,right] {$U$} (B0);
+    \draw[uedge] (A0)--node[edgelabel,pos=0.23,above,sloped] {$U$} (Cm);
+    \draw[uedge] (Am)--node[edgelabel,pos=0.23,above,sloped] {$U$} (C0);
+
+    % Three P-edges: the direct B--C connection and the route through s.
+    \draw[pedge] (Bm)--node[edgelabel,left] {$P$} (C0);
+    \draw[pedge] (B0)--node[edgelabel,above,sloped] {$P$} (S);
+    \draw[pedge] (Cm)--node[edgelabel,below,sloped] {$P$} (S);
+
+    % Internal chain edges.
+    \draw[chain] (A0)--(A1)--(A2)--(Am1)--(Am);
+    \node[fill=white,inner sep=2.5pt] at (3.6,2.7) {$\cdots$};
+
+    \draw[chain]
+      (Bm)--node[edgelabel,above] {$H/2$} (Bmid)
+           --node[edgelabel,above] {$H/2$} (B0);
+    \draw[chain]
+      (C0)--node[edgelabel,below] {$H/2$} (Cmid)
+          --node[edgelabel,below] {$H/2$} (Cm);
+
+    % Labels and annotations.
+    \node[rowlabel] at (-0.75, 2.7) {$A$};
+    \node[rowlabel] at (-0.75, 0) {$B$};
+    \node[rowlabel] at (-0.75,-2.7) {$C$};
+    \node[note,above=2mm of A0] {root\\$r=a_0$};
+    \node[note] at (3.8,3.35)
+      {$m$ edges of length $2$ \;(total length $H=2m$)};
+    \node[note,anchor=west] at (7.9,-1.35)
+      {$p_s=\tfrac12$};
+  \end{tikzpicture}
+  \caption{The reduced three-chain graph.  Only chain~$A$ is finely
+    subdivided.  Chains~$B$ and~$C$ each contain one internal always-active
+    vertex and two edges of length~$H/2$.  Dashed edges have length~$U$ and
+    dash-dotted edges have length~$P$.  Every square vertex is always active,
+    while the gray vertex~$s$ is active with probability~$1/2$.  The drawing
+    is not to scale.}
+  \label{fig:reduced-three-chain}
+\end{figure}
