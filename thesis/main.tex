@@ -149,7 +149,7 @@ We obtain the following results.
     (\cref{thm:layered-column-gap}).  The construction uses independent
     activations and a strictly positive asymmetric metric. \manuel{I dont know what the previous sentence is supposed to add. This is the usual model??}  Before the main
     construction, we record a natural recursive-triangle family whose ratio
-    tends to~$4/3$ (\cref{rem:recursive-triangle}); its longer analysis is
+    tends to~$4/3$; its longer analysis is
     kept in a separate technical note.  We also give an explicit finite
     member whose ratio is strictly larger than~$4/3$.
 
@@ -3154,51 +3154,73 @@ lower bound.}
 \section{From symmetric round trips to asymmetric chords}
 \label{sec:asymmetric-backbone-motivation}
 
-We begin with the sampled master route of Shmoys and
+We begin with the master tour method of Shmoys and
 Talwar~\cite{Shmoys2008}.  The factor-three formulation below is made
-explicit by Blauth et al.~\cite{Blauth2024}.  First suppose that the metric is
-symmetric.  Independently include every non-root vertex~$v$ in a sample~$S$
-with probability~$p_v$, and put $R:=S\cup\{r\}$. \sharat{Would be ideal to avoid having both $R$ and $S$. Just use one of them. Preferable $S$ should already contain the root.} Let~$T_R$ be an optimal
-tour on~$R$.  For every vertex $u\notin R$, choose a nearest backbone vertex
-$\mu_S(u)\in R$ and put $D_S(u):=d(u,\mu_S(u))$. \sharat{Bad choice to use $\mu$ for nearest vertex. Use $\pi$ or $\sigma$.} Joining~$u$ to
-$\mu_S(u)$ by a doubled spoke \sharat{by a pair of parallel edges for every $u \notin S$ gives an Eulerian spanning graph. This Eulerian graph can be used to obtain a master tour ... } walking around the resulting structure
-gives a master tour~$M_S$.  After the actual active set is realized, inactive
-vertices are shortcut.  Conditional on~$S$, its expected cost is at most
+explicit by Blauth et al.~\cite[Section~1.1]{Blauth2024}.  First suppose that
+the metric is symmetric.  Independently include every non-root vertex~$v$
+in a sample~$S$ with probability~$p_v$, and call $R:=S\cup\{r\}$ the
+backbone. \sharat{Would be ideal to avoid having both $R$ and $S$. Just use one of them. Preferable $S$ should already contain the root.} Let~$T_R$ be an optimal tour on~$R$.  For every~$u\in V^\circ$,
+put
+\[
+    D_R(u):=\min_{w\in R\setminus\{u\}}d(u,w).
+\]
+For each unsampled vertex $u\in V^\circ\setminus S$, choose~$\mu_R(u)\in R$ such that
+$d(u,\mu_R(u))=D_R(u)$. \sharat{Bad choice to use $\mu$ for nearest vertex. Use $\pi$ or $\sigma$.} Joining every such~$u$ to~$\mu_R(u)$ by two copies
+of this connection \sharat{by a pair of parallel edges for every $u \notin S$ gives an Eulerian spanning graph. This Eulerian graph can be used to obtain a master tour ... } and walking through the resulting structure gives a master
+tour~$M_S$.  After the actual active set is realized, inactive vertices are
+shortcut.  Conditioned on~$S$, its expected cost is at most
 \begin{equation}\label{eq:symmetric-master-route}
     \cost(M_S)
     \le \opt(S)
-       +2\sum_{u\in V^\circ\setminus S}p_uD_S(u).
+       +2\sum_{u\in V^\circ\setminus S}p_uD_R(u).
 \end{equation}
 
-The two terms in \cref{eq:symmetric-master-route} admit a cumulative charge to
-the posterior optimum.  Since~$S$ has the same distribution as an activation
+Since~$S$ has the same distribution as an activation
 set,
 \[
     \E_S[\opt(S)]=\optpost.
 \]
-Independence of the sample coordinates also gives
+Then we consider the second term.
+For every~$u\in V^\circ$, let~$I_u:=\1_{\{u\in S\}}$.  Notice that~$I_u$ and~$D_R(u)$
+are independent.  Adding nonnegative terms gives
 \begin{align*}
-    &\E_S\!\left[
-      \sum_{u\in V^\circ\setminus S}p_uD_S(u)
-    \right] \\
-    &\qquad\le
     \E_S\!\left[
-      \sum_{u\in S}
-      \min_{w\in(S\setminus\{u\})\cup\{r\}}d(u,w)
+      \sum_{u\in V^\circ\setminus S}p_uD_R(u)
     \right]
-    \le \E_S[\opt(S)].
+    &\le \E_S\!\left[
+      \sum_{u\in V^\circ}p_uD_R(u)
+    \right]\\
+    &=\sum_{u\in V^\circ}p_u\E_S[D_R(u)]\\
+    &=\sum_{u\in V^\circ}\E_S[I_u]\E_S[D_R(u)]\\
+    &=\sum_{u\in V^\circ}\E_S[I_uD_R(u)]\\
+    &=\E_S\!\left[\sum_{u\in S}D_R(u)\right].
 \end{align*}
-For the last inequality, charge the nearest-other-sample distance of every
-$u\in S$ to the edge leaving~$u$ in an optimal tour on~$S\cup\{r\}$.  Thus
-the expected backbone cost is~$\optpost$, while the cumulative expected cost
-of leaving the backbone and returning to it is at most~$2\optpost$. \sharat{Use $\cdot$ when separating a number $2$ from $\optpost$ for clarity. Do this throughout the thesis.}
+Here the equalities use linearity of expectation and the independence
+of~$I_u$ and~$D_R(u)$. For a fixed nonempty sample~$S$, let~$\text{Succ}_S(u)$ be
+the successor of~$u\in S$ in an optimal tour on~$R$, then we have
+$D_R(u)\le d(u,\text{Succ}_S(u))$.  Summing over~$u\in S$ gives
+\[
+    \sum_{u\in S}D_R(u)
+    \le \sum_{u\in S}d(u,\sigma_S(u))
+    \le \opt(S).
+\]
+Taking expectations and combining the inequalities above gives
+\[
+    \E_S\!\left[
+      \sum_{u\in V^\circ\setminus S}p_uD_R(u)
+    \right]
+    \le \E_S[\opt(S)]
+    =\optpost.
+\]
+Thus the expected backbone cost is~$\optpost$, and the expected
+cost of every unsampled vertex leaving the backbone and returning to it is at most~$2\optpost$. \sharat{Use $\cdot$ when separating a number $2$ from $\optpost$ for clarity. Do this throughout the thesis.}
 Averaging \cref{eq:symmetric-master-route} over~$S$ yields a master tour of
 cost at most~$3\optpost$.  This factor-three statement is an existence result
 because it uses an optimal tour on the sample.  Replacing that tour by a
 $3/2$-approximate symmetric TSP tour gives instead a polynomial-time
 randomized \sharat{approximation} factor of~$7/2$.
 
-The same-anchor detours can be expensive
+This master tour method can be expensive
 in an asymmetric metric.  Consider the grid construction of Christalla et
 al.~\cite[Section~3.1]{Christalla2025}: there are $k$ cyclic columns, each
 containing $k$ vertices, and the metric is induced by unit-length arcs from
@@ -4715,13 +4737,12 @@ between them.  By \cref{lem:adaptive-policy-concatenation},
 \chapter{Adaptivity Gap for Asymmetric \StochTSP{}}\label{ch:asym-adapt}
 
 This chapter proves an adaptivity-gap lower bound of
-$\Omega(n^{1/3}/\log n)$ for asymmetric metrics.  We use a rectangular
-variant of the asymmetric grid instances introduced by Christalla, Puhlmann,
+$\Omega(n^{1/3}/\log n)$ for asymmetric \StochTSP{}.  We use a rectangular
+variant of the grid instances introduced by Christalla, Puhlmann,
 and Traub~\cite[Section~3.1]{Christalla2025}: there are $k^2$ cyclic columns,
 each containing $k$ vertices, and every non-root vertex is active with
 probability~$1/k$.  Thus the number of non-root vertices is $n=k^3$.
 
-The proof separates into an a~priori lower bound and an adaptive upper bound.
 For an a~priori tour, divide its order into packets of $k$ consecutive
 vertices.  If a packet meets many columns, its vertices determine many
 distinct forward distances; if it meets few columns, it contains many pairs
@@ -5758,8 +5779,8 @@ work.
     \item \textbf{Asymmetric clairvoyance gap.}
     Our results place the clairvoyance gap between~$3/2$ and
     $O(n^{1/3})$.  The lower bound comes from the layered-column construction,
-    strengthening the recursive-triangle family sketched in
-    \cref{rem:recursive-triangle}, whose ratio tends to~$4/3$; \sharat{Not the right place to mention the $4/3$ result.}
+    strengthening the recursive-triangle family, whose ratio tends
+    to~$4/3$; \sharat{Not the right place to mention the $4/3$ result.}
     the upper bound comes from the existence proof for the adaptive
     backbone-circulation policy in \cref{ch:circulation}.  Is the gap bounded
     by a constant, or must it grow with~$n$?

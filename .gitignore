@@ -32,6 +32,7 @@ texbuild/
 *.alg
 *.xdv
 *.pdf
+!thesis/declaration-originality-signed.pdf
 
 # no tmp folder
 tmp/
