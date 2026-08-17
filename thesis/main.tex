@@ -14,6 +14,7 @@
   {\end{enumerate}\endgroup\medskip}
 
 \newcommand{\sharat}[1]{\textcolor{red}{Sharat: #1}} %%% don't remove this macro
+\newcommand{\manuel}[1]{\textcolor{magenta}{Manuel: #1}} 
 
 \begin{document}
 
@@ -69,6 +70,7 @@ $\varepsilon>0$, we give a deterministic algorithm that computes a
 $(1+\varepsilon)$-approximate a~priori solution in time
 $c_\varepsilon^n\operatorname{poly}(n)$, where $c_\varepsilon$ depends only
 on~$\varepsilon$.
+\manuel{Perhaps explicitly say that $c_\varepsilon$ is a constant.}
 
 \tableofcontents
 \clearpage
@@ -82,14 +84,16 @@ on~$\varepsilon$.
 Many real-world routing and scheduling problems are subject to uncertainty.
 In a delivery service, for example, a courier must plan a route through several customer locations, yet some customers may have no packages to receive or their requests may be canceled.
 A classical abstraction is the \emph{stochastic traveling salesperson problem} (\StochTSP{}), where each client~$v$ comes with a specified probability~$p_v$ and becomes \emph{active} (requires service) independently with probability~$p_v$.
-The goal is to find a tour that visits all active vertices and minimizes the expected travel cost, where the cost comes from the underlying metric on vertices.
+The goal is to find a tour that visits all active vertices and minimizes the expected travel cost, where the cost comes from the underlying metric on \manuel{the?} vertices.
 
 An important modeling choice is whether the salesperson is allowed to adapt future decisions based on information revealed during the execution of the tour.
 In the \emph{nonadaptive} (a~priori) setting, the salesperson commits to a fixed tour before observing the realization \sharat{It's best to not say "the realization". Makes it sound like the set of active vertices are realized at the same time. It's an independent distribution so the wording should not refer to one grand realization but rather a set of active vertices.}; during execution the salesperson follows this tour while shortcutting inactive vertices.
 In the \emph{adaptive} setting, decisions may depend on observations revealed along the way, allowing the tour to be adjusted on the fly.
 In the \emph{a~posteriori} setting, the salesperson has full knowledge of the realization.
 
-\sharat{These paras needs rephrasing. You jumped straight to the stochastic model. Go a bit slower. The first para can talk broadly about the importance of TSP, routing, scheduling etc. and also how uncertainty is present in real world optimization problems. Next para can talk about classical TSP. Describe the setup}
+\sharat{These paras needs rephrasing. You jumped straight to the stochastic model. Go a bit slower. The first para can talk broadly about the importance of TSP, routing, scheduling etc. and also how uncertainty is present in real world optimization problems. Next para can talk about classical TSP. Describe the setup and maybe move \Cref{sec:metric-spaces-tours} here. Mention that the problem is APX hard and so constant factor approximation algorithms have been intensively studied (cite couple of papers). Then mention that the problem can be solved in exponential time using DP. Now start a new para by saying that we will consider the stochastic generalization where ... It's a good idea to introduce the $Q(A)$ notation. Make a remark that when $p_v = 1$ for all vertices, we recover the classic setting, so StochTSP is at least as hard as the deterministic version. New para again. Now talk about the a posteriori setting. This is the simplest of all because it's just the expected value of classical TSP solutions. Next, mention the a priori model in a new para. This is also a natural model because you are still computing one master tour (like in classical TSP) and the cost is some expected value calculation based on shortcutting. Explicitly state that optimal post and prior solutions coincide for the deterministic setting since there is only one realized set of active vertices. Mention the a priori cost model and conclude this para by defining the obliviousness gap using a labeled equation.}
+
+\sharat{In the next para, mention the most relevant prior work on StochTSP. Say anywhere from 3-6 papers. We are trying to tell the reader that these are well studied models. State the Shmoys Talwar upper bound of 3 and mention the lower bound of fourth root of n from CPT. You don't need to mention the polylog approximation in quasi-polytime for a priori from CPT at this point. It belongs in the related work section. Our goal is to convey that a wide separation exists between symmetric and asymmetric cases when it comes to the obliviousness gap. Now motivate the adaptive model and.}
 
 A fundamental question is how much adaptivity can improve performance relative to an optimal nonadaptive tour, and how much full clairvoyance improves over the best adaptive policy.
 Note that computing an optimal adaptive policy (or an optimal a~priori tour) for \StochTSP{} is computationally hard, since the setting with $p_v=1$ for all~$v$ corresponds to the classical TSP, which is known to be APX-hard~\cite{Karpinski2015}.
@@ -99,6 +103,7 @@ Thus, we are interested in understanding the separations between the three bench
 \section{Our contributions}\label{sec:contributions}
 
 We obtain the following results.
+\manuel{Words like obliviousness gap etc are not yet really defined but used below}
 
 \begin{enumerate}
     \item \textbf{Adaptivity gap lower bound for symmetric metrics} (\cref{ch:sym-adapt}).
@@ -121,7 +126,7 @@ We obtain the following results.
     maximum active load of a column.  The resulting adaptivity gap is
     $\Omega(n^{1/3}/\log n)$
     (\cref{thm:asymmetric-adaptivity-lower}).  The same lower bound also
-    applies to the obliviousness gap.
+    applies to the obliviousness gap. \manuel{Perhaps it makes sense to state the previous known bound explicitly}
 
     \item \textbf{Clairvoyance gap for symmetric metrics} (\cref{ch:sym-clair}).
     We give a three-chain family with one semi-active vertex of
@@ -133,7 +138,7 @@ We obtain the following results.
     for every symmetric instance with one semi-active vertex of activation
     probability~$p$.  The right-hand side is maximized at
     $p=\sqrt6-2$, giving the uniform upper bound
-    $(2+\sqrt6)/4$ for this class.
+    $(2+\sqrt6)/4$ \manuel{$\approx 1.11$ ?} for this class.
 
     \item \textbf{Clairvoyance gap lower bound for asymmetric metrics} (\cref{ch:asym-clair}).
     We give a layered-column construction with four routing vertices per
@@ -142,7 +147,7 @@ We obtain the following results.
         \liminf\frac{\optadapt}{\optpost}\ge\frac32
     \]
     (\cref{thm:layered-column-gap}).  The construction uses independent
-    activations and a strictly positive asymmetric metric.  Before the main
+    activations and a strictly positive asymmetric metric. \manuel{I dont know what the previous sentence is supposed to add. This is the usual model??}  Before the main
     construction, we record a natural recursive-triangle family whose ratio
     tends to~$4/3$ (\cref{rem:recursive-triangle}); its longer analysis is
     kept in a separate technical note.  We also give an explicit finite
@@ -241,7 +246,7 @@ distinct $x,y\in V$, and
     \qquad\forall x,y,z\in V.
 \]
 A metric~$d$ is \emph{symmetric} if $d(x,y)=d(y,x)$ for all $x,y\in V$,
-and \emph{asymmetric} otherwise.  Unless explicitly stated otherwise, metrics
+and \emph{asymmetric} otherwise \manuel{This definition makes every metric either symmetric or asymmetric (exactly one of the two). Usally symmetric is just considered as the special case of asymmetric}.  Unless explicitly stated otherwise, metrics
 are allowed to be asymmetric.
 
 A \emph{tour} on a subset $S\subseteq V$ containing the root is a cyclic
@@ -310,6 +315,8 @@ We consider three benchmarks for \StochTSP{}, distinguished by how much the solu
         otherwise the salesperson remains in place.  The order of probes may
         depend on the outcomes observed so far.
 
+        \sharat{Let's move this formalization of adaptive policies and the DP to the prelims section. They are straightforward so can be stated in prelims. In the intro define the adaptive optimum as the expected cost of a policy and point the reader to the relevant section in prelims saying that we formalize the notion of a policy in prelims.}
+        
         Define the set of valid states by
         \[
             \mathcal D
@@ -362,7 +369,11 @@ probabilities.
 
 \subsection{Gap measures}\label{sec:gaps}
 
+\sharat{Remove this section and make it more inline. As in, each of the gap measure should be mentioned right after it is definable. For instance, obliviousness gap can be introduced as soon as a priori model is defined. Clairvoyance and adaptivity are defined right after adaptive model is defined.}
+
 Among the three benchmarks, a~posteriori TSP has the most information (the full realization~$A$), a~priori TSP has the least (only the metric and probabilities), and adaptive TSP lies in between.
+
+\sharat{The below equation should be broken into two chunks. Once you define the a prior model you will state that post is at most prior. Then you state the adaptive model and then state the inequality that post <= adapt <= prior.}
 
 We define an \emph{instance} of \StochTSP{} by
 \[
@@ -411,6 +422,8 @@ and
 The unrestricted gaps above are the suprema of these quantities over~$n$.
 We remark that the literature on a~priori TSP uses the term adaptivity gap for what we call the obliviousness gap; we deviate from this convention following \cite{Christalla2025} for the sake of clarity.
 
+\sharat{Parts of the below para should either be mentioned at the beginning of the intro or in related work.}
+
 For symmetric metrics, the obliviousness gap is known to be at most $O(1)$; in particular, $\optprior/\optpost \le 3$ is shown in~\cite{Shmoys2008}.
 The same upper bound carries over to the clairvoyance gap and the adaptivity gap by~\cref{eq:optineq}.
 For asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025}
@@ -420,23 +433,23 @@ $\Omega(n^{1/3}/\log n)$ on both the adaptivity and obliviousness gaps.
 
 \section{Organization}\label{sec:organization}
 
-\Cref{ch:preliminaries} collects the probabilistic tools used later.
+\Cref{ch:preliminaries} collects the probabilistic tools used later \sharat{and introduces some terminology for dealing with adaptive policies}.
 \Cref{ch:sym-adapt} proves an adaptivity-gap lower bound of~$2$ for symmetric metrics, beginning with an explicit construction based on cycle-subdivided cliques and then strengthening it through a probabilistic construction.
 \Cref{ch:sym-clair} proves a symmetric clairvoyance-gap lower bound
 of~$10/9$ and establishes a probability-dependent upper bound for
 symmetric instances with one semi-active vertex.
-\Cref{ch:asym-clair} motivates the asymmetric obstruction through a
+\Cref{ch:asym-clair} motivates the asymmetric obstruction \sharat{of what?} through a
 recursive-triangle family with ratio tending to~$4/3$, then proves the
-stronger lower bound~$3/2$ using a layered-column construction.
+stronger lower bound~$3/2$ \sharat{on what?} using a layered-column construction.
 \Cref{ch:circulation} begins with the symmetric sampled-master-route argument,
 explains its asymmetric obstruction, and develops circulation, chord
 assignment, and joint randomized rounding into an adaptive policy of cost
 $O(n^{1/3})\optpost$.  The asymmetric clairvoyance-gap upper bound follows as
 a corollary.
 \Cref{ch:asym-adapt} uses a rectangular asymmetric grid to prove an
-$\Omega(n^{1/3}/\log n)$ lower bound on the asymmetric adaptivity gap.
-\Cref{ch:dp} presents the $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP.
-\Cref{ch:conclusion} concludes with a summary and directions for future
+$\Omega(n^{1/3}/\log n)$ lower bound on the asymmetric adaptivity gap. \sharat{Asymmetric grid is confusing. Call it directed cylindrical grid.}
+\Cref{ch:dp} presents the \sharat{presents an exponential time}  $(1{+}\varepsilon)$-approximation algorithm for a~priori TSP \sharat{for any fixed $\varepsilon > 0$}. 
+\Cref{ch:conclusion} concludes with a summary \sharat{of main results in the thesis} and directions for future
 research.
 
 % ============================================================
@@ -3136,6 +3149,8 @@ construction gives an $\Omega(n^{1/4}/\log n)$ lower bound for our adaptivity
 gap as well.  The rectangular grid in \cref{ch:asym-adapt} strengthens this
 lower bound.}
 
+\sharat{Remove the below section heading. The content in this section should simply be a part of the chapter. It's all high level intuition. Say something like: before delving into technical details of the main theorem it is instructive to recap the ideas used for symmetric stochtsp.}
+
 \section{From symmetric round trips to asymmetric chords}
 \label{sec:asymmetric-backbone-motivation}
 
@@ -3143,10 +3158,10 @@ We begin with the sampled master route of Shmoys and
 Talwar~\cite{Shmoys2008}.  The factor-three formulation below is made
 explicit by Blauth et al.~\cite{Blauth2024}.  First suppose that the metric is
 symmetric.  Independently include every non-root vertex~$v$ in a sample~$S$
-with probability~$p_v$, and put $R:=S\cup\{r\}$.  Let~$T_R$ be an optimal
+with probability~$p_v$, and put $R:=S\cup\{r\}$. \sharat{Would be ideal to avoid having both $R$ and $S$. Just use one of them. Preferable $S$ should already contain the root.} Let~$T_R$ be an optimal
 tour on~$R$.  For every vertex $u\notin R$, choose a nearest backbone vertex
-$\mu_S(u)\in R$ and put $D_S(u):=d(u,\mu_S(u))$.  Joining~$u$ to
-$\mu_S(u)$ by a doubled spoke and walking around the resulting structure
+$\mu_S(u)\in R$ and put $D_S(u):=d(u,\mu_S(u))$. \sharat{Bad choice to use $\mu$ for nearest vertex. Use $\pi$ or $\sigma$.} Joining~$u$ to
+$\mu_S(u)$ by a doubled spoke \sharat{by a pair of parallel edges for every $u \notin S$ gives an Eulerian spanning graph. This Eulerian graph can be used to obtain a master tour ... } walking around the resulting structure
 gives a master tour~$M_S$.  After the actual active set is realized, inactive
 vertices are shortcut.  Conditional on~$S$, its expected cost is at most
 \begin{equation}\label{eq:symmetric-master-route}
@@ -3176,12 +3191,12 @@ Independence of the sample coordinates also gives
 For the last inequality, charge the nearest-other-sample distance of every
 $u\in S$ to the edge leaving~$u$ in an optimal tour on~$S\cup\{r\}$.  Thus
 the expected backbone cost is~$\optpost$, while the cumulative expected cost
-of leaving the backbone and returning to it is at most~$2\optpost$.
+of leaving the backbone and returning to it is at most~$2\optpost$. \sharat{Use $\cdot$ when separating a number $2$ from $\optpost$ for clarity. Do this throughout the thesis.}
 Averaging \cref{eq:symmetric-master-route} over~$S$ yields a master tour of
 cost at most~$3\optpost$.  This factor-three statement is an existence result
 because it uses an optimal tour on the sample.  Replacing that tour by a
 $3/2$-approximate symmetric TSP tour gives instead a polynomial-time
-randomized factor of~$7/2$.
+randomized \sharat{approximation} factor of~$7/2$.
 
 The same-anchor detours can be expensive
 in an asymmetric metric.  Consider the grid construction of Christalla et
