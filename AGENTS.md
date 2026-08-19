@@ -22,8 +22,10 @@ The text is stored in main.tex, main section 1 2 and 3.
 
 ## Thesis notation conventions
 
-- Assume every non-root vertex has activation probability in $(0,1]$.
-  Vertices with activation probability $0$ are deleted from the instance.
+- Allow every non-root vertex to have activation probability in $[0,1]$.
+  Vertices with activation probability $0$ may be retained when specifying
+  the size of an instance, but may be deleted before arguments that require
+  positive activation probabilities.
 - In asymptotic notation such as $O(\cdot)$, $\Omega(\cdot)$, and
   $\Theta(\cdot)$, write $n$, never $n+1$.  For example, write
   $O(\log^2 n)$ rather than $O(\log^2(n+1))$.  The expression $n+1$ may still

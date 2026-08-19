@@ -109,14 +109,15 @@ An optimal tour can nevertheless be computed in $O(n^2 2^n)$ running time using 
 We consider a stochastic generalization of the classical TSP, which we call the
 \emph{stochastic traveling salesperson problem} (\StochTSP{}). A vertex is called \emph{active} if it requires service and must
 be visited. The root $r$ is always active, and every non-root vertex $v \in V^\circ$ is active independently with
-probability $p_v \in (0,1]$. Let $A \subseteq V^\circ$ denote the set of active non-root vertices. 
+probability $p_v \in [0,1]$. Let $A \subseteq V^\circ$ denote the set of active non-root vertices.
 We use $\mathcal{Q}$ for the resulting product distribution:
 \[
 \mathcal{Q}(A) = \prod_{v \in A} p_v \prod_{v \in V^\circ \setminus A}(1 - p_v).
 \]
-Vertices with activation probability~$0$ can be deleted without changing the
-problem, which is why we assume $p_v\in(0,1]$. If $A=\emptyset$, the tour
-consists only of the root and has cost~$0$.
+A vertex with activation probability~$0$ is never active and does not affect
+any solution cost. We nevertheless allow such vertices when specifying the
+size of an instance. If $A=\emptyset$, the tour consists only of the root and
+has cost~$0$.
 
 A tour starts and ends at $r$ and visits every vertex in $A$, and the objective is to minimize the expected 
 travel cost. Notice that if $p_v=1$ for every $v \in V^\circ$, then $A = V^\circ$ with probability one, so 
@@ -370,6 +371,37 @@ directions for future research.
 % CHAPTER 2: PRELIMINARIES
 % ============================================================
 \chapter{Preliminaries}\label{ch:preliminaries}
+
+\begin{lemma}[Zero probability vertices]
+\label{lem:zero-probability-vertices}
+Let $\mathcal I'$ be obtained from an instance~$\mathcal I$ by adding vertices
+with activation probability~$0$ and extending the metric to them. Then
+\begin{align*}
+    \optprior(\mathcal I')&=\optprior(\mathcal I),\\
+    \optadapt(\mathcal I')&=\optadapt(\mathcal I),\\
+    \optpost(\mathcal I')&=\optpost(\mathcal I).
+\end{align*}
+Consequently, for every $n\ge0$,
+\[
+    \operatorname{AG}(n+1)\ge\operatorname{AG}(n),\qquad
+    \operatorname{CG}(n+1)\ge\operatorname{CG}(n),\qquad
+    \operatorname{OG}(n+1)\ge\operatorname{OG}(n).
+\]
+\end{lemma}
+
+\begin{proof}
+A vertex with activation probability~$0$ never belongs to the active set. It
+is therefore always removed from an a~priori order, and it does not affect an
+a~posteriori tour. Its probe in an adaptive policy always returns inactive
+and causes no movement, so such probes can be inserted or deleted without
+changing the realized route. This proves the three equalities.
+
+For any instance with $n$ non-root vertices, add one vertex with activation
+probability~$0$. The metric can always be extended: choose a number $D>0$ at
+least as large as the old diameter, and set the distance between the new
+vertex and every old vertex, in either order, equal to~$D$. The three
+monotonicity statements now follow by taking suprema.
+\end{proof}
 
 \section{Adaptive policies and Bellman recursion}
 \label{sec:adaptive-policies}
@@ -3096,6 +3128,11 @@ For every instance, $\optadapt\le\cost(\pi)$.  The claim follows from
 clairvoyance gap.
 \end{proof}
 
+By \cref{lem:zero-probability-vertices}, we may first delete every vertex with
+activation probability~$0$. This can only decrease~$n$, so the bound for the
+reduced instance implies the bound for the original instance. Thus throughout
+this chapter all non-root activation probabilities are positive.
+
 The theorem is immediate when $n\le1$, so throughout this chapter we assume
 $n\ge2$. The problem is purely analytical so we make no claim about the run time
 required to compute the resulting policy.  The theorem
@@ -4730,12 +4767,8 @@ The size-restricted adaptivity gap for asymmetric \StochTSP{} satisfies
 \]
 \end{theorem}
 
-\sharat{Unnecessary to work with general $n$. See comment at the end of the chapter.}
-
-We first prove the result when the number of non-root vertices is a perfect
-cube.  At the end of the chapter we extend the construction to every
-sufficiently large~$n$ while keeping all activation probabilities strictly
-positive.
+By \cref{lem:zero-probability-vertices}, it suffices to construct instances
+whose number of non-root vertices is a perfect cube.
 
 \section{The rectangular cyclic grid}
 \label{sec:asym-adapt-grid}
@@ -5063,50 +5096,19 @@ It follows that
     =\Omega\!\left(\frac{k}{\log k}\right).
 \]
 
-\sharat{Forcing $n$ to be general is not needed. One can simply have super close almost-never-active vertices next to the root. If we allow zero probability vertices, then the job is trivial. Maybe we can just do that. This can be discussed in the prelims. Maybe also add a lemma stating that WLOG stochtsp is a problem on graphic metric because we can always subdivide the edges with never-active vertices.}
-
-Let $n$ be sufficiently large and set $k\coloneqq\lfloor n^{1/3}\rfloor$.  Start
-with $\mathcal I_k^{\mathrm{RG}}$, which has $k^3$ non-root vertices, and put
-$s\coloneqq n-k^3$.  Since $n<(k+1)^3$, we have $s=O(k^2)$.
-
-Add $s$ new vertices.  Retain all old distances and set the distance between
-any new vertex and any other distinct vertex, in either order, to
-$D\coloneqq k^2+1$.  This extension is a metric: the old metric has diameter at
-most~$D$, and every triangle containing a new vertex satisfies the triangle
-inequality immediately.  It remains asymmetric because its restriction to
-the old vertices is asymmetric.  Give each new vertex activation probability
-$\varepsilon\coloneqq k^{-10}$.
-
-Consider an arbitrary a~priori tour of the extended instance.  With
-probability $(1-\varepsilon)^s$, all new vertices are inactive.  Conditioned
-on this event, the original activations retain their original distribution,
-and shortcutting the new vertices leaves an a~priori order for
-$\mathcal I_k^{\mathrm{RG}}$.  Its conditional expected cost is therefore at
-least $k^3/384$, so
+Since $\mathcal I_k^{\mathrm{RG}}$ has $k^3$ non-root vertices, this proves
 \[
-    \optprior
-    \ge
-    (1-\varepsilon)^s\frac{k^3}{384}
-    =\Omega(k^3),
+    \operatorname{AG}(k^3)
+    =\Omega\!\left(\frac{k}{\log k}\right).
 \]
-where the last equality uses $s=O(k^2)$ and $\varepsilon=k^{-10}$.
-
-For an adaptive upper bound, run the column-sweep procedure on the original
-vertices without its final return to the root, then probe the new vertices in
-any order, and return to the root after every vertex has been probed.  The
-triangle inequality bounds the realized cost by the cost of the closed
-column-sweep route plus that of a closed route through the active new
-vertices: it replaces the direct move from the last original active vertex to
-the first new active vertex by a detour through the root.  If $Y$ new vertices
-are active, the latter cost is at most $2DY$; hence its expectation is at most
+For arbitrary sufficiently large~$n$, set $k\coloneqq\lfloor n^{1/3}\rfloor$.
+By \cref{lem:zero-probability-vertices},
 \[
-    2D\E[Y]
-    =2Ds\varepsilon
-    =o(1).
+    \operatorname{AG}(n)
+    \ge \operatorname{AG}(k^3)
+    =\Omega\!\left(\frac{k}{\log k}\right)
+    =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
 \]
-Together with \cref{lem:rectangular-grid-sweep,lem:rectangular-grid-load},
-this gives $\optadapt=O(k^2\log k)$.  Finally,
-$k=\Theta(n^{1/3})$ and $\log k=\Theta(\log n)$, proving the theorem.
 \end{proof}
 
 \begin{corollary}\label{cor:asymmetric-obliviousness-lower}
@@ -5140,6 +5142,12 @@ $(1+\varepsilon)$-approximation algorithm for a~priori TSP on both symmetric
 and asymmetric metrics.  For every fixed $\varepsilon>0$, the algorithm runs
 in time $c_\varepsilon^n\poly(n)$, where $c_\varepsilon$ is a constant depending
 only on $\varepsilon$.
+
+By \cref{lem:zero-probability-vertices}, vertices with activation
+probability~$0$ may be deleted before running the algorithm and inserted
+arbitrarily into the returned a~priori order. This leaves the expected cost
+unchanged and can only reduce the running time. Thus throughout this chapter
+all non-root activation probabilities are positive.
 
 An a~priori solution fixes a tour before the active vertices are known, and
 its realization shortcuts the inactive vertices.  The main difficulty is
