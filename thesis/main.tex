@@ -307,6 +307,9 @@ We obtain the following results.
     the relevant suffix of the partial order.
 \end{enumerate}
 
+%% previous organization of writing is bad, we have to mention activation model
+%% before introducing these previous results, otherwise ppl dont know what model 
+%%they are trying to study.
 %% \section{Related work}\label{sec:related}
 %%
 %% \paragraph{A~priori TSP.}
@@ -354,25 +357,20 @@ We obtain the following results.
 \section{Related work}\label{sec:related}
 
 \paragraph{A~priori TSP.}
-Jaillet introduced the a~priori TSP under the name
-\emph{probabilistic TSP} in his doctoral thesis and subsequent journal
-article~\cite{Jaillet1985,Jaillet1988}. Bertsimas, Jaillet, and Odoni placed
+The a~priori TSP was first introduced by Jaillet under the name
+\emph{probabilistic TSP} in his doctoral thesis and subsequent 
+article~\cite{Jaillet1985,Jaillet1988}. Bertsimas, Jaillet, and Odoni put
 the problem in the broader framework of a~priori
-optimization~\cite{BertsimasJailletOdoni1990}. Bertsimas and Howell gave
-further theoretical and computational results for the probabilistic
-TSP~\cite{BertsimasHowell1993}. Laporte, Louveaux, and Mercure gave an
-integer programming formulation and a branch and cut
-algorithm~\cite{LaporteLouveauxMercure1994}.
+optimization~\cite{BertsimasJailletOdoni1990}. 
 
 \paragraph{Models for the active set.}
 The distribution of the active set can be represented in several ways. In the
 independent activation model used in this thesis, every vertex is active
 independently and its activation probability is part of the
 input~\cite{Shmoys2008}. In the scenario model, the input explicitly lists
-the possible active sets and their probabilities, allowing arbitrary
-dependencies among activations~\cite{vanEeIerselJanssenSitters2018}. In the
-black box model, the distribution is not given explicitly and can only be
-accessed by drawing independent samples~\cite{Shmoys2008}. A related
+the possible active sets and their probabilities~\cite{vanEeIerselJanssenSitters2018}.
+In the black box model, the distribution is not given explicitly and can only be
+accessed by drawing independent samples~\cite{GorodezkyKleinbergShmoysSpencer2010}. A related
 adversarial model is the universal TSP, where a fixed tour is evaluated on
 every possible active set by comparing its induced tour with an optimal tour
 for that set~\cite{SchalekampShmoys2008}.
@@ -383,12 +381,16 @@ obliviousness gap is at most~$3$. They also gave algorithms with randomized
 approximation factor~$4$ and deterministic approximation factor~$8$.
 Van Zuylen later improved the deterministic approximation factor
 to~$6.5$~\cite{vanZuylen2011}. Blauth, Neuwohner, Puhlmann, and
-Vygen~\cite{Blauth2024} obtained approximation factors below~$3.1$ for a
-randomized algorithm and below~$5.9$ for a deterministic algorithm. For
+Vygen~\cite{Blauth2024} obtained approximation factors below~$3.1$ with a
+randomized algorithm and below~$5.9$ with   a deterministic algorithm. For
 asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025}
 proved that the obliviousness gap is
 $O(\sqrt n)$ and $\Omega(n^{1/4}/\log n)$. They also gave a polylogarithmic
 approximation algorithm with quasipolynomial running time.
+In computational aspect, Laporte, Louveaux, and Mercure gave an
+integer programming formulation and a branch and cut
+algorithm for symmetric metrics~\cite{LaporteLouveauxMercure1994}.
+
 
 \paragraph{Other active set models.}
 Van Ee, van Iersel, Janssen, and
