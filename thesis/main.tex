@@ -81,6 +81,8 @@ on~$\varepsilon$.
 \pagenumbering{arabic}
 \chapter{Introduction}\label{ch:intro}
 
+\sharat{Structure of intro should be: generic discussion of TSP and stochastic optimization -> setup of classical TSP and popular results -> setup of stochastic TSP -> posteriori notion -> priori notion and obliv gap and popular results -> our adaptive model and adapt gap and clairvoyance gap -> our contributions -> related work on stochastic TSP (be thorough, cite every reasonably technical work), other classical stochastic optimization problems, notions of adaptivity etc. -> organization}
+
 Many real-world routing and scheduling problems are subject to uncertainty.
 In a delivery service, for example, a courier must plan a route through several customer locations, yet some customers may have no packages to receive or their requests may be canceled.
 A classical abstraction is the \emph{stochastic traveling salesperson problem} (\StochTSP{}), where each client~$v$ comes with a specified probability~$p_v$ and becomes \emph{active} (requires service) independently with probability~$p_v$.
@@ -4167,6 +4169,7 @@ and, for every cyclic interval~$I$,
 \end{equation}
 This bound is uniform over all rounding outcomes and cyclic intervals.
 Moreover,
+\manuel{What is $\rho$ here?}
 \begin{equation}
     \E_\rho\!\left[
       \sum_{i\in U}p_i
@@ -4387,6 +4390,7 @@ is a shortcut of this virtual closed walk.  For each realization the next
 lemma bounds the backbone-edge multiplicity by~$\Lambda(F(A))$; afterward we
 show that its expectation is $O(\log^2 n+\sqrt\mu)$.  Define the multiset of
 chords used under the original realization~$A$ by
+\manuel{What are $\mu$ and $N$ here?}
 \[
     F(A):=N\uplus\biguplus_{i\in A\cap U}\{a_i\to b_i\}.
 \]
@@ -4632,6 +4636,7 @@ their expected costs sum up, and hence
 \]
 \end{proof}
 
+\manuel{The following lemma is essentially the same as Proposition 4.7 in the arxiv version of our paper on a priori atsp. Perhaps add a reference here, or even just use it blackbox (the proofs are also pretty much the same). The numbering in the cited SODA version might be different however!}
 \begin{lemma}
 \label{lem:high-probability-fixed-tour}
 Let $H\subseteq V^\circ$ be a vertex set, and let $A_H\subseteq H$ denote the
@@ -4736,6 +4741,8 @@ between them.  By \cref{lem:adaptive-policy-concatenation},
 % ============================================================
 \chapter{Adaptivity Gap for Asymmetric \StochTSP{}}\label{ch:asym-adapt}
 
+\sharat{This chapter is really well written. Good job.}
+
 This chapter proves an adaptivity-gap lower bound of
 $\Omega(n^{1/3}/\log n)$ for asymmetric \StochTSP{}.  We use a rectangular
 variant of the grid instances introduced by Christalla, Puhlmann,
@@ -4749,7 +4756,7 @@ distinct forward distances; if it meets few columns, it contains many pairs
 in the same column, each separated by one full revolution of the grid.  Either
 case forces a large expected contribution.  An adaptive policy instead
 sweeps through the columns and visits at most one active vertex per column in
-each sweep.  Its number of sweeps is the maximum active load of a column,
+each sweep.  Its number of sweeps is the maximum \sharat{number of active vertices in any column} active load of a column,
 whose expectation is $O(\log k)$.
 
 \begin{theorem}[Asymmetric adaptivity-gap lower bound]
@@ -4760,10 +4767,12 @@ The size-restricted adaptivity gap for asymmetric \StochTSP{} satisfies
 \]
 \end{theorem}
 
+\sharat{Unnecessary to work with general $n$. See comment at the end of the chapter.}
+
 We first prove the result when the number of non-root vertices is a perfect
 cube.  At the end of the chapter we extend the construction to every
 sufficiently large~$n$ while keeping all activation probabilities strictly
-positive.
+positive. 
 
 \section{The rectangular asymmetric grid}
 \label{sec:asym-adapt-grid}
@@ -4993,6 +5002,8 @@ active vertex is found, all remaining vertices of that column are deferred to
 the next sweep.  Once every non-root vertex has been probed, the policy
 returns to~$r$.
 
+\sharat{Don't use causal strategy and Markovization observation. Very few people in our field talk/write like this.}
+
 This description uses a sweep counter only as bookkeeping.  It defines a
 feasible causal strategy, and the Markovization observation in
 \cref{sec:stoch-tsp-benchmarks} gives a policy of no greater expected cost
@@ -5096,6 +5107,8 @@ It follows that
          {\optadapt(\mathcal I_k^{\mathrm{RG}})}
     =\Omega\!\left(\frac{k}{\log k}\right).
 \]
+
+\sharat{Forcing $n$ to be general is not needed. One can simply have super close almost-never-active vertices next to the root. If we allow zero probability vertices, then the job is trivial. Maybe we can just do that. This can be discussed in the prelims. Maybe also add a lemma stating that WLOG stochtsp is a problem on graphic metric because we can always subdivide the edges with never-active vertices.}
 
 Let $n$ be sufficiently large and set $k\coloneqq\lfloor n^{1/3}\rfloor$.  Start
 with $\mathcal I_k^{\mathrm{RG}}$, which has $k^3$ non-root vertices, and put
