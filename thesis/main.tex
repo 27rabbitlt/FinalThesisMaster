@@ -4310,11 +4310,15 @@ Fix a threshold~$\tau\in(0,1]$ and let
     \qquad
     \mu:=\sum_{v\in W_\tau}p_v\le n\tau.
 \]
+Thus $\mu$ is the expected number of active vertices in $W_\tau$.
 Apply the circulation construction of \cref{sec:low-cost-circulation} and the
 joint rounding of \cref{sec:joint-circulation-rounding} to the subinstance
 induced by~$W_\tau$.  Fix a backbone sample
 $S\subseteq W_\tau$ and an outcome~$\rho$ of the joint rounding, and retain
 the notation $R=S\cup\{r\}$, $U=W_\tau\setminus S$, and~$T_R$.
+Let $N=(N_{ab})_{a,b\in R}$ be the nonnegative integer vector in this rounding
+outcome, and let $\mathcal N$ be the multiset containing $N_{ab}$ copies of
+the auxiliary chord $a\to b$ for each $a,b\in R$.
 
 For the analysis, it is harmless to declare every sampled backbone vertex
 always active.  More precisely, couple an original realization~$A$ with the
@@ -4351,9 +4355,8 @@ is a shortcut of this virtual closed walk.  For each realization the next
 lemma bounds the backbone-edge multiplicity by~$\Lambda(F(A))$; afterward we
 show that its expectation is $O(\log^2 n+\sqrt\mu)$.  Define the multiset of
 chords used under the original realization~$A$ by
-\manuel{What are $\mu$ and $N$ here?}
 \[
-    F(A):=N\uplus\biguplus_{i\in A\cap U}\{a_i\to b_i\}.
+    F(A):=\mathcal N\uplus\biguplus_{i\in A\cap U}\{a_i\to b_i\}.
 \]
 
 \begin{lemma}[Edge-multiplicity bound for the virtual walk]
@@ -4597,7 +4600,8 @@ their expected costs sum up, and hence
 \]
 \end{proof}
 
-\manuel{The following lemma is essentially the same as Proposition 4.7 in the arxiv version of our paper on a priori atsp. Perhaps add a reference here, or even just use it blackbox (the proofs are also pretty much the same). The numbering in the cited SODA version might be different however!}
+The following lemma is the $\alpha=1$ case of the bound by Christalla,
+Puhlmann, and Traub~\cite[Proposition~4.8]{Christalla2025}.
 \begin{lemma}
 \label{lem:high-probability-fixed-tour}
 Let $H\subseteq V^\circ$ be a vertex set, and let $A_H\subseteq H$ denote the
@@ -4773,21 +4777,21 @@ $\mathcal I_k^{\mathrm{RG}}$.
 ]
   \node[root] (R) at (0,0) {$r$};
 
-  \node[column] (C1) at (2.3,0) {};
+  \node[column] (C1) at (2.8,0) {};
   \node[vertex] at ($(C1.center)+(0,0.70)$) {};
   \node at ($(C1.center)+(0,0)$) {$\vdots$};
   \node[vertex] at ($(C1.center)+(0,-0.70)$) {};
   \node[above=1mm of C1] {$C_1$};
 
-  \node[column] (C2) at (4.85,0) {};
+  \node[column] (C2) at (5.85,0) {};
   \node[vertex] at ($(C2.center)+(0,0.70)$) {};
   \node at ($(C2.center)+(0,0)$) {$\vdots$};
   \node[vertex] at ($(C2.center)+(0,-0.70)$) {};
   \node[above=1mm of C2] {$C_2$};
 
-  \node at (6.65,0) {$\cdots$};
+  \node at (7.65,0) {$\cdots$};
 
-  \node[column] (Cm) at (8.45,0) {};
+  \node[column] (Cm) at (9.45,0) {};
   \node[vertex] at ($(Cm.center)+(0,0.70)$) {};
   \node at ($(Cm.center)+(0,0)$) {$\vdots$};
   \node[vertex] at ($(Cm.center)+(0,-0.70)$) {};
@@ -4795,10 +4799,10 @@ $\mathcal I_k^{\mathrm{RG}}$.
 
   \draw[arc] (R.east) -- node[above,font=\scriptsize] {unit arcs} (C1.west);
   \draw[arc] (C1.east) -- node[above,font=\scriptsize] {unit arcs} (C2.west);
-  \draw[arc] (C2.east) -- (6.15,0);
-  \draw[arc] (7.15,0) -- (Cm.west);
-  \draw[arc] (Cm.south) to[bend left=28]
-    node[below,font=\scriptsize] {unit arcs} (R.south);
+  \draw[arc] (C2.east) -- (7.15,0);
+  \draw[arc] (8.15,0) -- (Cm.west);
+  \draw[arc] (Cm.south) to[bend left=34]
+    node[above=1mm,font=\scriptsize] {unit arcs} (R.south);
 \end{tikzpicture}
 \caption{The rectangular cyclic grid.  Each stochastic column contains
 $k$ vertices, and there are $k^2$ such columns.  An arrow between consecutive
