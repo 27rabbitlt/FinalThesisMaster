@@ -4773,21 +4773,21 @@ $\mathcal I_k^{\mathrm{RG}}$.
 ]
   \node[root] (R) at (0,0) {$r$};
 
-  \node[column] (C1) at (2.0,0) {};
+  \node[column] (C1) at (2.3,0) {};
   \node[vertex] at ($(C1.center)+(0,0.70)$) {};
   \node at ($(C1.center)+(0,0)$) {$\vdots$};
   \node[vertex] at ($(C1.center)+(0,-0.70)$) {};
   \node[above=1mm of C1] {$C_1$};
 
-  \node[column] (C2) at (4.25,0) {};
+  \node[column] (C2) at (4.85,0) {};
   \node[vertex] at ($(C2.center)+(0,0.70)$) {};
   \node at ($(C2.center)+(0,0)$) {$\vdots$};
   \node[vertex] at ($(C2.center)+(0,-0.70)$) {};
   \node[above=1mm of C2] {$C_2$};
 
-  \node at (6.05,0) {$\cdots$};
+  \node at (6.65,0) {$\cdots$};
 
-  \node[column] (Cm) at (7.85,0) {};
+  \node[column] (Cm) at (8.45,0) {};
   \node[vertex] at ($(Cm.center)+(0,0.70)$) {};
   \node at ($(Cm.center)+(0,0)$) {$\vdots$};
   \node[vertex] at ($(Cm.center)+(0,-0.70)$) {};
@@ -4795,8 +4795,8 @@ $\mathcal I_k^{\mathrm{RG}}$.
 
   \draw[arc] (R.east) -- node[above,font=\scriptsize] {unit arcs} (C1.west);
   \draw[arc] (C1.east) -- node[above,font=\scriptsize] {unit arcs} (C2.west);
-  \draw[arc] (C2.east) -- (5.55,0);
-  \draw[arc] (6.55,0) -- (Cm.west);
+  \draw[arc] (C2.east) -- (6.15,0);
+  \draw[arc] (7.15,0) -- (Cm.west);
   \draw[arc] (Cm.south) to[bend left=28]
     node[below,font=\scriptsize] {unit arcs} (R.south);
 \end{tikzpicture}
