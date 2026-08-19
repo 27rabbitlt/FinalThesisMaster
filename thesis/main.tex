@@ -307,42 +307,131 @@ We obtain the following results.
     the relevant suffix of the partial order.
 \end{enumerate}
 
+%% \section{Related work}\label{sec:related}
+%%
+%% \paragraph{A~priori TSP.}
+%% The a~priori model was first introduced by Jaillet~\cite{Jaillet1985} in his doctoral
+%% thesis under the name \emph{Probabilistic TSP}~\cite{Jaillet1985,Jaillet1988}.
+%% Bertsimas, Jaillet, and Odoni placed the problem in the broader framework of a~priori optimization,
+%% where a solution is chosen before the random instance is known~\cite{BertsimasJailletOdoni1990}.
+%% In the computational aspect, Laporte, Louveaux, and Mercure gave an integer programming formulation and a branch and cut
+%% algorithm~\cite{LaporteLouveauxMercure1994} for a~priori model.
+%%
+%% Shmoys and Talwar~\cite{Shmoys2008} proved that the obliviousness gap $\optprior/\optpost$
+%% is at most~$3$ for symmetric metrics, yielding a constant-factor approximation via a master tour.
+%% Blauth, Neuwohner, Puhlmann, and Vygen~\cite{Blauth2024} recently obtained improved approximation guarantees for a~priori TSP.
+%% For asymmetric metrics, Christalla, Puhlmann, and
+%% Traub~\cite{Christalla2025} showed that the obliviousness gap is
+%% $O(\sqrt{n})$ and $\Omega(n^{1/4}/\log n)$.  Their cyclic grid construction
+%% also implies the same lower bound for the adaptivity gap in our terminology.
+%% Our rectangular cyclic grid construction in \cref{ch:asym-adapt} strengthens
+%% both lower bounds to
+%% $\Omega(n^{1/3}/\log n)$.
+%%
+%% \paragraph{Activation models.}
+%% Several foundational and recent approximation results for a~priori TSP use
+%% independent vertex activations~\cite{Shmoys2008,Blauth2024,Christalla2025}.
+%% Other formulations permit dependencies among vertex activations.  Van Ee,
+%% van Iersel, Janssen, and
+%% Sitters~\cite{vanEeIerselJanssenSitters2018} study a~priori TSP in the scenario
+%% model, where the input explicitly lists active sets and their probabilities
+%% and may therefore encode arbitrary dependencies.
+%%
+%% \paragraph{Probing models.}
+%% Gupta, Nagarajan, and Ravi~\cite{GuptaNagarajanRavi2017} study an adaptive TSP
+%% model in which demand at a vertex is revealed only when the salesperson visits
+%% it.  Ene, Nagarajan, and Saket~\cite{EneNagarajanSaket2017} and Jiang, Li, Liu,
+%% and Singla~\cite{JiangLiLiuSingla2020} study stochastic $k$-TSP, where random
+%% vertex rewards are likewise revealed only upon a visit; the route may adapt to
+%% the observed rewards until a target total is reached.  Thus, in both models,
+%% acquiring information requires physical travel.  By contrast, we are not aware
+%% of prior stochastic-TSP work using our exact information structure: the
+%% salesperson may remotely probe any unprobed vertex, remains in place after an
+%% inactive outcome, and must immediately visit the vertex after an active
+%% outcome.  Every vertex is eventually probed, and every active vertex must be
+%% visited.
+
 \section{Related work}\label{sec:related}
 
 \paragraph{A~priori TSP.}
-The a~priori model was introduced by Jaillet~\cite{Jaillet1985}.
-Shmoys and Talwar~\cite{Shmoys2008} proved that the obliviousness gap $\optprior/\optpost$ is at most~$3$ for symmetric metrics, yielding a constant-factor approximation via a master tour.
-Blauth, Neuwohner, Puhlmann, and Vygen~\cite{Blauth2024} recently obtained improved approximation guarantees for a~priori TSP.
-For asymmetric metrics, Christalla, Puhlmann, and
-Traub~\cite{Christalla2025} showed that the obliviousness gap is
-$O(\sqrt{n})$ and $\Omega(n^{1/4}/\log n)$.  Their cyclic-grid construction
-also implies the same lower bound for the adaptivity gap in our terminology.
-Our rectangular cyclic-grid construction in \cref{ch:asym-adapt} strengthens
-both lower bounds to
-$\Omega(n^{1/3}/\log n)$.
+Jaillet introduced the a~priori TSP under the name
+\emph{probabilistic TSP} in his doctoral thesis and subsequent journal
+article~\cite{Jaillet1985,Jaillet1988}. Bertsimas, Jaillet, and Odoni placed
+the problem in the broader framework of a~priori
+optimization~\cite{BertsimasJailletOdoni1990}. Bertsimas and Howell gave
+further theoretical and computational results for the probabilistic
+TSP~\cite{BertsimasHowell1993}. Laporte, Louveaux, and Mercure gave an
+integer programming formulation and a branch and cut
+algorithm~\cite{LaporteLouveauxMercure1994}.
 
-\paragraph{Activation models.}
-Several foundational and recent approximation results for a~priori TSP use
-independent vertex activations~\cite{Shmoys2008,Blauth2024,Christalla2025}.
-Other formulations permit dependencies among vertex activations.  Van Ee,
-van Iersel, Janssen, and
-Sitters~\cite{vanEeIerselJanssenSitters2018} study a~priori TSP in the scenario
-model, where the input explicitly lists active sets and their probabilities
-and may therefore encode arbitrary dependencies.
+\paragraph{Models for the active set.}
+The distribution of the active set can be represented in several ways. In the
+independent activation model used in this thesis, every vertex is active
+independently and its activation probability is part of the
+input~\cite{Shmoys2008}. In the scenario model, the input explicitly lists
+the possible active sets and their probabilities, allowing arbitrary
+dependencies among activations~\cite{vanEeIerselJanssenSitters2018}. In the
+black box model, the distribution is not given explicitly and can only be
+accessed by drawing independent samples~\cite{Shmoys2008}. A related
+adversarial model is the universal TSP, where a fixed tour is evaluated on
+every possible active set by comparing its induced tour with an optimal tour
+for that set~\cite{SchalekampShmoys2008}.
 
-\paragraph{Probing models.}
-Gupta, Nagarajan, and Ravi~\cite{GuptaNagarajanRavi2017} study an adaptive TSP
-model in which demand at a vertex is revealed only when the salesperson visits
-it.  Ene, Nagarajan, and Saket~\cite{EneNagarajanSaket2017} and Jiang, Li, Liu,
-and Singla~\cite{JiangLiLiuSingla2020} study stochastic $k$-TSP, where random
-vertex rewards are likewise revealed only upon a visit; the route may adapt to
-the observed rewards until a target total is reached.  Thus, in both models,
-acquiring information requires physical travel.  By contrast, we are not aware
-of prior stochastic-TSP work using our exact information structure: the
-salesperson may remotely probe any unprobed vertex, remains in place after an
-inactive outcome, and must immediately visit the vertex after an active
-outcome.  Every vertex is eventually probed, and every active vertex must be
-visited.
+\paragraph{Results for independent activations.}
+For symmetric metrics, Shmoys and Talwar~\cite{Shmoys2008} proved that the
+obliviousness gap is at most~$3$. They also gave algorithms with randomized
+approximation factor~$4$ and deterministic approximation factor~$8$.
+Van Zuylen later improved the deterministic approximation factor
+to~$6.5$~\cite{vanZuylen2011}. Blauth, Neuwohner, Puhlmann, and
+Vygen~\cite{Blauth2024} obtained approximation factors below~$3.1$ for a
+randomized algorithm and below~$5.9$ for a deterministic algorithm. For
+asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025}
+proved that the obliviousness gap is
+$O(\sqrt n)$ and $\Omega(n^{1/4}/\log n)$. They also gave a polylogarithmic
+approximation algorithm with quasipolynomial running time.
+
+\paragraph{Other active set models.}
+Van Ee, van Iersel, Janssen, and
+Sitters~\cite{vanEeIerselJanssenSitters2018} studied the scenario model, in
+which dependent activations can be represented by an explicit list of
+scenarios. Schalekamp and Shmoys~\cite{SchalekampShmoys2008} gave a randomized
+$O(\log n)$ approximation for arbitrary distributions without requiring any
+access to the distribution. Their result follows from an optimal universal
+tour for tree metrics and probabilistic tree embeddings. Gorodezky, Kleinberg,
+Shmoys, and Spencer~\cite{GorodezkyKleinbergShmoysSpencer2010} proved an
+$\Omega(\log n)$ lower bound for deterministic algorithms using polynomially
+many samples in the black box model.
+
+\paragraph{Adaptive routing models.}
+Gupta, Nagarajan, and Ravi~\cite{GuptaNagarajanRavi2017} studied an adaptive
+TSP model in which demand at a vertex is revealed only when the salesperson
+visits it. Ene, Nagarajan, and Saket~\cite{EneNagarajanSaket2017} and Jiang,
+Li, Liu, and Singla~\cite{JiangLiLiuSingla2020} studied stochastic $k$-TSP,
+where random vertex rewards are also revealed only upon a visit and the route
+may adapt until a target reward is collected. In these models, acquiring
+information requires physical travel. In our model, the salesperson can probe
+a vertex remotely, remains in place after an inactive outcome, and must visit
+the vertex immediately after an active outcome.
+
+\paragraph{Stochastic probing and adaptivity gaps.}
+Stochastic probing provides a general framework in which uncertain elements
+are tested sequentially and later probes may depend on earlier
+outcomes~\cite{GuptaNagarajan2013}. Gupta, Nagarajan, and
+Singla~\cite{GuptaNagarajanSingla2016} studied algorithms and adaptivity gaps
+in this framework, including submodular and XOS
+objectives~\cite{GuptaNagarajanSingla2017}. Brada\v{c}, Singla, and
+\v{Z}u\v{z}i\'{c}~\cite{BradacSinglaZuzic2019} considered elements with
+multiple possible outcomes. These models typically select a feasible subset
+of elements to maximize its value. In our problem, every active vertex must
+instead be served, and an active probe changes the salesperson's location.
+
+\paragraph{Adaptivity in other stochastic optimization problems.}
+The benefit of adapting decisions to observed outcomes has also been studied
+in stochastic knapsack~\cite{DeanGoemansVondrak2008} and in the stochastic
+blackjack knapsack problem~\cite{LV14}. Fu, Li, and Xu~\cite{FLX18} gave
+approximation schemes for a broader class of stochastic dynamic programs.
+These works provide other examples in which adaptive policies are compared
+with policies whose decisions are fixed before the random outcomes are known.
 
 \section{Organization}\label{sec:organization}
 
