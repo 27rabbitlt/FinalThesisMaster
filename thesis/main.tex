@@ -87,9 +87,9 @@ combinatorial optimization. Given a set of locations and travel costs between
 them, it asks for a minimum cost tour that visits every location and returns to
 its starting point. The problem captures a fundamental difficulty in routing, logistics, and scheduling:
 choosing an optimal order to serve many locations.
-Such problems arise in practical applications including delivery services,
+Such problems arise in practical applications including delivery services
 and transportation. In these applications, the information needed to plan a route
-is often subject to uncertainty: requests might be canceled, customer may or may not 
+is often subject to uncertainty: requests might be canceled, and customers may or may not
 have parcels to deliver.
 
 For the classical TSP, let $V$ be a finite vertex set, $r \in V$ be a distinguished root,
@@ -102,10 +102,12 @@ A tour starts at $r$, visits every vertex in $V^\circ$, and returns to $r$, and 
 between consecutive vertices. Even in the symmetric setting, metric TSP is APX-hard~\cite{Karpinski2015},
 and constant factor approximation algorithms have therefore been intensively studied. 
 Christofides' algorithm achieves an approximation factor of $3/2$ for symmetric metrics~\cite{Christofides2022},
-and a constant approximation factor is also known for asymmetric metrics~\cite{Svensson2020}.
-An optimal tour can nevertheless be computed in $O(n^22^n)$ running time using the Held--Karp dynamic program~\cite{HeldKarp1962}.
+and Karlin, Klein, and Oveis~Gharan obtained a slightly improved factor~\cite{Karlin2021}.
+A constant approximation factor is also known for asymmetric metrics~\cite{Svensson2020}.
+An optimal tour can nevertheless be computed in $O(n^2 2^n)$ running time using the Held--Karp dynamic program~\cite{HeldKarp1962}.
 
-We consider a stochastic generalization of the classical TSP. A vertex is called \emph{active} if it requires service and must 
+We consider a stochastic generalization of the classical TSP, which we call the
+\emph{stochastic traveling salesperson problem} (\StochTSP{}). A vertex is called \emph{active} if it requires service and must
 be visited. The root $r$ is always active, and every non-root vertex $v \in V^\circ$ is active independently with
 probability $p_v \in (0,1]$. Let $A \subseteq V^\circ$ denote the set of active non-root vertices. 
 We use $\mathcal{Q}$ for the resulting product distribution:
@@ -283,18 +285,15 @@ We obtain the following results.
     kept in a separate technical note.  We also give an explicit finite
     member whose ratio is strictly larger than~$4/3$.
 
-    \item \textbf{Adaptive-policy upper bound for asymmetric metrics}
+    \item \textbf{Adaptive policy upper bound for asymmetric metrics}
     (\cref{ch:circulation}).
     We prove the existence of an adaptive policy of expected cost
     $O(n^{1/3})\optpost$ for every asymmetric instance
-    (\cref{thm:asymmetric-clairvoyance-upper}).  The proof starts from a
-    circulation lower bound for the posterior optimum, assigns every
-    outside-vertex detour to an ordered backbone chord, and jointly rounds the
-    auxiliary backbone flow.  Every cyclic interval has imbalance
-    $O(\log^2 n)$.  A maximal inequality controls the remaining Bernoulli
-    imbalance, and a virtual active-chord-first walk yields the adaptive
-    policy.  Splitting vertices at probability~$n^{-1/3}$ gives the stated
-    bound and the asymmetric clairvoyance-gap corollary
+    (\cref{thm:asymmetric-clairvoyance-upper}).  For vertices with low
+    activation probabilities, the proof uses a policy based on a circulation.
+    For vertices with high activation probabilities, it uses a fixed tour.
+    Combining these two policies gives the stated bound and the asymmetric
+    clairvoyance gap upper bound
     (\cref{cor:asymmetric-clairvoyance-upper}).
 
     \item \textbf{Approximate a~priori TSP} (\cref{ch:dp}).
@@ -308,11 +307,6 @@ We obtain the following results.
 \end{enumerate}
 
 \section{Related work}\label{sec:related}
-
-\paragraph{Classical TSP.}
-The traveling salesperson problem is one of the most studied problems in combinatorial optimization.
-For symmetric metrics, the classical $3/2$-approximation of Christofides~\cite{Christofides2022} stood for decades until Karlin, Klein, and Oveis~Gharan~\cite{Karlin2021} obtained a slightly improved factor.
-For asymmetric metrics, Svensson, Tarnawski, and V\'egh~\cite{Svensson2020} gave the first constant-factor approximation.
 
 \paragraph{A~priori TSP.}
 The a~priori model was introduced by Jaillet~\cite{Jaillet1985}.
@@ -4117,8 +4111,9 @@ $O(\log^2 n)$ imbalance on every cyclic interval for every outcome.
 
 \begin{lemma}[Joint randomized rounding]
 \label{lem:joint-circulation-rounding}
-There is a randomized procedure, independent of the vertex activations, that
-outputs an ordered pair $(a_i,b_i)\in R\times R$ for every $i\in U$ and a
+There is a randomized procedure, independent of the vertex activations, whose
+random outcome $\rho$ consists of an ordered pair $(a_i,b_i)\in R\times R$
+for every $i\in U$ and a
 nonnegative integer vector $N=(N_{ab})_{a,b\in R}$.  Every
 outcome satisfies
 \[
@@ -4136,7 +4131,6 @@ and, for every cyclic interval~$I$,
 \end{equation}
 This bound is uniform over all rounding outcomes and cyclic intervals.
 Moreover,
-\manuel{What is $\rho$ here?}
 \begin{equation}
     \E_\rho\!\left[
       \sum_{i\in U}p_i
@@ -4708,8 +4702,6 @@ between them.  By \cref{lem:adaptive-policy-concatenation},
 % ============================================================
 \chapter{Adaptivity Gap for Asymmetric \StochTSP{}}\label{ch:asym-adapt}
 
-\sharat{This chapter is really well written. Good job.}
-
 This chapter proves an adaptivity-gap lower bound of
 $\Omega(n^{1/3}/\log n)$ for asymmetric \StochTSP{}.  We use a rectangular
 variant of the square cyclic-grid construction introduced by Christalla, Puhlmann,
@@ -4723,8 +4715,8 @@ distinct forward distances; if it meets few columns, it contains many pairs
 in the same column, each separated by one full revolution of the grid.  Either
 case forces a large expected contribution.  An adaptive policy instead
 sweeps through the columns and visits at most one active vertex per column in
-each sweep.  Its number of sweeps is the maximum \sharat{number of active vertices in any column} active load of a column,
-whose expectation is $O(\log k)$.
+each sweep.  Its number of sweeps is the maximum number of active vertices in
+any column, whose expectation is $O(\log k)$.
 
 \begin{theorem}[Asymmetric adaptivity-gap lower bound]
 \label{thm:asymmetric-adaptivity-lower}
@@ -4967,13 +4959,6 @@ active vertex, which it visits immediately, or exhausts the column.  After an
 active vertex is found, all remaining vertices of that column are deferred to
 the next sweep.  Once every non-root vertex has been probed, the policy
 returns to~$r$.
-
-\sharat{Don't use causal strategy and Markovization observation. Very few people in our field talk/write like this.}
-
-This description uses a sweep counter only as bookkeeping.  It defines a
-feasible causal strategy, and the Markovization observation in
-\cref{sec:adaptive-policies} gives a policy of no greater expected cost
-that depends only on the current vertex and the set of unprobed vertices.
 
 For a realization~$A$, define
 \[
