@@ -100,12 +100,13 @@ Such a distance function is possibly asymmetric and the symmetric setting additi
 thus the symmetric setting is a special case of the asymmetric one.
 A tour starts at $r$, visits every vertex in $V^\circ$, and returns to $r$, and its cost is the sum of the travel costs
 between consecutive vertices. Even in the symmetric setting, metric TSP is APX-hard~\cite{Karpinski2015},
-and constant factor approximation algorithms have therefore been intensively studied. 
+and constant factor approximation algorithms have therefore been intensively studied. \sharat{Actually, when mentioning APX hardness, it's good to mention it for the simplest metric one can think of. Find a reference for APX hardness of $(1,2)$-TSP.} 
 Christofides' algorithm achieves an approximation factor of $3/2$ for symmetric metrics~\cite{Christofides2022},
 and Karlin, Klein, and Oveis~Gharan obtained a slightly improved factor~\cite{Karlin2021}.
 A constant approximation factor is also known for asymmetric metrics~\cite{Svensson2020}.
 An optimal tour can nevertheless be computed in $O(n^2 2^n)$ running time using the Held--Karp dynamic program~\cite{HeldKarp1962}.
 
+\sharat{Rephrase because this is not our model. In this thesis, we consider a stochastic version of TSP called the \emph{stochastic traveling salesperson problem with independent vertex-activations} (\StochTSP{}). Formally, we have an instance of classical TSP along with an activation probability $p_v \in [0,1]$ for each vertex $v \in V^\circ$. A vertex is called active...}
 We consider a stochastic generalization of the classical TSP, which we call the
 \emph{stochastic traveling salesperson problem} (\StochTSP{}). A vertex is called \emph{active} if it requires service and must
 be visited. The root $r$ is always active, and every non-root vertex $v \in V^\circ$ is active independently with
@@ -117,12 +118,13 @@ We use $\mathcal{Q}$ for the resulting product distribution:
 A vertex with activation probability~$0$ is never active and does not affect
 any solution cost. We nevertheless allow such vertices when specifying the
 size of an instance. If $A=\emptyset$, the tour consists only of the root and
-has cost~$0$.
-
+has \sharat{zero cost} cost~$0$.
+\sharat{Remove para break. A tour in this model starts and ends ...}
 A tour starts and ends at $r$ and visits every vertex in $A$, and the objective is to minimize the expected 
 travel cost. Notice that if $p_v=1$ for every $v \in V^\circ$, then $A = V^\circ$ with probability one, so 
 the classical TSP is recovered. Therefore, \StochTSP{} is at least as hard as the classical TSP.
 
+\sharat{Suppose blah is not something I would use in an intro. These things should be stated as facts.}
 Suppose first that the salesperson learns which vertices are active before
 choosing a tour. We call this the \emph{a~posteriori} setting because the tour
 is chosen after this information is known. For every $A\subseteq V^\circ$,
@@ -148,7 +150,9 @@ Since $T\vert_A$ is a feasible tour on $A\cup\{r\}$, we have
 $\optpost\le\optprior$. If $p_v=1$ for every $v\in V^\circ$, then both
 quantities equal the optimum of the classical TSP. The ratio
 $\optprior/\optpost$ measures how much can be gained by knowing the active
-vertices before choosing the tour. We call the worst-case value of this ratio
+vertices before choosing the tour. 
+\sharat{Rephrase. We refer to this ratio as the \emph{obliviousness gap} for instance $\mathcal I$. The obliviousness }
+We call the worst-case value of this ratio
 the \emph{obliviousness gap}:
 \begin{equation}\label{eq:obliviousness-gap}
     \operatorname{OG}
@@ -164,9 +168,13 @@ symmetric metrics. In contrast, Christalla, Puhlmann, and
 Traub~\cite{Christalla2025} proved a lower bound of
 $\Omega(n^{1/4}/\log n)$ for asymmetric metrics. Thus, the obliviousness gap
 is bounded in the symmetric setting but can grow with~$n$ in the asymmetric
-setting. The a~posteriori and a~priori models represent two extremes: the
+setting. 
+
+\sharat{Should start on a new para.}  The a~posteriori and a~priori models represent two extremes: the
 former knows the complete active set, while the latter cannot use any
-activation information when choosing its tour. This motivates an intermediate
+activation information when choosing its tour. 
+
+This motivates an intermediate
 model in which the salesperson can change later decisions as activation
 information is revealed.
 
@@ -182,7 +190,7 @@ return to~$r$. The optimal adaptive cost is
     \optadapt:=\min_\pi\cost(\pi).
 \]
 We formalize adaptive policies and their Bellman recursion
-in~\cref{sec:adaptive-policies}.
+in~\cref{sec:adaptive-policies}. \sharat{Rephrase.}
 
 For every active set~$A$, the tour produced by an adaptive policy is a feasible
 tour on~$A\cup\{r\}$, so $\optpost\le\optadapt$. Conversely, an adaptive
@@ -229,6 +237,8 @@ If both the numerator and denominator in one of these ratios are zero, we
 define the ratio to be~$0$. Since distances between distinct vertices are
 positive, a zero denominator also forces the numerator to be zero.
 
+\sharat{Move this para to our contributions. Rephrase.}
+
 This thesis studies how much an adaptive policy can improve on an optimal
 a~priori tour and how much the a~posteriori optimum can improve on the best
 adaptive policy. We also seek policies and algorithms whose expected costs can
@@ -242,7 +252,7 @@ We obtain the following results.
     \item \textbf{Adaptivity gap lower bound for symmetric metrics} (\cref{ch:sym-adapt}).
     We first construct an explicit family of instances based on cycle-subdivided cliques
     for which $\optprior/\optadapt$ tends to~$5/4$
-    (\cref{thm:cycle-subdivision}).  Motivated by the random activation of the
+    (\cref{thm:cycle-subdivision}).  \sharat{Rephrase.} Motivated by the random activation of the
     semi-active vertices in this construction, we then transfer the randomness
     to the metric and use the probabilistic method to obtain deterministic
     symmetric instances whose adaptivity ratio tends to~$2$
@@ -254,7 +264,7 @@ We obtain the following results.
     (\cref{ch:asym-adapt}).
     We give a rectangular variant of the square cyclic-grid construction of
     Christalla, Puhlmann, and Traub~\cite{Christalla2025}, with $k$ vertices
-    in each of $k^2$ columns.  A packet argument lower-bounds every a~priori
+    in each of $k^2$ columns. \sharat{Rephrase.} A packet argument lower-bounds every a~priori
     tour, while an adaptive column-sweep policy has cost controlled by the
     maximum active load of a column.  The resulting adaptivity gap is
     $\Omega(n^{1/3}/\log n)$
@@ -356,6 +366,8 @@ We obtain the following results.
 
 \section{Related work}\label{sec:related}
 
+\sharat{Write things inline and not used labeled paras.}
+
 \paragraph{A~priori TSP.}
 The a~priori TSP was first introduced by Jaillet under the name
 \emph{probabilistic TSP} in his doctoral thesis and subsequent 
@@ -382,7 +394,8 @@ approximation factor~$4$ and deterministic approximation factor~$8$.
 Van Zuylen later improved the deterministic approximation factor
 to~$6.5$~\cite{vanZuylen2011}. Blauth, Neuwohner, Puhlmann, and
 Vygen~\cite{Blauth2024} obtained approximation factors below~$3.1$ with a
-randomized algorithm and below~$5.9$ with   a deterministic algorithm. For
+randomized algorithm and below~$5.9$ with a deterministic algorithm. \sharat{Mention that some of these approx algos are relative to post opt or prior opt etc.} 
+For
 asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025}
 proved that the obliviousness gap is
 $O(\sqrt n)$ and $\Omega(n^{1/4}/\log n)$. They also gave a polylogarithmic
@@ -391,6 +404,7 @@ In computational aspect, Laporte, Louveaux, and Mercure gave an
 integer programming formulation and a branch and cut
 algorithm for symmetric metrics~\cite{LaporteLouveauxMercure1994}.
 
+\sharat{Title the para as other vertex-activation models.}
 
 \paragraph{Other active set models.}
 Van Ee, van Iersel, Janssen, and
@@ -399,7 +413,7 @@ which dependent activations can be represented by an explicit list of
 scenarios. Schalekamp and Shmoys~\cite{SchalekampShmoys2008} gave a randomized
 $O(\log n)$ approximation for arbitrary distributions without requiring any
 access to the distribution. Their result follows from an optimal universal
-tour for tree metrics and probabilistic tree embeddings. Gorodezky, Kleinberg,
+tour for tree metrics and probabilistic tree embeddings. \sharat{It's ok to remove the following sentence.} Gorodezky, Kleinberg,
 Shmoys, and Spencer~\cite{GorodezkyKleinbergShmoysSpencer2010} proved an
 $\Omega(\log n)$ lower bound for deterministic algorithms using polynomially
 many samples in the black box model.
@@ -463,6 +477,8 @@ directions for future research.
 % ============================================================
 \chapter{Preliminaries}\label{ch:preliminaries}
 
+\sharat{add some context for each of these results.}
+
 \begin{lemma}[Zero probability vertices]
 \label{lem:zero-probability-vertices}
 Let $\mathcal I'$ be obtained from an instance~$\mathcal I$ by adding vertices
@@ -496,6 +512,8 @@ monotonicity statements now follow by taking suprema.
 
 \section{Adaptive policies and Bellman recursion}
 \label{sec:adaptive-policies}
+
+\sharat{Bellman recursion seems unnecessary.}
 
 Define the set of valid states by
 \[
@@ -549,6 +567,7 @@ This section collects the probabilistic tools used throughout the thesis.
 
 \subsection{Elementary bounds}
 
+\sharat{Remove equations 2.1, 2.2 and 2.3}
 For events $E_1,\ldots,E_m$, the union bound gives
 \begin{equation}\label{eq:union-bound}
     \P\left(\bigcup_{i=1}^m E_i\right)
@@ -646,6 +665,8 @@ $Y_i=c_iX_i\in[0,c_i]$.
 \end{lemma}
 
 \subsection{Maximal inequalities}
+
+\sharat{give some context that these are inequalities for a max prefix.}
 
 \begin{lemma}[Maximal inequality for independent sums]
 \label{lem:maximal-independent-sums}
