@@ -99,18 +99,23 @@ satisfying $d(x,x)=0, d(x,y)>0$ for distinct vertices, and the triangle inequali
 Such a distance function is possibly asymmetric and the symmetric setting additionally requires $d(x,y)=d(y,x)$ for all pairs of $x,y \in V$;
 thus the symmetric setting is a special case of the asymmetric one.
 A tour starts at $r$, visits every vertex in $V^\circ$, and returns to $r$, and its cost is the sum of the travel costs
-between consecutive vertices. Even in the symmetric setting, metric TSP is APX-hard~\cite{Karpinski2015},
-and constant factor approximation algorithms have therefore been intensively studied. \sharat{Actually, when mentioning APX hardness, it's good to mention it for the simplest metric one can think of. Find a reference for APX hardness of $(1,2)$-TSP.} 
+between consecutive vertices. Even symmetric $(1,2)$-TSP, in which every
+distance between distinct vertices is either~$1$ or~$2$, is
+APX-hard~\cite{PapadimitriouYannakakis1993}, and constant-factor approximation
+algorithms have therefore been intensively studied.
 Christofides' algorithm achieves an approximation factor of $3/2$ for symmetric metrics~\cite{Christofides2022},
 and Karlin, Klein, and Oveis~Gharan obtained a slightly improved factor~\cite{Karlin2021}.
 A constant approximation factor is also known for asymmetric metrics~\cite{Svensson2020}.
 An optimal tour can nevertheless be computed in $O(n^2 2^n)$ running time using the Held--Karp dynamic program~\cite{HeldKarp1962}.
 
-\sharat{Rephrase because this is not our model. In this thesis, we consider a stochastic version of TSP called the \emph{stochastic traveling salesperson problem with independent vertex-activations} (\StochTSP{}). Formally, we have an instance of classical TSP along with an activation probability $p_v \in [0,1]$ for each vertex $v \in V^\circ$. A vertex is called active...}
-We consider a stochastic generalization of the classical TSP, which we call the
-\emph{stochastic traveling salesperson problem} (\StochTSP{}). A vertex is called \emph{active} if it requires service and must
-be visited. The root $r$ is always active, and every non-root vertex $v \in V^\circ$ is active independently with
-probability $p_v \in [0,1]$. Let $A \subseteq V^\circ$ denote the set of active non-root vertices.
+In this thesis, we study the \emph{stochastic traveling salesperson problem
+with independent vertex activations} (\StochTSP{}). Formally, an instance consists of a
+classical TSP instance on~$V$ with root~$r$, together with an activation
+probability $p_v\in[0,1]$ for every non-root vertex $v\in V^\circ$.
+Independently for each $v\in V^\circ$, vertex~$v$ is \emph{active} with
+probability~$p_v$; every active vertex requires service and must be visited.
+The root~$r$ is always active. Let $A \subseteq V^\circ$ denote the set of
+active non-root vertices.
 We use $\mathcal{Q}$ for the resulting product distribution:
 \[
 \mathcal{Q}(A) = \prod_{v \in A} p_v \prod_{v \in V^\circ \setminus A}(1 - p_v).
@@ -118,16 +123,13 @@ We use $\mathcal{Q}$ for the resulting product distribution:
 A vertex with activation probability~$0$ is never active and does not affect
 any solution cost. We nevertheless allow such vertices when specifying the
 size of an instance. If $A=\emptyset$, the tour consists only of the root and
-has \sharat{zero cost} cost~$0$.
-\sharat{Remove para break. A tour in this model starts and ends ...}
+has zero cost.
 A tour starts and ends at $r$ and visits every vertex in $A$, and the objective is to minimize the expected 
 travel cost. Notice that if $p_v=1$ for every $v \in V^\circ$, then $A = V^\circ$ with probability one, so 
 the classical TSP is recovered. Therefore, \StochTSP{} is at least as hard as the classical TSP.
 
-\sharat{Suppose blah is not something I would use in an intro. These things should be stated as facts.}
-Suppose first that the salesperson learns which vertices are active before
-choosing a tour. We call this the \emph{a~posteriori} setting because the tour
-is chosen after this information is known. For every $A\subseteq V^\circ$,
+In the \emph{a~posteriori} setting, the salesperson learns the complete active
+set before choosing a tour. For every $A\subseteq V^\circ$,
 let $\opt(A)$ denote the minimum cost of a tour on $A\cup\{r\}$. The optimal
 expected cost in this setting is
 \[
@@ -135,8 +137,8 @@ expected cost in this setting is
 \]
 This is simply the expected optimal TSP cost over the possible active sets.
 
-Now suppose that the salesperson fixes a tour before learning which vertices
-are active. We call this the \emph{a~priori} setting. An a~priori tour
+In the \emph{a~priori} setting, the salesperson fixes a tour before learning
+which vertices are active. An a~priori tour
 $T=(r,v_1,\ldots,v_n,r)$ is a fixed ordering of all vertices, as in the
 classical TSP. For an active set $A$, let $T\vert_A$ be the tour obtained by
 deleting the inactive vertices from $T$. The expected cost of $T$ and the
@@ -148,18 +150,13 @@ optimal a~priori cost are
 \]
 Since $T\vert_A$ is a feasible tour on $A\cup\{r\}$, we have
 $\optpost\le\optprior$. If $p_v=1$ for every $v\in V^\circ$, then both
-quantities equal the optimum of the classical TSP. The ratio
-$\optprior/\optpost$ measures how much can be gained by knowing the active
-vertices before choosing the tour. 
-\sharat{Rephrase. We refer to this ratio as the \emph{obliviousness gap} for instance $\mathcal I$. The obliviousness }
-We call the worst-case value of this ratio
-the \emph{obliviousness gap}:
-\begin{equation}\label{eq:obliviousness-gap}
-    \operatorname{OG}
-    :=\sup_{\mathcal I}
-      \frac{\optprior(\mathcal I)}{\optpost(\mathcal I)},
-\end{equation}
-where the supremum ranges over all \StochTSP{} instances~$\mathcal I$.
+quantities equal the optimum of the classical TSP. For a fixed \StochTSP{}
+instance~$\mathcal I$, we refer to
+$\optprior(\mathcal I)/\optpost(\mathcal I)$ as its
+\emph{obliviousness gap}. This ratio measures how much can be gained by
+knowing the active vertices before choosing the tour. Without reference to a
+particular instance, the obliviousness gap means the worst-case value over all
+\StochTSP{} instances.
 
 The a~priori model was first introduced by Jaillet~\cite{Jaillet1985} and was
 studied further in~\cite{Shmoys2008,Blauth2024,Christalla2025}. Shmoys and
@@ -189,7 +186,7 @@ return to~$r$. The optimal adaptive cost is
 \[
     \optadapt:=\min_\pi\cost(\pi).
 \]
-We formalize adaptive policies and their Bellman recursion
+We give the formal definition of an adaptive policy
 in~\cref{sec:adaptive-policies}. \sharat{Rephrase.}
 
 For every active set~$A$, the tour produced by an adaptive policy is a feasible
@@ -199,43 +196,24 @@ probes, so $\optadapt\le\optprior$. Therefore,
 \begin{equation}\label{eq:optineq}
     \optpost\le\optadapt\le\optprior.
 \end{equation}
-We define the \emph{adaptivity gap} and the \emph{clairvoyance gap},
-respectively, by
-\[
-    \operatorname{AG}
-    :=\sup_{\mathcal I}
-      \frac{\optprior(\mathcal I)}{\optadapt(\mathcal I)},
-    \qquad
-    \operatorname{CG}
-    :=\sup_{\mathcal I}
-      \frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)}.
-\]
+For a fixed instance~$\mathcal I$, we call
+$\optprior(\mathcal I)/\optadapt(\mathcal I)$ its \emph{adaptivity gap} and
+$\optadapt(\mathcal I)/\optpost(\mathcal I)$ its \emph{clairvoyance gap}.
 The adaptivity gap measures the benefit of changing later decisions as
-activation information is revealed. The clairvoyance gap measures the
+activation information is revealed, while the clairvoyance gap measures the
 additional benefit of knowing the complete active set before choosing a tour.
+Without reference to a particular instance, each term means the corresponding
+worst-case value over all \StochTSP{} instances.
 
 In some work on a~priori TSP, $\optprior/\optpost$ is called the
 \emph{adaptivity gap}. Following~\cite{Christalla2025}, we call it the
 \emph{obliviousness gap} and reserve \emph{adaptivity gap} for
 $\optprior/\optadapt$.
 
-When restricting to instances with $n$ non-root vertices, we write
-\begin{align*}
-    \operatorname{AG}(n)
-    &:=\sup_{\mathcal I:\,|V^\circ|=n}
-      \frac{\optprior(\mathcal I)}{\optadapt(\mathcal I)},\\
-    \operatorname{CG}(n)
-    &:=\sup_{\mathcal I:\,|V^\circ|=n}
-      \frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)},\\
-    \operatorname{OG}(n)
-    &:=\sup_{\mathcal I:\,|V^\circ|=n}
-      \frac{\optprior(\mathcal I)}{\optpost(\mathcal I)}.
-\end{align*}
-The unrestricted gaps are the suprema of these quantities over all~$n$.
-
-If both the numerator and denominator in one of these ratios are zero, we
-define the ratio to be~$0$. Since distances between distinct vertices are
-positive, a zero denominator also forces the numerator to be zero.
+For instances with $n$ non-root vertices, we write $\operatorname{AG}(n)$,
+$\operatorname{CG}(n)$, and $\operatorname{OG}(n)$ for the corresponding
+worst-case gaps. We omit~$n$ when the number of vertices is unrestricted. The
+formal definitions are collected in~\cref{ch:preliminaries}.
 
 \sharat{Move this para to our contributions. Rephrase.}
 
@@ -368,14 +346,12 @@ We obtain the following results.
 
 \sharat{Write things inline and not used labeled paras.}
 
-\paragraph{A~priori TSP.}
 The a~priori TSP was first introduced by Jaillet under the name
 \emph{probabilistic TSP} in his doctoral thesis and subsequent 
 article~\cite{Jaillet1985,Jaillet1988}. Bertsimas, Jaillet, and Odoni put
 the problem in the broader framework of a~priori
 optimization~\cite{BertsimasJailletOdoni1990}. 
 
-\paragraph{Models for the active set.}
 The distribution of the active set can be represented in several ways. In the
 independent activation model used in this thesis, every vertex is active
 independently and its activation probability is part of the
@@ -387,27 +363,27 @@ adversarial model is the universal TSP, where a fixed tour is evaluated on
 every possible active set by comparing its induced tour with an optimal tour
 for that set~\cite{SchalekampShmoys2008}.
 
-\paragraph{Results for independent activations.}
-For symmetric metrics, Shmoys and Talwar~\cite{Shmoys2008} proved that the
+For independent activations and symmetric metrics, Shmoys and
+Talwar~\cite{Shmoys2008} proved that the
 obliviousness gap is at most~$3$. They also gave algorithms with randomized
 approximation factor~$4$ and deterministic approximation factor~$8$.
 Van Zuylen later improved the deterministic approximation factor
 to~$6.5$~\cite{vanZuylen2011}. Blauth, Neuwohner, Puhlmann, and
 Vygen~\cite{Blauth2024} obtained approximation factors below~$3.1$ with a
-randomized algorithm and below~$5.9$ with a deterministic algorithm. \sharat{Mention that some of these approx algos are relative to post opt or prior opt etc.} 
+randomized algorithm and below~$5.9$ with a deterministic algorithm.
+\sharat{Mention that some of these approx algos are relative to post opt or prior opt etc.}
 For
 asymmetric metrics, Christalla, Puhlmann, and Traub~\cite{Christalla2025}
 proved that the obliviousness gap is
 $O(\sqrt n)$ and $\Omega(n^{1/4}/\log n)$. They also gave a polylogarithmic
 approximation algorithm with quasipolynomial running time.
-In computational aspect, Laporte, Louveaux, and Mercure gave an
+On the computational side, Laporte, Louveaux, and Mercure gave an
 integer programming formulation and a branch and cut
 algorithm for symmetric metrics~\cite{LaporteLouveauxMercure1994}.
 
 \sharat{Title the para as other vertex-activation models.}
 
-\paragraph{Other active set models.}
-Van Ee, van Iersel, Janssen, and
+Beyond independent activations, Van Ee, van Iersel, Janssen, and
 Sitters~\cite{vanEeIerselJanssenSitters2018} studied the scenario model, in
 which dependent activations can be represented by an explicit list of
 scenarios. Schalekamp and Shmoys~\cite{SchalekampShmoys2008} gave a randomized
@@ -418,20 +394,18 @@ Shmoys, and Spencer~\cite{GorodezkyKleinbergShmoysSpencer2010} proved an
 $\Omega(\log n)$ lower bound for deterministic algorithms using polynomially
 many samples in the black box model.
 
-\paragraph{Adaptive routing models.}
-Gupta, Nagarajan, and Ravi~\cite{GuptaNagarajanRavi2017} studied an adaptive
-TSP model in which demand at a vertex is revealed only when the salesperson
-visits it. Ene, Nagarajan, and Saket~\cite{EneNagarajanSaket2017} and Jiang,
-Li, Liu, and Singla~\cite{JiangLiLiuSingla2020} studied stochastic $k$-TSP,
-where random vertex rewards are also revealed only upon a visit and the route
-may adapt until a target reward is collected. In these models, acquiring
-information requires physical travel. In our model, the salesperson can probe
-a vertex remotely, remains in place after an inactive outcome, and must visit
-the vertex immediately after an active outcome.
+Several adaptive routing models reveal information only through physical
+travel. Gupta, Nagarajan, and Ravi~\cite{GuptaNagarajanRavi2017} studied an
+adaptive TSP model in which demand at a vertex is revealed only when the
+salesperson visits it. Ene, Nagarajan, and Saket~\cite{EneNagarajanSaket2017}
+and Jiang, Li, Liu, and Singla~\cite{JiangLiLiuSingla2020} studied stochastic
+$k$-TSP, where random vertex rewards are also revealed only upon a visit and
+the route may adapt until a target reward is collected. In our model, the
+salesperson can probe a vertex remotely, remains in place after an inactive
+outcome, and must visit the vertex immediately after an active outcome.
 
-\paragraph{Stochastic probing and adaptivity gaps.}
-Stochastic probing provides a general framework in which uncertain elements
-are tested sequentially and later probes may depend on earlier
+A broader related framework is stochastic probing, in which uncertain
+elements are tested sequentially and later probes may depend on earlier
 outcomes~\cite{GuptaNagarajan2013}. Gupta, Nagarajan, and
 Singla~\cite{GuptaNagarajanSingla2016} studied algorithms and adaptivity gaps
 in this framework, including submodular and XOS
@@ -441,13 +415,9 @@ multiple possible outcomes. These models typically select a feasible subset
 of elements to maximize its value. In our problem, every active vertex must
 instead be served, and an active probe changes the salesperson's location.
 
-\paragraph{Adaptivity in other stochastic optimization problems.}
-The benefit of adapting decisions to observed outcomes has also been studied
-in stochastic knapsack~\cite{DeanGoemansVondrak2008} and in the stochastic
-blackjack knapsack problem~\cite{LV14}. Fu, Li, and Xu~\cite{FLX18} gave
-approximation schemes for a broader class of stochastic dynamic programs.
-These works provide other examples in which adaptive policies are compared
-with policies whose decisions are fixed before the random outcomes are known.
+Adaptivity has also been studied in other stochastic combinatorial
+optimization problems, such as stochastic knapsack and stochastic set
+cover~\cite{DeanGoemansVondrak2008,LV14,GoemansVondrak2006}.
 
 \section{Organization}\label{sec:organization}
 
@@ -478,6 +448,48 @@ directions for future research.
 \chapter{Preliminaries}\label{ch:preliminaries}
 
 \sharat{add some context for each of these results.}
+
+This chapter collects the formal definitions and probabilistic tools used
+throughout the thesis. We first formalize the three gap notions and record that
+vertices with activation probability~$0$ do not affect the a~priori, adaptive,
+or a~posteriori optimum. We then give a state-based definition of adaptive
+policies and their expected cost. We conclude with the elementary bounds,
+concentration inequalities, and maximal inequalities used in later chapters.
+
+For a \StochTSP{} instance~$\mathcal I$, define its instance-wise gaps by
+\begin{align*}
+    \operatorname{AG}(\mathcal I)
+    &:=\frac{\optprior(\mathcal I)}{\optadapt(\mathcal I)},\\
+    \operatorname{CG}(\mathcal I)
+    &:=\frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)},\\
+    \operatorname{OG}(\mathcal I)
+    &:=\frac{\optprior(\mathcal I)}{\optpost(\mathcal I)}.
+\end{align*}
+If both the numerator and denominator in one of these ratios are zero, we
+define the ratio to be~$0$. Since distances between distinct vertices are
+positive, a zero denominator also forces the numerator to be zero.
+
+The unrestricted worst-case gaps are
+\begin{align*}
+    \operatorname{AG}
+    &:=\sup_{\mathcal I}\operatorname{AG}(\mathcal I),\\
+    \operatorname{CG}
+    &:=\sup_{\mathcal I}\operatorname{CG}(\mathcal I),\\
+    \operatorname{OG}
+    &:=\sup_{\mathcal I}\operatorname{OG}(\mathcal I),
+\end{align*}
+where the suprema range over all \StochTSP{} instances. For instances with
+$n$ non-root vertices, define
+\begin{align*}
+    \operatorname{AG}(n)
+    &:=\sup_{\mathcal I:\,|V^\circ|=n}\operatorname{AG}(\mathcal I),\\
+    \operatorname{CG}(n)
+    &:=\sup_{\mathcal I:\,|V^\circ|=n}\operatorname{CG}(\mathcal I),\\
+    \operatorname{OG}(n)
+    &:=\sup_{\mathcal I:\,|V^\circ|=n}\operatorname{OG}(\mathcal I).
+\end{align*}
+Equivalently, each unrestricted gap is the supremum of its size-restricted
+values over all~$n$.
 
 \begin{lemma}[Zero probability vertices]
 \label{lem:zero-probability-vertices}
@@ -510,7 +522,7 @@ vertex and every old vertex, in either order, equal to~$D$. The three
 monotonicity statements now follow by taking suprema.
 \end{proof}
 
-\section{Adaptive policies and Bellman recursion}
+\section{Adaptive policy and formal definition}
 \label{sec:adaptive-policies}
 
 \sharat{Bellman recursion seems unnecessary.}
@@ -568,21 +580,9 @@ This section collects the probabilistic tools used throughout the thesis.
 \subsection{Elementary bounds}
 
 \sharat{Remove equations 2.1, 2.2 and 2.3}
-For events $E_1,\ldots,E_m$, the union bound gives
-\begin{equation}\label{eq:union-bound}
-    \P\left(\bigcup_{i=1}^m E_i\right)
-    \le\sum_{i=1}^m\P(E_i).
-\end{equation}
-For every nonnegative random variable~$Z$ and every $t>0$, Markov's
-inequality gives
-\begin{equation}\label{eq:markov}
-    \P(Z\ge t)\le\frac{\E[Z]}{t}.
-\end{equation}
-If $N$ is a nonnegative integer-valued random variable, its expectation can
-be recovered from its upper tails:
-\begin{equation}\label{eq:tail-sum}
-    \E[N]=\sum_{t=1}^{\infty}\P(N\ge t).
-\end{equation}
+
+We use the union bound, Markov's inequality, and the tail-sum formula for
+nonnegative integer-valued random variables without further mention.
 
 We repeatedly use the following two bounds for products of inactivity
 probabilities.  For $x_1,\ldots,x_m\in[0,1]$,
@@ -668,6 +668,10 @@ $Y_i=c_iX_i\in[0,c_i]$.
 
 \sharat{give some context that these are inequalities for a max prefix.}
 
+For independent centered increments, the following inequality controls the
+largest absolute prefix sum. It is a standard consequence of Doob's $L^2$
+maximal inequality; see, for example,~\cite[Theorem~4.4.4]{Durrett2019}.
+
 \begin{lemma}[Maximal inequality for independent sums]
 \label{lem:maximal-independent-sums}
 Let $Z_1,\ldots,Z_m$ be independent centered random variables with finite
@@ -679,13 +683,6 @@ second moments, and put $S_k:=\sum_{i=1}^kZ_i$.  Then
     \le2\left(\sum_{i=1}^m\E[Z_i^2]\right)^{1/2}.
 \end{equation}
 \end{lemma}
-
-\begin{proof}
-The partial sums $(S_k)_{k=0}^m$ form an $L^2$ martingale.  The first
-inequality follows from Cauchy--Schwarz, and the second is Doob's $L^2$
-maximal inequality together with
-$\E[S_m^2]=\sum_{i=1}^m\E[Z_i^2]$.
-\end{proof}
 
 % ============================================================
 % CHAPTER 3: ADAPTIVITY GAP — SYMMETRIC
@@ -1496,8 +1493,7 @@ For all sufficiently large~$n$, the coefficient bound
 For any other a~priori tour~$T$, a permutation of the non-root labels maps
 $T$ to~$T_0$.  Because the distribution of~$D$ is invariant under every such
 permutation, the same tail bound holds for~$C_D(T)$.  There are at most $n!$
-master tours with the root fixed, so the union bound~\cref{eq:union-bound}
-shows that the probability
+master tours with the root fixed, so the union bound shows that the probability
 that some tour violates the claimed lower bound is at most
 \[
     n!\exp\bigl(-n(\log n)^2\bigr)
@@ -1638,8 +1634,7 @@ The nonnegative random variable $U(D)-W$ satisfies
 \[
     \E_D[U(D)-W]\le\frac1\theta
 \]
-by \cref{lem:random-metric-adaptive-average}.  Markov's inequality
-\cref{eq:markov} gives
+by \cref{lem:random-metric-adaptive-average}.  Markov's inequality gives
 \begin{align*}
     \P_D[U(D)>(1+\delta_n)W]
     &=
@@ -2553,7 +2548,7 @@ $a\to c\to d\to b\to a$ costs~$4$.  Hence
 The two realizations have incompatible optimal visit orders: when $d$ is
 inactive, $b$ precedes $c$; when $d$ is active, $c$ precedes $b$, with $d$
 between them.
-A one-step Bellman calculation over the three possible first probes
+A direct calculation over the three possible first probes
 $b,c,d$ gives $\optadapt=4$, attained for example by probing in the order $c,d,b$, and the
 clairvoyance ratio is
 \[
@@ -3568,11 +3563,10 @@ backbone is
     \le\frac12.
 \]
 A run of length~$t$ can start in at most~$n$ positions of the
-fixed cyclic tour.  The union bound~\cref{eq:union-bound} therefore gives the
+fixed cyclic tour.  The union bound therefore gives the
 claimed tail estimate.
 
-Let $L:=\lceil\log_2 n\rceil+1$.  The tail-sum formula
-\cref{eq:tail-sum} yields
+Let $L:=\lceil\log_2 n\rceil+1$.  The tail-sum formula yields
 \[
     \E[M(\widetilde A,S)\mid \widetilde A\cup S=C]
     \le
@@ -3695,7 +3689,7 @@ The proof of \cref{thm:average-circulation-lower-bound} also gives
     \E_B[\cost(z^B)]
     =O(\log n)\optpost.
 \]
-By Markov's inequality~\cref{eq:markov}, after choosing absolute constants
+By Markov's inequality, after choosing absolute constants
 $D_0$ and~$K_0$
 large enough, both
 \[
@@ -3743,7 +3737,7 @@ the sets~$S_j$ at the root and shortcutting gives
     \qquad
     \E[\opt(S)]\le\lambda\optpost.
 \]
-Markov's inequality~\cref{eq:markov} therefore gives
+Markov's inequality therefore gives
 $\opt(S)\le4\lambda\optpost$ with probability at least~$3/4$.
 For a sufficiently large choice of~$c$, this event and the existence of a
 good~$B^j$ have positive joint probability.  Fix an outcome in their
@@ -4075,7 +4069,7 @@ in~\cref{eq:chernoff-useful},
 There are at most $(2n)^{2k}$ subsets of a cyclic order having
 $k$ interval components: it is enough to choose their $2k$ boundary
 positions.  Set $t=C_0k\log n$, choose $C_0$ sufficiently large, and apply
-the union bound~\cref{eq:union-bound} over all $k\ge1$ and both inequalities.
+the union bound over all $k\ge1$ and both inequalities.
 The resulting failure
 probability is at most $n^{-5}$.  The two sets with $k=0$ satisfy both
 inequalities trivially.
@@ -5893,11 +5887,18 @@ work.
 \addcontentsline{toc}{chapter}{Acknowledgements}
 
 I would like to thank Dr.\ Sharat Ibrahimpur for his guidance throughout this
-project, Manuel Christalla for the continuous discussions and valuable
-suggestions, and Prof.\ Dr.\ Vera Traub for advising this thesis.
+project. It would not be possible to finish the thesis without his generous support
+and the time he devoted to it. I am particularly grateful for his sharp insights on solving problems and comprehensive 
+yet precise feedbacks on academic writing. 
+I am also grateful to Manuel Christalla for the
+continuous discussions and valuable suggestions, and to Prof.\ Dr.\ Vera Traub for supervising 
+this thesis and giving me the opportunity to undertake an exciting research project.
 
-I would also like to give special thanks to my parents and my girlfriend for
+I am  deeply grateful to my parents and my girlfriend for
 their constant care, understanding, and support in my life.
+
+It has been a privilege to study in ETH, and to live in Switzerland. I will never forget the last six
+months, which provided a wonderful conclusion for my journey in Switzerland.
 
 
 % ============================================================
