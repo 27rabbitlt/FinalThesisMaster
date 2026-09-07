@@ -1,0 +1,484 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=29mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
+\usepackage[nameinlink,capitalize,noabbrev]{cleveref}
+
+\allowdisplaybreaks
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pp}{\mathbb P}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\opt}{\operatorname{OPT}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\divg}{\operatorname{div}}
+\newcommand{\disc}{\operatorname{disc}}
+
+\title{The $n^{1/5}$ gateway for the asymmetric clairvoyance gap}
+\author{Research attack note}
+\date{22 August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note audits the proposed $O(n^{1/4}\sqrt{\log n})$ policy and attacks
+the next exponent.  One improvement is unconditional: jointly rounding
+$(2x,2y)$ removes the independent endpoint-sampling error
+$\sqrt{p_*\mu}$, replacing it by deterministic $O(\log^2 n)$ public
+imbalance.  This is necessary for any $n^{1/5}$ proof.
+
+The remaining exponent is exact.  The present low-probability policy balances
+a certificate term $\alpha^{-1}$ against independent-tail discrepancy
+$(\alpha\mu)^{1/2}$ and therefore costs $\widetilde O(\mu^{1/3})$.
+An $\widetilde O((\alpha\mu)^{1/3})$ \emph{causal fixed-inventory interval
+controller} would instead give $\widetilde O(\mu^{1/4})$ and, after
+probability thresholding, $\widetilde O(n^{1/5})$.  We state this gateway as
+an exact conditional theorem.
+
+We also record why four tempting substitutions do not prove the gateway:
+independent tail controllers genuinely fluctuate by $\Omega(\sqrt m)$;
+the existing two-arc certificate genuinely costs $\Omega(1/\alpha)$;
+postponing the multiplicity decision until all activations are known has
+already incurred square-root backbone cost; and grouping posterior paths
+into $h$-vertex fixed-terminal packets loses precisely the factor $h$ it was
+intended to save.  Thus this document does not claim an unconditional
+$n^{1/5}$ theorem.  It isolates the new causal lemma that such a theorem
+requires and removes an avoidable obstacle from the existing algorithm.
+\end{abstract}
+
+\section{Status and exponent ledger}
+
+We assume $n\ge2$ and put
+\[
+  L:=\max\{1,\log n\}.
+\]
+The cases $n\le1$ are immediate.  Let $B=\opt_{\rm post}$, let
+$\mu=\sum_i p_i$, and let $p_*:=\max_i p_i$ in the low-probability
+subinstance.
+
+The thinned-backbone policy in the supplied note has the bound
+\begin{equation}\label{eq:old-low}
+ O\!\left(
+   \frac L\alpha+\sqrt{p_*\mu}
+   +\sqrt{\alpha\mu L}+L
+ \right)B.
+\end{equation}
+The polynomial part comes from
+\[
+  \frac L\alpha
+  \quad\hbox{versus}\quad
+  \sqrt{\alpha\mu L}.
+\]
+Optimizing $\alpha$ gives $\widetilde O(\mu^{1/3})B$.  Splitting at
+probability $\tau$ then balances
+\[
+  \frac1\tau
+  \quad\hbox{versus}\quad
+  (n\tau)^{1/3},
+\]
+which forces the exponent $1/4$.
+
+For a final exponent $1/5$, the low-probability policy must cost
+$\widetilde O(\mu^{1/4})B$, unless the $1/\tau$ policy for the
+high-probability vertices is itself improved.  The first task is to remove
+$\sqrt{p_*\mu}$: at the putative threshold $\tau=n^{-1/5}$, that term alone
+can be as large as $\sqrt{n\tau^2}=n^{3/10}$.
+
+\section{A rigorous improvement: scaled joint rounding}
+
+Fix a backbone $R$, a fractional outside-detour coupling
+$x=(x_{i,ab})$, and the backbone part $y=(y_{ab})$ of the circulation.  Thus
+\[
+  \sum_{a,b\in R}x_{i,ab}=p_i
+  \qquad\text{and}\qquad
+  \Delta_{x,y}(I)=0
+\]
+for every outside vertex $i$ and every cyclic interval $I$ of the backbone.
+
+\begin{lemma}[scaled joint rounding]\label{lem:scaled-rounding}
+Suppose $p_i\le1/4$ for every outside vertex.  There is a randomized public
+rounding, independent of the activations, which chooses one ordered pair
+$(a_i,b_i)$ for every outside vertex and a nonnegative integer vector
+$N=(N_{ab})$ such that every outcome satisfies
+\begin{equation}\label{eq:scaled-public-balance}
+ \max_I\left|
+   \sum_i2p_i\chi_I(a_i,b_i)
+   +\sum_{a,b\in R}N_{ab}\chi_I(a,b)
+ \right|=O(\log^2 n).
+\end{equation}
+Moreover,
+\begin{align}
+ \E\!\left[
+   \sum_i2p_i\bigl(d(a_i,i)+d(i,b_i)\bigr)
+   +\sum_{a,b\in R}d(a,b)N_{ab}
+ \right]
+ =2\cost(z).                                      \label{eq:scaled-cost}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+Run the joint randomized rounding already used for $(x,y)$, but initialize
+the variables at $(2x,2y)$.  Give each outside variable the bounds
+\[
+  0\le \xi_{i,ab}\le2p_i,
+  \qquad
+  \sum_{a,b}\xi_{i,ab}=2p_i,
+\]
+and give each backbone variable the consecutive-integer bounds
+\[
+  \lfloor2y_{ab}\rfloor
+  \le\eta_{ab}\le
+  \lceil2y_{ab}\rceil.
+\]
+The initial dyadic interval equations hold because
+$\Delta_{2x,2y}=0$.  Retain every outside-vertex equation and retain a
+dyadic interval equation while it contains at least
+$8(1+\lceil\log_2|R|\rceil)$ unfixed variables.  The same incidence count
+as in the unscaled rounding leaves a nonzero null direction at every
+nonterminal iteration.  Moving randomly to one of the two maximal endpoints
+preserves the current vector in conditional expectation.
+
+At termination, the outside equation and the bounds imply that exactly one
+$\xi_{i,ab}$ equals $2p_i$ for every $i$.  Every $\eta$ is integral.  A
+$\xi$-variable changes by at most $2p_i\le1/2$, and an $\eta$-variable
+changes by at most one.  Therefore each discarded dyadic equation has final
+error $O(\log n)$; decomposing a cyclic interval into $O(\log n)$ dyadic
+intervals proves \eqref{eq:scaled-public-balance}.  Preservation of the
+expectation of every variable and linearity of the objective prove
+\eqref{eq:scaled-cost}.
+\end{proof}
+
+This replaces both the independent endpoint sampling and the subsequent
+integer correction in the supplied note.  Its public mean target is exactly
+$2p_i$, which matches the multiplicity controller's identity
+$\E[A_iK_i]=2p_i$.
+
+\begin{proposition}[improved proved low-probability bound]
+\label{prop:improved-low}
+For $p_*\le1/4$ and every $0<\alpha\le1$, the supplied thinned-backbone and
+tail-controller policy, with \cref{lem:scaled-rounding} in place of
+independent endpoint sampling, has expected cost
+\begin{equation}\label{eq:proved-low}
+ O\!\left(
+   \frac L\alpha+\sqrt{\alpha\mu L}+L^2
+ \right)B.
+\end{equation}
+Consequently its optimized bound is
+\begin{equation}\label{eq:proved-low-optimized}
+ O\!\left(L^2+L^{2/3}\mu^{1/3}\right)B.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The thinned certificate still supplies
+\[
+  \cost(T_R)=O(B),\qquad
+  \cost(z)=O(LB/\alpha),\qquad
+  |R|=O(1+\alpha\mu)
+\]
+after averaging.  Fix a scaled joint-rounding outcome.  Independent
+one-dimensional controllers on the head-ordered lists at the distinct tails
+give expected maximum cyclic-interval error
+\[
+  O\!\left(\sqrt{|R|L}+L\right).
+\]
+The public part now contributes $O(L^2)$ deterministically, with no
+$\sqrt{p_*\mu}$ term.  The active-first stack lemma therefore bounds the
+expected backbone multiplicity by
+\[
+  O\!\left(L^2+\sqrt{\alpha\mu L}\right).
+\]
+The expected detour and auxiliary-chord cost is at most a constant times
+$\cost(z)$ by \eqref{eq:scaled-cost} and
+$\E[A_iK_i]=2p_i$.  Combining the terms proves
+\eqref{eq:proved-low}.  Balancing $L/\alpha$ and
+$\sqrt{\alpha\mu L}$ proves \eqref{eq:proved-low-optimized}; the cases in
+which the formal optimizer is outside $(0,1]$ are absorbed by $O(L^2)$.
+\end{proof}
+
+\section{The exact \texorpdfstring{$n^{1/5}$}{n-to-the-one-fifth} gateway}
+
+The remaining useful structure is narrower than arbitrary online vector
+balancing.  The complete chord inventory and every tail list are public.
+The route reveals this inventory in the active-first stack order, which may
+depend on earlier activations and multiplicities, but every list is eventually
+exhausted.  A chord $a\to b$ is a signed ordinary interval in backbone-prefix
+coordinates.
+Write $\mathcal I(R)$ for the family of cyclic intervals of $R$.
+
+There is a sharper description.  Let $\pi_T$ concatenate the outside
+vertices by cyclic tail order, using head order within each tail, and let
+$\pi_H$ sort all outside vertices by cyclic head order.  For coefficients
+$c=(c_i)$, write $\disc_\pi(c)$ for the maximum absolute sum over a cyclic
+interval of the order $\pi$.  Since
+\begin{equation}\label{eq:two-stripe-reduction}
+ \sum_i c_i\chi_I(a_i,b_i)
+ =\sum_{i:a_i\in I}c_i-\sum_{i:b_i\in I}c_i,
+\end{equation}
+and the two index sets on the right are intervals of $\pi_T$ and $\pi_H$,
+respectively,
+\begin{equation}\label{eq:two-stripe-bound}
+ \max_{I\in\mathcal I(R)}
+ \left|\sum_i c_i\chi_I(a_i,b_i)\right|
+ \le \disc_{\pi_T}(c)+\disc_{\pi_H}(c).
+\end{equation}
+Thus it is enough to solve a causal two-stripe rounding problem.
+
+\begin{conjecture}[causal fixed-inventory interval controller]
+\label{conj:gateway}
+There are constants $C,c\ge0$ with the following property.  Consider a
+public fixed inventory of tail lists on a cyclically ordered set $R$ of
+$m$ vertices.  Vertex $i$ has an independent activation of probability
+$p_i\le1/4$, a public chord $a_i\to b_i$, and a detour length
+$\ell_i\ge d(a_i,b_i)$.  If $i$ is active, its first detour copy is used
+immediately and the rule chooses $K_i\in\{1,4\}$.  If $i$ is inactive, the
+rule may choose $S_i\in\{0,1\}$ and create a direct surrogate chord.  Every
+choice and every extra copy with tail $a$ is finalized when the list at $a$
+becomes exhausted, before priority passes to auxiliary arcs or a fallback
+backbone edge.  Put
+\[
+ C_i:=A_iK_i+(1-A_i)S_i,
+ \qquad c_i:=C_i-2p_i.
+\]
+There is a causal rule satisfying
+\begin{align}
+ \E\sum_i\left(
+     A_iK_i\ell_i+(1-A_i)S_i d(a_i,b_i)
+   \right)
+   &\le C\sum_i p_i\ell_i,
+   \label{eq:gateway-cost}\\
+ \E\left[\disc_{\pi_T}(c)+\disc_{\pi_H}(c)\right]
+   &\le C m^{1/3}L^c.                              \label{eq:gateway-disc}
+\end{align}
+The rule may use the public inventory, all activations already revealed at
+open tails, and fresh internal randomness, but no unrevealed activation.
+\end{conjecture}
+
+Surrogates are quantitatively affordable, although this fact alone does not
+prove the conjecture.  Before probing $i$, choose any
+$q_i\in[p_i,4p_i]$ from the current state.  Use one copy when $i$ is active;
+when it is inactive, use a direct surrogate independently with probability
+$(q_i-p_i)/(1-p_i)$.  The resulting selection has conditional mean $q_i$ and
+expected movement cost at most
+\[
+ p_i\ell_i+(q_i-p_i)d(a_i,b_i)
+ \le q_i\ell_i\le4p_i\ell_i.
+\]
+This gives a cost-compatible drift range $[-p_i,2p_i]$ around the public
+target $2p_i$.  The missing issue is simultaneous control of both stripes
+under the endogenous order, not the local budget.
+
+The fixed-inventory and exhaustion hypotheses are essential.  A statement
+for arbitrary predictable interval arrivals is false: an adaptive scheduler
+can wait for a rare excursion in one coordinate and then offer only an
+orthogonal singleton, freezing the excursion.  That already forces an
+additive $\Omega(\log T)$ term.  More general adaptive online-interval
+coloring constructions can be worse because they manufacture new interval
+endpoints in response to previous choices.  Neither operation is directly
+available to the fixed public inventory of the route.
+
+\begin{theorem}[conditional $n^{1/5}$ algorithm]\label{thm:conditional}
+If \cref{conj:gateway} holds, every asymmetric stochastic TSP instance has a
+causal policy of expected cost
+\begin{equation}\label{eq:conditional-result}
+ O\!\left(n^{1/5}L^{(1+3c)/5}+L^2\right)\opt_{\rm post}.
+\end{equation}
+In particular, it has an $\widetilde O(n^{1/5})$ policy.
+\end{theorem}
+
+\begin{proof}
+First consider a subinstance of mass $\mu$ with all probabilities at most
+$1/4$.  Use the thinned certificate and scaled joint rounding.  Replace the
+independent tail controllers by \cref{conj:gateway}.  By
+\eqref{eq:two-stripe-bound}, the public imbalance is $O(L^2)$ and the
+realized imbalance is $O(m^{1/3}L^c)$ in expectation.  Since
+$m=O(1+\alpha\mu)$, the active-first execution has cost
+\begin{equation}\label{eq:conditional-low-alpha}
+ O\!\left(
+   \frac L\alpha+(\alpha\mu)^{1/3}L^c+L^2
+ \right)B.
+\end{equation}
+For the nontrivial parameter range, choose
+\[
+  \alpha=\mu^{-1/4}L^{3(1-c)/4},
+\]
+truncated to $(0,1]$.  This gives
+\begin{equation}\label{eq:conditional-low}
+ O\!\left(
+   \mu^{1/4}L^{(1+3c)/4}+L^2
+ \right)B.
+\end{equation}
+
+Split the original instance at
+\[
+  \tau:=\min\left\{\frac14,
+       n^{-1/5}L^{-(1+3c)/5}\right\}.
+\]
+The usual fixed-tour binning policy costs $O(1/\tau)$ on the
+high-probability vertices.  The low-probability subinstance has
+$\mu\le n\tau$, so \eqref{eq:conditional-low} costs at most
+\[
+ O\!\left((n\tau)^{1/4}L^{(1+3c)/4}+L^2\right)B.
+\]
+The definition of $\tau$ balances its polynomial term with $1/\tau$ and
+gives \eqref{eq:conditional-result}.  Concatenating the two policies at the
+root and using monotonicity of the posterior optimum completes the proof.
+\end{proof}
+
+There is a logically independent gateway.  If every subinstance whose
+probabilities are at least $\tau$ admitted a
+$\widetilde O(\tau^{-1/2})$ policy, then balancing that policy against the
+proved low bound $\widetilde O((n\tau)^{1/3})$ would also give exponent
+$1/5$.  No proof of this high-probability interpolation is currently known;
+the usual attempt to localize a tour into nonempty blocks fails in an
+asymmetric one-way cycle, where a single nonempty block may already require a
+full revolution.  One sufficient formulation would be
+\[
+ \opt_{\rm adapt}
+ \le \operatorname{polylog}(n)
+       \sqrt{\opt_{\rm prior}\opt_{\rm post}},
+\]
+because $\opt_{\rm prior}\le\tau^{-1}\opt_{\rm post}$ on such a subinstance.
+A direct Bellman induction for this inequality encounters an unbounded
+forced-first loss: in an asymmetric metric, forcing the newly active vertex
+ahead of a cheap suffix can be arbitrarily more expensive than its immediate
+travel distance.  That loss requires a genuinely multistep amortization.
+
+\section{Why the immediate shortcuts fail}
+
+\subsection{Independent tails really cost
+\texorpdfstring{$\sqrt m$}{square root m}}
+
+Take $m$ distinct tails $a_1,\ldots,a_m$, a common head $b$, and one
+probability-$1/4$ outside vertex on each chord $a_j\to b$.  For a one-item
+tail, marginal unbiasedness with $K\in\{1,4\}$ forces
+$\Pp(K=4\mid A=1)=1/3$.  Hence the error $E=AK-1/2$ has distribution
+\[
+ E=\begin{cases}
+   -1/2,&\text{with probability }3/4,\\
+   +1/2,&\text{with probability }1/6,\\
+   +7/2,&\text{with probability }1/12.
+ \end{cases}
+\]
+It has mean zero and variance $5/4$.  If the tail controllers are
+independent, the cyclic cut containing all $a_j$ but not $b$ has error
+$\sum_jE_j$, and
+\[
+  \E\left|\sum_{j=1}^mE_j\right|=\Omega(\sqrt m).
+\]
+Thus neither a sharper Bernstein inequality nor a chaining argument can
+turn these independent controllers into an $m^{1/3}$ construction.
+
+\subsection{The current two-arc certificate really costs
+\texorpdfstring{$1/\alpha$}{one over alpha}}
+
+Consider the shortest-path metric of a consistently oriented cycle and a
+cell whose only sampled portal is its root-side backbone vertex.  Every
+allowed two-arc outside detour must leave the portal, reach its outside
+vertex, and return to the same portal; its cost is one complete revolution.
+A cell of a backbone sampled at rate $\alpha p_i$ has expected outside mass
+$\Theta(1/\alpha)$.  The no-outside-to-outside circulation therefore pays
+$\Theta(1/\alpha)$ complete revolutions although a posterior tour pays one
+when the cell is nonempty.  An $\alpha^{-1/2}$ certificate cannot result from
+tightening the padded-run calculation; it must retain shared
+outside-to-outside chains or create persistent new portals.
+
+\subsection{Offline multiplicity repair is too late}
+
+Let the backbone have two vertices $a,b$.  Present $M$ independent
+probability-$p$ chords in each direction, and let $X,Y$ be the two active
+counts.  Suppose the probing trail uses the mandatory first copy of every
+active chord but postpones all extra multiplicities.  Flow balance of this
+partial trail implies that its two backbone-edge counts differ by
+$X-Y+\delta$, where $|\delta|\le1$.  Consequently it has already used some
+backbone edge at least $|X-Y|-1$ times, whose expectation is
+$\Omega(\sqrt{Mp})$.
+
+By contrast, with high probability $X$ and $Y$ are within constant factors.
+Then the integer intervals $[X,4X]$ and $[Y,4Y]$ intersect.  An offline
+Hoffman circulation assigns multiplicities in $\{1,2,3,4\}$ whose total is
+the same in both directions and needs only one backbone pass.  This
+separation shows that existence of the excellent offline circulation does
+not imply a causal policy: the multiplicity must be selected before the
+relevant fallback edge is crossed.
+
+Inactive surrogates evade this particular counting obstruction.  After all
+the activations in the example are known, $|X-Y|$ inactive chords of the
+deficient orientation make the totals equal, and their expected number is
+$O(Mp)$.  Selecting them only then is too late: the square-root discovery
+prefix has already been traversed.  They help only if chosen while their
+tails remain open, with every cyclic cut and the weighted surrogate cost
+controlled simultaneously.  This is precisely the causal requirement in
+\cref{conj:gateway}; an offline circulation theorem supplies no such prefix
+consistency.
+
+\subsection{Fixed-terminal packets cancel their own gain}
+
+Let all packet vertices have probability $p$, and let a public packet contain
+$s\le h$ of them.  The packet must be traversed whenever it is nonempty, an
+event of probability
+\[
+  q_s=1-(1-p)^s.
+\]
+When $ph\le1$, a full packet has $q_h=\Theta(hp)$.  Packetizing a posterior
+segment of length $M$ reduces its padded path count from $M$ to
+$Q=\lceil M/h\rceil$.  But converting the posterior packet system into a
+public cover scales a full packet's terminal flow by
+$q_h/p=\Theta(h)$.  Therefore
+\[
+  \frac{q_h}{p}Q=\Theta(M),
+\]
+and the backbone repair remains $\Theta(L/\alpha)$.
+
+Equivalently, choose a multiplicity satisfying
+\[
+  \E[K\mid\text{packet nonempty}]=\frac{hp}{q_s}.
+\]
+Then every packet contributes expected count $hp$, but the resulting bound is
+\[
+  h\left(1+\frac{L}{\alpha h}\right)B
+  =\left(h+\frac L\alpha\right)B.
+\]
+The hoped-for $h$ saving disappears.  A successful chain construction must
+use newly active internal vertices as persistent portals rather than collapse
+the entire chain to fixed backbone terminals.
+
+\section{Recommended next target}
+
+The cleanest remaining proof target is \cref{conj:gateway}, not a generic
+online Koml\'os theorem.  The two-stripe reduction
+\eqref{eq:two-stripe-reduction} is stronger than merely observing that every
+chord is an interval vector.  The reveal order is endogenous, but it is an
+exhaustive adaptive linear extension of the public head-ordered tail lists.
+A valid proof must use this restriction and must finalize every extra or
+surrogate copy before its tail's fallback edge is committed.
+
+Two concrete mechanisms remain plausible:
+\begin{enumerate}[leftmargin=2em]
+ \item a multiscale controller that coordinates several tails before any of
+ their relevant fallback edges is used; or
+ \item a persistent-portal execution that keeps active outside vertices in
+ the virtual state and thereby retains shared outside-to-outside paths.
+\end{enumerate}
+Neither mechanism is supplied by the present independent-tail controller,
+ordinary online signing theorems, posterior packet rounding, or the offline
+Hoffman circulation.  Proving either one with the quantitative bound
+$m^{1/3}\operatorname{polylog}n$ completes the $n^{1/5}$ algorithm through
+\cref{thm:conditional}.
+
+\end{document}

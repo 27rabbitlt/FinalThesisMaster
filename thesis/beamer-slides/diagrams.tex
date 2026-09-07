@@ -1,0 +1,1794 @@
+% Native TikZ diagrams for the thesis defense.
+
+\tikzset{
+  thDet/.style={
+    rectangle,rounded corners=0.45pt,draw=ThInk,fill=ThWhite,
+    line width=0.7pt,minimum width=0.52cm,minimum height=0.48cm,
+    inner sep=1.5pt,font=\fontsize{8.5pt}{9pt}\selectfont
+  },
+  thDepot/.style={
+    thDet,fill=ThGold!24,draw=ThGold!65!ThInk,line width=0.9pt
+  },
+  thStoch/.style={
+    circle,draw=ThInk,fill=ThTeal!18,line width=0.7pt,
+    minimum size=0.47cm,inner sep=1pt,
+    font=\fontsize{8pt}{9pt}\selectfont
+  },
+  thActive/.style={
+    thStoch,fill=ThTeal,text=ThWhite,draw=ThTeal!55!ThInk
+  },
+  thPacket/.style={
+    thStoch,fill=ThGold,text=ThWhite,draw=ThGold!55!ThInk,
+    line width=0.85pt
+  },
+  thPacketActive/.style={
+    thPacket,draw=ThTeal,line width=1.25pt
+  },
+  thInactive/.style={
+    thStoch,fill=ThPaper,draw=ThMuted,text=ThMuted
+  },
+  thArrow/.style={
+    -{Stealth[length=2.2mm,width=1.45mm]},line width=1.05pt,draw=ThBlue
+  },
+  thArrowThin/.style={
+    -{Stealth[length=1.8mm,width=1.2mm]},line width=0.72pt,draw=ThBlue
+  },
+  thEdge/.style={draw=ThInkSoft,line width=0.72pt},
+  thFaint/.style={draw=ThLine,line width=0.55pt},
+  thDashed/.style={draw=ThMuted,densely dashed,line width=0.72pt},
+  thLabel/.style={
+    font=\fontsize{8.5pt}{10pt}\selectfont,text=ThMuted,align=center
+  },
+  thSmallLabel/.style={
+    font=\fontsize{7.5pt}{9pt}\selectfont,text=ThMuted,align=center
+  }
+}
+
+% --------------------------------------------------------------------------
+% Classical metric TSP: a complete graph with one tour highlighted.
+% --------------------------------------------------------------------------
+\newcommand{\ThTSPGraph}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \coordinate (r) at (-2.15,0.00);
+  \coordinate (a) at (-1.10,1.48);
+  \coordinate (b) at (0.72,1.42);
+  \coordinate (c) at (2.02,0.20);
+  \coordinate (d) at (0.92,-1.42);
+  \coordinate (e) at (-1.02,-1.50);
+
+  \foreach \u/\v in {r/a,r/b,r/c,r/d,r/e,a/b,a/c,a/d,a/e,b/c,b/d,b/e,c/d,c/e,d/e}{
+    \draw[ThMuted!42,line width=0.55pt] (\u)--(\v);
+  }
+
+  \draw[ThBlue,line width=2.05pt,line join=round]
+    (r)--(a)--(b)--(c)--(d)--(e)--cycle;
+
+  \node[circle,draw=ThGold!72!ThInk,fill=ThGold!22,
+    line width=0.9pt,minimum size=0.48cm,inner sep=0pt,
+    font=\fontsize{9pt}{10pt}\selectfont] at (r) {$r$};
+  \foreach \v in {a,b,c,d,e}{
+    \node[circle,draw=ThInkSoft,fill=ThWhite,line width=0.8pt,
+      minimum size=0.36cm,inner sep=0pt] at (\v) {};
+  }
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Stochastic TSP: four click-through activation realizations.
+% --------------------------------------------------------------------------
+\newcommand{\ThStochasticGraph}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.45,-1.82) rectangle (2.30,1.82);
+  \coordinate (r) at (-2.15,0.00);
+  \coordinate (a) at (-1.10,1.48);
+  \coordinate (b) at (0.72,1.42);
+  \coordinate (c) at (2.02,0.20);
+  \coordinate (d) at (0.92,-1.42);
+  \coordinate (e) at (-1.02,-1.50);
+
+  \foreach \u/\v in {r/a,r/b,r/c,r/d,r/e,a/b,a/c,a/d,a/e,b/c,b/d,b/e,c/d,c/e,d/e}{
+    \draw[ThMuted!34,line width=0.55pt] (\u)--(\v);
+  }
+
+  \node[circle,draw=ThGold!72!ThInk,fill=ThGold!22,
+    line width=0.9pt,minimum size=0.50cm,inner sep=0pt,
+    font=\fontsize{9pt}{10pt}\selectfont] at (r) {$r$};
+
+  \only<1>{
+    \node[thActive,minimum size=0.50cm] at (a) {$1$};
+    \node[thInactive,minimum size=0.50cm] at (b) {$2$};
+    \node[thActive,minimum size=0.50cm] at (c) {$3$};
+    \node[thInactive,minimum size=0.50cm] at (d) {$4$};
+    \node[thActive,minimum size=0.50cm] at (e) {$5$};
+  }
+  \only<2>{
+    \node[thInactive,minimum size=0.50cm] at (a) {$1$};
+    \node[thActive,minimum size=0.50cm] at (b) {$2$};
+    \node[thActive,minimum size=0.50cm] at (c) {$3$};
+    \node[thActive,minimum size=0.50cm] at (d) {$4$};
+    \node[thInactive,minimum size=0.50cm] at (e) {$5$};
+  }
+  \only<3>{
+    \node[thActive,minimum size=0.50cm] at (a) {$1$};
+    \node[thInactive,minimum size=0.50cm] at (b) {$2$};
+    \node[thInactive,minimum size=0.50cm] at (c) {$3$};
+    \node[thActive,minimum size=0.50cm] at (d) {$4$};
+    \node[thActive,minimum size=0.50cm] at (e) {$5$};
+  }
+  \only<4>{
+    \node[thActive,minimum size=0.50cm] at (a) {$1$};
+    \node[thActive,minimum size=0.50cm] at (b) {$2$};
+    \node[thInactive,minimum size=0.50cm] at (c) {$3$};
+    \node[thInactive,minimum size=0.50cm] at (d) {$4$};
+    \node[thActive,minimum size=0.50cm] at (e) {$5$};
+  }
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% A posteriori: reveal the complete active set, then optimize for it.
+% --------------------------------------------------------------------------
+\newcommand{\ThPosterioriExample}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.45) rectangle (11,2.20);
+
+  \node[font=\fontsize{11pt}{13pt}\selectfont\bfseries,text=ThInkSoft]
+    at (2.35,1.95) {Active set revealed};
+  \begin{scope}[shift={(2.35,0.20)},scale=0.70]
+    \coordinate (lr) at (-2.15,0.00);
+    \coordinate (lone) at (-1.10,1.48);
+    \coordinate (ltwo) at (0.72,1.42);
+    \coordinate (lthree) at (2.02,0.20);
+    \coordinate (lfour) at (0.92,-1.42);
+    \coordinate (lfive) at (-1.02,-1.50);
+
+    \foreach \u/\v in {lr/lone,lr/ltwo,lr/lthree,lr/lfour,lr/lfive,
+      lone/ltwo,lone/lthree,lone/lfour,lone/lfive,
+      ltwo/lthree,ltwo/lfour,ltwo/lfive,
+      lthree/lfour,lthree/lfive,lfour/lfive}{
+      \draw[ThMuted!34,line width=0.55pt] (\u)--(\v);
+    }
+
+    \node[circle,draw=ThGold!72!ThInk,fill=ThGold!22,
+      line width=0.9pt,minimum size=0.50cm,inner sep=0pt,
+      font=\fontsize{9pt}{10pt}\selectfont] at (lr) {$r$};
+    \node[thActive,minimum size=0.50cm] at (lone) {$1$};
+    \node[thInactive,minimum size=0.50cm] at (ltwo) {$2$};
+    \node[thActive,minimum size=0.50cm] at (lthree) {$3$};
+    \node[thInactive,minimum size=0.50cm] at (lfour) {$4$};
+    \node[thActive,minimum size=0.50cm] at (lfive) {$5$};
+  \end{scope}
+  \node[thLabel,text=ThTeal] at (2.35,-1.30) {$A=\{1,3,5\}$};
+
+  \draw[thArrow,draw=ThTeal,line width=1.35pt]
+    (4.65,0.22)--(6.15,0.22);
+
+  \node[font=\fontsize{11pt}{13pt}\selectfont\bfseries,text=ThTeal!75!ThInk]
+    at (8.55,1.95) {Best tour for this active set};
+  \begin{scope}[shift={(8.55,0.20)},scale=0.70]
+    \coordinate (rr) at (-2.15,0.00);
+    \coordinate (rone) at (-1.10,1.48);
+    \coordinate (rthree) at (2.02,0.20);
+    \coordinate (rfive) at (-1.02,-1.50);
+
+    \foreach \u/\v in {rr/rone,rr/rthree,rr/rfive,
+      rone/rthree,rone/rfive,rthree/rfive}{
+      \draw[ThMuted!30,line width=0.55pt] (\u)--(\v);
+    }
+    \draw[ThTeal,line width=2.05pt,line join=round]
+      (rr)--(rone)--(rthree)--(rfive)--cycle;
+
+    \node[circle,draw=ThGold!72!ThInk,fill=ThGold!22,
+      line width=0.9pt,minimum size=0.50cm,inner sep=0pt,
+      font=\fontsize{9pt}{10pt}\selectfont] at (rr) {$r$};
+    \node[thActive,minimum size=0.50cm] at (rone) {$1$};
+    \node[thActive,minimum size=0.50cm] at (rthree) {$3$};
+    \node[thActive,minimum size=0.50cm] at (rfive) {$5$};
+  \end{scope}
+  \node[thLabel,text=ThTeal] at (8.55,-1.30) {cost $=\OPT(A)$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% A priori: fix a full order, then shortcut the inactive vertices.
+% --------------------------------------------------------------------------
+\newcommand{\ThPrioriExample}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.45) rectangle (11,2.20);
+
+  \node[font=\fontsize{11pt}{13pt}\selectfont\bfseries,
+    text=ThTeal!75!ThInk] at (2.35,1.95)
+    {Fixed order \(T\)};
+  \begin{scope}[shift={(2.35,0.20)},scale=0.70]
+    \coordinate (lr) at (-2.15,0.00);
+    \coordinate (lone) at (-1.10,1.48);
+    \coordinate (ltwo) at (0.72,1.42);
+    \coordinate (lthree) at (2.02,0.20);
+    \coordinate (lfour) at (0.92,-1.42);
+    \coordinate (lfive) at (-1.02,-1.50);
+
+    \foreach \u/\v in {lr/lone,lr/ltwo,lr/lthree,lr/lfour,lr/lfive,
+      lone/ltwo,lone/lthree,lone/lfour,lone/lfive,
+      ltwo/lthree,ltwo/lfour,ltwo/lfive,
+      lthree/lfour,lthree/lfive,lfour/lfive}{
+      \draw[ThMuted!30,line width=0.55pt] (\u)--(\v);
+    }
+    \draw[ThTeal,line width=2.05pt,line join=round]
+      (lr)--(lone)--(ltwo)--(lthree)--(lfour)--(lfive)--cycle;
+
+    \node[circle,draw=ThGold!72!ThInk,fill=ThGold!22,
+      line width=0.9pt,minimum size=0.50cm,inner sep=0pt,
+      font=\fontsize{9pt}{10pt}\selectfont] at (lr) {$r$};
+    \foreach \pos/\lab in {lone/1,ltwo/2,lthree/3,lfour/4,lfive/5}{
+      \node[circle,draw=ThInkSoft,fill=ThPaper,line width=0.8pt,
+        minimum size=0.50cm,inner sep=0pt,
+        font=\fontsize{9pt}{10pt}\selectfont] at (\pos) {$\lab$};
+    }
+  \end{scope}
+  \node[thLabel,text=ThTeal] at (2.35,-1.30)
+    {$T=(r,1,2,3,4,5,r)$};
+
+  \draw[thArrow,draw=ThTeal,line width=1.35pt]
+    (4.65,0.22)--(6.15,0.22);
+  \node[thLabel,text=ThTeal,fill=ThPaper,inner sep=1.5pt]
+    at (5.40,0.64) {$A=\{2,4,5\}$};
+
+  \node[font=\fontsize{11pt}{13pt}\selectfont\bfseries,
+    text=ThTeal!75!ThInk] at (8.55,1.95)
+    {Realized shortcut \(T\vert_A\)};
+  \begin{scope}[shift={(8.55,0.20)},scale=0.70]
+    \coordinate (rr) at (-2.15,0.00);
+    \coordinate (rone) at (-1.10,1.48);
+    \coordinate (rtwo) at (0.72,1.42);
+    \coordinate (rthree) at (2.02,0.20);
+    \coordinate (rfour) at (0.92,-1.42);
+    \coordinate (rfive) at (-1.02,-1.50);
+
+    \foreach \u/\v in {rr/rone,rr/rtwo,rr/rthree,rr/rfour,rr/rfive,
+      rone/rtwo,rone/rthree,rone/rfour,rone/rfive,
+      rtwo/rthree,rtwo/rfour,rtwo/rfive,
+      rthree/rfour,rthree/rfive,rfour/rfive}{
+      \draw[ThMuted!25,line width=0.55pt] (\u)--(\v);
+    }
+    \draw[ThTeal,line width=2.05pt,line join=round]
+      (rr)--(rtwo)--(rfour)--(rfive)--cycle;
+
+    \node[circle,draw=ThGold!72!ThInk,fill=ThGold!22,
+      line width=0.9pt,minimum size=0.50cm,inner sep=0pt,
+      font=\fontsize{9pt}{10pt}\selectfont] at (rr) {$r$};
+    \node[thInactive,minimum size=0.50cm] at (rone) {$1$};
+    \node[thActive,minimum size=0.50cm] at (rtwo) {$2$};
+    \node[thInactive,minimum size=0.50cm] at (rthree) {$3$};
+    \node[thActive,minimum size=0.50cm] at (rfour) {$4$};
+    \node[thActive,minimum size=0.50cm] at (rfive) {$5$};
+  \end{scope}
+  \node[thLabel,text=ThTeal] at (8.55,-1.30)
+    {cost $=\cost(T\vert_A)$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% A priori master order and realized shortcut.
+% --------------------------------------------------------------------------
+\newcommand{\ThMasterOrder}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[anchor=west,font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=ThInk]
+    at (0,2.65) {Order fixed before activation};
+  \node[thDepot] (mr) at (0.7,2.0) {$r$};
+  \node[thActive] (mone) at (2.0,2.0) {$1$};
+  \node[thInactive] (mtwo) at (3.3,2.0) {$2$};
+  \node[thActive] (mthree) at (4.6,2.0) {$3$};
+  \node[thInactive] (mfour) at (5.9,2.0) {$4$};
+  \node[thInactive] (mfive) at (7.2,2.0) {$5$};
+  \node[thActive] (msix) at (8.5,2.0) {$6$};
+  \node[thDepot] (mrb) at (9.8,2.0) {$r$};
+  \foreach \a/\b in {r/one,one/two,two/three,three/four,four/five,five/six,six/rb}{
+    \draw[thFaint,-{Stealth[length=1.4mm]}] (m\a)--(m\b);
+  }
+  \node[thSmallLabel,anchor=north] at (3.3,1.63) {inactive};
+  \node[thSmallLabel,anchor=north] at (5.9,1.63) {inactive};
+  \node[thSmallLabel,anchor=north] at (7.2,1.63) {inactive};
+
+  \node[anchor=west,font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=ThInk]
+    at (0,0.93) {Realized tour};
+  \node[thDepot] (rr) at (0.7,0.28) {$r$};
+  \node[thActive] (a1) at (2.8,0.28) {$1$};
+  \node[thActive] (a3) at (5.15,0.28) {$3$};
+  \node[thActive] (a6) at (7.55,0.28) {$6$};
+  \node[thDepot] (rr2) at (9.8,0.28) {$r$};
+  \draw[thArrow] (rr)--node[above,thSmallLabel] {$d(r,1)$} (a1);
+  \draw[thArrow] (a1)--node[above,thSmallLabel] {$d(1,3)$} (a3);
+  \draw[thArrow] (a3)--node[above,thSmallLabel] {$d(3,6)$} (a6);
+  \draw[thArrow] (a6)--(rr2);
+  \node[thLabel,anchor=west,text=ThTeal] at (10.22,0.28)
+    {inactive vertices\\are shortcut};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Three information regimes.
+% --------------------------------------------------------------------------
+\newcommand{\ThBenchmarkLadder}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[ThLine,line width=2.0pt] (0.7,0)--(11.1,0);
+  \draw[ThTeal,line width=2.8pt] (0.7,0)--(3.55,0);
+  \draw[ThBlue,line width=2.8pt] (3.55,0)--(7.25,0);
+  \draw[ThGold,line width=2.8pt] (7.25,0)--(11.1,0);
+  \foreach \x/\col/\num in {1.05/ThTeal/1,5.4/ThBlue/2,10.5/ThGold/3}{
+    \node[circle,fill=\col,text=ThWhite,minimum size=0.52cm,
+      font=\fontsize{10pt}{11pt}\selectfont\bfseries] at (\x,0) {\num};
+  }
+  \node[anchor=north west,text width=3.25cm,align=left] at (0.55,2.70) {%
+    {\fontsize{14pt}{16pt}\selectfont\bfseries A posteriori}\par
+    \vspace{0.12cm}
+    {\fontsize{10.2pt}{12.2pt}\selectfont\color{ThInkSoft}
+      Observe all activations,\\then choose a tour.}};
+  \node[anchor=north,text width=3.55cm,align=center] at (5.4,2.70) {%
+    {\fontsize{14pt}{16pt}\selectfont\bfseries Adaptive}\par
+    \vspace{0.12cm}
+    {\fontsize{10.2pt}{12.2pt}\selectfont\color{ThInkSoft}
+      Probe sequentially;\\move when active.}};
+  \node[anchor=north east,text width=3.35cm,align=right] at (11.0,2.70) {%
+    {\fontsize{14pt}{16pt}\selectfont\bfseries A priori}\par
+    \vspace{0.12cm}
+    {\fontsize{10.2pt}{12.2pt}\selectfont\color{ThInkSoft}
+      Fix one order before\\seeing activations.}};
+  \node[anchor=north west,text=ThTeal,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (0.62,-0.38)
+    {full information};
+  \node[anchor=north,text=ThBlue,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (5.4,-0.38)
+    {information revealed over time};
+  \node[anchor=north east,text=ThGold!76!ThInk,
+    font=\fontsize{9.5pt}{11.5pt}\selectfont\bfseries] at (11.0,-0.38)
+    {no activation information};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Two realizations of one adaptive probe, shown on one page.
+% --------------------------------------------------------------------------
+\newcommand{\ThProbeRealizations}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.35) rectangle (11,2.55);
+  \coordinate (lu) at (1.25,0.45);
+  \coordinate (lv) at (4.05,0.45);
+  \coordinate (ru) at (6.95,0.45);
+  \coordinate (rv) at (9.75,0.45);
+
+  \node[font=\fontsize{12.5pt}{14.5pt}\selectfont\bfseries,text=ThTeal]
+    at (2.65,2.18) {\(v\) is active};
+  \node[font=\fontsize{12.5pt}{14.5pt}\selectfont\bfseries,text=ThMuted]
+    at (8.35,2.18) {\(v\) is inactive};
+
+  \draw[ThLine,line width=0.75pt] (lu)--(lv);
+  \draw[ThLine,line width=0.75pt] (ru)--(rv);
+  \draw[thArrow,draw=ThTeal,line width=1.55pt]
+    (1.62,0.45)--(3.67,0.45);
+
+  \node[circle,draw=ThBlue,fill=ThPaper,line width=1.0pt,
+    minimum size=0.72cm,inner sep=0pt,
+    font=\fontsize{10.5pt}{12pt}\selectfont] at (lu) {$u$};
+  \node[thActive,minimum size=0.72cm,
+    font=\fontsize{10.5pt}{12pt}\selectfont] at (lv) {$v$};
+  \node[circle,draw=ThBlue,fill=ThPaper,line width=1.0pt,
+    minimum size=0.72cm,inner sep=0pt,
+    font=\fontsize{10.5pt}{12pt}\selectfont] at (ru) {$u$};
+  \node[thInactive,minimum size=0.72cm,
+    font=\fontsize{10.5pt}{12pt}\selectfont] at (rv) {$v$};
+
+  \node[thLabel] at (1.25,-0.22) {start at \(u\)};
+  \node[thLabel] at (4.05,-0.22) {probe \(v\)};
+  \node[thLabel] at (6.95,-0.22) {start at \(u\)};
+  \node[thLabel] at (9.75,-0.22) {probe \(v\)};
+
+  \node[thSmallLabel,text=ThGold!72!ThInk] at (4.05,1.52)
+    {current position};
+  \fill[ThGold!78!ThInk]
+    (4.05,0.96)--(3.88,1.27)--(4.22,1.27)--cycle;
+  \node[thSmallLabel,text=ThGold!72!ThInk] at (6.95,1.52)
+    {current position};
+  \fill[ThGold!78!ThInk]
+    (6.95,0.96)--(6.78,1.27)--(7.12,1.27)--cycle;
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThTeal]
+    at (2.65,-0.95) {Visit \(v\) immediately};
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThMuted]
+    at (8.35,-0.95) {Remain at \(u\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Pairwise gaps among the three information benchmarks.
+% --------------------------------------------------------------------------
+\newcommand{\ThGapArcs}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-2.35) rectangle (11,1.40);
+  \coordinate (post) at (1.15,0);
+  \coordinate (adapt) at (5.50,0);
+  \coordinate (prior) at (9.85,0);
+
+  % Draw the outer arc first so the two local comparisons remain foregrounded.
+  \draw[ThGold!80!ThInk,line width=1.25pt,line cap=round]
+    (post) to[bend right=30]
+    node[midway,below=3pt,fill=ThPaper,inner sep=1.5pt,
+      text=ThGold!80!ThInk,
+      font=\fontsize{9.4pt}{11.4pt}\selectfont\bfseries]
+      {obliviousness gap} (prior);
+  \draw[ThTeal,line width=1.25pt,line cap=round]
+    (post) to[bend left=23]
+    node[midway,above=3pt,fill=ThPaper,inner sep=1.5pt,text=ThTeal,
+      font=\fontsize{9.4pt}{11.4pt}\selectfont\bfseries]
+      {clairvoyance gap} (adapt);
+  \draw[ThBlue,line width=1.25pt,line cap=round]
+    (adapt) to[bend left=23]
+    node[midway,above=3pt,fill=ThPaper,inner sep=1.5pt,text=ThBlue,
+      font=\fontsize{9.4pt}{11.4pt}\selectfont\bfseries]
+      {adaptivity gap} (prior);
+
+  \node[fill=ThPaper,inner sep=4pt,
+    font=\fontsize{16pt}{19pt}\selectfont] at (post)
+    {\(\optpost(\mathcal I)\)};
+  \node[fill=ThPaper,inner sep=4pt,
+    font=\fontsize{16pt}{19pt}\selectfont] at (adapt)
+    {\(\optadapt(\mathcal I)\)};
+  \node[fill=ThPaper,inner sep=4pt,
+    font=\fontsize{16pt}{19pt}\selectfont] at (prior)
+    {\(\optprior(\mathcal I)\)};
+  \node[fill=ThPaper,inner sep=2pt,
+    font=\fontsize{14pt}{17pt}\selectfont] at (3.325,0)
+    {\(\leq\)};
+  \node[fill=ThPaper,inner sep=2pt,
+    font=\fontsize{14pt}{17pt}\selectfont] at (7.675,0)
+    {\(\leq\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Three-chain construction.
+% --------------------------------------------------------------------------
+\newcommand{\ThThreeChain}{%
+\begin{tikzpicture}[x=0.93cm,y=0.93cm]
+  \node[thDepot] (A0) at (0, 2.35) {$a_0$};
+  \node[thDet] (A1) at (1.4, 2.35) {$a_1$};
+  \node[thDet] (Am) at (6.0, 2.35) {$a_m$};
+  \node[thDet] (Bm) at (0, 0) {$b_m$};
+  \node[thDet] (B1) at (4.6, 0) {$b_1$};
+  \node[thDet] (B0) at (6.0, 0) {$b_0$};
+  \node[thDet] (C0) at (0,-2.35) {$c_0$};
+  \node[thDet] (C1) at (1.4,-2.35) {$c_1$};
+  \node[thDet] (Cm) at (6.0,-2.35) {$c_m$};
+  \node[thStoch,minimum size=0.60cm] (S) at (7.35,-1.18) {$s$};
+
+  \draw[ThMuted,densely dashed,line width=0.8pt] (A0)--(Bm);
+  \draw[ThMuted,densely dashed,line width=0.8pt] (A0)--(Cm);
+  \draw[ThMuted,densely dashed,line width=0.8pt] (Am)--(B0);
+  \draw[ThMuted,densely dashed,line width=0.8pt] (Am)--(C0);
+  \draw[ThCoral,dash pattern=on 4pt off 2pt on 1pt off 2pt,line width=0.8pt]
+    (Bm)--(C0);
+  \draw[ThCoral,dash pattern=on 4pt off 2pt on 1pt off 2pt,line width=0.8pt]
+    (B0)--(S);
+  \draw[ThCoral,dash pattern=on 4pt off 2pt on 1pt off 2pt,line width=0.8pt]
+    (Cm)--(S);
+  \draw[ThBlue,line width=1.15pt] (A0)--(A1)--(Am);
+  \draw[ThBlue,line width=1.15pt] (Bm)--(B1)--(B0);
+  \draw[ThBlue,line width=1.15pt] (C0)--(C1)--(Cm);
+  \node[fill=ThPaper,inner sep=3pt,text=ThMuted] at (3.55,2.35) {$\cdots$};
+  \node[fill=ThPaper,inner sep=3pt,text=ThMuted] at (2.55,0) {$\cdots$};
+  \node[fill=ThPaper,inner sep=3pt,text=ThMuted] at (3.55,-2.35) {$\cdots$};
+  \node[thLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (-0.55,2.35) {$A$};
+  \node[thLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (-0.55,0) {$B$};
+  \node[thLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+    at (-0.55,-2.35) {$C$};
+  \node[thSmallLabel,anchor=west,text=ThBlue] at (7.0,1.55)
+    {chain edges: \(2\)};
+  \node[thSmallLabel,anchor=west,text=ThMuted] at (7.0,1.05)
+    {dashed: \(U\)};
+  \node[thSmallLabel,anchor=west,text=ThCoral] at (7.0,0.55)
+    {dash-dotted: \(P\)};
+\end{tikzpicture}}
+
+\newcommand{\ThOrderConflict}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[anchor=west,font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=ThTeal]
+    at (0,2.20) {$s$ inactive};
+  \node[thDet] (A0) at (0.55,0.85) {$A$};
+  \node[thDet] (B0) at (2.25,0.85) {$B$};
+  \node[thDet] (C0) at (3.95,0.85) {$C$};
+  \draw[thArrow,draw=ThTeal] (A0)--(B0);
+  \draw[thArrow,draw=ThTeal] (B0)--(C0);
+  \draw[thArrow,draw=ThTeal] (C0) to[bend left=33] (A0);
+  \node[thLabel,text=ThTeal] at (2.25,-0.05) {order \(A,B,C\)};
+
+  \draw[ThLine,line width=0.7pt] (5.15,-1.18)--(5.15,2.35);
+
+  \node[anchor=west,font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=ThCoral]
+    at (5.65,2.20) {$s$ active};
+  \node[thDet] (A1) at (6.05,0.85) {$A$};
+  \node[thDet] (C1) at (7.55,0.85) {$C$};
+  \node[thActive] (S1) at (9.05,0.85) {$s$};
+  \node[thDet] (B1) at (10.55,0.85) {$B$};
+  \draw[thArrow,draw=ThCoral] (A1)--(C1);
+  \draw[thArrow,draw=ThCoral] (C1)--(S1);
+  \draw[thArrow,draw=ThCoral] (S1)--(B1);
+  \draw[thArrow,draw=ThCoral] (B1) to[bend left=22] (A1);
+  \node[thLabel,text=ThCoral] at (8.30,-0.05) {order \(A,C,s,B\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Five-vertex symmetric adaptivity-gap demo.
+% --------------------------------------------------------------------------
+\newcommand{\ThKFourSubdivision}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.70,-1.90) rectangle (2.70,2.35);
+  \coordinate (r) at (-2.05,0.55);
+  \coordinate (a) at ( 2.05,0.55);
+  \coordinate (b) at (-2.05,-1.25);
+  \coordinate (c) at ( 2.05,-1.25);
+  \coordinate (s) at ( 0,1.72);
+
+  % Unit-edge K_4 with ra replaced by the two-edge path r-s-a.
+  \foreach \u/\v in {r/b,a/c,b/c,r/c,a/b}{
+    \draw[thEdge] (\u)--(\v);
+  }
+  \draw[ThBlue,line width=1.55pt,line join=round] (r)--(s)--(a);
+
+  \node[thDepot,minimum size=0.62cm,
+    font=\fontsize{10pt}{11pt}\selectfont] at (r) {$r$};
+  \node[thDet,minimum size=0.62cm,
+    font=\fontsize{10pt}{11pt}\selectfont] at (a) {$a$};
+  \node[thDet,minimum size=0.62cm,
+    font=\fontsize{10pt}{11pt}\selectfont] at (b) {$b$};
+  \node[thDet,minimum size=0.62cm,
+    font=\fontsize{10pt}{11pt}\selectfont] at (c) {$c$};
+  \node[thStoch,minimum size=0.64cm,
+    font=\fontsize{10pt}{11pt}\selectfont] at (s) {$s$};
+  \node[thLabel,text=ThTeal,anchor=west] at (0.35,1.72)
+    {$p_s=\tfrac12$};
+\end{tikzpicture}}
+
+\newcommand{\ThKFourOutcomes}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-2.10) rectangle (11,2.45);
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThMuted]
+    at (2.55,2.20) {$s$ inactive};
+  \coordinate (r0) at (0.70,0.45);
+  \coordinate (a0) at (4.40,0.45);
+  \coordinate (b0) at (0.70,-0.95);
+  \coordinate (c0) at (4.40,-0.95);
+  \coordinate (s0) at (2.55,1.48);
+  \foreach \u/\v in {r0/b0,a0/c0,b0/c0,r0/c0,a0/b0,r0/s0,s0/a0}{
+    \draw[thFaint] (\u)--(\v);
+  }
+  \draw[thArrowThin,draw=ThBlue] (r0)--(b0);
+  \draw[thArrowThin,draw=ThBlue] (b0)--(a0);
+  \draw[thArrowThin,draw=ThBlue] (a0)--(c0);
+  \draw[thArrowThin,draw=ThBlue] (c0)--(r0);
+  \node[thDepot] at (r0) {$r$};
+  \node[thDet] at (a0) {$a$};
+  \node[thDet] at (b0) {$b$};
+  \node[thDet] at (c0) {$c$};
+  \node[thInactive] at (s0) {$s$};
+  \node[font=\fontsize{10pt}{12pt}\selectfont,text=ThBlue]
+    at (2.55,-1.65) {$r\to b\to a\to c\to r$: cost \(4\)};
+
+  \draw[ThLine,line width=0.7pt] (5.50,-1.85)--(5.50,2.20);
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThTeal]
+    at (8.45,2.20) {$s$ active};
+  \coordinate (r1) at (6.60,0.45);
+  \coordinate (a1) at (10.30,0.45);
+  \coordinate (b1) at (6.60,-0.95);
+  \coordinate (c1) at (10.30,-0.95);
+  \coordinate (s1) at (8.45,1.48);
+  \foreach \u/\v in {r1/b1,a1/c1,b1/c1,r1/c1,a1/b1,r1/s1,s1/a1}{
+    \draw[thFaint] (\u)--(\v);
+  }
+  \draw[thArrowThin,draw=ThTeal] (r1)--(s1);
+  \draw[thArrowThin,draw=ThTeal] (s1)--(a1);
+  \draw[thArrowThin,draw=ThTeal] (a1)--(c1);
+  \draw[thArrowThin,draw=ThTeal] (c1)--(b1);
+  \draw[thArrowThin,draw=ThTeal] (b1)--(r1);
+  \node[thDepot] at (r1) {$r$};
+  \node[thDet] at (a1) {$a$};
+  \node[thDet] at (b1) {$b$};
+  \node[thDet] at (c1) {$c$};
+  \node[thActive] at (s1) {$s$};
+  \node[font=\fontsize{10pt}{12pt}\selectfont,text=ThTeal]
+    at (8.45,-1.65) {$r\to s\to a\to c\to b\to r$: cost \(5\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Toy probabilistic-method experiment: two equally likely (1,2)-metrics.
+% --------------------------------------------------------------------------
+\newcommand{\ThRandomMetricToy}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.55) rectangle (11,2.30);
+  \draw[ThLine,line width=0.65pt] (5.50,-1.20)--(5.50,2.05);
+
+  \node[font=\fontsize{11pt}{13pt}\selectfont\bfseries,text=ThInkSoft]
+    at (2.70,2.02) {\(D_1\), probability \(1/2\)};
+  \coordinate (lr) at (1.20,0.90);
+  \coordinate (la) at (4.20,0.90);
+  \coordinate (lb) at (4.20,-0.75);
+  \coordinate (lc) at (1.20,-0.75);
+  \draw[ThGold!78!ThInk,densely dashed,line width=0.85pt] (lr)--(lb);
+  \draw[ThGold!78!ThInk,densely dashed,line width=0.85pt] (la)--(lc);
+  \draw[ThTeal,line width=1.75pt,line join=round]
+    (lr)--(la)--(lb)--(lc)--cycle;
+  \node[thDepot,minimum size=0.52cm] at (lr) {$r$};
+  \node[thDet,minimum size=0.48cm] at (la) {$a$};
+  \node[thDet,minimum size=0.48cm] at (lb) {$b$};
+  \node[thDet,minimum size=0.48cm] at (lc) {$c$};
+  \node[font=\fontsize{9.5pt}{11pt}\selectfont,text=ThTeal!72!ThInk]
+    at (2.70,-1.23) {best tour: \(r,a,b,c,r\), cost \(4\)};
+
+  \node[font=\fontsize{11pt}{13pt}\selectfont\bfseries,text=ThInkSoft]
+    at (8.30,2.02) {\(D_2\), probability \(1/2\)};
+  \coordinate (rr) at (6.80,0.90);
+  \coordinate (ra) at (9.80,0.90);
+  \coordinate (rb) at (9.80,-0.75);
+  \coordinate (rc) at (6.80,-0.75);
+  \draw[ThGold!78!ThInk,densely dashed,line width=0.85pt] (rr)--(rc);
+  \draw[ThGold!78!ThInk,densely dashed,line width=0.85pt] (ra)--(rb);
+  \draw[ThTeal,line width=1.75pt,line join=round]
+    (rr)--(ra)--(rc)--(rb)--cycle;
+  \node[thDepot,minimum size=0.52cm] at (rr) {$r$};
+  \node[thDet,minimum size=0.48cm] at (ra) {$a$};
+  \node[thDet,minimum size=0.48cm] at (rb) {$b$};
+  \node[thDet,minimum size=0.48cm] at (rc) {$c$};
+  \node[font=\fontsize{9.5pt}{11pt}\selectfont,text=ThTeal!72!ThInk]
+    at (8.30,-1.23) {best tour: \(r,a,c,b,r\), cost \(4\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% The same tour is evaluated under both toy metrics.
+% --------------------------------------------------------------------------
+\newcommand{\ThRandomMetricToyComparison}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.10) rectangle (11,1.85);
+  \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThInkSoft]
+    at (5.20,1.60) {fix \(T=(r,a,b,c,r)\) before seeing \(D\)};
+
+  \foreach \x/\name in {1.45/lr,2.75/la,4.05/lb,5.35/lc,6.65/lrr}{
+    \coordinate (\name) at (\x,0.72);
+  }
+  \foreach \u/\v in {lr/la,la/lb,lb/lc,lc/lrr}{
+    \draw[ThTeal,line width=1.45pt] (\u)--(\v);
+  }
+  \node[thDepot,minimum size=0.43cm] at (lr) {$r$};
+  \node[thDet,minimum size=0.40cm] at (la) {$a$};
+  \node[thDet,minimum size=0.40cm] at (lb) {$b$};
+  \node[thDet,minimum size=0.40cm] at (lc) {$c$};
+  \node[thDepot,minimum size=0.43cm] at (lrr) {$r$};
+  \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThInkSoft] at (1.05,0.72) {under \(D_1\)};
+  \node[anchor=west,font=\fontsize{10pt}{12pt}\selectfont,text=ThTeal!72!ThInk]
+    at (7.05,0.72) {cost \(1+1+1+1=4\)};
+
+  \foreach \x/\name in {1.45/br,2.75/ba,4.05/bb,5.35/bc,6.65/brr}{
+    \coordinate (\name) at (\x,-0.38);
+  }
+  \draw[ThTeal,line width=1.45pt] (br)--(ba);
+  \draw[ThGold,line width=1.45pt] (ba)--(bb);
+  \draw[ThTeal,line width=1.45pt] (bb)--(bc);
+  \draw[ThGold,line width=1.45pt] (bc)--(brr);
+  \node[thDepot,minimum size=0.43cm] at (br) {$r$};
+  \node[thDet,minimum size=0.40cm] at (ba) {$a$};
+  \node[thDet,minimum size=0.40cm] at (bb) {$b$};
+  \node[thDet,minimum size=0.40cm] at (bc) {$c$};
+  \node[thDepot,minimum size=0.43cm] at (brr) {$r$};
+  \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThInkSoft] at (1.05,-0.38) {under \(D_2\)};
+  \node[anchor=west,font=\fontsize{10pt}{12pt}\selectfont,text=ThGold!82!ThInk]
+    at (7.05,-0.38) {cost \(1+2+1+2=6\)};
+
+  \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThBlue]
+    at (9.45,0.17) {expected cost \(=5\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% One realized a-priori shortcut pair in the random (1,2)-metric.
+% --------------------------------------------------------------------------
+\newcommand{\ThRandomShortcutPair}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-0.20,0.50) rectangle (7.65,2.05);
+
+  \coordinate (u0) at (1.05,0.92);
+  \coordinate (v10) at (2.40,0.92);
+  \coordinate (v20) at (3.75,0.92);
+  \coordinate (dots0) at (5.02,0.92);
+  \coordinate (w0) at (6.32,0.92);
+  \coordinate (dots1) at (4.42,0.92);
+  \coordinate (dots2) at (5.62,0.92);
+
+  \draw[ThMuted,line width=0.72pt] (0.42,0.92)--(u0);
+  \draw[thArrowThin,draw=ThMuted]
+    (u0)--(v10)--(v20);
+  \draw[thArrowThin,draw=ThMuted]
+    (v20)--(dots1);
+  \draw[thArrowThin,draw=ThMuted]
+    (dots2)--(w0)--(7.00,0.92);
+  \node[font=\fontsize{13pt}{14pt}\selectfont,text=ThMuted]
+    (leftdots) at (0.10,0.92) {$\cdots$};
+  \node[thStoch,minimum size=0.45cm] (unode) at (u0) {$u$};
+  \node[thStoch,minimum size=0.45cm] at (v10) {$v_1$};
+  \node[thStoch,minimum size=0.45cm] at (v20) {$v_2$};
+  \node[font=\fontsize{13pt}{14pt}\selectfont,text=ThMuted] at (dots0) {$\cdots$};
+  \node[thStoch,minimum size=0.45cm] (wnode) at (w0) {$w$};
+  \node[font=\fontsize{13pt}{14pt}\selectfont,text=ThMuted]
+    (rightdots) at (7.40,0.92) {$\cdots$};
+
+  \node[fit=(leftdots)(rightdots)(unode)(wnode),inner sep=0pt]
+    (tourExcerpt) {};
+  % \node[thLabel,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+  %   text=ThInkSoft,above=4mm of tourExcerpt]
+  %   {For a fixed a priori tour \(T\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Random (1,2)-metric intuition.
+% --------------------------------------------------------------------------
+\newcommand{\ThRandomMetric}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.65,-2.35) rectangle (2.65,2.35);
+  \foreach \i in {1,...,10}{
+    \coordinate (v\i) at ({36*\i}:2.05);
+  }
+
+  % Draw the sampled short-edge graph. Omitted pairs have metric length 2.
+  \foreach \a/\b in {1/2,1/4,1/7,2/5,2/9,3/5,3/8,4/6,4/10,
+                       5/7,5/10,6/8,7/9,8/10}{
+    \draw[ThTeal!78!ThInk,line width=0.82pt] (v\a)--(v\b);
+  }
+  \foreach \i in {1,2,3,4,6,7,8,9,10}{
+    \node[thStoch,minimum size=0.42cm,inner sep=0.5pt] at (v\i) {};
+  }
+  \node[thDepot,minimum size=0.46cm] at (v5) {$r$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% The active vertices inherit an Erdos--Renyi short-edge graph.
+% --------------------------------------------------------------------------
+\newcommand{\ThActiveInducedHamiltonian}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.65,-2.35) rectangle (2.65,2.35);
+  \coordinate (r) at ({180}:2.02);
+  \foreach \i/\angle in {1/128,2/76,3/24,4/-28,5/-80,6/-132}{
+    \coordinate (a\i) at ({\angle}:2.02);
+  }
+
+  % Additional short edges are shown faintly; one all-short tour is emphasized.
+  \foreach \u/\v in {r/a2,r/a4,a1/a4,a1/a5,a2/a5,a2/a6,a3/a6,a3/a5}{
+    \draw[ThLine,line width=0.62pt] (\u)--(\v);
+  }
+  \draw[ThTeal,line width=1.75pt,line join=round]
+    (r)--(a1)--(a2)--(a3)--(a4)--(a5)--(a6)--cycle;
+
+  \node[thDepot,minimum size=0.50cm] at (r) {$r$};
+  \foreach \i in {1,...,6}{
+    \node[thActive,minimum size=0.46cm] at (a\i) {$\i$};
+  }
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% A fixed order becomes mostly long after inactive vertices are skipped.
+% --------------------------------------------------------------------------
+\newcommand{\ThFixedOrderShortcutWeight}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.05) rectangle (11,2.10);
+
+  \foreach \x/\name in {0.65/tzero,1.85/tone,3.05/ttwo,4.25/tthree,
+                          5.45/tfour,6.65/tfive,7.85/tsix,9.05/tseven,
+                          10.25/teight}{
+    \coordinate (\name) at (\x,1.15);
+  }
+  \draw[thArrowThin,draw=ThMuted]
+    (tzero)--(tone)--(ttwo)--(tthree)--(tfour)--(tfive)--(tsix)--(tseven)--(teight);
+  \node[thDepot,minimum size=0.48cm] at (tzero) {$r$};
+  \node[thDepot,minimum size=0.48cm] at (teight) {$r$};
+  \foreach \name in {tone,ttwo,tthree,tfour,tfive,tsix,tseven}{
+    \node[thStoch,minimum size=0.45cm] at (\name) {};
+  }
+  \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThInkSoft] at (0.25,1.15) {fixed order};
+
+  \coordinate (bzero) at (0.65,-0.25);
+  \coordinate (btwo) at (3.05,-0.25);
+  \coordinate (bfive) at (6.65,-0.25);
+  \coordinate (bseven) at (9.05,-0.25);
+  \coordinate (beight) at (10.25,-0.25);
+  \draw[ThGold,line width=1.45pt]
+    (bzero)--node[midway,above=2pt,font=\fontsize{9pt}{10pt}\selectfont,
+      text=ThGold!80!ThInk] {2} (btwo);
+  \draw[ThGold,line width=1.45pt]
+    (btwo)--node[midway,above=2pt,font=\fontsize{9pt}{10pt}\selectfont,
+      text=ThGold!80!ThInk] {2} (bfive);
+  \draw[ThTeal,line width=1.45pt]
+    (bfive)--node[midway,above=2pt,font=\fontsize{9pt}{10pt}\selectfont,
+      text=ThTeal!72!ThInk] {1} (bseven);
+  \draw[ThGold,line width=1.45pt]
+    (bseven)--node[midway,above=2pt,font=\fontsize{9pt}{10pt}\selectfont,
+      text=ThGold!80!ThInk] {2} (beight);
+  \node[thDepot,minimum size=0.48cm] at (bzero) {$r$};
+  \node[thActive,minimum size=0.45cm] at (btwo) {};
+  \node[thActive,minimum size=0.45cm] at (bfive) {};
+  \node[thActive,minimum size=0.45cm] at (bseven) {};
+  \node[thDepot,minimum size=0.48cm] at (beight) {$r$};
+  \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThInkSoft] at (0.25,-0.25) {one shortcut};
+  \node[thSmallLabel,text=ThGold!82!ThInk] at (5.50,-0.82)
+    {most realized jumps have length \(2\)};
+
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Local view of the nearest-unprobed-neighbor adaptive policy.
+% --------------------------------------------------------------------------
+\newcommand{\ThShortNeighborPolicy}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-0.40,-2.05) rectangle (7.00,2.20);
+  \coordinate (u) at (0.65,0.00);
+  \coordinate (sone) at (3.40,1.35);
+  \coordinate (stwo) at (3.40,0.00);
+  \coordinate (sthree) at (3.40,-1.35);
+  \coordinate (fallback) at (6.25,0.00);
+
+  % Draw available length-1 edges and the rare length-2 fallback first.
+  \foreach \v in {sone,stwo,sthree}{
+    \draw[ThTeal!78!ThInk,line width=1.05pt] (u)--(\v);
+  }
+  \draw[ThMuted,densely dashed,line width=0.85pt] (u)--(fallback);
+  \draw[thArrow,draw=ThTeal] (u)--(sthree);
+
+  \node[thActive,minimum size=0.62cm] at (u) {$u$};
+  \node[thInactive,minimum size=0.52cm] at (sone) {};
+  \node[thInactive,minimum size=0.52cm] at (stwo) {};
+  \node[thActive,minimum size=0.52cm] at (sthree) {$v$};
+  \node[thStoch,minimum size=0.52cm] at (fallback) {};
+
+  \node[font=\fontsize{10pt}{12pt}\selectfont\bfseries,text=ThInkSoft]
+    at (3.40,2.00) {probe length-\(1\) neighbors first};
+  \node[thSmallLabel] at (3.40,0.77) {inactive: stay};
+  \node[thSmallLabel,text=ThTeal] at (3.40,-1.88) {active: visit immediately};
+  \node[thSmallLabel] at (6.25,-0.70) {length-\(2\) fallback};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Same number of moves, but two different typical movement lengths.
+% --------------------------------------------------------------------------
+\newcommand{\ThFactorTwoTourComparison}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.15) rectangle (11,1.75);
+  \foreach \x/\i in {1.45/0,2.75/1,4.05/2,5.35/3,6.65/4,7.95/5}{
+    \coordinate (p\i) at (\x,0.95);
+    \coordinate (a\i) at (\x,-0.35);
+  }
+  \foreach \i/\j in {0/1,1/2,2/3,3/4,4/5}{
+    \draw[ThGold,line width=1.55pt] (p\i)--(p\j)
+      node[midway,above=1.5pt,font=\fontsize{9pt}{10pt}\selectfont,
+        text=ThGold!82!ThInk] {2};
+    \draw[ThTeal,line width=1.55pt] (a\i)--(a\j)
+      node[midway,above=1.5pt,font=\fontsize{9pt}{10pt}\selectfont,
+        text=ThTeal!72!ThInk] {1};
+  }
+  \foreach \i in {0,...,5}{
+    \node[circle,draw=ThInkSoft,fill=ThWhite,line width=0.75pt,
+      minimum size=0.30cm,inner sep=0pt] at (p\i) {};
+    \node[circle,draw=ThTeal!55!ThInk,fill=ThTeal,line width=0.75pt,
+      minimum size=0.30cm,inner sep=0pt] at (a\i) {};
+  }
+  \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThInkSoft] at (1.02,0.95) {a priori};
+  \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThInkSoft] at (1.02,-0.35) {adaptive};
+  \node[anchor=west,font=\fontsize{11pt}{13pt}\selectfont\bfseries,
+    text=ThGold!82!ThInk] at (8.45,0.95) {almost \(2\) per move};
+  \node[anchor=west,font=\fontsize{11pt}{13pt}\selectfont\bfseries,
+    text=ThTeal!72!ThInk] at (8.45,-0.35) {almost \(1\) per move};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Why the same random metric separates a priori and adaptive behavior.
+% --------------------------------------------------------------------------
+\newcommand{\ThFactorTwoMechanisms}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.25) rectangle (11,2.10);
+  \draw[ThLine,line width=0.65pt] (5.50,-1.05)--(5.50,1.95);
+
+  % A priori: activation turns a carefully chosen order into new shortcut pairs.
+  \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThInkSoft]
+    at (2.75,1.82) {A priori: fix one order};
+  \foreach \x/\name in {0.55/lr,1.42/lone,2.29/ltwo,3.16/lthree,
+                           4.03/lfour,4.90/lrr}{
+    \coordinate (\name) at (\x,0.92);
+  }
+  \draw[thArrowThin,draw=ThMuted]
+    (lr)--(lone)--(ltwo)--(lthree)--(lfour)--(lrr);
+  \node[thDepot,minimum size=0.40cm] at (lr) {$r$};
+  \node[thDepot,minimum size=0.40cm] at (lrr) {$r$};
+  \foreach \name in {lone,ltwo,lthree,lfour}{
+    \node[thStoch,minimum size=0.38cm] at (\name) {};
+  }
+
+  \foreach \x/\name in {0.55/br,1.70/bone,3.10/btwo,4.35/bthree,4.90/brr}{
+    \coordinate (\name) at (\x,-0.12);
+  }
+  \draw[ThGold,line width=1.30pt] (br)--
+    node[midway,above=1.5pt,font=\fontsize{8pt}{9pt}\selectfont,
+      text=ThGold!82!ThInk] {2} (bone);
+  \draw[ThGold,line width=1.30pt] (bone)--
+    node[midway,above=1.5pt,font=\fontsize{8pt}{9pt}\selectfont,
+      text=ThGold!82!ThInk] {2} (btwo);
+  \draw[ThTeal,line width=1.30pt] (btwo)--
+    node[midway,above=1.5pt,font=\fontsize{8pt}{9pt}\selectfont,
+      text=ThTeal!72!ThInk] {1} (bthree);
+  \draw[ThGold,line width=1.30pt] (bthree)--
+    node[midway,above=1.5pt,font=\fontsize{8pt}{9pt}\selectfont,
+      text=ThGold!82!ThInk] {2} (brr);
+  \node[thDepot,minimum size=0.40cm] at (br) {$r$};
+  \node[thDepot,minimum size=0.40cm] at (brr) {$r$};
+  \foreach \name in {bone,btwo,bthree}{
+    \node[thActive,minimum size=0.38cm] at (\name) {};
+  }
+  \node[thSmallLabel,text=ThGold!82!ThInk] at (2.75,-0.78)
+    {activation creates new, usually long shortcut pairs};
+
+  % Adaptive: the current location can test its known short neighbors first.
+  \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThInkSoft]
+    at (8.25,1.82) {Adaptive: react to outcomes};
+  \coordinate (u) at (6.45,0.20);
+  \coordinate (inactive) at (8.25,1.00);
+  \coordinate (active) at (8.25,-0.58);
+  \coordinate (fallback) at (10.20,0.20);
+  \draw[ThTeal!78!ThInk,line width=1.00pt] (u)--(inactive);
+  \draw[ThTeal!78!ThInk,line width=1.00pt] (u)--(active);
+  \draw[ThMuted,densely dashed,line width=0.82pt] (u)--(fallback);
+  \draw[thArrow,draw=ThTeal] (u)--(active);
+  \node[thActive,minimum size=0.50cm] at (u) {$u$};
+  \node[thInactive,minimum size=0.46cm] at (inactive) {};
+  \node[thActive,minimum size=0.46cm] at (active) {$v$};
+  \node[thStoch,minimum size=0.46cm] at (fallback) {};
+  \node[thSmallLabel,anchor=west] at (8.63,1.00) {inactive: stay};
+  \node[thSmallLabel,anchor=west,text=ThTeal] at (8.63,-0.58)
+    {active: visit immediately};
+  \node[font=\fontsize{8pt}{9pt}\selectfont,text=ThTeal!72!ThInk]
+    at (7.25,0.83) {1};
+  \node[font=\fontsize{8pt}{9pt}\selectfont,text=ThTeal!72!ThInk]
+    at (7.25,-0.38) {1};
+  \node[font=\fontsize{8pt}{9pt}\selectfont,text=ThMuted]
+    at (9.22,0.38) {2};
+  \node[thSmallLabel] at (10.20,-0.32) {fallback};
+  \node[thSmallLabel,text=ThTeal!72!ThInk] at (8.25,-1.02)
+    {probe short neighbors first};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% The two high-probability properties overlap for at least one metric.
+% --------------------------------------------------------------------------
+\newcommand{\ThGoodMetricIntersection}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.45) rectangle (11,2.05);
+  \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThInkSoft]
+    at (5.50,1.80) {space of sampled metrics \(D\)};
+
+  \fill[ThGold!24,fill opacity=0.55]
+    (3.85,0.30) ellipse[x radius=2.95,y radius=1.20];
+  \draw[ThGold!78!ThInk,line width=1.00pt]
+    (3.85,0.30) ellipse[x radius=2.95,y radius=1.20];
+  \fill[ThTeal!24,fill opacity=0.55]
+    (7.15,0.30) ellipse[x radius=2.95,y radius=1.20];
+  \draw[ThTeal!70!ThInk,line width=1.00pt]
+    (7.15,0.30) ellipse[x radius=2.95,y radius=1.20];
+
+  \node[align=center,
+    font=\fontsize{9.2pt}{11pt}\selectfont,text=ThInk]
+    at (2.55,0.38)
+    {\textbf{\(\mathcal E_{\mathrm{prior}}\)}\\[2pt]
+     \(\optprior(D)\)\\[-1pt]
+     \(\ge(2-o(1))W\)};
+  \node[align=center,
+    font=\fontsize{9.2pt}{11pt}\selectfont,text=ThInk]
+    at (8.45,0.38)
+    {\textbf{\(\mathcal E_{\mathrm{adapt}}\)}\\[2pt]
+     \(\optadapt(D)\)\\[-1pt]
+     \(\le(1+o(1))W\)};
+
+  \node[rectangle,rounded corners=1.2pt,draw=ThBlue,fill=ThBlue!8,
+    line width=0.9pt,minimum width=1.02cm,minimum height=0.62cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont\bfseries,text=ThBlue]
+    at (5.50,0.30) {fix \(d_n\)};
+
+  \node[font=\fontsize{8.7pt}{10pt}\selectfont,text=ThGold!82!ThInk]
+    at (2.55,-1.10) {$\Pp_D(\mathcal E_{\mathrm{prior}})=1-o(1)$};
+  \node[font=\fontsize{8.7pt}{10pt}\selectfont,text=ThTeal!72!ThInk]
+    at (8.45,-1.10) {$\Pp_D(\mathcal E_{\mathrm{adapt}})=1-o(1)$};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Sampled master tour for the symmetric factor-three upper bound.
+% --------------------------------------------------------------------------
+\newcommand{\ThSampledBackbone}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.65,-2.05) rectangle (2.75,2.10);
+  \coordinate (r) at (-2.05,0.10);
+  \coordinate (a) at (-0.95,1.45);
+  \coordinate (b) at (0.85,1.35);
+  \coordinate (c) at (1.95,-0.15);
+  \coordinate (d) at (-0.20,-1.45);
+  \coordinate (u) at (-2.20,-1.30);
+  \coordinate (v) at (2.35,1.25);
+
+  \draw[ThBlue,line width=1.65pt,line join=round]
+    (r)--(a)--(b)--(c)--(d)--cycle;
+  \draw[ThTeal,line width=0.95pt] ([yshift=0.05cm]u.north east)--([yshift=0.05cm]d.south west);
+  \draw[ThTeal,line width=0.95pt] ([yshift=-0.05cm]u.north east)--([yshift=-0.05cm]d.south west);
+  \draw[ThTeal,line width=0.95pt] ([yshift=0.05cm]v.south west)--([yshift=0.05cm]b.north east);
+  \draw[ThTeal,line width=0.95pt] ([yshift=-0.05cm]v.south west)--([yshift=-0.05cm]b.north east);
+
+  \node[thDepot,minimum size=0.56cm] at (r) {$r$};
+  \foreach \x/\lab in {a/1,b/2,c/3,d/4}{
+    \node[thDet,minimum size=0.52cm] at (\x) {$\lab$};
+  }
+  \node[thStoch,minimum size=0.52cm] at (u) {$u$};
+  \node[thStoch,minimum size=0.52cm] at (v) {$v$};
+  \node[thLabel,text=ThBlue] at (0.05,1.90) {sampled tour \(T_R\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Rectangular cyclic grid and sweep.
+% --------------------------------------------------------------------------
+\newcommand{\ThRectGrid}{%
+\begin{tikzpicture}[>=Stealth,x=1cm,y=1cm]
+  \foreach \x/\name/\lab in {0.95/Cone/C_1,3.80/Ctwo/C_2,7.75/Cm/C_{k^2}}{
+    \node[draw=ThInkSoft,rounded corners=1pt,minimum width=1.24cm,
+      minimum height=2.55cm,fill=ThMist] (\name) at (\x,0) {};
+    \node[above=1.5mm of \name,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
+      {$\lab$};
+  }
+
+  \node[thDepot,minimum size=0.56cm] at ($(Cone.center)+(0,0.79)$) {$r$};
+  \node[thStoch,minimum size=0.36cm] at ($(Cone.center)+(0,0.18)$) {};
+  \node[text=ThMuted] at ($(Cone.center)+(0,-0.27)$) {$\vdots$};
+  \node[thStoch,minimum size=0.36cm] at ($(Cone.center)+(0,-0.79)$) {};
+
+  \foreach \name in {Ctwo,Cm}{
+    \node[thStoch,minimum size=0.39cm] at ($(\name.center)+(0,0.72)$) {};
+    \node[text=ThMuted] at (\name.center) {$\vdots$};
+    \node[thStoch,minimum size=0.39cm] at ($(\name.center)+(0,-0.72)$) {};
+  }
+  \node[text=ThMuted,font=\fontsize{15pt}{17pt}\selectfont] at (5.78,0) {$\cdots$};
+  \draw[thArrow] (Cone.east)--node[above,thSmallLabel] {unit arcs} (Ctwo.west);
+  \draw[thArrow] (Ctwo.east)--(5.28,0);
+  \draw[thArrow] (6.28,0)--(Cm.west);
+  \draw[thArrow] (Cm.south) to[bend left=32]
+    node[midway,above=1.0mm,thSmallLabel] {wraparound} (Cone.south);
+\end{tikzpicture}}
+
+\newcommand{\ThColumnSweep}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \x/\lab in {0.7/C_1,2.35/C_2,4.0/C_3,6.9/C_j,9.95/C_{k^2}}{
+    \node[font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=ThMuted]
+      at (\x,2.28) {$\lab$};
+    \draw[ThLine,line width=0.65pt] (\x,-1.25)--(\x,1.88);
+  }
+  \node[text=ThMuted] at (5.45,2.28) {$\cdots$};
+  \node[text=ThMuted] at (8.45,2.28) {$\cdots$};
+  \foreach \y/\num/\col in {1.35/1/ThBlue,0.30/2/ThTeal}{
+    \node[anchor=east,font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=\col]
+      (sweep\num) at (-0.05,\y) {sweep \num};
+    \draw[-{Stealth[length=2mm]},draw=\col,line width=1.4pt]
+      (0.35,\y)--(10.4,\y);
+  }
+  \node[below=4mm of sweep2,font=\fontsize{11pt}{13pt}\selectfont,text=ThMuted]
+    {$\vdots$};
+  \foreach \x/\y/\col in {0.7/1.35/ThBlue,2.35/1.35/ThBlue,4.0/1.35/ThBlue,6.9/1.35/ThBlue,9.95/1.35/ThBlue,
+    2.35/0.30/ThTeal,4.0/0.30/ThTeal,6.9/0.30/ThTeal,9.95/0.30/ThTeal}{
+    \node[circle,fill=\col,draw=ThWhite,line width=0.5pt,minimum size=0.23cm]
+      at (\x,\y) {};
+  }
+\end{tikzpicture}}
+
+\newcommand{\ThPacketColumns}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-0.88) rectangle (12.75,4.12);
+
+  \foreach \x/\name/\lab in {1.15/Cone/C_1,3.55/Ctwo/C_2,5.95/Cthree/C_3,8.65/Cj/C_j,11.35/Clast/C_{k^2}}{
+    \node[draw=ThLine,rounded corners=1pt,minimum width=1.28cm,
+      minimum height=2.08cm,fill=ThMist] (\name) at (\x,0.42) {};
+    \node[below=1.2mm of \name,font=\fontsize{9pt}{11pt}\selectfont\bfseries,
+      text=ThInkSoft] {$\lab$};
+  }
+  \node[font=\fontsize{13pt}{15pt}\selectfont,text=ThMuted] at (7.30,0.42) {$\cdots$};
+  \node[font=\fontsize{13pt}{15pt}\selectfont,text=ThMuted] at (10.00,0.42) {$\cdots$};
+
+  \node[thStoch,minimum size=0.36cm] at ($(Cone.center)+(0,0.00)$) {};
+  \node[thStoch,minimum size=0.36cm] at ($(Cone.center)+(0,-0.60)$) {};
+  \node[thStoch,minimum size=0.36cm] at (Ctwo.center) {};
+  \foreach \dy in {0.60,0.00,-0.60}{
+    \node[thStoch,minimum size=0.36cm] at ($(Cthree.center)+(0,\dy)$) {};
+  }
+  \node[thStoch,minimum size=0.36cm] at ($(Cj.center)+(0,0.60)$) {};
+  \node[thStoch,minimum size=0.36cm] at ($(Cj.center)+(0,-0.60)$) {};
+  \node[thStoch,minimum size=0.36cm] at ($(Clast.center)+(0,0.60)$) {};
+  \node[thStoch,minimum size=0.36cm] at (Clast.center) {};
+
+  \foreach \name in {Cone,Ctwo,Cj,Clast}{
+    \node[draw=ThBlue,line width=1.15pt,rounded corners=2pt,
+      inner sep=1.8mm,fit=(\name)] {};
+  }
+
+  \node[thPacket,minimum size=0.50cm] (pOne) at ($(Cone.center)+(0,0.60)$) {$z_1$};
+  \node[thPacket,minimum size=0.50cm] (pTwo) at ($(Ctwo.center)+(0,0.60)$) {$z_2$};
+  \node[thPacket,minimum size=0.50cm] (pThree) at ($(Ctwo.center)+(0,-0.60)$) {$z_3$};
+  \node[thPacket,minimum size=0.50cm] (pKmOne) at (Cj.center) {};
+  \node[font=\fontsize{5.6pt}{6.4pt}\selectfont,text=ThWhite,inner sep=0pt]
+    at (pKmOne.center) {$z_{\!k-1}$};
+  \node[thPacket,minimum size=0.50cm] (pK) at ($(Clast.center)+(0,-0.60)$) {$z_k$};
+
+  \node[thPacket,minimum size=0.58cm] (zOne) at (1.15,3.12) {$z_1$};
+  \node[thPacket,minimum size=0.58cm] (zTwo) at (3.05,3.12) {$z_2$};
+  \node[thPacket,minimum size=0.58cm] (zThree) at (4.55,3.12) {$z_3$};
+  \node[font=\fontsize{12pt}{14pt}\selectfont,text=ThGold] at (6.35,3.12) {$\cdots$};
+  \node[thPacket,minimum size=0.58cm] (zKmOne) at (8.25,3.12) {};
+  \node[font=\fontsize{6.6pt}{7.4pt}\selectfont,text=ThWhite,inner sep=0pt]
+    at (zKmOne.center) {$z_{\!k-1}$};
+  \node[thPacket,minimum size=0.58cm] (zK) at (10.85,3.12) {$z_k$};
+
+  \draw[thArrowThin,draw=ThGold,line width=0.90pt] (zOne)--(zTwo);
+  \draw[thArrowThin,draw=ThGold,line width=0.90pt] (zTwo)--(zThree);
+  \draw[draw=ThGold,line width=0.90pt] (zThree.east)--(5.62,3.12);
+  \draw[thArrowThin,draw=ThGold,line width=0.90pt] (7.08,3.12)--(zKmOne.west);
+  \draw[thArrowThin,draw=ThGold,line width=0.90pt] (zKmOne)--(zK);
+
+  \node[draw=ThGold,line width=0.9pt,rounded corners=2pt,
+    inner xsep=3.6mm,inner ysep=2.6mm,fit=(zOne)(zK)] (packetBox) {};
+  \node[above=1.2mm of packetBox,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
+    text=ThGold] {one packet \(P\)};
+\end{tikzpicture}}
+
+\newcommand{\ThManyRepresentedCase}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-0.48) rectangle (5.95,1.25);
+  \node[thPacket,minimum size=0.58cm] (ya) at (0.62,0.30) {$y_a$};
+  \node[thPacket,minimum size=0.43cm] (ybOne) at (2.72,0.88) {};
+  \node[thPacket,minimum size=0.43cm] (ybTwo) at (3.72,0.53) {};
+  \node[thPacket,minimum size=0.43cm] (ybLast) at (5.18,-0.02) {};
+  \foreach \target in {ybOne,ybTwo,ybLast}{
+    \draw[thArrowThin,draw=ThBlue] (ya)--(\target);
+  }
+  \node[anchor=west,font=\fontsize{8.3pt}{9.8pt}\selectfont,text=ThInkSoft]
+    at ([xshift=1.2mm]ybOne.east) {$y_{a+1}$};
+  \node[anchor=west,font=\fontsize{8.3pt}{9.8pt}\selectfont,text=ThInkSoft]
+    at ([xshift=1.2mm]ybTwo.east) {$y_{a+2}$};
+  \node[font=\fontsize{10pt}{12pt}\selectfont,text=ThMuted] at (4.63,0.18) {$\vdots$};
+  \node[anchor=west,font=\fontsize{8.3pt}{9.8pt}\selectfont,text=ThInkSoft]
+    at ([xshift=1.2mm]ybLast.east) {$y_s$};
+\end{tikzpicture}}
+
+\newcommand{\ThRepeatedColumnsCase}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-0.48) rectangle (5.95,1.25);
+  \foreach \x/\name in {0.72/repOne,2.18/repTwo,3.64/repThree,5.10/repFour}{
+    \node[draw=ThBlue,rounded corners=1pt,minimum width=0.80cm,
+      minimum height=1.20cm,fill=ThMist] (\name) at (\x,0.30) {};
+  }
+  \node[thPacket,minimum size=0.29cm] (repOneTop) at ($(repOne.center)+(0,0.37)$) {};
+  \node[thPacket,minimum size=0.29cm] at (repOne.center) {};
+  \node[thPacket,minimum size=0.29cm] (repOneBottom) at ($(repOne.center)+(0,-0.37)$) {};
+  \node[thPacket,minimum size=0.31cm] at ($(repTwo.center)+(0,0.27)$) {};
+  \node[thPacket,minimum size=0.31cm] at ($(repTwo.center)+(0,-0.27)$) {};
+  \node[thPacket,minimum size=0.31cm] at (repThree.center) {};
+  \node[thPacket,minimum size=0.31cm] at ($(repFour.center)+(0,0.27)$) {};
+  \node[thPacket,minimum size=0.31cm] at ($(repFour.center)+(0,-0.27)$) {};
+  \draw[-{Stealth[length=1.7mm]},draw=ThCoral,line width=0.82pt]
+    ([xshift=0.7mm]repOneTop.east) to[bend left=48]
+    node[midway,right=0.5mm,font=\fontsize{8.3pt}{9.8pt}\selectfont,
+      text=ThCoral] {$k^2$}
+    ([xshift=0.7mm]repOneBottom.east);
+\end{tikzpicture}}
+
+\newcommand{\ThPacketShortcutEvent}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-0.72) rectangle (9.55,1.65);
+  \node[thPacketActive,minimum size=0.58cm]
+    (za) at (1.05,0.22) {$z_a$};
+  \node[thInactive,draw=ThGold!78!ThInk,line width=0.85pt,minimum size=0.48cm]
+    (midOne) at (3.00,0.22) {$\times$};
+  \node[thInactive,draw=ThGold!78!ThInk,line width=0.85pt,minimum size=0.48cm]
+    (midTwo) at (4.15,0.22) {$\times$};
+  \node[font=\fontsize{11pt}{13pt}\selectfont,text=ThMuted] at (5.15,0.22) {$\cdots$};
+  \node[thInactive,draw=ThGold!78!ThInk,line width=0.85pt,minimum size=0.48cm]
+    (midLast) at (6.15,0.22) {$\times$};
+  \node[thPacketActive,minimum size=0.58cm]
+    (zb) at (8.35,0.22) {$z_b$};
+
+  \draw[ThLine,line width=0.72pt] (za)--(midOne)--(midTwo);
+  \draw[ThLine,line width=0.72pt] (midTwo.east)--(4.63,0.22);
+  \draw[ThLine,line width=0.72pt] (5.67,0.22)--(midLast.west);
+  \draw[-{Stealth[length=1.7mm]},draw=ThLine,line width=0.72pt] (midLast)--(zb);
+  \draw[-{Stealth[length=2.0mm]},draw=ThBlue,line width=1.05pt]
+    (za.north) to[bend left=24]
+    node[midway,above=1.0mm,font=\fontsize{9pt}{10.8pt}\selectfont\bfseries,
+      text=ThBlue] {realized shortcut}
+    (zb.north);
+
+  \node[below=1.2mm of za,font=\fontsize{8.2pt}{9.7pt}\selectfont,
+    text=ThTeal] {active};
+  \node[below=1.2mm of zb,font=\fontsize{8.2pt}{9.7pt}\selectfont,
+    text=ThTeal] {active};
+  \draw[decorate,decoration={brace,mirror,amplitude=3.0pt},draw=ThMuted,
+    line width=0.65pt]
+    ([yshift=-2.4mm]midOne.south west)--
+    node[midway,below=1.3mm,font=\fontsize{8.2pt}{9.7pt}\selectfont,
+      text=ThMuted] {all inactive}
+    ([yshift=-2.4mm]midLast.south east);
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Layered-column stage.
+% --------------------------------------------------------------------------
+\newcommand{\ThLayeredStage}{%
+\begin{tikzpicture}[>=Stealth,x=1cm,y=1cm]
+  \node[thDet] (L1) at (0,1.05) {$X_{i-1}^1$};
+  \node[thDet] (L2) at (0,-1.05) {$X_{i-1}^2$};
+  \node[thStoch,minimum size=0.63cm] (A) at (2.45,1.8) {$1,*$};
+  \node[thStoch,minimum size=0.63cm] (C) at (2.45,0.6) {$*,1$};
+  \node[thStoch,minimum size=0.63cm] (D) at (2.45,-0.6) {$*,2$};
+  \node[thStoch,minimum size=0.63cm] (B) at (2.45,-1.8) {$2,*$};
+  \node[thDet] (R1) at (4.90,1.05) {$X_i^1$};
+  \node[thDet] (R2) at (4.90,-1.05) {$X_i^2$};
+  \foreach \u/\v in {L1/A,L1/C,L1/D,L2/B,L2/C,L2/D,A/R1,A/R2,B/R1,B/R2,C/R1,D/R2}{
+    \draw[-{Stealth[length=1.5mm]},ThMuted,line width=0.65pt] (\u)--(\v);
+  }
+  \node[thSmallLabel] at (0,-2.35) {gate column};
+  \node[thSmallLabel] at (2.45,-2.35) {routing column};
+  \node[thSmallLabel] at (4.90,-2.35) {gate column};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Asymmetric detours and circulation pipeline.
+% --------------------------------------------------------------------------
+\newcommand{\ThDetourComparison}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[anchor=west,font=\fontsize{11.5pt}{14pt}\selectfont\bfseries,text=ThCoral]
+    at (0,2.05) {Same-anchor attachment};
+  \node[thDet] (sa) at (1.1,0.65) {$a$};
+  \node[thStoch] (si) at (3.2,0.65) {$i$};
+  \draw[thArrow,draw=ThCoral] ([yshift=0.12cm]sa.east)
+    to[bend left=22] node[above,thSmallLabel] {$d(a,i)$} ([yshift=0.12cm]si.west);
+  \draw[thArrow,draw=ThCoral] ([yshift=-0.12cm]si.west)
+    to[bend left=22] node[below,thSmallLabel] {$d(i,a)$} ([yshift=-0.12cm]sa.east);
+  \node[thLabel,text=ThCoral] at (2.15,-0.35)
+    {a return may require\\a full asymmetric revolution};
+
+  \draw[ThLine,line width=0.7pt] (5.15,-1.20)--(5.15,2.20);
+
+  \node[anchor=west,font=\fontsize{11.5pt}{14pt}\selectfont\bfseries,text=ThTeal]
+    at (5.65,2.05) {Two-endpoint detour};
+  \node[thDet] (a) at (6.35,0.65) {$a$};
+  \node[thStoch] (i) at (8.35,0.65) {$i$};
+  \node[thDet] (b) at (10.35,0.65) {$b$};
+  \draw[thArrow,draw=ThTeal] (a)--(i);
+  \draw[thArrow,draw=ThTeal] (i)--(b);
+  \draw[thArrowThin,draw=ThBlue,dashed] ([yshift=-0.18cm]a.south)
+    to[bend right=20] node[below,thSmallLabel,text=ThBlue] {collapsed chord \(a\to b\)}
+    ([yshift=-0.28cm]b.south);
+  \node[thSmallLabel,text=ThTeal] at (8.35,-1.02)
+    {all chords must be globally balanced};
+\end{tikzpicture}}
+
+\newcommand{\ThCirculationPipeline}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \tikzset{pipe/.style={rounded corners=1pt,draw=ThLine,fill=ThWhite,
+    minimum width=1.72cm,minimum height=0.90cm,align=center,
+    font=\fontsize{9.4pt}{11pt}\selectfont\bfseries}}
+  \node[pipe,draw=ThTeal!55,fill=ThTeal!7] (sample) at (0.90,0.65)
+    {sample a\\backbone};
+  \node[pipe,draw=ThBlue!55,fill=ThBlue!7] (flow) at (3.20,0.65)
+    {fractional\\circulation};
+  \node[pipe,draw=ThBlue!55,fill=ThBlue!7] (couple) at (5.50,0.65)
+    {assign detour\\endpoints};
+  \node[pipe,draw=ThGold!60,fill=ThGold!9] (round) at (7.80,0.65)
+    {joint\\rounding};
+  \node[pipe,draw=ThCoral!55,fill=ThCoral!7] (probe) at (10.10,0.65)
+    {adaptive\\probing};
+  \foreach \u/\v in {sample/flow,flow/couple,couple/round,round/probe}{
+    \draw[thArrowThin] (\u)--(\v);
+  }
+  \node[thSmallLabel,text=ThTeal] at (0.90,-0.32) {backbone first};
+  \node[thSmallLabel,text=ThBlue] at (5.50,-0.32) {two-endpoint detours};
+  \node[thSmallLabel,text=ThGold!78!ThInk] at (7.80,-0.32)
+    {interval control};
+  \node[thSmallLabel,text=ThCoral] at (10.10,-0.32) {activations last};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Asymmetric clairvoyance upper bound: circulation and rounding details.
+% --------------------------------------------------------------------------
+\newcommand{\ThSampledBackboneCycle}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.45,-2.30) rectangle (2.45,2.30);
+
+  \coordinate (r)  at (180:1.86);
+  \coordinate (s1) at (135:1.86);
+  \coordinate (s2) at ( 90:1.86);
+  \coordinate (s3) at ( 45:1.86);
+  \coordinate (s4) at (  0:1.86);
+  \coordinate (s5) at (-45:1.86);
+  \coordinate (s6) at (-90:1.86);
+  \coordinate (s7) at (-135:1.86);
+
+  \begin{scope}[on background layer]
+    \draw[ThBlue,line width=1.22pt] (0,0) circle[radius=1.86cm];
+    \draw[thArrowThin,draw=ThBlue,line width=1.22pt]
+      (116:1.86) arc[start angle=116,end angle=104,radius=1.86cm];
+    \draw[thArrowThin,draw=ThBlue,line width=1.22pt]
+      (-64:1.86) arc[start angle=-64,end angle=-76,radius=1.86cm];
+  \end{scope}
+
+  \node[thDepot,minimum size=0.50cm] at (r) {$r$};
+  \node[thDet] at (s1) {$s_1$};
+  \node[thDet] at (s2) {$s_2$};
+  \node[thDet] at (s3) {$s_3$};
+  \node[thDet] at (s4) {$s_4$};
+  \node[thDet] at (s5) {$s_5$};
+  \node[thDet] at (s6) {$s_6$};
+  \node[thDet] at (s7) {$s_7$};
+  \node[font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=ThBlue]
+    at (0,0) {optimal tour \(T_R\)};
+\end{tikzpicture}}
+
+\newcommand{\ThCirculationRelaxation}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.45,-2.30) rectangle (2.45,2.30);
+
+  \coordinate (a) at (135:1.86);
+  \coordinate (e) at ( 90:1.86);
+  \coordinate (b) at ( 45:1.86);
+  \coordinate (f) at (  0:1.86);
+  \coordinate (c) at (-45:1.86);
+  \coordinate (d) at (-90:1.86);
+  \coordinate (r) at (-135:1.86);
+  \coordinate (g) at (180:1.86);
+  \coordinate (i) at (0,0);
+
+  \begin{scope}[on background layer]
+    \draw[ThLine,line width=0.76pt] (0,0) circle[radius=1.86cm];
+    \draw[thArrowThin,draw=ThLine,line width=0.76pt]
+      (116:1.86) arc[start angle=116,end angle=104,radius=1.86cm];
+  \end{scope}
+
+  \node[thDet] (na) at (a) {$a$};
+  \node[thDet] at (e) {$e$};
+  \node[thDet] (nb) at (b) {$b$};
+  \node[thDet] at (f) {$f$};
+  \node[thDet] (nc) at (c) {$c$};
+  \node[thDet] at (d) {$d$};
+  \node[thDepot] (nr) at (r) {$r$};
+  \node[thDet] at (g) {$g$};
+  \node[thStoch,minimum size=0.60cm] (ni) at (i) {$i$};
+
+  \draw[thArrow,draw=ThBlue,line width=1.05pt]
+    (na.south east) to[bend right=7]
+    node[pos=0.42,above=1pt,thSmallLabel,text=ThBlue] {$z_{ai}$}
+    (ni.north west);
+  \draw[thArrow,draw=ThBlue,line width=1.05pt]
+    (nc.north west) to[bend right=7]
+    node[pos=0.42,below=1pt,thSmallLabel,text=ThBlue] {$z_{ci}$}
+    (ni.south east);
+  \draw[thArrow,draw=ThTeal,line width=1.05pt]
+    (ni.north east) to[bend right=7]
+    node[pos=0.58,above=1pt,thSmallLabel,text=ThTeal] {$z_{ib}$}
+    (nb.south west);
+  \draw[thArrow,draw=ThTeal,line width=1.05pt]
+    (ni.south west) to[bend right=7]
+    node[pos=0.58,below=1pt,thSmallLabel,text=ThTeal] {$z_{ir}$}
+    (nr.north east);
+
+  \node[thSmallLabel,text=ThBlue,anchor=east] at (-0.38,0.10)
+    {incoming};
+  \node[thSmallLabel,text=ThTeal,anchor=west] at (0.38,0.10)
+    {outgoing};
+\end{tikzpicture}}
+
+\newcommand{\ThLongestRunWitness}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.42) rectangle (5.15,1.62);
+  \coordinate (s0) at (0.38,0.52);
+  \coordinate (u1) at (1.12,0.52);
+  \coordinate (u2) at (1.84,0.52);
+  \coordinate (u3) at (2.56,0.52);
+  \coordinate (s1) at (3.30,0.52);
+  \coordinate (v1) at (4.02,0.52);
+  \coordinate (s2) at (4.76,0.52);
+  \begin{scope}[on background layer]
+    \draw[thArrowThin,draw=ThBlue,line width=0.90pt]
+      (s0)--(u1)--(u2)--(u3)--(s1)--(v1)--(s2);
+    \draw[thArrowThin,draw=ThGold!80!ThInk,densely dashed,line width=0.78pt]
+      (s0) to[bend left=20] (s1);
+    \draw[thArrowThin,draw=ThGold!80!ThInk,densely dashed,line width=0.78pt]
+      (s1) to[bend left=20] (s2);
+  \end{scope}
+  \node[thDet,minimum width=0.48cm,minimum height=0.44cm] at (s0) {$s_0$};
+  \node[thStoch,minimum size=0.42cm] at (u1) {$u_1$};
+  \node[thStoch,minimum size=0.42cm] at (u2) {$u_2$};
+  \node[thStoch,minimum size=0.42cm] at (u3) {$u_3$};
+  \node[thDet,minimum width=0.48cm,minimum height=0.44cm] at (s1) {$s_1$};
+  \node[thStoch,minimum size=0.42cm] at (v1) {$v_1$};
+  \node[thDet,minimum width=0.48cm,minimum height=0.44cm] at (s2) {$s_2$};
+  \draw[decorate,decoration={brace,amplitude=4pt,mirror},ThTeal,line width=0.85pt]
+    (0.72,0.08)--(2.96,0.08)
+    node[midway,below=0.18cm,thSmallLabel,text=ThTeal] {run of length 3};
+  \draw[decorate,decoration={brace,amplitude=4pt,mirror},ThMuted,line width=0.75pt]
+    (3.62,0.08)--(4.42,0.08)
+    node[midway,below=0.18cm,thSmallLabel] {run of length 1};
+  \node[thSmallLabel,text=ThGold!80!ThInk] at (2.55,-1.12)
+    {dashed: backbone shortcuts};
+  \node[thSmallLabel,text=ThBlue] at (2.55,1.38)
+    {optimal tour \(T_C\)};
+\end{tikzpicture}}
+
+\newcommand{\ThTransformArrow}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-0.52) rectangle (1.05,0.52);
+  \draw[thArrow,draw=ThInkSoft,line width=0.95pt] (0.06,0)--(0.99,0);
+  \node[thSmallLabel,text=ThInkSoft] at (0.52,0.39) {transform};
+\end{tikzpicture}}
+
+\newcommand{\ThParallelDetours}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.38) rectangle (3.70,1.38);
+  \node[thSmallLabel,text=ThTeal] at (1.85,1.25)
+    {parallel detours for the first run};
+
+  \node[thDet,minimum width=0.48cm,minimum height=0.44cm] (ls) at (0.32,0)
+    {$s_0$};
+  \node[thStoch,minimum size=0.42cm] (u1) at (1.85,0.82) {$u_1$};
+  \node[thStoch,minimum size=0.42cm] (u2) at (1.85,0) {$u_2$};
+  \node[thStoch,minimum size=0.42cm] (u3) at (1.85,-0.82) {$u_3$};
+  \node[thDet,minimum width=0.48cm,minimum height=0.44cm] (rs) at (3.38,0)
+    {$s_1$};
+
+  \foreach \u in {u1,u2,u3}{
+    \draw[thArrowThin,draw=ThBlue,line width=0.88pt]
+      (ls.east)--(\u.west);
+    \draw[thArrowThin,draw=ThTeal,line width=0.88pt]
+      (\u.east)--(rs.west);
+  }
+  \node[thSmallLabel,text=ThInkSoft] at (1.85,-1.25)
+    {one unit on each detour};
+\end{tikzpicture}}
+
+\newcommand{\ThSegmentPadding}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.36) rectangle (5.25,1.70);
+  \node[thSmallLabel,text=ThInkSoft] at (2.62,1.48)
+    {one segment \(P_j\), padded to \(M\) units};
+  \node[thDet] (ls) at (0.38,0.18) {$s_j$};
+  \node[thStoch] (lu) at (1.86,0.92) {$u_1$};
+  \node[thStoch] (lv) at (2.98,-0.62) {$u_2$};
+  \node[thDet] (rs) at (4.82,0.18) {$s_{j+1}$};
+  \begin{scope}[on background layer]
+    \draw[thArrowThin,draw=ThTeal,line width=1.00pt] (ls)--(lu)--(rs);
+    \draw[thArrowThin,draw=ThBlue,line width=1.00pt] (ls)--(lv)--(rs);
+    \draw[thArrowThin,draw=ThGold!80!ThInk,dashed,line width=0.90pt]
+      ([yshift=-0.14cm]ls.south) to[bend right=23]
+      node[midway,below=0.05cm,thSmallLabel,text=ThGold!80!ThInk]
+      {\(M-k_j\) direct copies} ([yshift=-0.14cm]rs.south);
+  \end{scope}
+  \node[thLabel,anchor=west] at ([xshift=1.8mm]lu.north east)
+    {\(k_j=2,\ M=3\)};
+\end{tikzpicture}}
+
+\newcommand{\ThJointRounding}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.48) rectangle (11,1.98);
+
+  \node[font=\fontsize{10.8pt}{12.8pt}\selectfont\bfseries,text=ThInkSoft]
+    at (2.35,1.70) {fractional assignments};
+  \node[thDet] (la) at (0.72,0.64) {$a$};
+  \node[thDet] (lb) at (2.35,1.02) {$b$};
+  \node[thDet] (lc) at (3.98,0.64) {$c$};
+  \node[thStoch] (li) at (2.35,-0.64) {$i$};
+  \begin{scope}[on background layer]
+    \draw[thArrowThin,draw=ThBlue!62,line width=0.86pt]
+      (la) to[bend right=8] (li);
+    \draw[thArrowThin,draw=ThBlue!62,line width=0.86pt]
+      (li) to[bend right=8] (lb);
+    \draw[thArrowThin,draw=ThTeal!68,line width=0.86pt]
+      (lc) to[bend left=8] (li);
+    \draw[thArrowThin,draw=ThTeal!68,line width=0.86pt]
+      (li) to[bend left=20] (la);
+    \draw[thArrowThin,draw=ThGold!70!ThInk,dashed,line width=0.76pt]
+      (lc) to[bend right=25]
+      node[midway,above=2mm,thSmallLabel,text=ThGold!75!ThInk] {$y_{ca}$} (la);
+  \end{scope}
+  \node[thSmallLabel] at (2.35,-1.20)
+    {\(\sum_{a,b}x_{i,ab}=p_i\)};
+
+  \draw[thArrow,draw=ThInkSoft,line width=1.0pt] (4.68,0.16)--(6.18,0.16);
+  \node[thSmallLabel,text=ThInkSoft] at (5.43,0.62) {round jointly};
+  \node[thSmallLabel,text=ThInkSoft] at (5.43,-0.28) {before activations};
+
+  \node[font=\fontsize{10.8pt}{12.8pt}\selectfont\bfseries,text=ThInkSoft]
+    at (8.65,1.70) {integral rounded structure};
+  \node[thDet] (ra) at (7.02,0.64) {$a_i$};
+  \node[thDet] (rb) at (8.65,1.02) {$b_i$};
+  \node[thDet] (rc) at (10.28,0.64) {$c$};
+  \node[thStoch] (ri) at (8.65,-0.64) {$i$};
+  \begin{scope}[on background layer]
+    \draw[thArrow,draw=ThTeal,line width=1.15pt] (ra)--(ri)--(rb);
+    \draw[thArrowThin,draw=ThBlue,dashed,line width=0.82pt]
+      (ra) to[bend left=18]
+      node[midway,above,thSmallLabel,text=ThBlue] {collapsed chord} (rb);
+    \draw[thArrowThin,draw=ThGold!80!ThInk,line width=0.90pt]
+      (rc.south) to[bend left=24]
+      node[pos=0.18,below=0.04cm,thSmallLabel,text=ThGold!80!ThInk]
+      {\(N_{ca}\)} (ra.south);
+  \end{scope}
+  \node[thSmallLabel,text=ThTeal] at (8.65,-1.20)
+    {one endpoint pair for \(i\)};
+\end{tikzpicture}}
+
+\newcommand{\ThDyadicRounding}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.72) rectangle (11,1.55);
+  \foreach \j in {0,...,7}{
+    \coordinate (s\j) at ({1.18+1.23*\j},0.28);
+  }
+  \draw[ThLine,line width=0.72pt] (s0)--(s7);
+  \foreach \j in {0,...,7}{
+    \node[thDet,minimum width=0.43cm,minimum height=0.40cm,
+      font=\fontsize{7.6pt}{8.5pt}\selectfont] at (s\j) {$s_{\j}$};
+  }
+
+  \draw[decorate,decoration={brace,amplitude=5pt},ThGold!82!ThInk,line width=0.95pt]
+    ([yshift=0.28cm]s1.north)--([yshift=0.28cm]s6.north)
+    node[midway,above=0.18cm,thLabel,text=ThGold!82!ThInk] {one cyclic interval \(I\)};
+
+  \foreach \a/\b in {0/1,2/3,4/5,6/7}{
+    \draw[decorate,decoration={brace,amplitude=3.5pt,mirror},ThTeal,line width=0.68pt]
+      ([yshift=-0.22cm]s\a.south)--([yshift=-0.22cm]s\b.south);
+  }
+  \foreach \a/\b in {0/3,4/7}{
+    \draw[decorate,decoration={brace,amplitude=4pt,mirror},ThBlue,line width=0.75pt]
+      ([yshift=-0.70cm]s\a.south)--([yshift=-0.70cm]s\b.south);
+  }
+  \draw[decorate,decoration={brace,amplitude=4.5pt,mirror},ThMuted,line width=0.78pt]
+    ([yshift=-1.18cm]s0.south)--([yshift=-1.18cm]s7.south)
+    node[midway,below=0.14cm,thSmallLabel] {dyadic interval family};
+\end{tikzpicture}}
+
+\newcommand{\ThIntervalImbalance}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-0.72) rectangle (11,1.58);
+  \foreach \j in {0,...,6}{
+    \coordinate (s\j) at ({0.82+1.56*\j},0.05);
+  }
+  \begin{scope}[on background layer]
+    \draw[thArrowThin,draw=ThLine,line width=0.72pt]
+      (s0)--(s1)--(s2)--(s3)--(s4)--(s5)--(s6);
+    \draw[thArrowThin,draw=ThLine,line width=0.72pt]
+      (s6) to[bend right=27] (s0);
+    \draw[thArrow,draw=ThTeal,line width=1.05pt]
+      (s0) to[bend left=25]
+      node[midway,above,thSmallLabel,text=ThTeal]
+      {entering: \(\chi_I=-1\)} (s3);
+    \draw[thArrow,draw=ThCoral,line width=1.05pt]
+      (s3) to[bend left=25]
+      node[midway,above,thSmallLabel,text=ThCoral]
+      {leaving: \(\chi_I=+1\)} (s6);
+  \end{scope}
+  \foreach \j in {0,1,5,6}{
+    \node[thDet,minimum width=0.43cm,minimum height=0.40cm] at (s\j) {$s_{\j}$};
+  }
+  \foreach \j in {2,3,4}{
+    \node[thDet,fill=ThTeal!12,minimum width=0.43cm,minimum height=0.40cm]
+      at (s\j) {$s_{\j}$};
+  }
+  \draw[decorate,decoration={brace,amplitude=5pt},ThTeal,line width=0.88pt]
+    ([yshift=0.24cm]s2.north)--([yshift=0.24cm]s4.north)
+    node[midway,above=0.17cm,thLabel,text=ThTeal] {cyclic interval \(I\)};
+\end{tikzpicture}}
+
+\newcommand{\ThAdaptiveChordWalk}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.22) rectangle (11,2.28);
+  \draw[ThLine,line width=0.65pt] (5.50,-1.04)--(5.50,2.08);
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThTeal]
+    at (2.63,1.92) {\(i\) is active};
+  \node[thDet] (la) at (0.85,0.10) {$a$};
+  \node[thActive] (li) at (2.63,0.96) {$i$};
+  \node[thDet] (lb) at (4.40,0.10) {$b_i$};
+  \begin{scope}[on background layer]
+    \draw[thArrow,draw=ThTeal,line width=1.38pt] (la)--(li)--(lb);
+  \end{scope}
+  \fill[ThGold!78!ThInk]
+    (4.40,0.63)--(4.23,0.94)--(4.57,0.94)--cycle;
+  \node[thSmallLabel,text=ThGold!75!ThInk] at (4.40,1.18) {current position};
+  \node[font=\fontsize{10.8pt}{12.8pt}\selectfont\bfseries,text=ThTeal]
+    at (2.63,-0.72) {Visit \(i\), then continue from \(b_i\)};
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThMuted]
+    at (8.37,1.92) {\(i\) is inactive};
+  \node[thDet] (ra) at (6.60,0.10) {$a$};
+  \node[thInactive] (ri) at (8.37,0.96) {$i$};
+  \node[thDet] (rb) at (10.15,0.10) {$b_i$};
+  \fill[ThGold!78!ThInk]
+    (6.60,0.63)--(6.43,0.94)--(6.77,0.94)--cycle;
+  \node[thSmallLabel,text=ThGold!75!ThInk] at (6.60,1.18) {current position};
+  \node[font=\fontsize{10.8pt}{12.8pt}\selectfont\bfseries,text=ThMuted]
+    at (8.37,-0.72) {Remain at \(a\)};
+\end{tikzpicture}}
+
+\newcommand{\ThImbalanceToMultiplicity}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-1.20) rectangle (11,1.68);
+  \foreach \j in {0,...,6}{
+    \coordinate (s\j) at ({0.82+1.56*\j},0.12);
+  }
+  \begin{scope}[on background layer]
+    \draw[thArrowThin,draw=ThLine,line width=0.72pt]
+      (s0)--(s1)--(s2)--(s3)--(s4)--(s5)--(s6);
+    \draw[thArrowThin,draw=ThLine,line width=0.72pt]
+      (s6) to[bend right=28] (s0);
+    \draw[thArrow,draw=ThTeal,line width=1.05pt]
+      (s0) to[bend left=26]
+      node[midway,above,thSmallLabel,text=ThTeal] {entering chord} (s3);
+    \draw[thArrow,draw=ThCoral,line width=1.05pt]
+      (s3) to[bend left=26]
+      node[midway,above,thSmallLabel,text=ThCoral] {leaving chord} (s6);
+    \draw[ThGold!82!ThInk,line width=1.65pt] (s1)--(s2);
+    \draw[ThGold!82!ThInk,line width=1.65pt] (s4)--(s5);
+  \end{scope}
+  \foreach \j in {0,1,5,6}{
+    \node[thDet,minimum width=0.43cm,minimum height=0.40cm] at (s\j) {$s_{\j}$};
+  }
+  \foreach \j in {2,3,4}{
+    \node[thDet,fill=ThTeal!12,minimum width=0.43cm,minimum height=0.40cm]
+      at (s\j) {$s_{\j}$};
+  }
+  \draw[decorate,decoration={brace,amplitude=5pt},ThTeal,line width=0.88pt]
+    ([yshift=0.24cm]s2.north)--([yshift=0.24cm]s4.north)
+    node[midway,above=0.17cm,thLabel,text=ThTeal] {cyclic interval \(I\)};
+  \node[thLabel,text=ThGold!82!ThInk] at (2.44,-0.54) {boundary edge \(e\), count \(c_e\)};
+  \node[thLabel,text=ThGold!82!ThInk] at (8.56,-0.54) {boundary edge \(e'\), count \(c_{e'}\)};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Pairwise objective and finite-memory DP.
+% --------------------------------------------------------------------------
+\newcommand{\ThPairwiseShortcut}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[thActive] (vi) at (0.65,0) {$v_i$};
+  \node[thInactive] (a) at (2.05,0) {};
+  \node[thInactive] (b) at (3.20,0) {};
+  \node[text=ThMuted] at (4.25,0) {$\cdots$};
+  \node[thInactive] (c) at (5.30,0) {};
+  \node[thActive] (vj) at (6.80,0) {$v_j$};
+  \draw[thFaint] (vi)--(a)--(b);
+  \draw[thFaint] (b)--(3.85,0);
+  \draw[thFaint] (4.65,0)--(c)--(vj);
+  \draw[thArrow,draw=ThBlue] ([yshift=0.28cm]vi.north east)
+    to[bend left=22] node[above=0.05cm,thLabel,text=ThBlue]
+    {\(p_i p_j\prod_{i<k<j}(1-p_k)\,d(v_i,v_j)\)}
+    ([yshift=0.28cm]vj.north west);
+  \node[thSmallLabel] at (3.70,-0.65) {the pair contributes only when every interior vertex is inactive};
+\end{tikzpicture}}
+
+\newcommand{\ThDPBlocks}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \tikzset{lightblock/.style={rounded corners=0.8pt,draw=ThBlue!70!ThInk,
+    fill=ThBlue!10,minimum width=1.15cm,minimum height=0.72cm,
+    font=\fontsize{9pt}{11pt}\selectfont\bfseries},
+    heavyblock/.style={rounded corners=0.8pt,draw=ThCoral!70!ThInk,
+    fill=ThCoral!10,minimum width=0.78cm,minimum height=0.72cm,
+    font=\fontsize{8pt}{10pt}\selectfont\bfseries},
+    rootblock/.style={rounded corners=0.8pt,draw=ThGold!70!ThInk,
+    fill=ThGold!10,minimum width=0.70cm,minimum height=0.72cm,
+    font=\fontsize{9pt}{11pt}\selectfont\bfseries}}
+  \node[rootblock] (r) at (0.45,0.35) {\(r\)};
+  \node[lightblock] (B1) at (1.45,0.35) {\(B_1\)};
+  \node[lightblock] (B2) at (2.85,0.35) {\(B_2\)};
+  \node[heavyblock] (H) at (4.25,0.35) {heavy};
+  \node[lightblock] (B3) at (5.35,0.35) {\(B_3\)};
+  \node[lightblock] (B4) at (6.75,0.35) {\(B_4\)};
+  \node[heavyblock] (G) at (8.15,0.35) {heavy};
+  \node[lightblock] (B5) at (9.25,0.35) {\(B_5\)};
+  \node[rootblock] (r2) at (10.65,0.35) {\(r\)};
+  \foreach \u/\v in {r/B1,B1/B2,B2/H,H/B3,B3/B4,B4/G,G/B5,B5/r2}{
+    \draw[ThLine,line width=0.7pt] (\u)--(\v);
+  }
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},ThMuted,line width=0.8pt]
+    (0.95,-0.35)--(4.65,-0.35)
+    node[midway,below=0.22cm,thSmallLabel] {forgotten prefix};
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},ThTeal,line width=1.0pt]
+    (4.85,-0.35)--(9.85,-0.35)
+    node[midway,below=0.22cm,thLabel,text=ThTeal] {relevant suffix};
+  \node[anchor=south,text width=10.4cm,align=center,
+    font=\fontsize{10pt}{12pt}\selectfont,text=ThInkSoft]
+    at (5.55,1.18) {truncate tiny survival products; group light vertices into low-mass blocks};
+\end{tikzpicture}}
+
+% --------------------------------------------------------------------------
+% Four-vertex asymmetric clairvoyance-gap example.
+% --------------------------------------------------------------------------
+\newcommand{\ThAsymFourVertexSeed}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.55,-2.02) rectangle (2.55,2.22);
+  \node[thDepot,minimum width=0.78cm,minimum height=0.58cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] (a) at (0,1.55) {$r=a$};
+  \node[thDet,minimum size=0.58cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] (b) at (-1.82,0) {$b$};
+  \node[thDet,minimum size=0.58cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] (c) at (1.82,0) {$c$};
+  \node[thStoch,minimum size=0.60cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] (d) at (0,-1.55) {$d$};
+
+  \begin{scope}[on background layer]
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+      (a) to[bend right=11] (b);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+      (b) to[bend right=11] (a);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+      (a) to[bend left=11] (c);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+      (c) to[bend left=11] (a);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (b)--(c);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (c)--(d);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (d)--(b);
+  \end{scope}
+
+  \node[thSmallLabel,text=ThTeal,anchor=west] at (0.38,-1.55)
+    {$p_d=\tfrac12$};
+\end{tikzpicture}}
+
+\newcommand{\ThAsymFourVertexOutcomes}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-2.20) rectangle (11,2.20);
+  \draw[ThLine,line width=0.65pt] (5.50,-2.02)--(5.50,2.02);
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThMuted]
+    at (2.62,1.95) {$d$ inactive};
+  \node[thDepot,minimum width=0.74cm] (la) at (2.62,1.05) {$r=a$};
+  \node[thDet] (lb) at (1.16,-0.18) {$b$};
+  \node[thDet] (lc) at (4.08,-0.18) {$c$};
+  \node[thInactive] (ld) at (2.62,-1.38) {$d$};
+  \begin{scope}[on background layer]
+    \foreach \x/\y/\bend in {la/lb/right,lb/la/right,la/lc/left,lc/la/left}{
+      \draw[thArrowThin,draw=ThLine,line width=0.58pt]
+        (\x) to[bend \bend=10] (\y);
+    }
+    \foreach \x/\y in {lb/lc,lc/ld,ld/lb}{
+      \draw[thArrowThin,draw=ThLine,line width=0.58pt] (\x)--(\y);
+    }
+    \draw[thArrow,draw=ThTeal,line width=1.48pt]
+      (la) to[bend right=10] (lb);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt] (lb)--(lc);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt]
+      (lc) to[bend left=10] (la);
+  \end{scope}
+  \node[font=\fontsize{9.8pt}{11.5pt}\selectfont,text=ThTeal]
+    at (2.62,-1.93) {$a\to b\to c\to a$, cost $3$};
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThTeal]
+    at (8.38,1.95) {$d$ active};
+  \node[thDepot,minimum width=0.74cm] (ra) at (8.38,1.05) {$r=a$};
+  \node[thDet] (rb) at (6.92,-0.18) {$b$};
+  \node[thDet] (rc) at (9.84,-0.18) {$c$};
+  \node[thActive] (rd) at (8.38,-1.38) {$d$};
+  \begin{scope}[on background layer]
+    \foreach \x/\y/\bend in {ra/rb/right,rb/ra/right,ra/rc/left,rc/ra/left}{
+      \draw[thArrowThin,draw=ThLine,line width=0.58pt]
+        (\x) to[bend \bend=10] (\y);
+    }
+    \foreach \x/\y in {rb/rc,rc/rd,rd/rb}{
+      \draw[thArrowThin,draw=ThLine,line width=0.58pt] (\x)--(\y);
+    }
+    \draw[thArrow,draw=ThTeal,line width=1.48pt]
+      (ra) to[bend left=10] (rc);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt] (rc)--(rd);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt] (rd)--(rb);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt]
+      (rb) to[bend right=10] (ra);
+  \end{scope}
+  \node[font=\fontsize{9.8pt}{11.5pt}\selectfont,text=ThTeal]
+    at (8.38,-1.93) {$a\to c\to d\to b\to a$, cost $4$};
+\end{tikzpicture}}

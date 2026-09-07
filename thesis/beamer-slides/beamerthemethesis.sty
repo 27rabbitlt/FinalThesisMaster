@@ -1,0 +1,147 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemethesis}[2026/08/29 Minimal thesis defense theme]
+
+\RequirePackage{tikz}
+
+\mode<presentation>
+
+% A plain Beamer palette: white canvas, dark text, and one primary accent.
+% Secondary colors are kept only for the three mathematical benchmarks.
+\definecolor{ThInk}{HTML}{182433}
+\definecolor{ThInkSoft}{HTML}{3B4A57}
+\definecolor{ThBlue}{HTML}{315A78}
+\definecolor{ThTeal}{HTML}{3F716B}
+\definecolor{ThGold}{HTML}{94733A}
+\definecolor{ThCoral}{HTML}{9B554D}
+\definecolor{ThGreen}{HTML}{5E7B66}
+\definecolor{ThPaper}{HTML}{FFFFFF}
+\definecolor{ThWhite}{HTML}{FFFFFF}
+\definecolor{ThMist}{HTML}{F1F3F4}
+\definecolor{ThLine}{HTML}{D8DEE2}
+\definecolor{ThMuted}{HTML}{6E7882}
+
+\setbeamercolor{normal text}{fg=ThInk,bg=ThPaper}
+\setbeamercolor{background canvas}{bg=ThPaper}
+\setbeamercolor{structure}{fg=ThBlue}
+\setbeamercolor{frametitle}{fg=ThBlue,bg=ThPaper}
+\setbeamercolor{footline}{fg=ThMuted,bg=ThPaper}
+\setbeamercolor{section title}{fg=ThBlue,bg=ThPaper}
+\setbeamercolor{section subtitle}{fg=ThMuted,bg=ThPaper}
+\setbeamercolor{itemize item}{fg=ThBlue}
+\setbeamercolor{itemize subitem}{fg=ThMuted}
+\setbeamercolor{enumerate item}{fg=ThBlue}
+\setbeamercolor{block title}{fg=ThBlue,bg=ThWhite}
+\setbeamercolor{block body}{fg=ThInk,bg=ThWhite}
+\setbeamercolor{block title alerted}{fg=ThCoral,bg=ThWhite}
+\setbeamercolor{block body alerted}{fg=ThInk,bg=ThWhite}
+\setbeamercolor{block title example}{fg=ThTeal,bg=ThWhite}
+\setbeamercolor{block body example}{fg=ThInk,bg=ThWhite}
+\setbeamercolor{page number in head/foot}{fg=ThMuted,bg=ThWhite}
+
+% Readable academic type sizes without decorative font effects.
+\setbeamerfont{normal text}{size=\fontsize{14.2pt}{17.2pt}\selectfont}
+\setbeamerfont{title}{size=\fontsize{28pt}{32pt}\selectfont,series=\bfseries}
+\setbeamerfont{subtitle}{size=\fontsize{15pt}{18pt}\selectfont}
+\setbeamerfont{author}{size=\fontsize{14pt}{17pt}\selectfont}
+\setbeamerfont{institute}{size=\fontsize{11pt}{14pt}\selectfont}
+\setbeamerfont{date}{size=\fontsize{11pt}{14pt}\selectfont}
+\setbeamerfont{frametitle}{size=\fontsize{17.2pt}{20.2pt}\selectfont,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\fontsize{11.5pt}{14pt}\selectfont}
+\setbeamerfont{section title}{size=\fontsize{25pt}{29pt}\selectfont,series=\bfseries}
+\setbeamerfont{section subtitle}{size=\fontsize{13pt}{16pt}\selectfont}
+\setbeamerfont{footline}{size=\fontsize{7.5pt}{9pt}\selectfont}
+\setbeamerfont{page number in head/foot}{size=\fontsize{7.5pt}{9pt}\selectfont}
+\setbeamerfont{block title}{size=\fontsize{12.5pt}{15pt}\selectfont,series=\bfseries}
+\setbeamerfont{block body}{size=\fontsize{12.5pt}{15.5pt}\selectfont}
+\setbeamerfont{caption}{size=\fontsize{9pt}{11pt}\selectfont}
+
+\setbeamersize{text margin left=0.82cm,text margin right=0.82cm}
+\setlength{\leftmargini}{1.15em}
+\setlength{\leftmarginii}{1.02em}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{blocks}[default]
+\setbeamertemplate{itemize item}[triangle]
+\setbeamertemplate{itemize subitem}[circle]
+
+% Use Beamer's own layout templates.  They reserve space correctly and avoid
+% custom height calculations that can shift frame contents unexpectedly.
+\setbeamertemplate{frametitle}[default][left]
+\setbeamertemplate{footline}[page number]
+\setbeamertemplate{page number in head/foot}[framenumber]
+
+\setlength{\itemsep}{0.32em}
+\setlength{\parskip}{0.20em}
+
+% Audience-facing helpers.
+\newcommand{\theyebrow}[1]{%
+  {\fontsize{8.5pt}{10pt}\selectfont\bfseries\color{ThMuted}%
+    \MakeUppercase{#1}}}
+
+\newcommand{\thpill}[2][ThBlue]{%
+  \tikz[baseline=(pill.base)]\node[
+    rounded corners=0.6pt,
+    fill=ThWhite,
+    draw=#1!72!ThInk,
+    line width=0.45pt,
+    text=ThInk,
+    inner xsep=4.8pt,
+    inner ysep=1.9pt,
+    font=\fontsize{9pt}{10.5pt}\selectfont\bfseries
+  ] (pill) {#2};}
+
+\newcommand{\thresult}[2][ThTeal]{%
+  \par\noindent
+  \begin{tikzpicture}[baseline=(resulttext.base)]
+    \node[
+      anchor=north west,
+      inner sep=0pt,
+      text width=\dimexpr\linewidth-0.58cm\relax,
+      align=left
+    ] (resulttext) at (0.58cm,0) {#2};
+    \draw[#1,line width=1.55pt]
+      ([xshift=-0.36cm,yshift=0.04cm]resulttext.north west)
+      --
+      ([xshift=-0.36cm,yshift=-0.04cm]resulttext.south west);
+  \end{tikzpicture}}
+
+% Source labels are intentionally suppressed in the defense deck.  Keeping the
+% command as a no-op lets individual frames retain their source metadata in the
+% LaTeX source without adding nonessential text to the projected slide.
+\newcommand{\thsource}[1]{}
+
+\newcommand{\thmetric}[2][ThBlue]{%
+  \begin{tikzpicture}[baseline=(m.base)]
+    \node[rounded corners=0.8pt,fill=#1!10,draw=#1!55,
+      inner xsep=5pt,inner ysep=2.4pt,text=#1!78!ThInk,
+      font=\fontsize{9.2pt}{11pt}\selectfont\bfseries] (m) {#2};
+  \end{tikzpicture}}
+
+\newenvironment{thtightitemize}
+  {\begin{itemize}\setlength{\itemsep}{0.22em}\setlength{\topsep}{0.14em}}
+  {\end{itemize}}
+
+\newenvironment{thsmall}
+  {\fontsize{12.3pt}{15pt}\selectfont}
+  {\par}
+
+\newcommand{\thsectionframe}[3]{%
+  \begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+      \fill[ThPaper] (current page.south west) rectangle (current page.north east);
+      \fill[#1] (current page.south west) rectangle
+        ([xshift=0.20cm]current page.north west);
+      \node[anchor=west,text=ThMuted,
+        font=\fontsize{9pt}{11pt}\selectfont\bfseries]
+        at ([xshift=1.05cm,yshift=1.15cm]current page.west)
+        {#2};
+      \node[anchor=west,text=ThInk,text width=11.2cm,align=left,
+        font=\fontsize{25pt}{29pt}\selectfont\bfseries]
+        at ([xshift=1.05cm,yshift=0.05cm]current page.west)
+        {#3};
+    \end{tikzpicture}
+  \end{frame}}
+
+\mode<all>

@@ -1,0 +1,1527 @@
+%! TeX program = pdflatex
+\documentclass[aspectratio=169,12pt]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[default]{sourcesanspro}
+\usefonttheme[onlymath]{serif}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,microtype}
+\usepackage{tikz}
+\usetikzlibrary{
+  arrows.meta,
+  backgrounds,
+  calc,
+  decorations.pathreplacing,
+  fit,
+  positioning,
+  shapes.geometric
+}
+\usepackage{appendixnumberbeamer}
+\usepackage{beamerthemethesis}
+
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\optpost}{\OPT_{\mathrm{post}}}
+\newcommand{\optadapt}{\OPT_{\mathrm{adapt}}}
+\newcommand{\optprior}{\OPT_{\mathrm{prior}}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Pp}{\mathbb{P}}
+\newcommand{\cost}{\operatorname{cost}}
+\newcommand{\poly}{\operatorname{poly}}
+
+% A more saturated blue reserved for thesis contributions in comparison
+% tables.  The regular theme blue remains unchanged elsewhere.
+\definecolor{ThResultBlue}{HTML}{0057B8}
+
+% The same information-gap table is reused as a progress marker throughout
+% the talk.  Stage 0 shows only prior work; stages 1--4 cumulatively reveal
+% the four new adaptivity/clairvoyance cells and highlight the newest one.
+\newcommand{\thgapbox}[2][]{%
+  \tikz[baseline=(thgapcell.base)]{%
+    \node[
+      minimum width=3.00cm,
+      minimum height=0.88cm,
+      inner xsep=3pt,
+      inner ysep=2pt,
+      align=center,
+      rounded corners=1pt,
+      #1
+    ] (thgapcell) {#2};
+  }%
+}
+
+\newcommand{\thgapstagecell}[3]{%
+  \ifnum#1<#2\relax
+    \thgapbox[opacity=0]{#3}% not introduced yet
+  \else
+    \ifnum#1=#2\relax
+      \thgapbox[draw=ThResultBlue,fill=ThResultBlue!10,line width=1.4pt]{#3}% newly introduced
+    \else
+      \thgapbox{#3}% introduced on an earlier slide
+    \fi
+  \fi
+}
+
+\newcommand{\ThGapProgressTable}[1]{%
+  \centering
+  {\fontsize{10.8pt}{13.0pt}\selectfont
+  \renewcommand{\arraystretch}{1.55}
+  \setlength{\tabcolsep}{8pt}
+  \begin{tabular}{>{\bfseries}lccc}
+    \toprule
+    Metric
+      & \shortstack{Obliviousness gap\\[-0.04cm]
+          \(\optprior/\optpost\)}
+      & \shortstack{Adaptivity gap\\[-0.04cm]
+          \(\optprior/\optadapt\)}
+      & \shortstack{Clairvoyance gap\\[-0.04cm]
+          \(\optadapt/\optpost\)} \\
+    \midrule
+    Symmetric
+      & \(\le 3^{[1]}\)
+      & \thgapstagecell{#1}{1}{%
+          \shortstack{
+            \textcolor{ThResultBlue}{\(\boldsymbol{\ge 2}\)}\\[-0.04cm]
+            \(\le 3^{[1]}\)}}
+      & \thgapstagecell{#1}{3}{%
+          \shortstack{
+            \textcolor{ThResultBlue}{\(\boldsymbol{\ge 10/9}\)}\\[-0.04cm]
+            \(\le 3^{[1]}\)}} \\
+    \cmidrule(lr){1-4}
+    Asymmetric
+      & \(\begin{gathered}
+            \Omega(n^{1/4}/\log n)\\[-0.04cm]
+            O(\sqrt n)
+          \end{gathered}^{[2]}\)
+      & \thgapstagecell{#1}{2}{%
+          \shortstack{
+            \textcolor{ThResultBlue}{\(\boldsymbol{\Omega(n^{1/3}/\log n)}\)}\\[-0.04cm]
+            \(O(\sqrt n)^{[2]}\)}}
+      & \thgapstagecell{#1}{4}{%
+          \shortstack{
+            \textcolor{ThResultBlue}{\(\boldsymbol{\ge 3/2}\)}\\[-0.04cm]
+            \textcolor{ThResultBlue}{\(\boldsymbol{O(n^{1/3})}\)}}} \\
+    \bottomrule
+  \end{tabular}}
+
+  \vfill
+  \begin{minipage}{0.94\linewidth}
+    \raggedright
+    {\fontsize{7.5pt}{9pt}\selectfont\color{ThMuted}
+      [1] Shmoys and Talwar (2008).\par
+      [2] Christalla, Puhlmann, and Traub (2025).\par
+      \ifnum#1>0\relax
+        \textcolor{ThResultBlue}{\bfseries Bold blue}: this thesis.
+        Regular black: previous work or an inherited upper bound.
+      \else
+        \phantom{Bold blue: this thesis.
+        Regular black: previous work or an inherited upper bound.}
+      \fi}
+  \end{minipage}
+}
+
+\title[Adaptivity Bounds for Stochastic TSP]{%
+  Adaptivity Bounds for the\\
+  Stochastic Traveling Salesperson Problem}
+\author{Teng Liu}
+\institute{Department of Computer Science \enspace\textperiodcentered\enspace ETH Z\"urich}
+\date{Master Thesis Defense \enspace\textperiodcentered\enspace 2026}
+
+\input{diagrams}
+\setbeameroption{hide notes}
+
+\begin{document}
+
+% ===========================================================================
+% Title
+% ===========================================================================
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[ThPaper] (current page.south west) rectangle (current page.north east);
+
+    \node[anchor=west,text=ThInk,text width=11.35cm,align=left,
+      font=\fontsize{24pt}{28pt}\selectfont\bfseries]
+      at ([xshift=0.98cm,yshift=0.70cm]current page.west)
+      {Adaptivity Bounds for the\\
+       Stochastic Traveling\\
+       Salesperson Problem};
+    \node[anchor=south west,text=ThInk,
+      font=\fontsize{13.2pt}{16pt}\selectfont\bfseries]
+      at ([xshift=0.98cm,yshift=1.08cm]current page.south west)
+      {Teng Liu};
+    \node[anchor=south west,text=ThMuted,
+      font=\fontsize{9.8pt}{12pt}\selectfont]
+      at ([xshift=0.98cm,yshift=0.45cm]current page.south west)
+      {Advisors: Dr.\ Sharat Ibrahimpur and Prof.\ Dr.\ Vera Traub};
+  \end{tikzpicture}
+\end{frame}
+
+% ===========================================================================
+% Problem and benchmarks
+% ===========================================================================
+\section{Problem and benchmarks}
+
+\begin{frame}{The traveling salesperson problem}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \setlength{\itemsep}{0.62em}
+        \item We are given a finite vertex set \(V\), a root \(r\), and
+          metric travel costs \(d\).
+        \item A tour starts at \(r\), visits every other vertex, and returns
+          to \(r\).
+        \item The goal is to minimize the total travel cost.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \centering
+      \resizebox{0.94\linewidth}{!}{\ThTSPGraph}
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Chapter 1}
+\end{frame}
+
+\begin{frame}{Stochastic TSP}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.57\textwidth}
+      \begin{itemize}
+        \setlength{\itemsep}{0.46em}
+        \item Each non-root vertex \(v\) is independently active with
+          probability \(p_v\in[0,1]\); the root \(r\) is always active.
+        \item Only active vertices require service.
+        \item Start and end at \(r\), visit every active vertex, and minimize
+          expected travel cost.
+        \item If every \(p_v=1\), this is the classical TSP.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\ThStochasticGraph}
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Chapter 1}
+\end{frame}
+
+\begin{frame}{Three benchmarks}
+  \begin{itemize}
+    \setlength{\itemsep}{0.52em}
+    \item \textbf{A posteriori --- full information:} observe the complete
+      active set, then choose the best tour.
+    \item \textbf{A priori --- no activation information:} fix one order
+      before observing activations, then skip inactive vertices.
+    \item \textbf{Adaptive --- information revealed over time:} probe one
+      vertex at a time; if the probed vertex is active, visit it immediately;
+      later probes may depend on earlier outcomes.
+  \end{itemize}
+  \thsource{Thesis, Chapter 1}
+\end{frame}
+
+\begin{frame}{Notation}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \textbf{Instance and realization}
+      \begin{itemize}\setlength{\itemsep}{0.48em}
+        \item \(\mathcal I\): a stochastic TSP instance.
+        \item \(V\): the vertex set; \(r\): the always-active root.
+        \item \(V^\circ:=V\setminus\{r\}\), \(n:=|V^\circ|\): the
+          non-root vertices and their number.
+        \item \(d(u,v)\): the travel cost from \(u\) to \(v\).
+        \item \(p_v\in[0,1]\): the activation probability of
+          \(v\in V^\circ\).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Active sets and optimal costs}
+      \begin{itemize}\setlength{\itemsep}{0.48em}
+        \item \(A\sim\mathcal Q\): the realized active set and its
+          distribution.
+        \item \(\OPT(A)\): the minimum tour cost on \(A\cup\{r\}\).
+        \item \(\optpost\): optimal a posteriori expected cost.
+        \item \(\optadapt\): optimal adaptive expected cost.
+        \item \(\optprior\): optimal a priori expected cost.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Chapters 1--2}
+\end{frame}
+
+\begin{frame}{A posteriori}
+  \centering
+  \resizebox{0.82\linewidth}{!}{\ThPosterioriExample}
+
+  \medskip
+  For each active set \(A\), choose a minimum-cost tour on
+  \(A\cup\{r\}\).
+  \[
+    \optpost=\E_{A\sim\mathcal Q}\!\left[\OPT(A)\right].
+  \]
+  \thsource{Thesis, Chapter 1}
+\end{frame}
+
+\begin{frame}{A priori}
+  \centering
+  \resizebox{0.82\linewidth}{!}{\ThPrioriExample}
+
+  \medskip
+  Fix \(T\) before seeing \(A\); then delete the inactive vertices.
+  \[
+    \optprior=\min_T\E_{A\sim\mathcal Q}
+      \!\left[\cost(T\vert_A)\right].
+  \]
+  \thsource{Thesis, Chapter 1}
+\end{frame}
+
+\begin{frame}{Adaptive}
+  \centering
+  \resizebox{0.82\linewidth}{!}{\ThProbeRealizations}
+
+  \medskip
+  A policy \(\pi\) chooses the next probe from earlier outcomes and has
+  expected cost \(\cost(\pi)\).
+  \[
+    \optadapt=\min_\pi\cost(\pi).
+  \]
+  \thsource{Thesis, Section 2.1}
+\end{frame}
+
+\begin{frame}{Three gaps}
+  \centering
+  \resizebox{0.78\linewidth}{!}{\ThGapArcs}
+
+  \vspace{-0.05cm}
+  \begin{itemize}\setlength{\itemsep}{0.40em}
+    \item \textbf{\textcolor{ThTeal}{Clairvoyance gap:}}
+      \(\displaystyle
+        \operatorname{CG}(\mathcal I)
+        :=\frac{\optadapt(\mathcal I)}{\optpost(\mathcal I)}.\)
+    \item \textbf{\textcolor{ThBlue}{Adaptivity gap:}}
+      \(\displaystyle
+        \operatorname{AG}(\mathcal I)
+        :=\frac{\optprior(\mathcal I)}{\optadapt(\mathcal I)}.\)
+    \item \textbf{\textcolor{ThGold!80!ThInk}{Obliviousness gap:}}
+      \(\displaystyle
+        \operatorname{OG}(\mathcal I)
+        :=\frac{\optprior(\mathcal I)}{\optpost(\mathcal I)}.\)
+  \end{itemize}
+  \thsource{Thesis, Section 2.2}
+\end{frame}
+
+\begin{frame}{Asymmetric \(\optpost\) v.s.\ \(\optadapt\)}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \centering
+      \resizebox{0.82\linewidth}{!}{\ThAsymFourVertexSeed}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{itemize}\setlength{\itemsep}{0.64em}
+        \item The root \(r=a\) and vertices \(b,c\) are always active.
+        \item Vertex \(d\) is active independently with probability \(1/2\).
+        \item The arc \(b\to c\) remains direct, while its reverse is
+          replaced by \(c\to d\to b\).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Section 5.1}
+\end{frame}
+
+\begin{frame}{Asymmetric \(\optpost\) v.s.\ \(\optadapt\)}
+  \centering
+  \resizebox{0.76\linewidth}{!}{\ThAsymFourVertexOutcomes}
+
+  \vspace{0.10cm}
+  \small
+  An adaptive policy chooses its first probe before learning whether \(d\) is
+  active, so it cannot realize both highlighted optima. Probing \(c,d,b\) costs
+  \(4\) in either realization; the fixed order \(a,c,d,b,a\) does as well.
+  \[
+    \optpost=\tfrac12\cdot3+\tfrac12\cdot4=\frac72,\qquad
+    \optadapt=\optprior=4,\qquad
+    \operatorname{CG}=\frac{4}{7/2}=\frac87.
+  \]
+  \thsource{Thesis, Section 5.1}
+\end{frame}
+
+\begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \centering
+      \resizebox{0.90\linewidth}{!}{\ThKFourSubdivision}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \vspace{0.38cm}
+      \begin{itemize}\setlength{\itemsep}{0.58em}
+        \item Take a  \(K_4\) on \(r,a,b,c\), and subdivide
+          the edge \(ra\) by \(s\).
+        \item The four original vertices are always active; only subdivision vertex \(s\) is
+          active with \(p_s=1/2\).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
+  \centering
+  \resizebox{0.90\linewidth}{!}{\ThKFourOutcomes}
+
+  \vspace{0.05cm}
+  % \begin{columns}[T,onlytextwidth]
+  %   \begin{column}{0.58\textwidth}
+      \small Probe \(s\) at the root. If it is inactive, remain at \(r\);
+      if it is active, visit \(s\) immediately.
+    % \end{column}
+    % \begin{column}{0.38\textwidth}
+      \[
+        \optadapt=\tfrac12\cdot4+\tfrac12\cdot5=\frac92.
+      \]
+  %   \end{column}
+  % \end{columns}
+\end{frame}
+
+\begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
+  % \begin{columns}[T,onlytextwidth]
+    % \begin{column}{0.56\textwidth}
+      % \vspace{0.30cm}
+      \begin{itemize}\setlength{\itemsep}{0.78em}
+        \item A priori must fix one cyclic order before its activation is known.
+             Wherever \(s\) is placed in that fixed order, one realization
+          is suboptimal: the same order cannot achieve costs \(4\) and \(5\).
+        \item If in some order, $s$ is placed as $\cdots, r, s, a, \cdots$, then
+            when $s$ is inactive, we pay cost $2$ for one move from $r$ to $a$; otherwise
+            $s$ must be placed adjacent to some vertex with distance at least $2$, thus
+            when $s$ is active, we pay cost $2$. $\optprior=5$.
+        \item $\text{Adaptivity Gap}=\frac{\optprior}{\optadapt}
+        =\color{ThBlue}\frac{10}{9}.$
+      \end{itemize}
+    % \end{column}
+    % \begin{column}{0.40\textwidth}
+    %   \[
+    %     \text{Adaptivity Gap}=\frac{\optprior}{\optadapt}
+    %     =\color{ThBlue}\frac{10}{9}.
+    %   \]
+    % \end{column}
+  % \end{columns}
+  \medskip{}
+  \thresult[ThBlue]{Even one uncertain vertex can make a priori solution suffers.}
+\end{frame}
+
+\begin{frame}{A priori algorithms v.s.\ \(\optpost\) and \(\optprior\)}
+  \centering
+  Let \(C_{\mathrm{ALG}}\) denote the expected cost of the returned
+  a priori tour.
+
+  \vspace{0.10cm}
+  {\fontsize{10.8pt}{12.7pt}\selectfont
+  \renewcommand{\arraystretch}{1.16}
+  \setlength{\tabcolsep}{7pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.05cm}
+                      >{\centering\arraybackslash}p{2.45cm}
+                      >{\raggedright\arraybackslash}p{5.25cm}@{}}
+    \toprule
+     & Compared with & Guarantee \\
+    \midrule
+    Shmoys--Talwar (2008) \hfill symmetric
+      & \(\optpost\)
+      & \(C_{\mathrm{ALG}}/\optpost\le4\) randomized;
+        \(\le8\) deterministic \\
+    \cmidrule(lr){1-3}
+    van Zuylen (2011) \hfill symmetric
+      & \(\optprior\)
+      & \(C_{\mathrm{ALG}}/\optprior\le6.5\) deterministic \\
+    \cmidrule(lr){1-3}
+    Blauth et al. (2024) \hfill symmetric
+      & \(\optprior\)
+      & \(C_{\mathrm{ALG}}/\optprior<3.1\) randomized;
+        \(<5.9\) deterministic \\
+    \cmidrule(lr){1-3}
+    Christalla et al. (2025) \hfill asymmetric
+      & \(\optprior\)
+      & \(C_{\mathrm{ALG}}/\optprior=O(\log^8 n)\), randomized
+        quasipolynomial time \\
+    \bottomrule
+  \end{tabular}}
+
+\end{frame}
+
+\begin{frame}{Prior information-gap bounds}
+  \ThGapProgressTable{0}
+  \thsource{Thesis, Sections 1.1 and 1.3}
+\end{frame}
+
+% ===========================================================================
+% Adaptivity gap
+% ===========================================================================
+\section{Adaptivity gap}
+
+\begin{frame}{Symmetric adaptivity gap}
+  \ThGapProgressTable{1}
+  \thsource{Thesis, Theorem 3.7; Shmoys--Talwar}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: random-metric toy example}
+  \centering
+  \resizebox{0.86\linewidth}{!}{\ThRandomMetricToy}
+
+  \medskip
+   Teal edges have distance \(1\); dashed edges have distance \(2\). 
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: random-metric construction}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.36\textwidth}
+      \centering
+      \textbf{Random short-edge graph}\par
+      \resizebox{0.78\linewidth}{!}{\ThRandomMetric}
+    \end{column}
+    \begin{column}{0.60\textwidth}
+      \begin{itemize}\setlength{\itemsep}{0.48em}
+        \item Let \(V=\{r\}\cup[n]\) and sample
+          \(G\sim G(n+1,\theta)\): every unordered pair is independently sampled
+          with probability \(\theta=(\log n)^{-1}\). Call the sampled pair \emph{short-edge}.
+        \item A sampled pair has distance \(1\), and other pairs have
+          distance \(2\). 
+        \item Independently of the metric, activate each non-root vertex
+          with probability \(p=(\log n)^{-4}\).
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: a posteriori benchmark}
+      \begin{itemize}\setlength{\itemsep}{0.52em}
+        \item Conditional on \(|A|=k\), the short-edge graph on
+          \(A\cup\{r\}\) is exactly \(G(k+1,\theta)\).
+        \item Typically \(K\approx np\), and
+          \[
+            \theta K\asymp\frac{n}{(\log n)^5}\gg\log K.
+          \]
+
+         With high probability, the short-edge graph on \(A\) is Hamiltonian.
+      \end{itemize}
+
+  \[
+    \E_D[\optpost(D)]=(1+o(1))W.
+  \]
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: a priori benchmark}
+    \resizebox{0.75\linewidth}{!}{\ThRandomShortcutPair}
+
+    \medskip
+    Intuitively, consider a fixed a priori tour containing some pair $(u,w)$, as shown above, the distance $d(u,v) = 2$ with high probability.
+
+    Summing these activation-weighted pair costs over a fixed a priori tour \(T\)
+    gives
+    \[
+        \E_D[\text{cost}_D(T)]=(2-\theta)W.
+    \]
+
+    Weighted Hoeffding shows that one fixed tour is lucky
+    with probability \(\ll1/n!\).
+
+    Union bound over all orders therefore gives \(\optprior(D)\ge(2-o(1))W\) with high probability.
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: adaptive benchmark}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\ThShortNeighborPolicy}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{itemize}\setlength{\itemsep}{0.58em}
+        \item At the current active vertex, probe every unprobed
+          distance-\(1\) neighbor first.
+        \item Inactive: remain in place. Active: visit immediately.
+        \item Use a distance-\(2\) move only when no short move is found.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \medskip
+  The analysis shows that, with high probability over the sampled metric,
+  \[
+    \optadapt(D)\le(1+o(1))W.
+  \]
+  The policy does not know the active Hamiltonian cycle; it constructs a
+  nearly all-short route from the outcomes seen so far.
+  \thsource{Thesis, Lemmas 3.12--3.14}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: factor-two lower bound}
+  \centering
+  \resizebox{0.76\linewidth}{!}{\ThGoodMetricIntersection}
+
+  \medskip
+  \[
+    \frac{\optprior(d_n)}{\optadapt(d_n)}
+    \ge \frac{(2-o(1))W}{(1+o(1))W}=2-o(1).
+  \]
+  \thsource{Thesis, Theorem 3.7}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: sampled master tour}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.43\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\ThSampledBackbone}
+    \end{column}
+    \begin{column}{0.53\textwidth}
+      \small
+      Sample backbone \(R\) by including \(r\) definitely and each non-root vertex \(u\) with
+      probability \(p_u\).
+
+      \medskip
+      Let \(T_R\) be an optimal tour on \(R\), and define
+      \[
+        D_R(u):=\min_{w\in R\setminus\{u\}}d(u,w).
+      \]
+
+      Add two copies of one nearest attachment for every
+      \(u\in V^\circ\setminus R\). An Euler tour followed by shortcutting
+      gives a fixed a priori tour \(M_R\).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: sampled master tour}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.43\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\ThSampledBackbone}
+    \end{column}
+    \begin{column}{0.53\textwidth}
+        \begin{align*}
+            C_R &:=\E_A[\cost(M_R(A))\mid R] \\
+                &\le \cost(T_R)
+          +2\!\sum_{u\in V^\circ\setminus R}p_uD_R(u).
+      \end{align*}
+
+      % Symmetry lets the same attachment carry the trip out and back.
+
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: indicator setup}
+  For each \(u\in V^\circ\), define
+  \[
+    I_u:=\mathbf 1_{\{u\in R\}},
+    \qquad
+    \E_R[I_u]=p_u.
+  \]
+
+  \medskip
+  The distance
+  \[
+    D_R(u)=\min_{w\in R\setminus\{u\}}d(u,w)
+  \]
+  depends only on \(R\setminus\{u\}\), so \(I_u\) and \(D_R(u)\) are
+  independent.
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: one-vertex comparison}
+    From independence we can see
+  \[
+  \begin{aligned}
+    \E_R[p_u(1-I_u)D_R(u)]
+      &=p_u(1-p_u)\E_R[D_R(u)],
+      \\[0.18cm]
+    \E_R[I_uD_R(u)]
+      &=p_u\E_R[D_R(u)]
+  \end{aligned}
+  \]
+
+  Since \(1-p_u\le1\), the first term is no larger than the
+  second:
+  \[
+    \E_R[p_u(1-I_u)D_R(u)]
+      \le \E_R[I_uD_R(u)].
+  \]
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: summing the charges}
+  Sum the one-vertex inequality over all \(u\in V^\circ\):
+  \[
+  \begin{aligned}
+    \E_R\!\left[
+      \sum_{u\in V^\circ\setminus R}p_uD_R(u)
+    \right]
+      &=\sum_{u\in V^\circ}
+        \E_R[p_u(1-I_u)D_R(u)]\\
+      &\le\sum_{u\in V^\circ}\E_R[I_uD_R(u)]\\
+      &=\E_R\!\left[
+        \sum_{u\in R\setminus\{r\}}D_R(u)
+      \right].
+  \end{aligned}
+  \]
+
+  Here \(1-I_u\) selects \(V^\circ\setminus R\), while \(I_u\) selects
+  \(R\setminus\{r\}\).
+  \thsource{Shmoys--Talwar, Section 2.2; Blauth et al., Section 1.1}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: tour-edge charging}
+  Fix \(R\), and let \(u^+\) be the successor of \(u\) on \(T_R\). Since
+  \(u^+\in R\setminus\{u\}\), the definition of \(D_R(u)\) gives
+  \[
+    D_R(u)\le d(u,u^+).
+  \]
+
+  Summing over all sampled non-root vertices,
+  \[
+    \sum_{u\in R\setminus\{r\}}D_R(u)
+      \le\sum_{u\in R\setminus\{r\}}d(u,u^+)
+      \le\cost(T_R).
+  \]
+
+  Combining this with the previous slide and taking expectations,
+  \[
+    \E_R\!\left[
+      \sum_{u\in V^\circ\setminus R}p_uD_R(u)
+    \right]
+    \le \E_R[\cost(T_R)]
+    =\optpost.
+  \]
+
+  \thresult[ThBlue]{The doubled detours contribute at most \(2\optpost\).}
+  \thsource{Shmoys--Talwar, Section 2.2; Blauth et al., Section 1.1}
+\end{frame}
+
+\begin{frame}{Symmetric adaptivity gap: factor-three upper bound}
+  The expected cost over the auxiliary sample is
+  \[
+    \E_R[C_R]
+    \le
+    \underbrace{\E_R[\cost(T_R)]}_{\text{backbone }=\optpost}
+    +2\underbrace{\E_R\!\left[
+      \sum_{u\in V^\circ\setminus R}p_uD_R(u)
+    \right]}_{\text{attachments }\le\optpost}
+    \le3\optpost.
+  \]
+
+  \medskip
+  Therefore
+    \[
+        \optprior \le 3 \optpost
+    \]
+  \smallskip
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap}
+  \ThGapProgressTable{2}
+  \thsource{Thesis, Theorem 7.1; Christalla--Puhlmann--Traub}
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: construction}
+    \makebox[\linewidth][c]{
+      \resizebox{0.69\linewidth}{!}{\ThRectGrid}
+    }
+
+    \(k^2\) columns and \(k\) vertices in each column, with \(p=1/k, n=k^3\).
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: adaptive benchmark}
+  \makebox[\linewidth][c]{%
+    \resizebox{0.60\linewidth}{!}{\ThColumnSweep}%
+  }
+
+  \vspace{0.12cm}
+  Each sweep visits at most one active stochastic vertex per column.
+
+  \medskip
+  Let \(X_j\sim\operatorname{Binomial}(k,1/k)\) count the active vertices in
+  column \(j\), and let \(M=\max_jX_j\). Then
+  \[
+    \cost(\pi,A)\le2k^2M,
+    \qquad \E[M]=O(\log k).
+  \]
+Therefore \(\optadapt=O(k^2\log k)\).
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: represented columns}
+  \small
+  Split the fixed a priori order into \(k^2\) packets of size \(k\).
+  Focus on \(P=(z_1,\ldots,z_k)\).
+
+  \vspace{0.04cm}
+  \makebox[\linewidth][c]{%
+    \resizebox{0.82\linewidth}{!}{\ThPacketColumns}%
+  }
+
+  \vspace{0.30cm}
+
+  Choose one representative from each represented column in packet order:
+  \(y_1,\ldots,y_s\).
+  \thsource{Adapted from Thesis, Section 7.2}
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: packet distance}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.485\textwidth}
+      {\fontsize{11.2pt}{13.2pt}\selectfont\bfseries\color{ThBlue}
+        \(s\ge k/2\): many represented columns\par}
+
+      \vspace{0.04cm}
+      \makebox[\linewidth][c]{%
+        \resizebox{0.90\linewidth}{!}{\ThManyRepresentedCase}%
+      }
+
+      {\fontsize{10.2pt}{12.2pt}\selectfont
+        For fixed \(a\), these are \(s-a\) distinct positive integers:
+        \[
+          \begin{aligned}
+            \sum_{b>a}d_k(y_a,y_b)
+            &\ge1+\cdots+(s-a),\\
+            \sum_{a<b}d_k(z_a,z_b)
+            &\ge\binom{s+1}{3}\ge\frac{k^3}{96}.
+          \end{aligned}
+        \]
+      }
+    \end{column}
+    \begin{column}{0.485\textwidth}
+      {\fontsize{11.2pt}{13.2pt}\selectfont\bfseries\color{ThCoral}
+        \(s<k/2\): repeated columns\par}
+
+      \vspace{0.04cm}
+      \makebox[\linewidth][c]{%
+        \resizebox{0.90\linewidth}{!}{\ThRepeatedColumnsCase}%
+      }
+
+      {\fontsize{10.2pt}{12.2pt}\selectfont
+        At least \(k-s>k/2\) packet pairs share a column.
+        Each has distance \(k^2\):
+        \[
+          \sum_{a<b}d_k(z_a,z_b)
+          >\frac{k}{2}\,k^2.
+        \]
+      }
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: a priori lower bound}
+    \vspace{0.30cm}
+  \makebox[\linewidth][c]{%
+    \resizebox{0.65\linewidth}{!}{\ThPacketShortcutEvent}%
+  }
+
+  For \(a<b\) in one packet, the shortcut \(z_a\to z_b\) is realised when
+  both endpoints are active and every intervening vertex is inactive.
+  \[
+    \Pr[z_a\!\to z_b\text{ used}]
+    =p^2(1-p)^{b-a-1}
+    \ge\frac{1}{4k^2},
+    \qquad p=\frac1k.
+  \]
+  \vspace{0.18cm}
+  \[
+    \E[\text{one packet's contribution}]
+    \ge\frac{1}{4k^2}\cdot\frac{k^3}{96}=\frac{k}{384},
+    \;
+    \optprior\ge k^2\cdot\frac{k}{384}=\frac{k^3}{384}.
+  \]
+  % \vspace{-0.16cm}
+  %   \[
+  %     \operatorname{AG}(n)
+  %     \ge\operatorname{AG}(k^3)
+  %     \ge\frac{\optprior}{\optadapt}
+  %     =\Omega\!\left(\frac{k}{\log k}\right)
+  %     =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
+  %   \]
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: ratio}
+  Combining the two bounds, with \(n=k^3\), gives
+  \[
+    \operatorname{AG}(n)
+    \ge \frac{\optprior}{\optadapt}
+    =\Omega\!\left(\frac{k^3}{k^2\log k}\right)
+    =\Omega\!\left(\frac{k}{\log k}\right)
+    =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
+  \]
+  \thsource{Adapted from Thesis, Theorem 7.1}
+\end{frame}
+
+% ===========================================================================
+% Clairvoyance gap
+% ===========================================================================
+\section{Clairvoyance gap}
+
+\begin{frame}{Symmetric clairvoyance gap}
+  \ThGapProgressTable{3}
+  \thsource{Thesis, Theorem 4.6; Shmoys--Talwar}
+\end{frame}
+
+\begin{frame}{Symmetric clairvoyance gap: construction}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.62\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\ThThreeChain}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+      \vspace{0.32cm}
+      Three always-active chains \(A,B,C\), each of length \(H=2m\).
+
+      \vspace{0.26cm}
+      The only semi-active vertex is \(s\), with \(p_s=1/2\).
+
+      \vspace{0.26cm}
+      Cross-chain lengths:
+      \[
+        U=3m+2,\qquad P=4m.
+      \]
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Section 4.1}
+\end{frame}
+
+\begin{frame}{Symmetric clairvoyance gap: realizations}
+  \centering
+  \resizebox{0.92\linewidth}{!}{\ThOrderConflict}
+
+  \vspace{0.32cm}
+  \thresult[ThBlue]{The posterior solution sees the realization and chooses the
+  cheaper order; an adaptive policy has a common prefix before probing \(s\).}
+  \thsource{Thesis, Section 4.1}
+\end{frame}
+
+\begin{frame}{Symmetric clairvoyance gap: lower bound}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.51\textwidth}
+      \begin{thtightitemize}
+        \item Before probing \(s\), both executions traverse the same edges.
+        \item Any sufficiently cheap inactive execution needs the \(A,B,C\)
+          crossing pattern.
+        \item Any sufficiently cheap active execution needs the incompatible
+          \(A,C,s,B\) pattern.
+      \end{thtightitemize}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \vspace{0.05cm}
+      \small
+      \[
+        \begin{aligned}
+          \optpost  &=18m+4,\\
+          \optadapt &=20m+4.
+        \end{aligned}
+      \]
+      \[
+        \frac{\optadapt}{\optpost}
+        =\frac{20m+4}{18m+4}
+        \longrightarrow
+        \color{ThTeal}\frac{10}{9}.
+      \]
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap}
+  \ThGapProgressTable{4}
+  \thsource{Thesis, Theorem 5.5 and Corollary 6.2}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: lower bound}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \resizebox{0.98\linewidth}{!}{\ThLayeredStage}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \raggedright
+      {\bfseries\color{ThTeal}A posteriori}\par
+      \smallskip
+      \small
+      Reveal the realization first, then choose two compatible traversals.
+      \[
+        \textcolor{ThTeal}{\le 2+o(1)}
+      \]
+
+      \medskip
+      {\bfseries\color{ThCoral}Adaptive}\par
+      \smallskip
+      The policy chooses too early. A bad pair forces a third wraparound.
+      \[
+        \textcolor{ThCoral}{\ge 3-o(1)}
+      \]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================================================================
+% Asymmetric upper bound
+% ===========================================================================
+\section{An asymmetric adaptive policy}
+
+\begin{frame}{Asymmetric clairvoyance gap: upper-bound challenge}
+  \centering
+  \resizebox{0.81\linewidth}{!}{\ThDetourComparison}
+
+  \vspace{0.10cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \small In a symmetric metric, a round-trip attachment costs at most twice
+      the nearest-backbone distance.
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \small In an asymmetric cyclic grid, returning to the same anchor can cost
+      a full revolution per active outside vertex.
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Chapter 6 introduction}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: sampled backbone}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \centering
+      \resizebox{0.82\linewidth}{!}{\ThSampledBackboneCycle}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \small
+      Fix \(W\subseteq V^\circ\), the non-root vertices of this subinstance.
+      Independently of the actual active set, sample
+      \[
+        S\subseteq W,\qquad \Pp(v\in S)=p_v.
+      \]
+      Vertices with \(p_v=0\) may first be deleted. Set
+      \[
+        R=S\cup\{r\}\quad\text{and}\quad U=W\setminus S.
+      \]
+
+      An optimal tour \(T_R\) on \(R\) is the sampled backbone. Its cyclic
+      order defines the backbone edges and cyclic intervals.
+    \end{column}
+  \end{columns}
+
+  \centering
+  \[
+    \optpost(W):=\E[\OPT(A\cap W)]
+    =\E_S[\cost(T_R)].
+  \]
+  \thsource{Thesis, Section 6.1}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: circulation}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \resizebox{0.82\linewidth}{!}{\ThCirculationRelaxation}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \footnotesize
+      A detour \(a\to i\to b\) avoids returning to \(a\), but choosing
+      \(a,b\) separately can leave surplus flow at one backbone vertex and a
+      deficit at another.
+
+      \smallskip
+      A closed traversal needs equal incoming and outgoing flow at every
+      vertex. Thus, for fixed \(S\), seek \(z^S\ge0\):
+      \[
+        \begin{aligned}
+          z^S(\delta^+(v))&=z^S(\delta^-(v)) &&\forall v,\\[0.14cm]
+          z^S(\delta^+(i))&=z^S(\delta^-(i))=p_i
+            &&\forall i\in U,\\[0.14cm]
+          z^S_{ij}&=0 &&\forall i,j\in U.
+        \end{aligned}
+      \]
+    \end{column}
+  \end{columns}
+
+  \vspace{0.10cm}
+  \begin{center}
+    \small Equal incoming and outgoing flow is exactly the circulation
+    condition. The \(p_i\) units through \(i\) pair into detours
+    \(a\to i\to b\); after collapse to \(a\to b\), the backbone remains
+    balanced.
+  \end{center}
+  \thsource{Thesis, Section 6.1}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: feasibility}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \centering
+      \resizebox{0.89\linewidth}{!}{\ThLongestRunWitness}
+    \end{column}
+    \begin{column}{0.09\textwidth}
+      \centering
+      \ThTransformArrow
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \centering
+      \resizebox{0.89\linewidth}{!}{\ThParallelDetours}
+    \end{column}
+  \end{columns}
+
+  {\normalfont\footnotesize
+    Sample \(\widetilde A\), set \(C=S\cup\widetilde A\), and cut an optimal
+    \(T_C\) at backbone vertices. For a segment with \(k_j\) outside vertices,
+    use one detour through each and \(M-k_j\) direct copies, where
+    \(M:=\max_j k_j\). Every segment now carries \(M\) units.
+  }
+
+  \[
+    \underbrace{1\text{ in}=1\text{ out}}_{u_{j,\ell}\in\widetilde A\setminus S}
+    \qquad
+    \underbrace{M\text{ in}=M\text{ out}}_{s_j\in R}
+    \quad\Longrightarrow\quad
+    z^{\widetilde A,S}\text{ is a circulation.}
+  \]
+
+  {\normalfont\footnotesize
+    No \(U\to U\) flow arcs occur. Averaging gives
+    \(z^S(\delta^\pm(i))=p_i\), so \(z^S\) is feasible for
+    \(\mathrm{CIRC}(S)\).
+  }
+  \thsource{Thesis, Section 6.1}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: circulation cost}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.51\textwidth}
+      \centering
+      \resizebox{0.96\linewidth}{!}{\ThSegmentPadding}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \small
+      By the triangle inequality, every detour and every direct copy for
+      \(P_j\) costs at most the length of \(P_j\). Thus \(P_j\) contributes
+      at most \(M\) times its original length, and
+      \[
+        \cost(z^{\widetilde A,S})\le M\,\OPT(C).
+      \]
+    \end{column}
+  \end{columns}
+
+  \smallskip
+  \small Conditioned on \(C\), every vertex independently lies outside the
+  backbone with probability at most \(1/2\). Therefore
+  \[
+    \Pp(M\ge t\mid C)\le n2^{-t},
+    \qquad
+    \E[M\mid C]=O(\log n).
+  \]
+  Averaging the cost and using \(\E[\OPT(C)]\le 2\optpost(W)\) gives
+  \[
+    \E_S[\cost(z^S)]=O(\log n)\,\optpost(W).
+  \]
+  \thsource{Thesis, Theorem 6.5}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: joint rounding}
+  \centering
+  \small Couple \(z^S\) into detour weights \(x_{i,ab}\), and let
+  \(y_{ab}:=z^S_{ab}\) be its backbone-only flow. Then
+  \(\sum_{a,b}x_{i,ab}=p_i\) for every outside vertex \(i\).
+
+  \resizebox{0.78\linewidth}{!}{\ThJointRounding}
+
+  \begin{itemize}\small\setlength{\itemsep}{0.42em}
+    \item Jointly select one endpoint pair \((a_i,b_i)\) for each outside
+      vertex and round \(y_{ab}\) to integral multiplicities \(N_{ab}\) of
+      auxiliary chords.
+    \item Everything is fixed before the actual activations. Rounding the two
+      families separately could create large interval imbalance.
+  \end{itemize}
+  \thsource{Thesis, Sections 6.2--6.3}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: rounding guarantee}
+  \centering
+  \resizebox{0.60\linewidth}{!}{\ThIntervalImbalance}
+
+  {\footnotesize
+    For a cyclic interval \(I\), let \(\chi_I(a,b)=+1\) when the chord
+    \(a\to b\) leaves \(I\), and \(-1\) when it enters. Define
+    \[
+      \Delta_\rho(I):=
+      \sum_{i\in U}p_i\chi_I(a_i,b_i)
+      +\sum_{a,b\in R}N_{ab}\chi_I(a,b).
+    \]
+    Joint rounding guarantees, simultaneously,
+    \[
+      |\Delta_\rho(I)|=O(\log^2 n)\quad\forall I
+      \quad\text{in every outcome},
+    \]
+    \[
+      \E_\rho[\text{activation-weighted rounded cost}]=\cost(z^S).
+    \]
+  }
+  \thsource{Thesis, Lemma 6.6}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: rounding argument}
+  \centering
+  \resizebox{0.70\linewidth}{!}{\ThDyadicRounding}
+
+  \begin{itemize}\small\setlength{\itemsep}{0.30em}
+    \item Keep every outside-vertex equation. Retain a dyadic interval
+      equation only while at least \(L=\Theta(\log n)\) touching variables
+      remain unfixed.
+    \item Fewer constraints than variables leave a feasible direction. An
+      unbiased move to a boundary point preserves expectations and fixes at
+      least one more variable.
+  \end{itemize}
+
+  {\small
+    \[
+      \text{dyadic error }O(\log n)
+      \ \times\ O(\log n)\text{ pieces}
+      \ =\ O(\log^2 n).
+    \]
+  }
+  \thsource{Thesis, Lemma 6.6}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: adaptive policy}
+  \centering
+  \resizebox{0.91\linewidth}{!}{\ThAdaptiveChordWalk}
+
+  \vspace{0.08cm}
+  \begin{itemize}\setlength{\itemsep}{0.44em}
+    \item At a backbone vertex \(a\), probe the outside vertices assigned
+      tail \(a\), one at a time.
+    \item After that list is exhausted, the virtual pointer takes an unused
+      auxiliary chord leaving \(a\), if one remains; otherwise it takes the
+      next backbone edge.
+  \end{itemize}
+  \centering
+  The virtual walk treats \(R\) as active. On its first encounter with a
+  sampled backbone vertex, probe it; if it is inactive, the physical route
+  shortcuts it.
+  \thsource{Thesis, Section 6.4}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: activation noise}
+  \centering
+  \resizebox{0.66\linewidth}{!}{\ThIntervalImbalance}
+
+  {\footnotesize
+    Let \(W_\tau=\{v:p_v<\tau\}\), \(U=W_\tau\setminus S\), and
+    \(\mu=\sum_{i\in W_\tau}p_i\). Let \(F(A)\) contain every auxiliary chord
+    and the assigned chord \(a_i\to b_i\) for each active \(i\in A\cap U\).
+    For every cyclic interval \(I\),
+    \[
+      \sum_{f\in F(A)}\chi_I(f)
+      =\underbrace{\Delta_\rho(I)}_{O(\log^2 n)}
+      +\underbrace{\sum_{i\in U}
+        (\mathbf 1_{\{i\in A\}}-p_i)\chi_I(a_i,b_i)}_{\text{activation noise}}.
+    \]
+    A maximal partial-sum bound controls all cyclic intervals at once:
+    \[
+      \E_A\max_I
+        \left|\sum_{i\in U}(\mathbf 1_{\{i\in A\}}-p_i)
+          \chi_I(a_i,b_i)\right|
+      =O(\sqrt\mu).
+    \]
+  }
+  \thsource{Thesis, Lemma 6.9}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: policy cost}
+  \centering
+  \resizebox{0.58\linewidth}{!}{\ThImbalanceToMultiplicity}
+
+  {\footnotesize
+    For the two boundary edges \(e,e'\) of \(I\), flow balance gives
+    \[
+      |c_e-c_{e'}|
+      =\left|\sum_{f\in F(A)}\chi_I(f)\right|,
+      \qquad
+      \Lambda(F(A)):=1+\max_I\left|\sum_{f\in F(A)}\chi_I(f)\right|.
+    \]
+    The virtual walk uses every chord once and every backbone edge at most
+    \(\Lambda(F(A))\) times. After averaging over activations, \(S\), and the
+    rounding outcome \(\rho\), the two cost contributions \emph{add}:
+    \[
+      \begin{aligned}
+        \text{detours and auxiliary chords}
+          &\lesssim \log n\,\optpost(W_\tau),\\
+        \text{repeated backbone edges}
+          &\lesssim (\log^2 n+\sqrt\mu)\optpost(W_\tau).
+      \end{aligned}
+    \]
+    Averaging therefore fixes some \((S,\rho)\) with
+    \(\cost(\pi_\tau^{S,\rho})
+      =O(\!\log^2 n+\sqrt\mu\!)\optpost(W_\tau)\).
+  }
+  \thsource{Thesis, Lemmas 6.8--6.9}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: upper bound}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \small
+      \theyebrow{rare vertices}
+      \[
+        \begin{aligned}
+          W_\tau&=\{v:p_v<\tau\},\\
+          \mu&=\sum_{v\in W_\tau}p_v\le n\tau.
+        \end{aligned}
+      \]
+      The circulation policy costs
+      \[
+        O\!\left(\log^2 n+\sqrt{n\tau}\right)\optpost(W_\tau).
+      \]
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \small
+      \theyebrow{high-probability vertices}
+      \[
+        H=\{v:p_v\ge\tau\}.
+      \]
+      A fixed-tour policy costs
+      \[
+        O(1/\tau)\optpost(H).
+      \]
+    \end{column}
+  \end{columns}
+
+  \vspace{0.12cm}
+  \centering
+  Concatenate the two rooted policies and choose \(\tau=n^{-1/3}\):
+  \[
+    \cost(\pi)=O(n^{1/3})\optpost,
+    \qquad
+    \operatorname{CG}(n)=O(n^{1/3}).
+  \]
+  \smallskip
+  \thpill[ThCoral]{existence result; no polynomial-time claim}
+  \thsource{Thesis, Theorem 6.1}
+\end{frame}
+
+% ===========================================================================
+% A priori algorithm
+% ===========================================================================
+\section{Almost-optimal a priori tours}
+
+\begin{frame}{A priori approximation}
+  \centering
+  Let \(C_{\mathrm{ALG}}\) denote the expected cost of the returned
+  a priori tour.
+
+  \vspace{0.08cm}
+  {\fontsize{9.6pt}{11.3pt}\selectfont
+  \renewcommand{\arraystretch}{1.08}
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.05cm}
+                      >{\centering\arraybackslash}p{2.25cm}
+                      >{\raggedright\arraybackslash}p{5.45cm}@{}}
+    \toprule
+     & Compared with & Guarantee \\
+    \midrule
+    Shmoys--Talwar (2008) \hfill symmetric
+      & \(\optpost\)
+      & \(C_{\mathrm{ALG}}/\optpost\le4\) randomized;
+        \(\le8\) deterministic \\
+    \cmidrule(lr){1-3}
+    van Zuylen (2011) \hfill symmetric
+      & \(\optprior\)
+      & \(C_{\mathrm{ALG}}/\optprior\le6.5\) deterministic \\
+    \cmidrule(lr){1-3}
+    Blauth et al. (2024) \hfill symmetric
+      & \(\optprior\)
+      & \(C_{\mathrm{ALG}}/\optprior<3.1\) randomized;
+        \(<5.9\) deterministic \\
+    \cmidrule(lr){1-3}
+    Christalla et al. (2025) \hfill asymmetric
+      & \(\optprior\)
+      & \(C_{\mathrm{ALG}}/\optprior=O(\log^8 n)\), randomized
+        quasipolynomial time \\
+    \cmidrule(lr){1-3}
+    \shortstack[l]{\textcolor{ThResultBlue}{\bfseries This thesis}\\
+      symmetric and asymmetric}
+      & \textcolor{ThResultBlue}{\(\optprior\)}
+      & \thgapbox[minimum width=5.18cm,minimum height=1.02cm,%
+          text width=4.88cm,align=left,draw=ThResultBlue,%
+          fill=ThResultBlue!10,line width=1.4pt]{\textcolor{ThResultBlue}{%
+          \(\boldsymbol{C_{\mathrm{ALG}}/\optprior\le1+\varepsilon}\);\\
+          deterministic, \(\boldsymbol{c_\varepsilon^n\poly(n)}\) time}} \\
+    \bottomrule
+  \end{tabular}}
+  \thsource{Thesis, Theorem 8.5}
+\end{frame}
+
+\begin{frame}{A priori approximation: compressed dynamic program}
+  \centering
+  \resizebox{0.58\linewidth}{!}{\ThDPBlocks}
+
+  \begin{itemize}\small\setlength{\itemsep}{0.34em}
+    \item Truncate negligible shortcut contributions and group light vertices
+      into low-activation-mass blocks.
+    \item The dynamic program remembers only the relevant suffix and one
+      boundary block.
+  \end{itemize}
+
+  \centering
+  {\small
+    \[
+      \cost(\widehat T)\le(1+\varepsilon)\optprior,
+      \qquad
+      \text{time }c_\varepsilon^n\poly(n).
+    \]
+    Deterministic for symmetric and asymmetric metrics.
+  }
+  \thsource{Thesis, Theorem 8.5}
+\end{frame}
+
+% ===========================================================================
+% Closing
+% ===========================================================================
+\section{Takeaway}
+
+\begin{frame}{Takeaways}
+  \centering
+  \theyebrow{worst-case gaps}
+
+  \vspace{0.08cm}
+  \renewcommand{\arraystretch}{1.52}
+  \setlength{\tabcolsep}{12pt}
+  \begin{tabular}{>{\bfseries}lcc}
+    \toprule
+    Metric & \(\optprior/\optadapt\) & \(\optadapt/\optpost\) \\
+    \midrule
+    Symmetric
+      & \(2\le\operatorname{AG}\le3\)
+      & \(10/9\le\operatorname{CG}\le3\) \\
+    \cmidrule(lr){1-3}
+    Asymmetric
+      & \(\displaystyle
+          \Omega(\frac{n^{1/3}}{\log n})
+          \le \operatorname{AG}
+          \le O(\sqrt n)\)
+      & \(\displaystyle
+          \frac32
+          \le \operatorname{CG}
+          \le O(n^{1/3})\) \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Open questions: gap bounds}
+  \begin{itemize}
+    \setlength{\itemsep}{0.82em}
+    \item \textbf{Symmetric clairvoyance gap.}
+      What is its exact supremum?
+    \item \textbf{Symmetric adaptivity gap.}
+      Is it exactly \(2\), or can it be larger?
+    \item \textbf{Asymmetric adaptivity gap.}
+      Can the lower bound \(\Omega(n^{1/3}/\log n)\) or the upper bound
+      \(O(\sqrt n)\) be improved?
+    \item \textbf{Asymmetric clairvoyance gap.}
+      Is it bounded by a constant, or must it grow with~\(n\)?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Open questions: algorithms}
+  \begin{itemize}
+    \setlength{\itemsep}{1.18em}
+    \item \textbf{Exact algorithms for a priori TSP.}
+      Can exact optimization beat enumeration of the \(n!\) orders in
+      \mbox{\(2^{o(n\log n)}\) time}? More strongly, is there an exact
+      \mbox{\(c^n\poly(n)\)-time algorithm} for some constant~\(c\)?
+    \item \textbf{Adaptive algorithms for asymmetric stochastic TSP.}
+      Can one compute in polynomial time an adaptive policy~\(\pi\) with
+      \(\cost(\pi)\le\operatorname{polylog}(n)\cdot\optpost\)?
+  \end{itemize}
+\end{frame}
+
+% ===========================================================================
+% Backup
+% ===========================================================================
+\appendix
+\section{Backup}
+
+\begin{frame}{Backup: Adaptive DP function}
+  Let \(J(u,S)\) be the optimal expected remaining cost from current position
+  \(u\) with unprobed set \(S\). Then
+  \[
+    J(u,S)
+    =\min_{v\in S}
+      \left[
+        (1-p_v)J(u,S\setminus\{v\})
+        +p_v\bigl(d(u,v)+J(v,S\setminus\{v\})\bigr)
+      \right],
+  \]
+  with \(J(u,\varnothing)=d(u,r)\).
+
+  \vspace{0.35cm}
+  The state contains only the current position and the set of unprobed
+  vertices. 
+\end{frame}
+
+\begin{frame}{Backup: factor-two symmetric adaptivity lower bound}
+  \small Fix \(T=(r,v_1,\ldots,v_n,r)\) and write \(q=1-p\). The shortcut
+  coefficients are
+  \[
+    \alpha_i=p\bigl(q^{i-1}+q^{n-i}\bigr)
+    \quad\text{for }\{r,v_i\},
+    \qquad
+    \beta_{ij}=p^2q^{j-i-1}
+    \quad\text{for }\{v_i,v_j\}.
+  \]
+  They satisfy
+  \[
+    \sum_e c_e(T)=W,
+    \qquad
+    \sum_e c_e(T)^2\le2np^3.
+  \]
+  For \(D(e)=2-X_e\) with independent
+  \(X_e\sim\operatorname{Bernoulli}(\theta)\), weighted Hoeffding gives
+  \[
+    \Pp_D\!\left[
+      C_D(T)\le\left(2-\frac{2}{\log n}\right)W
+    \right]
+    \le e^{-n(\log n)^2}.
+  \]
+  Hence the probability that \emph{some} fixed order is cheaper is at most
+  \[
+    n!e^{-n(\log n)^2}=o(1).
+  \]
+  \thsource{Thesis, Lemmas 3.9--3.11}
+\end{frame}
+
+\begin{frame}{Backup: the backbone circulation LP}
+  For a sampled backbone \(R\) and outside set \(U\), the circulation sends
+  \(p_i\) units through every \(i\in U\):
+  \[
+    \begin{aligned}
+      \min\quad &\sum_{a,b\in R\cup U} d(a,b)z_{ab}\\
+      \text{s.t.}\quad
+      &\sum_b z_{vb}=\sum_a z_{av} &&\forall v,\\
+      &\sum_a z_{ai}=\sum_b z_{ib}=p_i &&\forall i\in U,\\
+      &z_{ij}=0 &&\forall i,j\in U,\\
+      &z_{ab}\ge0 &&\forall a,b.
+    \end{aligned}
+  \]
+  Flow through \(i\) is coupled into a distribution over detours
+  \(a\to i\to b\).
+  \thsource{Thesis, Section 6.1}
+\end{frame}
+
+\begin{frame}{Backup: cyclic-interval discrepancy}
+  \small
+  Joint rounding selects one pair per outside vertex and preserves expected
+  cost.
+  \medskip
+
+  For a cyclic interval \(I\) of the backbone tour, define
+  \(\chi_I(a,b):=\mathbf 1_{\{a\in I\}}-\mathbf 1_{\{b\in I\}}\).
+  \par\smallskip
+  It equals \(+1\) when the chord \(a\to b\) leaves \(I\), \(-1\) when it
+  enters, and \(0\) when \(a,b\) lie on \mbox{the same side of~\(I\)}.
+  \par\smallskip
+  Joint rounding guarantees
+  \[
+    \left|
+      \sum_{i\in U}p_i\chi_I(a_i,b_i)
+      +\sum_{a,b\in R}N_{ab}\chi_I(a,b)
+    \right|
+    =O(\log^2 n).
+  \]
+\end{frame}
+
+\end{document}
