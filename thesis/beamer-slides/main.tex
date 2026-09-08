@@ -247,6 +247,10 @@
 
 \begin{frame}{A posteriori}
   \centering
+  {\small\bfseries
+    \makebox[0.41\linewidth]{Active set revealed}%
+    \makebox[0.41\linewidth]{\textcolor{ThTeal}{Best tour for this active set}}\par}
+  \smallskip
   \resizebox{0.82\linewidth}{!}{\ThPosterioriExample}
 
   \medskip
@@ -260,6 +264,10 @@
 
 \begin{frame}{A priori}
   \centering
+  {\small\bfseries\color{ThTeal}
+    \makebox[0.41\linewidth]{Fixed order \(T\)}%
+    \makebox[0.41\linewidth]{Realized shortcut \(T\vert_A\)}\par}
+  \smallskip
   \resizebox{0.82\linewidth}{!}{\ThPrioriExample}
 
   \medskip
@@ -273,7 +281,15 @@
 
 \begin{frame}{Adaptive}
   \centering
+  {\small\bfseries
+    \makebox[0.41\linewidth]{\textcolor{ThTeal}{\(v\) is active}}%
+    \makebox[0.41\linewidth]{\textcolor{ThMuted}{\(v\) is inactive}}\par}
+  \smallskip
   \resizebox{0.82\linewidth}{!}{\ThProbeRealizations}
+  \par\smallskip
+  {\small\bfseries
+    \makebox[0.41\linewidth]{\textcolor{ThTeal}{Visit \(v\) immediately}}%
+    \makebox[0.41\linewidth]{\textcolor{ThMuted}{Remain at \(u\)}}\par}
 
   \medskip
   A policy \(\pi\) chooses the next probe from earlier outcomes and has
@@ -326,6 +342,10 @@
 
 \begin{frame}{Asymmetric \(\optpost\) v.s.\ \(\optadapt\)}
   \centering
+  {\small\bfseries
+    \makebox[0.38\linewidth]{\textcolor{ThMuted}{\(d\) inactive}}%
+    \makebox[0.38\linewidth]{\textcolor{ThTeal}{\(d\) active}}\par}
+  \smallskip
   \resizebox{0.76\linewidth}{!}{\ThAsymFourVertexOutcomes}
 
   \vspace{0.10cm}
@@ -361,6 +381,10 @@
 
 \begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
   \centering
+  {\small\bfseries
+    \makebox[0.45\linewidth]{\textcolor{ThMuted}{\(s\) inactive}}%
+    \makebox[0.45\linewidth]{\textcolor{ThTeal}{\(s\) active}}\par}
+  \smallskip
   \resizebox{0.90\linewidth}{!}{\ThKFourOutcomes}
 
   \vspace{0.05cm}
@@ -459,7 +483,15 @@
 
 \begin{frame}{Symmetric adaptivity gap: random-metric toy example}
   \centering
+  {\small\bfseries
+    \makebox[0.43\linewidth]{\(D_1\), probability \(1/2\)}%
+    \makebox[0.43\linewidth]{\(D_2\), probability \(1/2\)}\par}
+  \smallskip
   \resizebox{0.86\linewidth}{!}{\ThRandomMetricToy}
+  \par\smallskip
+  {\small\color{ThTeal}
+    \makebox[0.43\linewidth]{Best tour: \(r,a,b,c,r\), cost \(4\)}%
+    \makebox[0.43\linewidth]{Best tour: \(r,a,c,b,r\), cost \(4\)}\par}
 
   \medskip
    Teal edges have distance \(1\); dashed edges have distance \(2\). 
@@ -550,6 +582,8 @@
 
 \begin{frame}{Symmetric adaptivity gap: factor-two lower bound}
   \centering
+  {\small\bfseries Space of sampled metrics \(D\)\par}
+  \smallskip
   \resizebox{0.76\linewidth}{!}{\ThGoodMetricIntersection}
 
   \medskip
@@ -564,6 +598,8 @@
   \begin{columns}[c,onlytextwidth]
     \begin{column}{0.43\textwidth}
       \centering
+      {\small\color{ThBlue}Sampled tour \(T_R\)\par}
+      \smallskip
       \resizebox{0.96\linewidth}{!}{\ThSampledBackbone}
     \end{column}
     \begin{column}{0.53\textwidth}
@@ -588,6 +624,8 @@
   \begin{columns}[c,onlytextwidth]
     \begin{column}{0.43\textwidth}
       \centering
+      {\small\color{ThBlue}Sampled tour \(T_R\)\par}
+      \smallskip
       \resizebox{0.96\linewidth}{!}{\ThSampledBackbone}
     \end{column}
     \begin{column}{0.53\textwidth}
@@ -879,7 +917,15 @@ Therefore \(\optadapt=O(k^2\log k)\).
 
 \begin{frame}{Symmetric clairvoyance gap: realizations}
   \centering
+  {\small\bfseries
+    \makebox[0.46\linewidth]{\textcolor{ThTeal}{\(s\) inactive}}%
+    \makebox[0.46\linewidth]{\textcolor{ThCoral}{\(s\) active}}\par}
+  \smallskip
   \resizebox{0.92\linewidth}{!}{\ThOrderConflict}
+  \par\smallskip
+  {\small
+    \makebox[0.46\linewidth]{\textcolor{ThTeal}{Order \(A,B,C\)}}%
+    \makebox[0.46\linewidth]{\textcolor{ThCoral}{Order \(A,C,s,B\)}}\par}
 
   \vspace{0.32cm}
   \thresult[ThBlue]{The posterior solution sees the realization and chooses the
@@ -956,18 +1002,35 @@ Therefore \(\optadapt=O(k^2\log k)\).
 \section{An asymmetric adaptive policy}
 
 \begin{frame}{Asymmetric clairvoyance gap: upper-bound challenge}
-  \centering
-  \resizebox{0.81\linewidth}{!}{\ThDetourComparison}
-
-  \vspace{0.10cm}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.47\textwidth}
-      \small In a symmetric metric, a round-trip attachment costs at most twice
+      \centering
+      {\small\bfseries\color{ThCoral}Same-anchor attachment}\par
+      \smallskip
+      \resizebox{0.88\linewidth}{!}{\ThSameAnchorAttachment}
+
+      \medskip
+      \raggedright
+      In a symmetric metric, a round-trip costs twice as much as
       the nearest-backbone distance.
+
+      \smallskip
+      In an asymmetric cyclic grid, returning to the same anchor can cost
+      a full revolution per active outside vertex.
     \end{column}
     \begin{column}{0.47\textwidth}
-      \small In an asymmetric cyclic grid, returning to the same anchor can cost
-      a full revolution per active outside vertex.
+      \centering
+      {\small\bfseries\color{ThTeal}Two-endpoint detour}\par
+      \smallskip
+      \resizebox{0.88\linewidth}{!}{\ThTwoEndpointDetour}
+      \medskip
+
+      We instead consider two-endpoint detour where every outside vertex $i$ is
+      assigned with two endpoints $a, b$.
+
+      \smallskip
+      In this case we need to balance the in- and out-degree of backbone vertices.
+      \raggedright
     \end{column}
   \end{columns}
   \thsource{Thesis, Chapter 6 introduction}
@@ -981,7 +1044,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
     \end{column}
     \begin{column}{0.46\textwidth}
       \small
-      Fix \(W\subseteq V^\circ\), the non-root vertices of this subinstance.
+      Fix \(W\subseteq V^\circ\), the non-root vertices of a subinstance.
       Independently of the actual active set, sample
       \[
         S\subseteq W,\qquad \Pp(v\in S)=p_v.
@@ -991,32 +1054,26 @@ Therefore \(\optadapt=O(k^2\log k)\).
         R=S\cup\{r\}\quad\text{and}\quad U=W\setminus S.
       \]
 
-      An optimal tour \(T_R\) on \(R\) is the sampled backbone. Its cyclic
-      order defines the backbone edges and cyclic intervals.
+      Call an optimal tour \(T_R\) on \(R\) to be sampled backbone. Its cyclic
+      order defines the backbone edges.
     \end{column}
   \end{columns}
 
   \centering
   \[
     \optpost(W):=\E[\OPT(A\cap W)]
-    =\E_S[\cost(T_R)].
+    =\E_R[\cost(T_R)].
   \]
-  \thsource{Thesis, Section 6.1}
 \end{frame}
 
 \begin{frame}{Asymmetric clairvoyance gap: circulation}
   \begin{columns}[c,onlytextwidth]
-    \begin{column}{0.46\textwidth}
+    \begin{column}{0.52\textwidth}
       \centering
       \resizebox{0.82\linewidth}{!}{\ThCirculationRelaxation}
     \end{column}
     \begin{column}{0.50\textwidth}
       \footnotesize
-      A detour \(a\to i\to b\) avoids returning to \(a\), but choosing
-      \(a,b\) separately can leave surplus flow at one backbone vertex and a
-      deficit at another.
-
-      \smallskip
       A closed traversal needs equal incoming and outgoing flow at every
       vertex. Thus, for fixed \(S\), seek \(z^S\ge0\):
       \[
@@ -1030,155 +1087,198 @@ Therefore \(\optadapt=O(k^2\log k)\).
     \end{column}
   \end{columns}
 
-  \vspace{0.10cm}
-  \begin{center}
-    \small Equal incoming and outgoing flow is exactly the circulation
-    condition. The \(p_i\) units through \(i\) pair into detours
-    \(a\to i\to b\); after collapse to \(a\to b\), the backbone remains
-    balanced.
-  \end{center}
-  \thsource{Thesis, Section 6.1}
 \end{frame}
 
 \begin{frame}{Asymmetric clairvoyance gap: feasibility}
   \begin{columns}[c,onlytextwidth]
     \begin{column}{0.47\textwidth}
       \centering
+      {\footnotesize\textcolor{ThBlue}{Optimal tour \(T_C\)}\par}
+      \smallskip
       \resizebox{0.89\linewidth}{!}{\ThLongestRunWitness}
     \end{column}
-    \begin{column}{0.09\textwidth}
+    \begin{column}{0.11\textwidth}
       \centering
+      {\footnotesize\textcolor{ThInkSoft}{Transform}\par}
       \ThTransformArrow
     \end{column}
     \begin{column}{0.36\textwidth}
       \centering
+      {\footnotesize\textcolor{ThTeal}{Parallel detours for the first run}\par}
+      \smallskip
       \resizebox{0.89\linewidth}{!}{\ThParallelDetours}
     \end{column}
   \end{columns}
 
   {\normalfont\footnotesize
-    Sample \(\widetilde A\), set \(C=S\cup\widetilde A\), and cut an optimal
-    \(T_C\) at backbone vertices. For a segment with \(k_j\) outside vertices,
-    use one detour through each and \(M-k_j\) direct copies, where
-    \(M:=\max_j k_j\). Every segment now carries \(M\) units.
+    Sample \(\widetilde A\) from the same distribution as $A$,  set \(C=S\cup\widetilde A\), and cut an optimal
+    \(T_C\) at backbone vertices (i.e. the vertices in $S$). 
+
+    For a segment with \(k_j\) outside vertices, add one unit of flow 
+    from $s_j$ to all the intermediate outside vertices and then to $s_{j+1}$.
   }
 
-  \[
-    \underbrace{1\text{ in}=1\text{ out}}_{u_{j,\ell}\in\widetilde A\setminus S}
-    \qquad
-    \underbrace{M\text{ in}=M\text{ out}}_{s_j\in R}
-    \quad\Longrightarrow\quad
-    z^{\widetilde A,S}\text{ is a circulation.}
-  \]
+  % \[
+  %   \underbrace{1\text{ in}=1\text{ out}}_{u_{j,\ell}\in\widetilde A\setminus S}
+  %   \qquad
+  %   \underbrace{M\text{ in}=M\text{ out}}_{s_j\in R}
+  %   \quad\Longrightarrow\quad
+  %   z^{\widetilde A,S}\text{ is a circulation.}
+  % \]
 
   {\normalfont\footnotesize
-    No \(U\to U\) flow arcs occur. Averaging gives
-    \(z^S(\delta^\pm(i))=p_i\), so \(z^S\) is feasible for
-    \(\mathrm{CIRC}(S)\).
+    No \(U\to U\) flow arcs occur and averaging gives
+    \(z^S(\delta^\pm(i))=p_i\), so \(z^S\) is feasible.
   }
   \thsource{Thesis, Section 6.1}
 \end{frame}
 
-\begin{frame}{Asymmetric clairvoyance gap: circulation cost}
+\begin{frame}{Asymmetric clairvoyance gap: why a circulation?}
+  \small
+  Pad each segment to \(M:=\max_j k_j\) units;
+  \(k_j\) counts its outside vertices.
+
+  \smallskip
   \begin{columns}[c,onlytextwidth]
-    \begin{column}{0.51\textwidth}
+    \begin{column}{0.40\textwidth}
       \centering
-      \resizebox{0.96\linewidth}{!}{\ThSegmentPadding}
+      {\footnotesize\bfseries One segment \(s_j\to s_{j+1}\)\par}
+      \smallskip
+      \resizebox{0.96\linewidth}{!}{\ThSegmentPadding}\par
+      \smallskip
+      {\footnotesize
+        Outside vertices: \(1\text{ in},1\text{ out}\).\par
+        Backbone vertices: \(M\text{ in},M\text{ out}\).\par}
     \end{column}
-    \begin{column}{0.45\textwidth}
-      \small
-      By the triangle inequality, every detour and every direct copy for
-      \(P_j\) costs at most the length of \(P_j\). Thus \(P_j\) contributes
-      at most \(M\) times its original length, and
-      \[
-        \cost(z^{\widetilde A,S})\le M\,\OPT(C).
-      \]
+    \begin{column}{0.57\textwidth}
+      \centering
+      {\footnotesize\bfseries A complete cycle, \(M=3\)\par}
+      \smallskip
+      \resizebox{0.92\linewidth}{!}{\ThPaddedCirculationCycle}\par
+      {\scriptsize Each arrow carries one unit;
+        \textcolor{ThGold}{dashed arrows} are direct flows.\par}
     \end{column}
   \end{columns}
 
   \smallskip
-  \small Conditioned on \(C\), every vertex independently lies outside the
-  backbone with probability at most \(1/2\). Therefore
+  \centering
+  Flow is balanced at every vertex: \(z^{\widetilde A,S}\) is a circulation.
+  \thsource{Thesis, Section 6.1}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: circulation cost}
+  \normalsize
+  Padding and the asymmetric triangle inequality give
+  \[
+    \cost(z^{\widetilde A,S})\le M\,\OPT(C).
+  \]
+
+  \smallskip
+  Given \(C\), each vertex of \(C\) is outside \(S\) independently with
+  probability at most \(1/2\), so for \(n\ge2\),
   \[
     \Pp(M\ge t\mid C)\le n2^{-t},
-    \qquad
+    \quad\Longrightarrow\quad
     \E[M\mid C]=O(\log n).
   \]
-  Averaging the cost and using \(\E[\OPT(C)]\le 2\optpost(W)\) gives
+
+  \smallskip
+  Averaging over \(C\), with \(\E[\OPT(C)]\le2\optpost(W)\), gives
   \[
-    \E_S[\cost(z^S)]=O(\log n)\,\optpost(W).
+    \E_S[\cost(z^S)]\le O(\log n)\,\optpost(W).
   \]
   \thsource{Thesis, Theorem 6.5}
 \end{frame}
 
 \begin{frame}{Asymmetric clairvoyance gap: joint rounding}
-  \centering
-  \small Couple \(z^S\) into detour weights \(x_{i,ab}\), and let
-  \(y_{ab}:=z^S_{ab}\) be its backbone-only flow. Then
-  \(\sum_{a,b}x_{i,ab}=p_i\) for every outside vertex \(i\).
+  \normalsize
+  The solution discussed above is fractional and cannot be executed as adaptive policy.
+  Thus we want the outside flow either $0$ or $p_i$.
 
-  \resizebox{0.78\linewidth}{!}{\ThJointRounding}
+  \medskip
+  \textbf{Fixed}: already either $0$ or $p_i$ and remain unchanged;
+  \textbf{unfixed}: strictly between $0$ and $p_i$.
 
-  \begin{itemize}\small\setlength{\itemsep}{0.42em}
-    \item Jointly select one endpoint pair \((a_i,b_i)\) for each outside
-      vertex and round \(y_{ab}\) to integral multiplicities \(N_{ab}\) of
-      auxiliary chords.
-    \item Everything is fixed before the actual activations. Rounding the two
-      families separately could create large interval imbalance.
-  \end{itemize}
-  \thsource{Thesis, Sections 6.2--6.3}
+  \smallskip
+  \[
+    \#\,\text{unfixed variables}
+    >\#\,\text{independent equations}.
+  \]
+
+  There will gradually be more equations and less unfixed variables, so we only retain those 
+  equations with at least $\log n$ unfixed variables.
+
+  A nonzero direction preserves those fixed equations.
+  Randomize between its two boundary moves to preserve expectations,
+  freeze another variable, and repeat.
+  \thsource{Thesis, Section 6.3, proof of Lemma 6.6}
 \end{frame}
 
-\begin{frame}{Asymmetric clairvoyance gap: rounding guarantee}
-  \centering
-  \resizebox{0.60\linewidth}{!}{\ThIntervalImbalance}
-
-  {\footnotesize
-    For a cyclic interval \(I\), let \(\chi_I(a,b)=+1\) when the chord
-    \(a\to b\) leaves \(I\), and \(-1\) when it enters. Define
-    \[
-      \Delta_\rho(I):=
-      \sum_{i\in U}p_i\chi_I(a_i,b_i)
-      +\sum_{a,b\in R}N_{ab}\chi_I(a,b).
-    \]
-    Joint rounding guarantees, simultaneously,
-    \[
-      |\Delta_\rho(I)|=O(\log^2 n)\quad\forall I
-      \quad\text{in every outcome},
-    \]
-    \[
-      \E_\rho[\text{activation-weighted rounded cost}]=\cost(z^S).
-    \]
-  }
-  \thsource{Thesis, Lemma 6.6}
-\end{frame}
-
-\begin{frame}{Asymmetric clairvoyance gap: rounding argument}
+\begin{frame}{Asymmetric clairvoyance gap: joint rounding}
   \centering
   \resizebox{0.70\linewidth}{!}{\ThDyadicRounding}
 
-  \begin{itemize}\small\setlength{\itemsep}{0.30em}
-    \item Keep every outside-vertex equation. Retain a dyadic interval
-      equation only while at least \(L=\Theta(\log n)\) touching variables
-      remain unfixed.
-    \item Fewer constraints than variables leave a feasible direction. An
-      unbiased move to a boundary point preserves expectations and fixes at
-      least one more variable.
+  \begin{itemize}\small\setlength{\itemsep}{0.85em}
+    \item Each dyadic interval stays balanced while its constraint is retained;
+      once discarded, only \(O(\log n)\) touching variables remain unfixed,
+      each moving by at most \(1\), so its final imbalance is \(O(\log n)\).
+    \item Every cyclic interval splits into \(O(\log n)\) disjoint dyadic
+      intervals, so its total imbalance is \(O(\log^2 n)\).
   \end{itemize}
-
-  {\small
-    \[
-      \text{dyadic error }O(\log n)
-      \ \times\ O(\log n)\text{ pieces}
-      \ =\ O(\log^2 n).
-    \]
-  }
   \thsource{Thesis, Lemma 6.6}
 \end{frame}
 
+\begin{frame}{Asymmetric clairvoyance gap: joint rounding}
+  \small
+  For a cyclic interval \(I\), let \(\chi_I(a,b)\) be \(+1\) when the chord
+  \(a\to b\) leaves \(I\), \(-1\) when it enters, and \(0\) otherwise.
+  The rounded imbalance is
+  \[
+    \Delta_\rho(I):=
+    \sum_{i\in U}p_i\chi_I(a_i,b_i)
+    +\sum_{a,b\in R}N_{ab}\chi_I(a,b).
+  \]
+
+  \smallskip
+  Joint rounding guarantees, in every outcome \(\rho\),
+  \[
+    |\Delta_\rho(I)|=O(\log^2 n)
+    \qquad\text{for every cyclic interval }I.
+  \]
+
+  \smallskip
+  The expected cost is unchanged:
+  \[
+    \E_\rho[\text{activation-weighted rounded cost}]=\cost(z^S).
+  \]
+  \thsource{Thesis, Lemma 6.6}
+\end{frame}
+
+
 \begin{frame}{Asymmetric clairvoyance gap: adaptive policy}
-  \centering
-  \resizebox{0.91\linewidth}{!}{\ThAdaptiveChordWalk}
+  \only<1>{%
+  {\centering
+  \begin{minipage}{0.91\linewidth}
+    \begin{columns}[T,onlytextwidth]
+      \begin{column}{0.48\textwidth}
+        \centering\small\bfseries\textcolor{ThTeal}{\(i\) is active}
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering\small\bfseries\textcolor{ThMuted}{\(i\) is inactive}
+      \end{column}
+    \end{columns}
+    \smallskip
+    \resizebox{\linewidth}{!}{\ThAdaptiveChordWalk}
+    \begin{columns}[T,onlytextwidth]
+      \begin{column}{0.48\textwidth}
+        \centering\small\textcolor{ThTeal}{Visit \(i\), then continue from \(b_i\).}
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \centering\small\textcolor{ThMuted}{Remain at \(a\).}
+      \end{column}
+    \end{columns}
+  \end{minipage}\par
+  }
 
   \vspace{0.08cm}
   \begin{itemize}\setlength{\itemsep}{0.44em}
@@ -1188,21 +1288,124 @@ Therefore \(\optadapt=O(k^2\log k)\).
       auxiliary chord leaving \(a\), if one remains; otherwise it takes the
       next backbone edge.
   \end{itemize}
-  \centering
-  The virtual walk treats \(R\) as active. On its first encounter with a
-  sampled backbone vertex, probe it; if it is inactive, the physical route
-  shortcuts it.
+  {\raggedright
+    % \setlength{\leftskip}{\leftmargini}
+    The virtual walk treats \(R\) as always-active; if it is inactive, the physical route
+    shortcuts it.\par
+  }
+  }
+  \only<2-17>{%
+    \begin{overlayarea}{\linewidth}{0.95cm}
+      \small\raggedright
+      \only<2>{%
+        \textbf{Start at \(a=r\).}\par
+        The pointer is at the root; all three outside vertices are still unprobed.
+      }
+      \only<3>{%
+        \textbf{1. Probe \(i\) from \(a\).}\par
+        Here \(a=r\), and \(i\) is active: follow \(a\to i\to a^+\).
+      }
+      \only<4>{%
+        \textbf{2. Nothing to probe or use at \(a^+\).}\par
+        No outside probe or auxiliary chord is available, so take the next backbone edge.
+      }
+      \only<5>{%
+        \textbf{3. Probe \(k\) from \(a^{++}\).}\par
+        It is inactive: stay at \(a^{++}\), without taking the detour.
+      }
+      \only<6>{%
+        \textbf{4. Continue from \(a^{++}\) to \(b^-\).}\par
+        The outside list is now exhausted; take the next backbone edge.
+      }
+      \only<7>{%
+        \textbf{5. Reach \(b\).}\par
+        Again, follow the next backbone edge.
+      }
+      \only<8>{%
+        \textbf{6. Move from \(b\) to \(b^+\).}\par
+        The outside list is empty and no auxiliary chord leaves \(b\).
+      }
+      \only<9>{%
+        \textbf{7. Probe \(j\) from \(b^+\).}\par
+        It is active: follow \(b^+\to j\to a^-\).
+      }
+      \only<10>{%
+        \textbf{8. Return to \(a\).}\par
+        Follow \(a^-\to a\); the auxiliary chord at \(a\) is still unused.
+      }
+      \only<11>{%
+        \textbf{9. Take the auxiliary chord \(a\to b\).}\par
+        The outside list at \(a\) is exhausted; mark this auxiliary copy used.
+      }
+      \only<12>{%
+        \textbf{10. Follow \(b\to b^+\) again.}\par
+        Backbone edges can be reused.
+      }
+      \only<13>{%
+        \textbf{11. At \(b^+\), \(j\) has already been probed.}\par
+        There is no auxiliary chord here, so take the next backbone edge.
+      }
+      \only<14>{%
+        \textbf{12. Continue along the upper backbone.}\par
+        The outside list is empty and no auxiliary chord leaves this vertex.
+      }
+      \only<15>{%
+        \textbf{13. Keep following the backbone.}\par
+        Probe each sampled backbone vertex on its first encounter.
+      }
+      \only<16>{%
+        \textbf{14. Reach \(a^-\) again.}\par
+        All outside vertices are now probed and the auxiliary chord is used.
+      }
+      \only<17>{%
+        \textbf{15. Return to \(a=r\) and finish.}\par
+        Every vertex has been probed and the auxiliary chord used: the walk is closed.
+      }
+    \end{overlayarea}
+
+    {\centering
+      \resizebox{0.72\linewidth}{!}{\ThAuxiliaryPointerSteps}\par
+    }
+    \smallskip
+    {\small\centering
+      \textcolor{ThGold}{Gold outline}: virtual pointer.
+      \quad Faded outside detours: already probed.\par
+    }
+  }
   \thsource{Thesis, Section 6.4}
 \end{frame}
 
-\begin{frame}{Asymmetric clairvoyance gap: activation noise}
-  \centering
-  \resizebox{0.66\linewidth}{!}{\ThIntervalImbalance}
+\begin{frame}{Asymmetric clairvoyance gap: imbalance controls cost}
+  \small
+  The realized chords \(F(A)\): auxiliary chords and chords of active outside vertices.
 
-  {\footnotesize
+  {\centering
+    \resizebox{0.88\linewidth}{!}{\ThImbalanceToMultiplicity}\par
+    \textcolor{ThTeal}{2 entering}, \textcolor{ThCoral}{1 leaving}:
+    \textbf{chord imbalance 1}.\par
+  }
+
+  \begin{itemize}\small\setlength{\itemsep}{0.65em}
+    \item \(c_{\mathrm{in}}\) and \(c_{\mathrm{out}}\) count uses of the backbone edges
+      entering and leaving \(I\). Flow balance gives
+      \[
+        c_{\mathrm{out}}-c_{\mathrm{in}}=2-1=1.
+      \]
+    \item Some backbone edge is used at most once. Thus
+      \textbf{one plus the largest absolute chord imbalance} over all cyclic
+      intervals bounds every backbone edge's use.
+  \end{itemize}
+  \thsource{Thesis, Lemma 6.8}
+\end{frame}
+
+\begin{frame}{Asymmetric clairvoyance gap: activation noise}
+  {\centering
+    \resizebox{0.66\linewidth}{!}{\ThIntervalImbalance}\par
+  }
+
+  {\footnotesize\raggedright
     Let \(W_\tau=\{v:p_v<\tau\}\), \(U=W_\tau\setminus S\), and
-    \(\mu=\sum_{i\in W_\tau}p_i\). Let \(F(A)\) contain every auxiliary chord
-    and the assigned chord \(a_i\to b_i\) for each active \(i\in A\cap U\).
+    \(\mu=\sum_{i\in W_\tau}p_i\).
     For every cyclic interval \(I\),
     \[
       \sum_{f\in F(A)}\chi_I(f)
@@ -1216,63 +1419,69 @@ Therefore \(\optadapt=O(k^2\log k)\).
         \left|\sum_{i\in U}(\mathbf 1_{\{i\in A\}}-p_i)
           \chi_I(a_i,b_i)\right|
       =O(\sqrt\mu).
-    \]
+    \]\par
   }
   \thsource{Thesis, Lemma 6.9}
 \end{frame}
 
 \begin{frame}{Asymmetric clairvoyance gap: policy cost}
-  \centering
-  \resizebox{0.58\linewidth}{!}{\ThImbalanceToMultiplicity}
+  \normalsize
+  Let \(\Lambda(F(A))\) be one plus the largest absolute chord imbalance
+  over all cyclic intervals. The imbalance bound gives
+  \[
+    \E_A[\Lambda(F(A))]=O(\log^2 n+\sqrt\mu).
+  \]
 
-  {\footnotesize
-    For the two boundary edges \(e,e'\) of \(I\), flow balance gives
-    \[
-      |c_e-c_{e'}|
-      =\left|\sum_{f\in F(A)}\chi_I(f)\right|,
-      \qquad
-      \Lambda(F(A)):=1+\max_I\left|\sum_{f\in F(A)}\chi_I(f)\right|.
-    \]
-    The virtual walk uses every chord once and every backbone edge at most
-    \(\Lambda(F(A))\) times. After averaging over activations, \(S\), and the
-    rounding outcome \(\rho\), the two cost contributions \emph{add}:
-    \[
-      \begin{aligned}
-        \text{detours and auxiliary chords}
-          &\lesssim \log n\,\optpost(W_\tau),\\
-        \text{repeated backbone edges}
-          &\lesssim (\log^2 n+\sqrt\mu)\optpost(W_\tau).
-      \end{aligned}
-    \]
-    Averaging therefore fixes some \((S,\rho)\) with
-    \(\cost(\pi_\tau^{S,\rho})
-      =O(\!\log^2 n+\sqrt\mu\!)\optpost(W_\tau)\).
-  }
+  After averaging over activations, the backbone sample \(S\), and
+  rounding \(\rho\), the two cost contributions add:
+  \[
+    \begin{aligned}
+      \text{detours and auxiliary chords}
+        &\lesssim \log n\,\optpost(W_\tau),\\
+      \text{backbone traversals}
+        &\lesssim (\log^2 n+\sqrt\mu)\optpost(W_\tau).
+    \end{aligned}
+  \]
+  Therefore some \((S,\rho)\) yields
+  \[
+    \cost(\pi_\tau^{S,\rho})
+    =O(\log^2 n+\sqrt\mu)\,\optpost(W_\tau).
+  \]
   \thsource{Thesis, Lemmas 6.8--6.9}
 \end{frame}
 
 \begin{frame}{Asymmetric clairvoyance gap: upper bound}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.46\textwidth}
       \small
       \theyebrow{rare vertices}
-      \[
-        \begin{aligned}
-          W_\tau&=\{v:p_v<\tau\},\\
-          \mu&=\sum_{v\in W_\tau}p_v\le n\tau.
-        \end{aligned}
-      \]
+      \par
+      \begin{minipage}[t][1.80cm][t]{\linewidth}
+        \[
+          \begin{aligned}
+            W_\tau&=\{v:p_v<\tau\},\\
+            \mu&=\sum_{v\in W_\tau}p_v\le n\tau.
+          \end{aligned}
+        \]
+      \end{minipage}\par
       The circulation policy costs
       \[
         O\!\left(\log^2 n+\sqrt{n\tau}\right)\optpost(W_\tau).
       \]
     \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.02\textwidth}
+      \centering
+      {\color{ThMuted!70}\rule{0.8pt}{3.65cm}}
+    \end{column}
+    \begin{column}{0.46\textwidth}
       \small
       \theyebrow{high-probability vertices}
-      \[
-        H=\{v:p_v\ge\tau\}.
-      \]
+      \par
+      \begin{minipage}[t][1.80cm][t]{\linewidth}
+        \[
+          H=\{v:p_v\ge\tau\}.
+        \]
+      \end{minipage}\par
       A fixed-tour policy costs
       \[
         O(1/\tau)\optpost(H).
@@ -1280,17 +1489,13 @@ Therefore \(\optadapt=O(k^2\log k)\).
     \end{column}
   \end{columns}
 
-  \vspace{0.12cm}
-  \centering
+  \bigskip
   Concatenate the two rooted policies and choose \(\tau=n^{-1/3}\):
   \[
     \cost(\pi)=O(n^{1/3})\optpost,
-    \qquad
+    \;
     \operatorname{CG}(n)=O(n^{1/3}).
   \]
-  \smallskip
-  \thpill[ThCoral]{existence result; no polynomial-time claim}
-  \thsource{Thesis, Theorem 6.1}
 \end{frame}
 
 % ===========================================================================
@@ -1346,26 +1551,26 @@ Therefore \(\optadapt=O(k^2\log k)\).
 \end{frame}
 
 \begin{frame}{A priori approximation: compressed dynamic program}
-  \centering
-  \resizebox{0.58\linewidth}{!}{\ThDPBlocks}
+  {\centering
+    \resizebox{0.82\linewidth}{!}{\ThDPBlocks}\par
+  }
 
-  \begin{itemize}\small\setlength{\itemsep}{0.34em}
-    \item Truncate negligible shortcut contributions and group light vertices
-      into low-activation-mass blocks.
-    \item The dynamic program remembers only the relevant suffix and one
-      boundary block.
+  \begin{itemize}\small\setlength{\itemsep}{0.65em}
+    \item \textbf{Group rare vertices} into blocks with small total activation
+      probability: the order within such block is negligible.
+    \item \textbf{Consider only close blocks} in the suffix~\(S\) that
+      \[
+        \Pp[\text{all vertices in }S\text{ inactive}]
+        =\prod_{v\in S}(1-p_v)
+        \le e^{-\sum_{v\in S}p_v}\ll1.
+      \]
+      Shortcuts across this suffix are unlikely, so we can forget the
+      earlier order.
   \end{itemize}
 
-  \centering
-  {\small
-    \[
-      \cost(\widehat T)\le(1+\varepsilon)\optprior,
-      \qquad
-      \text{time }c_\varepsilon^n\poly(n).
-    \]
-    Deterministic for symmetric and asymmetric metrics.
-  }
-  \thsource{Thesis, Theorem 8.5}
+    \centering
+    \(\cost(\widehat T)\le(1+\varepsilon)\optprior\),
+    in \(O(c_\varepsilon^n\poly(n))\) time.\par
 \end{frame}
 
 % ===========================================================================
@@ -1500,28 +1705,6 @@ Therefore \(\optadapt=O(k^2\log k)\).
   Flow through \(i\) is coupled into a distribution over detours
   \(a\to i\to b\).
   \thsource{Thesis, Section 6.1}
-\end{frame}
-
-\begin{frame}{Backup: cyclic-interval discrepancy}
-  \small
-  Joint rounding selects one pair per outside vertex and preserves expected
-  cost.
-  \medskip
-
-  For a cyclic interval \(I\) of the backbone tour, define
-  \(\chi_I(a,b):=\mathbf 1_{\{a\in I\}}-\mathbf 1_{\{b\in I\}}\).
-  \par\smallskip
-  It equals \(+1\) when the chord \(a\to b\) leaves \(I\), \(-1\) when it
-  enters, and \(0\) when \(a,b\) lie on \mbox{the same side of~\(I\)}.
-  \par\smallskip
-  Joint rounding guarantees
-  \[
-    \left|
-      \sum_{i\in U}p_i\chi_I(a_i,b_i)
-      +\sum_{a,b\in R}N_{ab}\chi_I(a,b)
-    \right|
-    =O(\log^2 n).
-  \]
 \end{frame}
 
 \end{document}
