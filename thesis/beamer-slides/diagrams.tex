@@ -448,11 +448,11 @@
   \node[fill=ThPaper,inner sep=3pt,text=ThMuted] at (2.55,0) {$\cdots$};
   \node[fill=ThPaper,inner sep=3pt,text=ThMuted] at (3.55,-2.35) {$\cdots$};
   \node[thLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
-    at (-0.55,2.35) {$A$};
+    at (-0.55,2.35) {$\mathbf{A}$};
   \node[thLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
-    at (-0.55,0) {$B$};
+    at (-0.55,0) {$\mathbf{B}$};
   \node[thLabel,anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
-    at (-0.55,-2.35) {$C$};
+    at (-0.55,-2.35) {$\mathbf{C}$};
   \node[thSmallLabel,anchor=west,text=ThBlue] at (7.0,1.55)
     {chain edges: \(2\)};
   \node[thSmallLabel,anchor=west,text=ThMuted] at (7.0,1.05)
@@ -599,7 +599,7 @@
 \begin{tikzpicture}[x=1cm,y=1cm]
   \path[use as bounding box] (0,-1.10) rectangle (11,1.85);
   \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThInkSoft]
-    at (5.20,1.60) {fix \(T=(r,a,b,c,r)\) before seeing \(D\)};
+    at (5.20,1.60) {fix \(\boldsymbol{\mathbf{T=(r,a,b,c,r)}}\) before seeing \(\mathbf{D}\)};
 
   \foreach \x/\name in {1.45/lr,2.75/la,4.05/lb,5.35/lc,6.65/lrr}{
     \coordinate (\name) at (\x,0.72);
@@ -613,7 +613,7 @@
   \node[thDet,minimum size=0.40cm] at (lc) {$c$};
   \node[thDepot,minimum size=0.43cm] at (lrr) {$r$};
   \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
-    text=ThInkSoft] at (1.05,0.72) {under \(D_1\)};
+    text=ThInkSoft] at (1.05,0.72) {under \(\mathbf{D_1}\)};
   \node[anchor=west,font=\fontsize{10pt}{12pt}\selectfont,text=ThTeal!72!ThInk]
     at (7.05,0.72) {cost \(1+1+1+1=4\)};
 
@@ -630,12 +630,12 @@
   \node[thDet,minimum size=0.40cm] at (bc) {$c$};
   \node[thDepot,minimum size=0.43cm] at (brr) {$r$};
   \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
-    text=ThInkSoft] at (1.05,-0.38) {under \(D_2\)};
+    text=ThInkSoft] at (1.05,-0.38) {under \(\mathbf{D_2}\)};
   \node[anchor=west,font=\fontsize{10pt}{12pt}\selectfont,text=ThGold!82!ThInk]
     at (7.05,-0.38) {cost \(1+2+1+2=6\)};
 
   \node[font=\fontsize{10.5pt}{12.5pt}\selectfont\bfseries,text=ThBlue]
-    at (9.45,0.17) {expected cost \(=5\)};
+    at (9.45,0.17) {expected cost \(\boldsymbol{\mathbf{=5}}\)};
 \end{tikzpicture}}
 
 % --------------------------------------------------------------------------
@@ -830,9 +830,9 @@
   \node[anchor=east,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
     text=ThInkSoft] at (1.02,-0.35) {adaptive};
   \node[anchor=west,font=\fontsize{11pt}{13pt}\selectfont\bfseries,
-    text=ThGold!82!ThInk] at (8.45,0.95) {almost \(2\) per move};
+    text=ThGold!82!ThInk] at (8.45,0.95) {almost \(\mathbf{2}\) per move};
   \node[anchor=west,font=\fontsize{11pt}{13pt}\selectfont\bfseries,
-    text=ThTeal!72!ThInk] at (8.45,-0.35) {almost \(1\) per move};
+    text=ThTeal!72!ThInk] at (8.45,-0.35) {almost \(\mathbf{1}\) per move};
 \end{tikzpicture}}
 
 % --------------------------------------------------------------------------
@@ -929,20 +929,20 @@
   \node[align=center,
     font=\fontsize{9.2pt}{11pt}\selectfont,text=ThInk]
     at (2.55,0.38)
-    {\textbf{\(\mathcal E_{\mathrm{prior}}\)}\\[2pt]
+    {\textbf{\(\boldsymbol{\mathcal E}_{\mathbf{prior}}\)}\\[2pt]
      \(\optprior(D)\)\\[-1pt]
-     \(\ge(2-o(1))W\)};
+     \(\ge(2-o(1))np\)};
   \node[align=center,
     font=\fontsize{9.2pt}{11pt}\selectfont,text=ThInk]
     at (8.45,0.38)
-    {\textbf{\(\mathcal E_{\mathrm{adapt}}\)}\\[2pt]
+    {\textbf{\(\boldsymbol{\mathcal E}_{\mathbf{adapt}}\)}\\[2pt]
      \(\optadapt(D)\)\\[-1pt]
-     \(\le(1+o(1))W\)};
+     \(\le(1+o(1))np\)};
 
   \node[rectangle,rounded corners=1.2pt,draw=ThBlue,fill=ThBlue!8,
     line width=0.9pt,minimum width=1.02cm,minimum height=0.62cm,
     font=\fontsize{9.5pt}{11pt}\selectfont\bfseries,text=ThBlue]
-    at (5.50,0.30) {fix \(d_n\)};
+    at (5.50,0.30) {fix \(\mathbf{d_n}\)};
 
   \node[font=\fontsize{8.7pt}{10pt}\selectfont,text=ThGold!82!ThInk]
     at (2.55,-1.10) {$\Pp_D(\mathcal E_{\mathrm{prior}})=1-o(1)$};
@@ -988,7 +988,7 @@
     \node[draw=ThInkSoft,rounded corners=1pt,minimum width=1.24cm,
       minimum height=2.55cm,fill=ThMist] (\name) at (\x,0) {};
     \node[above=1.5mm of \name,font=\fontsize{10pt}{12pt}\selectfont\bfseries]
-      {$\lab$};
+      {$\mathbf{\lab}$};
   }
 
   \node[thDepot,minimum size=0.56cm] at ($(Cone.center)+(0,0.79)$) {$r$};
@@ -1013,7 +1013,7 @@
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \x/\lab in {0.7/C_1,2.35/C_2,4.0/C_3,6.9/C_j,9.95/C_{k^2}}{
     \node[font=\fontsize{9pt}{11pt}\selectfont\bfseries,text=ThMuted]
-      at (\x,2.28) {$\lab$};
+      at (\x,2.28) {$\mathbf{\lab}$};
     \draw[ThLine,line width=0.65pt] (\x,-1.25)--(\x,1.88);
   }
   \node[text=ThMuted] at (5.45,2.28) {$\cdots$};
@@ -1041,7 +1041,7 @@
     \node[draw=ThLine,rounded corners=1pt,minimum width=1.28cm,
       minimum height=2.08cm,fill=ThMist] (\name) at (\x,0.42) {};
     \node[below=1.2mm of \name,font=\fontsize{9pt}{11pt}\selectfont\bfseries,
-      text=ThInkSoft] {$\lab$};
+      text=ThInkSoft] {$\mathbf{\lab}$};
   }
   \node[font=\fontsize{13pt}{15pt}\selectfont,text=ThMuted] at (7.30,0.42) {$\cdots$};
   \node[font=\fontsize{13pt}{15pt}\selectfont,text=ThMuted] at (10.00,0.42) {$\cdots$};
@@ -1088,7 +1088,7 @@
   \node[draw=ThGold,line width=0.9pt,rounded corners=2pt,
     inner xsep=3.6mm,inner ysep=2.6mm,fit=(zOne)(zK)] (packetBox) {};
   \node[above=1.2mm of packetBox,font=\fontsize{10pt}{12pt}\selectfont\bfseries,
-    text=ThGold] {one packet \(P\)};
+    text=ThGold] {one packet \(\mathbf{P}\)};
 \end{tikzpicture}}
 
 \newcommand{\ThManyRepresentedCase}{%
@@ -1275,7 +1275,7 @@
   \node[thDet] at (s6) {$s_6$};
   \node[thDet] at (s7) {$s_7$};
   \node[font=\fontsize{12pt}{14pt}\selectfont\bfseries,text=ThBlue]
-    at (0,0) {optimal tour \(T_R\)};
+    at (0,0) {optimal tour \(\mathbf{T_R}\)};
 \end{tikzpicture}}
 
 \newcommand{\ThCirculationRelaxation}{%
@@ -1837,76 +1837,76 @@
 \begin{tikzpicture}[x=1cm,y=1cm]
   \path[use as bounding box] (-2.55,-2.02) rectangle (2.55,2.22);
   \node[thDepot,minimum width=0.78cm,minimum height=0.58cm,
-    font=\fontsize{9.5pt}{11pt}\selectfont] (a) at (0,1.55) {$r=a$};
+    font=\fontsize{9.5pt}{11pt}\selectfont] (r) at (0,1.55) {$r$};
   \node[thDet,minimum size=0.58cm,
-    font=\fontsize{9.5pt}{11pt}\selectfont] (b) at (-1.82,0) {$b$};
+    font=\fontsize{9.5pt}{11pt}\selectfont] (a) at (-1.82,0) {$a$};
   \node[thDet,minimum size=0.58cm,
-    font=\fontsize{9.5pt}{11pt}\selectfont] (c) at (1.82,0) {$c$};
+    font=\fontsize{9.5pt}{11pt}\selectfont] (b) at (1.82,0) {$b$};
   \node[thStoch,minimum size=0.60cm,
-    font=\fontsize{9.5pt}{11pt}\selectfont] (d) at (0,-1.55) {$d$};
+    font=\fontsize{9.5pt}{11pt}\selectfont] (c) at (0,-1.55) {$c$};
 
   \begin{scope}[on background layer]
     \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
-      (a) to[bend right=11] (b);
+      (r) to[bend right=11] (a);
     \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
-      (b) to[bend right=11] (a);
+      (a) to[bend right=11] (r);
     \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
-      (a) to[bend left=11] (c);
+      (r) to[bend left=11] (b);
     \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
-      (c) to[bend left=11] (a);
+      (b) to[bend left=11] (r);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (a)--(b);
     \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (b)--(c);
-    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (c)--(d);
-    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (d)--(b);
+    \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (c)--(a);
   \end{scope}
 
   \node[thSmallLabel,text=ThTeal,anchor=west] at (0.38,-1.55)
-    {$p_d=\tfrac12$};
+    {$p_c=\tfrac12$};
 \end{tikzpicture}}
 
 \newcommand{\ThAsymFourVertexOutcomes}{%
 \begin{tikzpicture}[x=1cm,y=1cm]
   \path[use as bounding box] (0,-2.20) rectangle (11,1.50);
   \draw[ThLine,line width=0.65pt] (5.50,-2.02)--(5.50,1.43);
-  \node[thDepot,minimum width=0.74cm] (la) at (2.62,1.05) {$r=a$};
-  \node[thDet] (lb) at (1.16,-0.18) {$b$};
-  \node[thDet] (lc) at (4.08,-0.18) {$c$};
-  \node[thInactive] (ld) at (2.62,-1.38) {$d$};
+  \node[thDepot,minimum width=0.74cm] (lr) at (2.62,1.05) {$r$};
+  \node[thDet] (la) at (1.16,-0.18) {$a$};
+  \node[thDet] (lb) at (4.08,-0.18) {$b$};
+  \node[thInactive] (lc) at (2.62,-1.38) {$c$};
   \begin{scope}[on background layer]
-    \foreach \x/\y/\bend in {la/lb/right,lb/la/right,la/lc/left,lc/la/left}{
+    \foreach \x/\y/\bend in {lr/la/right,la/lr/right,lr/lb/left,lb/lr/left}{
       \draw[thArrowThin,draw=ThLine,line width=0.58pt]
         (\x) to[bend \bend=10] (\y);
     }
-    \foreach \x/\y in {lb/lc,lc/ld,ld/lb}{
+    \foreach \x/\y in {la/lb,lb/lc,lc/la}{
       \draw[thArrowThin,draw=ThLine,line width=0.58pt] (\x)--(\y);
     }
     \draw[thArrow,draw=ThTeal,line width=1.48pt]
-      (la) to[bend right=10] (lb);
-    \draw[thArrow,draw=ThTeal,line width=1.48pt] (lb)--(lc);
+      (lr) to[bend right=10] (la);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt] (la)--(lb);
     \draw[thArrow,draw=ThTeal,line width=1.48pt]
-      (lc) to[bend left=10] (la);
+      (lb) to[bend left=10] (lr);
   \end{scope}
   \node[font=\fontsize{9.8pt}{11.5pt}\selectfont,text=ThTeal]
-    at (2.62,-1.93) {$a\to b\to c\to a$, cost $3$};
+    at (2.62,-1.93) {$r\to a\to b\to r$, cost $3$};
 
-  \node[thDepot,minimum width=0.74cm] (ra) at (8.38,1.05) {$r=a$};
-  \node[thDet] (rb) at (6.92,-0.18) {$b$};
-  \node[thDet] (rc) at (9.84,-0.18) {$c$};
-  \node[thActive] (rd) at (8.38,-1.38) {$d$};
+  \node[thDepot,minimum width=0.74cm] (rr) at (8.38,1.05) {$r$};
+  \node[thDet] (ra) at (6.92,-0.18) {$a$};
+  \node[thDet] (rb) at (9.84,-0.18) {$b$};
+  \node[thActive] (rc) at (8.38,-1.38) {$c$};
   \begin{scope}[on background layer]
-    \foreach \x/\y/\bend in {ra/rb/right,rb/ra/right,ra/rc/left,rc/ra/left}{
+    \foreach \x/\y/\bend in {rr/ra/right,ra/rr/right,rr/rb/left,rb/rr/left}{
       \draw[thArrowThin,draw=ThLine,line width=0.58pt]
         (\x) to[bend \bend=10] (\y);
     }
-    \foreach \x/\y in {rb/rc,rc/rd,rd/rb}{
+    \foreach \x/\y in {ra/rb,rb/rc,rc/ra}{
       \draw[thArrowThin,draw=ThLine,line width=0.58pt] (\x)--(\y);
     }
     \draw[thArrow,draw=ThTeal,line width=1.48pt]
-      (ra) to[bend left=10] (rc);
-    \draw[thArrow,draw=ThTeal,line width=1.48pt] (rc)--(rd);
-    \draw[thArrow,draw=ThTeal,line width=1.48pt] (rd)--(rb);
+      (rr) to[bend left=10] (rb);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt] (rb)--(rc);
+    \draw[thArrow,draw=ThTeal,line width=1.48pt] (rc)--(ra);
     \draw[thArrow,draw=ThTeal,line width=1.48pt]
-      (rb) to[bend right=10] (ra);
+      (ra) to[bend right=10] (rr);
   \end{scope}
   \node[font=\fontsize{9.8pt}{11.5pt}\selectfont,text=ThTeal]
-    at (8.38,-1.93) {$a\to c\to d\to b\to a$, cost $4$};
+    at (8.38,-1.93) {$r\to b\to c\to a\to r$, cost $4$};
 \end{tikzpicture}}

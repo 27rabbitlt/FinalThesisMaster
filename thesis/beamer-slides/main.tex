@@ -90,9 +90,9 @@
     \cmidrule(lr){1-4}
     Asymmetric
       & \(\begin{gathered}
-            \Omega(n^{1/4}/\log n)\\[-0.04cm]
-            O(\sqrt n)
-          \end{gathered}^{[2]}\)
+            \Omega(n^{1/4}/\log n)^{[2]}\\[-0.04cm]
+            O(\sqrt n)^{[2]}
+          \end{gathered}\)
       & \thgapstagecell{#1}{2}{%
           \shortstack{
             \textcolor{ThResultBlue}{\(\boldsymbol{\Omega(n^{1/3}/\log n)}\)}\\[-0.04cm]
@@ -168,6 +168,8 @@
         \setlength{\itemsep}{0.62em}
         \item We are given a finite vertex set \(V\), a root \(r\), and
           metric travel costs \(d\).
+        \item A metric is symmetric if \(d(u,v)=d(v,u)\) for all
+          \(u,v\in V\).
         \item A tour starts at \(r\), visits every other vertex, and returns
           to \(r\).
         \item The goal is to minimize the total travel cost.
@@ -265,8 +267,8 @@
 \begin{frame}{A priori}
   \centering
   {\small\bfseries\color{ThTeal}
-    \makebox[0.41\linewidth]{Fixed order \(T\)}%
-    \makebox[0.41\linewidth]{Realized shortcut \(T\vert_A\)}\par}
+    \makebox[0.41\linewidth]{Fixed order \(\mathbf{T}\)}%
+    \makebox[0.41\linewidth]{Realized shortcut \(\boldsymbol{\mathbf{T\vert_A}}\)}\par}
   \smallskip
   \resizebox{0.82\linewidth}{!}{\ThPrioriExample}
 
@@ -282,14 +284,14 @@
 \begin{frame}{Adaptive}
   \centering
   {\small\bfseries
-    \makebox[0.41\linewidth]{\textcolor{ThTeal}{\(v\) is active}}%
-    \makebox[0.41\linewidth]{\textcolor{ThMuted}{\(v\) is inactive}}\par}
+    \makebox[0.41\linewidth]{\textcolor{ThTeal}{\(\mathbf{v}\) is active}}%
+    \makebox[0.41\linewidth]{\textcolor{ThMuted}{\(\mathbf{v}\) is inactive}}\par}
   \smallskip
   \resizebox{0.82\linewidth}{!}{\ThProbeRealizations}
   \par\smallskip
   {\small\bfseries
-    \makebox[0.41\linewidth]{\textcolor{ThTeal}{Visit \(v\) immediately}}%
-    \makebox[0.41\linewidth]{\textcolor{ThMuted}{Remain at \(u\)}}\par}
+    \makebox[0.41\linewidth]{\textcolor{ThTeal}{Visit \(\mathbf{v}\) immediately}}%
+    \makebox[0.41\linewidth]{\textcolor{ThMuted}{Remain at \(\mathbf{u}\)}}\par}
 
   \medskip
   A policy \(\pi\) chooses the next probe from earlier outcomes and has
@@ -322,7 +324,7 @@
   \thsource{Thesis, Section 2.2}
 \end{frame}
 
-\begin{frame}{Asymmetric \(\optpost\) v.s.\ \(\optadapt\)}
+\begin{frame}{Asymmetric \(\mathbf{OPT}_{\mathbf{post}}\) v.s.\ \(\mathbf{OPT}_{\mathbf{adapt}}\)}
   \begin{columns}[c,onlytextwidth]
     \begin{column}{0.50\textwidth}
       \centering
@@ -330,29 +332,29 @@
     \end{column}
     \begin{column}{0.46\textwidth}
       \begin{itemize}\setlength{\itemsep}{0.64em}
-        \item The root \(r=a\) and vertices \(b,c\) are always active.
-        \item Vertex \(d\) is active independently with probability \(1/2\).
-        \item The arc \(b\to c\) remains direct, while its reverse is
-          replaced by \(c\to d\to b\).
+        \item The root \(r\) and vertices \(a,b\) are always active.
+        \item Vertex \(c\) is active independently with probability \(1/2\).
+        \item The arc \(a\to b\) remains direct, while its reverse is
+          replaced by \(b\to c\to a\).
       \end{itemize}
     \end{column}
   \end{columns}
   \thsource{Thesis, Section 5.1}
 \end{frame}
 
-\begin{frame}{Asymmetric \(\optpost\) v.s.\ \(\optadapt\)}
+\begin{frame}{Asymmetric \(\mathbf{OPT}_{\mathbf{post}}\) v.s.\ \(\mathbf{OPT}_{\mathbf{adapt}}\)}
   \centering
   {\small\bfseries
-    \makebox[0.38\linewidth]{\textcolor{ThMuted}{\(d\) inactive}}%
-    \makebox[0.38\linewidth]{\textcolor{ThTeal}{\(d\) active}}\par}
+    \makebox[0.38\linewidth]{\textcolor{ThMuted}{\(\mathbf{c}\) inactive}}%
+    \makebox[0.38\linewidth]{\textcolor{ThTeal}{\(\mathbf{c}\) active}}\par}
   \smallskip
   \resizebox{0.76\linewidth}{!}{\ThAsymFourVertexOutcomes}
 
   \vspace{0.10cm}
   \small
-  An adaptive policy chooses its first probe before learning whether \(d\) is
-  active, so it cannot realize both highlighted optima. Probing \(c,d,b\) costs
-  \(4\) in either realization; the fixed order \(a,c,d,b,a\) does as well.
+  An adaptive policy chooses its first probe before learning whether \(c\) is
+  active, so it cannot realize both highlighted optima. Probing \(b,c,a\) costs
+  \(4\) in either realization; the fixed order \(r,b,c,a,r\) does as well.
   \[
     \optpost=\tfrac12\cdot3+\tfrac12\cdot4=\frac72,\qquad
     \optadapt=\optprior=4,\qquad
@@ -361,7 +363,7 @@
   \thsource{Thesis, Section 5.1}
 \end{frame}
 
-\begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
+\begin{frame}{Symmetric \(\mathbf{OPT}_{\mathbf{prior}}\) v.s.\ \(\mathbf{OPT}_{\mathbf{adapt}}\)}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.49\textwidth}
       \centering
@@ -379,11 +381,11 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
+\begin{frame}{Symmetric \(\mathbf{OPT}_{\mathbf{prior}}\) v.s.\ \(\mathbf{OPT}_{\mathbf{adapt}}\)}
   \centering
   {\small\bfseries
-    \makebox[0.45\linewidth]{\textcolor{ThMuted}{\(s\) inactive}}%
-    \makebox[0.45\linewidth]{\textcolor{ThTeal}{\(s\) active}}\par}
+    \makebox[0.45\linewidth]{\textcolor{ThMuted}{\(\mathbf{s}\) inactive}}%
+    \makebox[0.45\linewidth]{\textcolor{ThTeal}{\(\mathbf{s}\) active}}\par}
   \smallskip
   \resizebox{0.90\linewidth}{!}{\ThKFourOutcomes}
 
@@ -401,7 +403,7 @@
   % \end{columns}
 \end{frame}
 
-\begin{frame}{Symmetric \(\optprior\) v.s.\ \(\optadapt\)}
+\begin{frame}{Symmetric \(\mathbf{OPT}_{\mathbf{prior}}\) v.s.\ \(\mathbf{OPT}_{\mathbf{adapt}}\)}
   % \begin{columns}[T,onlytextwidth]
     % \begin{column}{0.56\textwidth}
       % \vspace{0.30cm}
@@ -425,10 +427,10 @@
     % \end{column}
   % \end{columns}
   \medskip{}
-  \thresult[ThBlue]{Even one uncertain vertex can make a priori solution suffers.}
+  \thresult[ThBlue]{Even a single uncertain vertex can make an a priori solution suffer.}
 \end{frame}
 
-\begin{frame}{A priori algorithms v.s.\ \(\optpost\) and \(\optprior\)}
+\begin{frame}{A priori algorithms v.s.\ \(\mathbf{OPT}_{\mathbf{post}}\) and \(\mathbf{OPT}_{\mathbf{prior}}\)}
   \centering
   Let \(C_{\mathrm{ALG}}\) denote the expected cost of the returned
   a priori tour.
@@ -484,8 +486,8 @@
 \begin{frame}{Symmetric adaptivity gap: random-metric toy example}
   \centering
   {\small\bfseries
-    \makebox[0.43\linewidth]{\(D_1\), probability \(1/2\)}%
-    \makebox[0.43\linewidth]{\(D_2\), probability \(1/2\)}\par}
+    \makebox[0.43\linewidth]{\(\mathbf{D_1}\), probability \(\mathbf{1/2}\)}%
+    \makebox[0.43\linewidth]{\(\mathbf{D_2}\), probability \(\mathbf{1/2}\)}\par}
   \smallskip
   \resizebox{0.86\linewidth}{!}{\ThRandomMetricToy}
   \par\smallskip
@@ -520,19 +522,21 @@
 \end{frame}
 
 \begin{frame}{Symmetric adaptivity gap: a posteriori benchmark}
-      \begin{itemize}\setlength{\itemsep}{0.52em}
-        \item Conditional on \(|A|=k\), the short-edge graph on
-          \(A\cup\{r\}\) is exactly \(G(k+1,\theta)\).
-        \item Typically \(K\approx np\), and
-          \[
-            \theta K\asymp\frac{n}{(\log n)^5}\gg\log K.
-          \]
+  Let \(K:=|A|\sim\operatorname{Binomial}(n,p)\), so \(\E[K]=np\).
 
-         With high probability, the short-edge graph on \(A\) is Hamiltonian.
-      \end{itemize}
+  \begin{itemize}\setlength{\itemsep}{0.52em}
+    \item Conditional on \(K=k\), the short-edge graph on
+      \(A\cup\{r\}\) is exactly \(G(k+1,\theta)\).
+    \item Typically \(K\approx np\), so
+      \(\theta K\asymp n/(\log n)^5\gg\log K\).
+      With high probability, this graph is Hamiltonian.
+    \item The realized optimal tour then costs
+      \(K+1\).
+  \end{itemize}
 
+  Averaging over activations and the sampled metric gives
   \[
-    \E_D[\optpost(D)]=(1+o(1))W.
+    \E_D[\optpost(D)]=(1+o(1))K.
   \]
 \end{frame}
 
@@ -545,13 +549,13 @@
     Summing these activation-weighted pair costs over a fixed a priori tour \(T\)
     gives
     \[
-        \E_D[\text{cost}_D(T)]=(2-\theta)W.
+        \E_D[\text{cost}_D(T)]=(2-o(1))np.
     \]
 
     Weighted Hoeffding shows that one fixed tour is lucky
     with probability \(\ll1/n!\).
 
-    Union bound over all orders therefore gives \(\optprior(D)\ge(2-o(1))W\) with high probability.
+    Union bound over all orders therefore gives \(\optprior(D)\ge(2-o(1))np\) with high probability.
 \end{frame}
 
 \begin{frame}{Symmetric adaptivity gap: adaptive benchmark}
@@ -564,7 +568,9 @@
       \begin{itemize}\setlength{\itemsep}{0.58em}
         \item At the current active vertex, probe every unprobed
           distance-\(1\) neighbor first.
-        \item Inactive: remain in place. Active: visit immediately.
+        \item Inactive: remain in place.
+
+            Active: visit immediately.
         \item Use a distance-\(2\) move only when no short move is found.
       \end{itemize}
     \end{column}
@@ -573,7 +579,7 @@
   \medskip
   The analysis shows that, with high probability over the sampled metric,
   \[
-    \optadapt(D)\le(1+o(1))W.
+    \optadapt(D)\le(1+o(1))np.
   \]
   The policy does not know the active Hamiltonian cycle; it constructs a
   nearly all-short route from the outcomes seen so far.
@@ -582,14 +588,14 @@
 
 \begin{frame}{Symmetric adaptivity gap: factor-two lower bound}
   \centering
-  {\small\bfseries Space of sampled metrics \(D\)\par}
+  {\small\bfseries Space of sampled metrics \(\mathbf{D}\)\par}
   \smallskip
   \resizebox{0.76\linewidth}{!}{\ThGoodMetricIntersection}
 
   \medskip
   \[
     \frac{\optprior(d_n)}{\optadapt(d_n)}
-    \ge \frac{(2-o(1))W}{(1+o(1))W}=2-o(1).
+    \ge \frac{(2-o(1))np}{(1+o(1))np}=2-o(1).
   \]
   \thsource{Thesis, Theorem 3.7}
 \end{frame}
@@ -722,7 +728,7 @@
     =\optpost.
   \]
 
-  \thresult[ThBlue]{The doubled detours contribute at most \(2\optpost\).}
+  \thresult[ThBlue]{The doubled detours contribute at most \(2\cdot\optpost\).}
   \thsource{Shmoys--Talwar, Section 2.2; Blauth et al., Section 1.1}
 \end{frame}
 
@@ -735,13 +741,13 @@
     +2\underbrace{\E_R\!\left[
       \sum_{u\in V^\circ\setminus R}p_uD_R(u)
     \right]}_{\text{attachments }\le\optpost}
-    \le3\optpost.
+    \le3\cdot\optpost.
   \]
 
   \medskip
   Therefore
     \[
-        \optprior \le 3 \optpost
+        \optprior \le 3\cdot\optpost
     \]
   \smallskip
 \end{frame}
@@ -757,129 +763,6 @@
     }
 
     \(k^2\) columns and \(k\) vertices in each column, with \(p=1/k, n=k^3\).
-\end{frame}
-
-\begin{frame}{Asymmetric adaptivity gap: adaptive benchmark}
-  \makebox[\linewidth][c]{%
-    \resizebox{0.60\linewidth}{!}{\ThColumnSweep}%
-  }
-
-  \vspace{0.12cm}
-  Each sweep visits at most one active stochastic vertex per column.
-
-  \medskip
-  Let \(X_j\sim\operatorname{Binomial}(k,1/k)\) count the active vertices in
-  column \(j\), and let \(M=\max_jX_j\). Then
-  \[
-    \cost(\pi,A)\le2k^2M,
-    \qquad \E[M]=O(\log k).
-  \]
-Therefore \(\optadapt=O(k^2\log k)\).
-\end{frame}
-
-\begin{frame}{Asymmetric adaptivity gap: represented columns}
-  \small
-  Split the fixed a priori order into \(k^2\) packets of size \(k\).
-  Focus on \(P=(z_1,\ldots,z_k)\).
-
-  \vspace{0.04cm}
-  \makebox[\linewidth][c]{%
-    \resizebox{0.82\linewidth}{!}{\ThPacketColumns}%
-  }
-
-  \vspace{0.30cm}
-
-  Choose one representative from each represented column in packet order:
-  \(y_1,\ldots,y_s\).
-  \thsource{Adapted from Thesis, Section 7.2}
-\end{frame}
-
-\begin{frame}{Asymmetric adaptivity gap: packet distance}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.485\textwidth}
-      {\fontsize{11.2pt}{13.2pt}\selectfont\bfseries\color{ThBlue}
-        \(s\ge k/2\): many represented columns\par}
-
-      \vspace{0.04cm}
-      \makebox[\linewidth][c]{%
-        \resizebox{0.90\linewidth}{!}{\ThManyRepresentedCase}%
-      }
-
-      {\fontsize{10.2pt}{12.2pt}\selectfont
-        For fixed \(a\), these are \(s-a\) distinct positive integers:
-        \[
-          \begin{aligned}
-            \sum_{b>a}d_k(y_a,y_b)
-            &\ge1+\cdots+(s-a),\\
-            \sum_{a<b}d_k(z_a,z_b)
-            &\ge\binom{s+1}{3}\ge\frac{k^3}{96}.
-          \end{aligned}
-        \]
-      }
-    \end{column}
-    \begin{column}{0.485\textwidth}
-      {\fontsize{11.2pt}{13.2pt}\selectfont\bfseries\color{ThCoral}
-        \(s<k/2\): repeated columns\par}
-
-      \vspace{0.04cm}
-      \makebox[\linewidth][c]{%
-        \resizebox{0.90\linewidth}{!}{\ThRepeatedColumnsCase}%
-      }
-
-      {\fontsize{10.2pt}{12.2pt}\selectfont
-        At least \(k-s>k/2\) packet pairs share a column.
-        Each has distance \(k^2\):
-        \[
-          \sum_{a<b}d_k(z_a,z_b)
-          >\frac{k}{2}\,k^2.
-        \]
-      }
-    \end{column}
-  \end{columns}
-
-\end{frame}
-
-\begin{frame}{Asymmetric adaptivity gap: a priori lower bound}
-    \vspace{0.30cm}
-  \makebox[\linewidth][c]{%
-    \resizebox{0.65\linewidth}{!}{\ThPacketShortcutEvent}%
-  }
-
-  For \(a<b\) in one packet, the shortcut \(z_a\to z_b\) is realised when
-  both endpoints are active and every intervening vertex is inactive.
-  \[
-    \Pr[z_a\!\to z_b\text{ used}]
-    =p^2(1-p)^{b-a-1}
-    \ge\frac{1}{4k^2},
-    \qquad p=\frac1k.
-  \]
-  \vspace{0.18cm}
-  \[
-    \E[\text{one packet's contribution}]
-    \ge\frac{1}{4k^2}\cdot\frac{k^3}{96}=\frac{k}{384},
-    \;
-    \optprior\ge k^2\cdot\frac{k}{384}=\frac{k^3}{384}.
-  \]
-  % \vspace{-0.16cm}
-  %   \[
-  %     \operatorname{AG}(n)
-  %     \ge\operatorname{AG}(k^3)
-  %     \ge\frac{\optprior}{\optadapt}
-  %     =\Omega\!\left(\frac{k}{\log k}\right)
-  %     =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
-  %   \]
-\end{frame}
-
-\begin{frame}{Asymmetric adaptivity gap: ratio}
-  Combining the two bounds, with \(n=k^3\), gives
-  \[
-    \operatorname{AG}(n)
-    \ge \frac{\optprior}{\optadapt}
-    =\Omega\!\left(\frac{k^3}{k^2\log k}\right)
-    =\Omega\!\left(\frac{k}{\log k}\right)
-    =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
-  \]
-  \thsource{Adapted from Thesis, Theorem 7.1}
 \end{frame}
 
 % ===========================================================================
@@ -918,8 +801,8 @@ Therefore \(\optadapt=O(k^2\log k)\).
 \begin{frame}{Symmetric clairvoyance gap: realizations}
   \centering
   {\small\bfseries
-    \makebox[0.46\linewidth]{\textcolor{ThTeal}{\(s\) inactive}}%
-    \makebox[0.46\linewidth]{\textcolor{ThCoral}{\(s\) active}}\par}
+    \makebox[0.46\linewidth]{\textcolor{ThTeal}{\(\mathbf{s}\) inactive}}%
+    \makebox[0.46\linewidth]{\textcolor{ThCoral}{\(\mathbf{s}\) active}}\par}
   \smallskip
   \resizebox{0.92\linewidth}{!}{\ThOrderConflict}
   \par\smallskip
@@ -931,37 +814,6 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \thresult[ThBlue]{The posterior solution sees the realization and chooses the
   cheaper order; an adaptive policy has a common prefix before probing \(s\).}
   \thsource{Thesis, Section 4.1}
-\end{frame}
-
-\begin{frame}{Symmetric clairvoyance gap: lower bound}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.51\textwidth}
-      \begin{thtightitemize}
-        \item Before probing \(s\), both executions traverse the same edges.
-        \item Any sufficiently cheap inactive execution needs the \(A,B,C\)
-          crossing pattern.
-        \item Any sufficiently cheap active execution needs the incompatible
-          \(A,C,s,B\) pattern.
-      \end{thtightitemize}
-    \end{column}
-    \begin{column}{0.45\textwidth}
-      \vspace{0.05cm}
-      \small
-      \[
-        \begin{aligned}
-          \optpost  &=18m+4,\\
-          \optadapt &=20m+4.
-        \end{aligned}
-      \]
-      \[
-        \frac{\optadapt}{\optpost}
-        =\frac{20m+4}{18m+4}
-        \longrightarrow
-        \color{ThTeal}\frac{10}{9}.
-      \]
-    \end{column}
-  \end{columns}
-
 \end{frame}
 
 \begin{frame}{Asymmetric clairvoyance gap}
@@ -1142,7 +994,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \begin{columns}[c,onlytextwidth]
     \begin{column}{0.40\textwidth}
       \centering
-      {\footnotesize\bfseries One segment \(s_j\to s_{j+1}\)\par}
+      {\footnotesize\bfseries One segment \(\boldsymbol{\mathbf{s_j\to s_{j+1}}}\)\par}
       \smallskip
       \resizebox{0.96\linewidth}{!}{\ThSegmentPadding}\par
       \smallskip
@@ -1152,7 +1004,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
     \end{column}
     \begin{column}{0.57\textwidth}
       \centering
-      {\footnotesize\bfseries A complete cycle, \(M=3\)\par}
+      {\footnotesize\bfseries A complete cycle, \(\boldsymbol{\mathbf{M=3}}\)\par}
       \smallskip
       \resizebox{0.92\linewidth}{!}{\ThPaddedCirculationCycle}\par
       {\scriptsize Each arrow carries one unit;
@@ -1183,7 +1035,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \]
 
   \smallskip
-  Averaging over \(C\), with \(\E[\OPT(C)]\le2\optpost(W)\), gives
+  Averaging over \(C\), with \(\E[\OPT(C)]\le2\cdot\optpost(W)\), gives
   \[
     \E_S[\cost(z^S)]\le O(\log n)\,\optpost(W).
   \]
@@ -1261,10 +1113,10 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \begin{minipage}{0.91\linewidth}
     \begin{columns}[T,onlytextwidth]
       \begin{column}{0.48\textwidth}
-        \centering\small\bfseries\textcolor{ThTeal}{\(i\) is active}
+        \centering\small\bfseries\textcolor{ThTeal}{\(\mathbf{i}\) is active}
       \end{column}
       \begin{column}{0.48\textwidth}
-        \centering\small\bfseries\textcolor{ThMuted}{\(i\) is inactive}
+        \centering\small\bfseries\textcolor{ThMuted}{\(\mathbf{i}\) is inactive}
       \end{column}
     \end{columns}
     \smallskip
@@ -1298,51 +1150,51 @@ Therefore \(\optadapt=O(k^2\log k)\).
     \begin{overlayarea}{\linewidth}{0.95cm}
       \small\raggedright
       \only<2>{%
-        \textbf{Start at \(a=r\).}\par
+        \textbf{Start at \(\boldsymbol{\mathbf{a=r}}\).}\par
         The pointer is at the root; all three outside vertices are still unprobed.
       }
       \only<3>{%
-        \textbf{1. Probe \(i\) from \(a\).}\par
+        \textbf{1. Probe \(\mathbf{i}\) from \(\mathbf{a}\).}\par
         Here \(a=r\), and \(i\) is active: follow \(a\to i\to a^+\).
       }
       \only<4>{%
-        \textbf{2. Nothing to probe or use at \(a^+\).}\par
+        \textbf{2. Nothing to probe or use at \(\boldsymbol{\mathbf{a^+}}\).}\par
         No outside probe or auxiliary chord is available, so take the next backbone edge.
       }
       \only<5>{%
-        \textbf{3. Probe \(k\) from \(a^{++}\).}\par
+        \textbf{3. Probe \(\mathbf{k}\) from \(\boldsymbol{\mathbf{a^{++}}}\).}\par
         It is inactive: stay at \(a^{++}\), without taking the detour.
       }
       \only<6>{%
-        \textbf{4. Continue from \(a^{++}\) to \(b^-\).}\par
+        \textbf{4. Continue from \(\boldsymbol{\mathbf{a^{++}}}\) to \(\boldsymbol{\mathbf{b^-}}\).}\par
         The outside list is now exhausted; take the next backbone edge.
       }
       \only<7>{%
-        \textbf{5. Reach \(b\).}\par
+        \textbf{5. Reach \(\mathbf{b}\).}\par
         Again, follow the next backbone edge.
       }
       \only<8>{%
-        \textbf{6. Move from \(b\) to \(b^+\).}\par
+        \textbf{6. Move from \(\mathbf{b}\) to \(\boldsymbol{\mathbf{b^+}}\).}\par
         The outside list is empty and no auxiliary chord leaves \(b\).
       }
       \only<9>{%
-        \textbf{7. Probe \(j\) from \(b^+\).}\par
+        \textbf{7. Probe \(\mathbf{j}\) from \(\boldsymbol{\mathbf{b^+}}\).}\par
         It is active: follow \(b^+\to j\to a^-\).
       }
       \only<10>{%
-        \textbf{8. Return to \(a\).}\par
+        \textbf{8. Return to \(\mathbf{a}\).}\par
         Follow \(a^-\to a\); the auxiliary chord at \(a\) is still unused.
       }
       \only<11>{%
-        \textbf{9. Take the auxiliary chord \(a\to b\).}\par
+        \textbf{9. Take the auxiliary chord \(\boldsymbol{\mathbf{a\to b}}\).}\par
         The outside list at \(a\) is exhausted; mark this auxiliary copy used.
       }
       \only<12>{%
-        \textbf{10. Follow \(b\to b^+\) again.}\par
+        \textbf{10. Follow \(\boldsymbol{\mathbf{b\to b^+}}\) again.}\par
         Backbone edges can be reused.
       }
       \only<13>{%
-        \textbf{11. At \(b^+\), \(j\) has already been probed.}\par
+        \textbf{11. At \(\boldsymbol{\mathbf{b^+}}\), \(\mathbf{j}\) has already been probed.}\par
         There is no auxiliary chord here, so take the next backbone edge.
       }
       \only<14>{%
@@ -1354,11 +1206,11 @@ Therefore \(\optadapt=O(k^2\log k)\).
         Probe each sampled backbone vertex on its first encounter.
       }
       \only<16>{%
-        \textbf{14. Reach \(a^-\) again.}\par
+        \textbf{14. Reach \(\boldsymbol{\mathbf{a^-}}\) again.}\par
         All outside vertices are now probed and the auxiliary chord is used.
       }
       \only<17>{%
-        \textbf{15. Return to \(a=r\) and finish.}\par
+        \textbf{15. Return to \(\boldsymbol{\mathbf{a=r}}\) and finish.}\par
         Every vertex has been probed and the auxiliary chord used: the walk is closed.
       }
     \end{overlayarea}
@@ -1640,7 +1492,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
 \appendix
 \section{Backup}
 
-\begin{frame}{Backup: Adaptive DP function}
+\begin{frame}{Adaptive DP function}
   Let \(J(u,S)\) be the optimal expected remaining cost from current position
   \(u\) with unprobed set \(S\). Then
   \[
@@ -1658,7 +1510,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
   vertices. 
 \end{frame}
 
-\begin{frame}{Backup: factor-two symmetric adaptivity lower bound}
+\begin{frame}{Factor-two symmetric adaptivity lower bound}
   \small Fix \(T=(r,v_1,\ldots,v_n,r)\) and write \(q=1-p\). The shortcut
   coefficients are
   \[
@@ -1670,7 +1522,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \]
   They satisfy
   \[
-    \sum_e c_e(T)=W,
+    \sum_e c_e(T)=np+1-q^n,
     \qquad
     \sum_e c_e(T)^2\le2np^3.
   \]
@@ -1678,7 +1530,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \(X_e\sim\operatorname{Bernoulli}(\theta)\), weighted Hoeffding gives
   \[
     \Pp_D\!\left[
-      C_D(T)\le\left(2-\frac{2}{\log n}\right)W
+      C_D(T)\le\left(2-\frac{2}{\log n}\right)np
     \right]
     \le e^{-n(\log n)^2}.
   \]
@@ -1689,7 +1541,7 @@ Therefore \(\optadapt=O(k^2\log k)\).
   \thsource{Thesis, Lemmas 3.9--3.11}
 \end{frame}
 
-\begin{frame}{Backup: the backbone circulation LP}
+\begin{frame}{The backbone circulation LP}
   For a sampled backbone \(R\) and outside set \(U\), the circulation sends
   \(p_i\) units through every \(i\in U\):
   \[
@@ -1705,6 +1557,163 @@ Therefore \(\optadapt=O(k^2\log k)\).
   Flow through \(i\) is coupled into a distribution over detours
   \(a\to i\to b\).
   \thsource{Thesis, Section 6.1}
+\end{frame}
+
+% ===========================================================================
+% Optional backup: rectangular-grid asymmetric adaptivity proof
+% ===========================================================================
+\begin{frame}{Asymmetric adaptivity gap: adaptive benchmark}
+  \makebox[\linewidth][c]{%
+    \resizebox{0.60\linewidth}{!}{\ThColumnSweep}%
+  }
+
+  \vspace{0.12cm}
+  Each sweep visits at most one active stochastic vertex per column.
+
+  \medskip
+  Let \(X_j\sim\operatorname{Binomial}(k,1/k)\) count the active vertices in
+  column \(j\), and let \(M=\max_jX_j\). Then
+  \[
+    \cost(\pi,A)\le2k^2M,
+    \qquad \E[M]=O(\log k).
+  \]
+Therefore \(\optadapt=O(k^2\log k)\).
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: represented columns}
+  \small
+  Split the fixed a priori order into \(k^2\) packets of size \(k\).
+  Focus on \(P=(z_1,\ldots,z_k)\).
+
+  \vspace{0.04cm}
+  \makebox[\linewidth][c]{%
+    \resizebox{0.82\linewidth}{!}{\ThPacketColumns}%
+  }
+
+  \vspace{0.30cm}
+
+  Choose one representative from each represented column in packet order:
+  \(y_1,\ldots,y_s\).
+  \thsource{Adapted from Thesis, Section 7.2}
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: packet distance}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.485\textwidth}
+      {\fontsize{11.2pt}{13.2pt}\selectfont\bfseries\color{ThBlue}
+        \(\boldsymbol{\mathbf{s\ge k/2}}\): many represented columns\par}
+
+      \vspace{0.04cm}
+      \makebox[\linewidth][c]{%
+        \resizebox{0.90\linewidth}{!}{\ThManyRepresentedCase}%
+      }
+
+      {\fontsize{10.2pt}{12.2pt}\selectfont
+        For fixed \(a\), these are \(s-a\) distinct positive integers:
+        \[
+          \begin{aligned}
+            \sum_{b>a}d_k(y_a,y_b)
+            &\ge1+\cdots+(s-a),\\
+            \sum_{a<b}d_k(z_a,z_b)
+            &\ge\binom{s+1}{3}\ge\frac{k^3}{96}.
+          \end{aligned}
+        \]
+      }
+    \end{column}
+    \begin{column}{0.485\textwidth}
+      {\fontsize{11.2pt}{13.2pt}\selectfont\bfseries\color{ThCoral}
+        \(\boldsymbol{\mathbf{s<k/2}}\): repeated columns\par}
+
+      \vspace{0.04cm}
+      \makebox[\linewidth][c]{%
+        \resizebox{0.90\linewidth}{!}{\ThRepeatedColumnsCase}%
+      }
+
+      {\fontsize{10.2pt}{12.2pt}\selectfont
+        At least \(k-s>k/2\) packet pairs share a column.
+        Each has distance \(k^2\):
+        \[
+          \sum_{a<b}d_k(z_a,z_b)
+          >\frac{k}{2}\,k^2.
+        \]
+      }
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: a priori lower bound}
+    \vspace{0.30cm}
+  \makebox[\linewidth][c]{%
+    \resizebox{0.65\linewidth}{!}{\ThPacketShortcutEvent}%
+  }
+
+  For \(a<b\) in one packet, the shortcut \(z_a\to z_b\) is realised when
+  both endpoints are active and every intervening vertex is inactive.
+  \[
+    \Pr[z_a\!\to z_b\text{ used}]
+    =p^2(1-p)^{b-a-1}
+    \ge\frac{1}{4k^2},
+    \qquad p=\frac1k.
+  \]
+  \vspace{0.18cm}
+  \[
+    \E[\text{one packet's contribution}]
+    \ge\frac{1}{4k^2}\cdot\frac{k^3}{96}=\frac{k}{384},
+    \;
+    \optprior\ge k^2\cdot\frac{k}{384}=\frac{k^3}{384}.
+  \]
+  % \vspace{-0.16cm}
+  %   \[
+  %     \operatorname{AG}(n)
+  %     \ge\operatorname{AG}(k^3)
+  %     \ge\frac{\optprior}{\optadapt}
+  %     =\Omega\!\left(\frac{k}{\log k}\right)
+  %     =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
+  %   \]
+\end{frame}
+
+\begin{frame}{Asymmetric adaptivity gap: ratio}
+  Combining the two bounds, with \(n=k^3\), gives
+  \[
+    \operatorname{AG}(n)
+    \ge \frac{\optprior}{\optadapt}
+    =\Omega\!\left(\frac{k^3}{k^2\log k}\right)
+    =\Omega\!\left(\frac{k}{\log k}\right)
+    =\Omega\!\left(\frac{n^{1/3}}{\log n}\right).
+  \]
+  \thsource{Adapted from Thesis, Theorem 7.1}
+\end{frame}
+
+\begin{frame}{Symmetric clairvoyance gap: lower bound}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.51\textwidth}
+      \begin{thtightitemize}
+        \item Before probing \(s\), both executions traverse the same edges.
+        \item Any sufficiently cheap inactive execution needs the \(A,B,C\)
+          crossing pattern.
+        \item Any sufficiently cheap active execution needs the incompatible
+          \(A,C,s,B\) pattern.
+      \end{thtightitemize}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \vspace{0.05cm}
+      \small
+      \[
+        \begin{aligned}
+          \optpost  &=18m+4,\\
+          \optadapt &=20m+4.
+        \end{aligned}
+      \]
+      \[
+        \frac{\optadapt}{\optpost}
+        =\frac{20m+4}{18m+4}
+        \longrightarrow
+        \color{ThTeal}\frac{10}{9}.
+      \]
+    \end{column}
+  \end{columns}
+
 \end{frame}
 
 \end{document}
