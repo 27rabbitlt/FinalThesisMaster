@@ -1,0 +1,642 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=27mm,headheight=14pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype,enumitem,fancyhdr,needspace}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Stochastic Online Vector Discrepancy under Causal Revelation},
+  pdfsubject={A complete logarithmic-discrepancy proof against a sign-adaptive, activation-oblivious adversary},
+  pdfkeywords={online discrepancy, independent activation, adaptive order, martingale, Freedman inequality}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Stochastic Online Vector Discrepancy}
+\fancyhead[R]{\small Causal Revelation}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parskip}{3pt}
+\setlength{\emergencystretch}{1.5em}
+\setlist[enumerate]{itemsep=3pt,topsep=5pt,leftmargin=*}
+\allowdisplaybreaks[1]
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\R}{\mathbb R}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pp}{\mathbb P}
+\newcommand{\F}{\mathcal F}
+\newcommand{\HH}{\mathcal H}
+\newcommand{\ind}{\mathbf 1}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\op}{op}
+\title{\vspace{-1.2em}Stochastic Online Vector Discrepancy\\
+  \large A complete proof under causal activation revelation}
+\author{}
+\date{September 29, 2026}
+
+\begin{document}
+\maketitle
+\vspace{-1.8em}
+\begin{abstract}
+Fix known vectors $v_1,\ldots,v_n\in\R^d$ with $\|v_i\|_2\le1$ and
+independent activations $A_i\sim\operatorname{Bernoulli}(p_i)$, where
+$p_i\in[0,1]$. An adversary chooses the next unprocessed candidate using
+past observations and signs, before inspecting that candidate's activation.
+Both parties then observe the activation, and an active candidate must
+immediately receive a sign. We give an online algorithm with final
+discrepancy less than
+$\frac{16}{3}\log\!\bigl(2(n+d)/\delta\bigr)$ with probability at least
+$1-\delta$. In particular, for $d=n$ the bound is
+$\frac{16}{3}\log(4n/\delta)$. The proof uses a remaining-input response
+matrix, a stopped normalized martingale, an inverse-matrix telescoping
+identity, and scalar Freedman concentration. An appendix proves the
+finite-horizon maximal inequality used in the argument.
+\end{abstract}
+
+\section{Model and main result}
+\label{sec:model}
+
+Fix integers $n,d\ge1$. The candidate vectors and activation probabilities
+are deterministic, known to the algorithm, and satisfy
+\begin{equation}
+ v_i\in\R^d,\qquad \|v_i\|_2\le1,\qquad p_i\in[0,1],
+ \qquad i\in[n].
+\end{equation}
+The variables $A_1,\ldots,A_n$ are independent, with
+$A_i\sim\operatorname{Bernoulli}(p_i)$. They may be sampled before the
+process starts, but neither party may inspect an unrevealed activation.
+Write $\mathcal A=\{i:A_i=1\}$ for the random active set.
+
+Initially $U_0=[n]$. At step $t\in[n]$:
+\begin{enumerate}
+ \item The adversary selects a label $i_t\in U_{t-1}$ using the known
+ data and the history of previously revealed activations and signs.
+ \item Both parties observe $A_{i_t}$.
+ \item If $A_{i_t}=1$, the algorithm irrevocably chooses
+ $\varepsilon_{i_t}\in\{-1,+1\}$ before the next candidate is selected.
+ \item Set $U_t=U_{t-1}\setminus\{i_t\}$.
+\end{enumerate}
+Every candidate is processed exactly once, including inactive candidates.
+For an inactive candidate, set $\varepsilon_i=+1$ by convention; this has
+no effect on the discrepancy. The objective is the \emph{final} norm
+\begin{equation}\label{eq:discrepancy}
+ \left\|\sum_{i\in\mathcal A}\varepsilon_i v_i\right\|_\infty
+ =\left\|\sum_{i=1}^n A_i\varepsilon_i v_i\right\|_\infty.
+\end{equation}
+The adversary may react to every past sign. It may not select the next
+label after inspecting its activation, and it may not inspect the
+algorithm's future random choices.
+
+\subsection{The information structure}
+
+Let $S$ be an independent random seed for the adversary, and let
+$\zeta_1,\ldots,\zeta_n$ be independent uniform random variables on $[0,1]$
+used by the algorithm. The seed, the uniforms, and the activations are
+mutually independent. Use the filtration
+\begin{equation}\label{eq:filtration}
+ \F_0=\sigma(S),\qquad
+ \F_t=\sigma\!\left(S,(i_s,A_{i_s},\zeta_s)_{1\le s\le t}\right).
+\end{equation}
+An admissible reveal rule has $i_t\in U_{t-1}$ measurable with respect to
+$\F_{t-1}$. The algorithm uses only available observations and its fresh
+uniform $\zeta_t$. Including past uniforms in the analysis filtration
+is harmless; the adversary need only observe the public history.
+
+\begin{lemma}[Unrevealed activations retain their product law]
+\label{lem:product}
+Conditional on $\F_{t-1}$, the activations with labels in $U_{t-1}$
+remain independent Bernoulli variables with their original parameters.
+In particular,
+\begin{equation}\label{eq:conditional-activation}
+ \Pp(A_{i_t}=1\mid\F_{t-1})=p_{i_t}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Initially this follows from independence of $S$ and the activations.
+Inductively, conditional on the history, the chosen label $i_t$ is fixed
+before any remaining activation is inspected. Revealing $A_{i_t}$
+therefore leaves the other activations with their product law. The fresh
+uniform $\zeta_t$ is independent of these variables, and the sign is a
+function of the existing history, $A_{i_t}$, and $\zeta_t$. Thus the new
+history gives no further information about the remaining activations.
+This proves the induction, including the endpoint cases $p_i=0$ and
+$p_i=1$.
+\end{proof}
+
+\subsection{A theorem for finitely many test directions}
+
+Let $\HH$ be a deterministic, nonempty finite set satisfying
+\begin{equation}\label{eq:test-set}
+ \{v_1,\ldots,v_n\}\subseteq\HH\subseteq
+ \{h\in\R^d:\|h\|_2\le1\},\qquad L=|\HH|.
+\end{equation}
+Additional elements of $\HH$ specify the directions in which discrepancy
+is to be controlled. All logarithms below are natural.
+
+For $\lambda\ge1$, define
+\begin{equation}\label{eq:states}
+ x_t=\sum_{s=1}^t A_{i_s}\varepsilon_{i_s}v_{i_s},\qquad
+ Q_t=\lambda I_d+\sum_{i\in U_t}p_i v_iv_i^\top,\qquad
+ y_t=Q_t^{-1}x_t.
+\end{equation}
+The empty sum gives $x_0=y_0=0$. These matrices satisfy
+\begin{equation}\label{eq:matrix-basic}
+ Q_t\succeq\lambda I_d,\qquad
+ \|Q_t^{-1}\|_{\op}\le\lambda^{-1},\qquad
+ Q_t=Q_{t-1}-p_{i_t}v_{i_t}v_{i_t}^\top,\qquad
+ Q_n=\lambda I_d.
+\end{equation}
+In particular, $Q_t$ is already $\F_{t-1}$-measurable: it depends on the
+chosen label but not on its activation or sign.
+
+\Needspace{18\baselineskip}
+\begin{theorem}[Logarithmic final discrepancy]
+\label{thm:main}
+Fix $0<\delta<1$ and choose
+\begin{equation}\label{eq:lambda}
+ \lambda\ge\frac{16}{3}\log\frac{2L}{\delta}.
+\end{equation}
+For every admissible adaptive reveal rule, the online algorithm in
+Section~\ref{sec:algorithm} satisfies
+\begin{equation}\label{eq:uniform-y}
+ \Pp\!\left(\max_{0\le t\le n}\max_{h\in\HH}|h^\top y_t|<1\right)
+ \ge1-\delta.
+\end{equation}
+Consequently, with probability at least $1-\delta$,
+\begin{equation}\label{eq:final-tests}
+ \max_{h\in\HH}\left|\sum_{i=1}^n A_i\varepsilon_i h^\top v_i\right|
+ <\lambda.
+\end{equation}
+The probability is over the activations and algorithmic randomness,
+and also the adversary's seed if it is randomized.
+\end{theorem}
+
+Condition~\eqref{eq:lambda} implies $\lambda>1$, because $L\ge1$ and
+$\delta<1$. The theorem holds separately for every admissible strategy;
+it does not claim one random outcome works simultaneously for all
+strategies.
+
+\begin{corollary}[Coordinate discrepancy]
+\label{cor:coordinates}
+For $n$ unit-Euclidean-ball vectors in $\R^d$, there is an online signing
+algorithm such that, against every admissible adversary,
+\begin{equation}\label{eq:coordinate-bound}
+ \Pp\!\left(
+ \left\|\sum_{i\in\mathcal A}\varepsilon_i v_i\right\|_\infty
+ <\frac{16}{3}\log\frac{2(n+d)}{\delta}\right)\ge1-\delta.
+\end{equation}
+For $d=n$, the bound is $\frac{16}{3}\log(4n/\delta)$. In this case,
+for $n\ge2$ and fixed $c>0$, choosing $\delta=n^{-c}$ gives final
+discrepancy $O(\log n)$ with probability at least $1-n^{-c}$.
+\end{corollary}
+\begin{proof}
+Take $\HH=\{v_1,\ldots,v_n\}\cup\{e_1,\ldots,e_d\}$, so $L\le n+d$,
+and apply Theorem~\ref{thm:main} with
+$\lambda=\frac{16}{3}\log(2(n+d)/\delta)$.
+\end{proof}
+
+\section{Why the response matrix is natural}
+
+In one dimension with every $v_i=1$, the normalized state is
+\[
+ y=\frac{x}{\lambda+\sum_{i\in U}p_i}.
+\]
+It is a slope: error per unit remaining quadratic correction capacity.
+Giving the next active candidate mean sign $-y$ reduces expected error
+by $p_i y$, while its revelation removes $p_i$ units of capacity.
+For nonunit scalar vectors, the denominator instead contains
+$\sum_{i\in U}p_i v_i^2$.
+
+In higher dimensions, a proposed slope vector $y$ gives candidate $v_i$
+the scalar sign bias $-v_i^\top y$. Its expected movement is
+\begin{equation}\label{eq:response}
+ -p_i(v_i^\top y)v_i=-p_i v_iv_i^\top y.
+\end{equation}
+Thus $v_i$ appears twice: first to measure a directional slope, then to
+turn the bias into a vector movement. The linear response maps add,
+giving $\sum_{i\in U}p_i v_iv_i^\top$.
+
+If this slope were held fixed for the remaining candidates, their total
+expected movement would be $-\sum_{i\in U}p_i v_iv_i^\top y$. Choosing
+the slope so that the resulting residual is $\lambda y$ means
+\begin{equation}\label{eq:response-balance}
+ x=\lambda y+\sum_{i\in U}p_i(v_i^\top y)v_i=Qy.
+\end{equation}
+This explains $y=Q^{-1}x$. The term $\lambda I_d$ is a virtual residual
+allowance and ensures invertibility. The function
+$E_Q(x)=\frac12x^\top Q^{-1}x$ has gradient $y$, so $v_i^\top y$ is
+literally its directional derivative along $v_i$.
+
+This interpretation concerns expected movement under the stated
+feedback. Individual moves need not approach zero, and an ordinary
+geometric angle need not be a martingale. The argument below proves the
+martingale property for the normalized state stopped at its safety boundary.
+
+\section{The online algorithm}
+\label{sec:algorithm}
+
+Initialize $U_0=[n]$, $x_0=y_0=0$, $Q_0$ as in~\eqref{eq:states}, and a
+failure flag $f_0=0$. The flag, once set, is never reset. At step $t$:
+\begin{enumerate}
+ \item Receive the adversary's chosen label $i=i_t\in U_{t-1}$, and compute
+ \[
+ r_t=v_i^\top y_{t-1},\qquad U_t=U_{t-1}\setminus\{i\},\qquad
+ Q_t=Q_{t-1}-p_i v_iv_i^\top.
+ \]
+ \item Reveal $A_i$. If $A_i=0$ or $f_{t-1}=1$, set $\varepsilon_i=+1$.
+ Otherwise use the fresh uniform $\zeta_t$ to choose
+ \begin{equation}\label{eq:sign-rule}
+ \varepsilon_i=
+ \begin{cases}
+ +1,&\zeta_t\le(1-r_t)/2,\\
+ -1,&\zeta_t>(1-r_t)/2.
+ \end{cases}
+ \end{equation}
+ Equivalently, when $f_{t-1}=0$, conditional on the history and $A_i=1$,
+ $\Pp(\varepsilon_i=+1)=(1-r_t)/2$ and
+ $\Pp(\varepsilon_i=-1)=(1+r_t)/2$.
+ \item Update
+ \[
+ x_t=x_{t-1}+A_i\varepsilon_i v_i,\qquad y_t=Q_t^{-1}x_t,
+ \]
+ and set
+ \begin{equation}\label{eq:failure-flag}
+ f_t=\max\!\left\{f_{t-1},\,
+ \ind_{\{\max_{h\in\HH}|h^\top y_t|\ge1\}}\right\}.
+ \end{equation}
+\end{enumerate}
+All remaining labels are processed even after failure, using the stated
+fallback sign. Hence the algorithm returns a valid signing on every
+sample path.
+
+\begin{lemma}[Validity and causality]
+\label{lem:validity}
+The sign rule is a valid probability distribution whenever it is used,
+and the algorithm uses no unrevealed activation.
+\end{lemma}
+\begin{proof}
+If $f_{t-1}=0$, then $|h^\top y_{t-1}|<1$ for every $h\in\HH$.
+Since $v_i\in\HH$, we have $|r_t|<1$. Thus the two probabilities are
+nonnegative and sum to one. The quantities $r_t$ and $Q_t$ depend only
+on the known data and past history, including the current chosen label.
+The sign additionally uses the revealed activation and fresh randomness.
+The fallback choice is always valid.
+\end{proof}
+
+\section{Conditional noise and the stopped martingale}
+
+\subsection{The one-step identity}
+
+On every sample path, including after failure, define
+\begin{equation}\label{eq:noise-definition}
+ W_t=A_{i_t}\varepsilon_{i_t},\qquad
+ \mu_t=\E[W_t\mid\F_{t-1}],\qquad \xi_t=W_t-\mu_t.
+\end{equation}
+
+\begin{lemma}[Noise moments]
+\label{lem:moments}
+At every step,
+\begin{equation}\label{eq:noise-bounds}
+ \E[\xi_t\mid\F_{t-1}]=0,\qquad
+ |\xi_t|\le2,\qquad
+ \E[\xi_t^2\mid\F_{t-1}]\le p_{i_t}.
+\end{equation}
+On the event $\{f_{t-1}=0\}$, additionally
+\begin{equation}\label{eq:safe-noise}
+ \mu_t=-p_{i_t}r_t,\qquad
+ \xi_t=A_{i_t}\varepsilon_{i_t}+p_{i_t}r_t,\qquad
+ \E[\xi_t^2\mid\F_{t-1}]=p_{i_t}-p_{i_t}^2r_t^2.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Centering is immediate from~\eqref{eq:noise-definition}.
+Since $W_t\in\{-1,0,1\}$, both $W_t$ and $\mu_t$ lie in $[-1,1]$,
+so $|\xi_t|\le2$. Moreover, $W_t^2=A_{i_t}$, including under the fallback
+rule. Lemma~\ref{lem:product} gives
+\[
+ \E[\xi_t^2\mid\F_{t-1}]
+ =\Var(W_t\mid\F_{t-1})
+ =p_{i_t}-\mu_t^2\le p_{i_t}.
+\]
+Before failure, the active-sign mean from~\eqref{eq:sign-rule} is $-r_t$.
+Together with~\eqref{eq:conditional-activation}, this yields
+$\mu_t=-p_{i_t}r_t$ and the remaining formulas. When $p_{i_t}=0$ these
+identities hold directly, without conditioning on a null activation event.
+\end{proof}
+
+\begin{lemma}[Normalized update]
+\label{lem:update}
+On $\{f_{t-1}=0\}$,
+\begin{equation}\label{eq:normalized-update}
+ y_t-y_{t-1}=\xi_tQ_t^{-1}v_{i_t}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Write $p=p_{i_t}$ and $v=v_{i_t}$. Since $r_t=v^\top y_{t-1}$,
+\begin{align*}
+ x_t
+ &=x_{t-1}+W_t v\\
+ &=Q_{t-1}y_{t-1}-p(v^\top y_{t-1})v+\xi_t v\\
+ &=(Q_{t-1}-pvv^\top)y_{t-1}+\xi_t v
+ =Q_t y_{t-1}+\xi_t v.
+\end{align*}
+Multiplying by $Q_t^{-1}$ proves the claim. Because $Q_t^{-1}v$ is
+$\F_{t-1}$-measurable, the conditional mean of the increment is zero
+at every pre-failure state.
+\end{proof}
+
+\subsection{Stopping on the original probability space}
+
+Let
+\begin{equation}\label{eq:stopping}
+ \tau=\inf\!\left\{t\in\{1,\ldots,n\}:
+       \max_{h\in\HH}|h^\top y_t|\ge1\right\},
+\end{equation}
+with $\inf\varnothing=\infty$. Define
+\begin{equation}\label{eq:stopped-states}
+ \bar y_t=y_{t\wedge\tau},\qquad
+ \bar Q_t=Q_{t\wedge\tau},\qquad
+ B_t=\ind_{\{\tau\ge t\}}=\ind_{\{f_{t-1}=0\}}.
+\end{equation}
+The indicator $B_t$ is $\F_{t-1}$-measurable. In particular, the first
+boundary-crossing increment is retained; only subsequent increments
+are frozen.
+
+\begin{proposition}[Stopped martingale]
+\label{prop:martingale}
+The process $(\bar y_t)_{t=0}^n$ is a square-integrable vector-valued
+martingale with
+\begin{equation}\label{eq:stopped-update}
+ \bar y_t-\bar y_{t-1}=B_t\xi_tQ_t^{-1}v_{i_t}.
+\end{equation}
+Consequently, for every fixed $h\in\HH$,
+$M_{h,t}=h^\top\bar y_t$ is a square-integrable scalar martingale
+starting at zero.
+\end{proposition}
+\begin{proof}
+On $\{B_t=1\}$, Lemma~\ref{lem:update} applies; on $\{B_t=0\}$ the
+stopped increment vanishes. This proves~\eqref{eq:stopped-update}.
+Its conditional mean is zero by predictability of $B_tQ_t^{-1}v_{i_t}$
+and Lemma~\ref{lem:moments}. Also
+$\|\bar y_t-\bar y_{t-1}\|_2\le2/\lambda$, so
+$\|\bar y_t\|_2\le2n/\lambda$. This gives square integrability and
+the scalar conclusion.
+\end{proof}
+
+We have not conditioned on the future success event $\{\tau>n\}$.
+All conditional expectations are taken with respect to the original
+filtration; the stopped process is a martingale on the full probability
+space.
+
+\section{A pathwise variance bound}
+
+\begin{lemma}[Inverse-matrix increment]
+\label{lem:inverse}
+At a step with $p=p_{i_t}$ and $v=v_{i_t}$, write
+$z=Q_t^{-1}v$ and $a=v^\top Q_t^{-1}v$. Then
+\begin{equation}\label{eq:inverse-identity}
+ Q_t^{-1}-Q_{t-1}^{-1}=\frac{p}{1+pa}zz^\top\succeq0,
+\end{equation}
+and
+\begin{equation}\label{eq:inverse-bound}
+ pzz^\top\preceq(1+\lambda^{-1})
+       (Q_t^{-1}-Q_{t-1}^{-1})
+ \preceq2(Q_t^{-1}-Q_{t-1}^{-1}).
+\end{equation}
+\end{lemma}
+\begin{proof}
+We have $Q_{t-1}=Q_t+pvv^\top$. Multiplication verifies
+\[
+ (Q_t+pvv^\top)^{-1}
+ =Q_t^{-1}-\frac{p}{1+pa}zz^\top,
+\]
+which is also the rank-one inverse formula. This proves
+\eqref{eq:inverse-identity}, including $p=0$. Since
+$0\le a\le\|v\|_2^2/\lambda\le1/\lambda$ and $p\le1$, multiplying
+the identity by $1+pa\le1+1/\lambda\le2$ gives
+\eqref{eq:inverse-bound}.
+\end{proof}
+
+For fixed $h\in\HH$, let
+\begin{equation}\label{eq:scalar-variance}
+ D_{h,t}=M_{h,t}-M_{h,t-1},\qquad
+ V_{h,t}=\sum_{s=1}^t\E[D_{h,s}^2\mid\F_{s-1}].
+\end{equation}
+
+\begin{proposition}[Deterministic increment and variance budgets]
+\label{prop:variance}
+For every $h\in\HH$, almost surely,
+\begin{equation}\label{eq:variance-budget}
+ |D_{h,t}|\le\frac2\lambda\quad(1\le t\le n),\qquad
+ V_{h,n}\le\frac{1+1/\lambda}{\lambda}\le\frac2\lambda.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Equation~\eqref{eq:stopped-update} gives
+$D_{h,t}=B_t\xi_t h^\top Q_t^{-1}v_{i_t}$, so its absolute value is at
+most $2\|h\|_2\|v_{i_t}\|_2/\lambda\le2/\lambda$.
+Using $B_t^2=B_t$, predictability, and the conditional noise bound,
+\begin{align*}
+ \E[D_{h,t}^2\mid\F_{t-1}]
+ &\le B_t p_{i_t}(h^\top Q_t^{-1}v_{i_t})^2\\
+ &\le(1+1/\lambda)B_t
+       h^\top(Q_t^{-1}-Q_{t-1}^{-1})h.
+\end{align*}
+The second inequality is Lemma~\ref{lem:inverse}. Pathwise,
+\[
+ B_t(Q_t^{-1}-Q_{t-1}^{-1})
+ =\bar Q_t^{-1}-\bar Q_{t-1}^{-1}.
+\]
+Summing and using $\bar Q_n\succeq\lambda I_d$ yields
+\begin{align*}
+ V_{h,n}
+ &\le(1+1/\lambda)h^\top(\bar Q_n^{-1}-Q_0^{-1})h\\
+ &\le(1+1/\lambda)h^\top\bar Q_n^{-1}h
+ \le\frac{1+1/\lambda}{\lambda}\|h\|_2^2
+ \le\frac2\lambda.
+\end{align*}
+This is a pathwise bound, valid even when failure occurs.
+\end{proof}
+
+\Needspace{18\baselineskip}
+\section{Concentration and completion of the proof}
+
+We use the following finite-horizon form of Freedman's inequality
+\cite{freedman1975}. Appendix~\ref{app:freedman} proves it directly.
+
+\begin{lemma}[Two-sided maximal Freedman inequality]
+\label{lem:freedman}
+Let $(M_t,\F_t)_{t=0}^n$ be a square-integrable scalar martingale with
+$M_0=0$, and set $D_t=M_t-M_{t-1}$. Suppose deterministic constants
+$R>0$ and $\nu\ge0$ satisfy, almost surely,
+\[
+ |D_t|\le R\quad(1\le t\le n),\qquad
+ \sum_{t=1}^n\E[D_t^2\mid\F_{t-1}]\le\nu.
+\]
+Then, for every $b>0$,
+\begin{equation}\label{eq:freedman}
+ \Pp\!\left(\max_{0\le t\le n}|M_t|\ge b\right)
+ \le2\exp\!\left(-\frac{b^2}{2(\nu+Rb/3)}\right).
+\end{equation}
+\end{lemma}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+For a fixed $h\in\HH$, Propositions~\ref{prop:martingale}
+and~\ref{prop:variance} allow Lemma~\ref{lem:freedman} with
+$R=2/\lambda$, $\nu=2/\lambda$, and $b=1$. Hence
+\begin{equation}\label{eq:one-direction-tail}
+ \Pp\!\left(\max_{0\le t\le n}|h^\top\bar y_t|\ge1\right)
+ \le2\exp\!\left(-\frac{1}{2(2/\lambda+2/(3\lambda))}\right)
+ =2e^{-3\lambda/16}.
+\end{equation}
+If $\tau\le n$, some $h\in\HH$ satisfies $|h^\top y_\tau|\ge1$, and
+$\bar y_\tau=y_\tau$. Therefore
+\begin{equation}\label{eq:failure-probability}
+ \Pp(\tau\le n)
+ \le\sum_{h\in\HH}
+      \Pp\!\left(\max_{0\le t\le n}|h^\top\bar y_t|\ge1\right)
+ \le2L e^{-3\lambda/16}\le\delta.
+\end{equation}
+The final inequality is~\eqref{eq:lambda}. On $\{\tau>n\}$ the safety
+boundary is never reached, proving~\eqref{eq:uniform-y}.
+
+Every label is processed once, so $U_n=\varnothing$ and
+$Q_n=\lambda I_d$ on every sample path. Consequently, on the same
+success event,
+\[
+ \max_{h\in\HH}|h^\top x_n|
+ =\lambda\max_{h\in\HH}|h^\top y_n|<\lambda.
+\]
+Substituting $x_n=\sum_i A_i\varepsilon_i v_i$ proves
+\eqref{eq:final-tests}.
+\end{proof}
+
+\begin{remark}[No union bound over time]
+The maximal inequality already controls every time for a fixed test
+direction. The only union bound in~\eqref{eq:failure-probability} is
+over the $L$ fixed directions.
+\end{remark}
+
+\begin{remark}[Scope of the guarantee]
+The theorem bounds $y_t$ in the test directions at every time and bounds
+the original discrepancy $x_n$ at completion. It does not assert the
+same bound for every prefix $x_t$. Processing inactive candidates is
+essential to this argument: it preserves the stated information model and makes
+$Q_n=\lambda I_d$. If the adversary can inspect unrevealed activations,
+Lemma~\ref{lem:product} need not hold. The argument also requires
+independent activation variables; candidates sharing a single random
+activation cannot automatically be treated as independent.
+\end{remark}
+
+\begin{remark}[Scaling and zero probabilities]
+If instead $\|v_i\|_2\le\rho$ for a fixed $\rho>0$, apply the algorithm
+to $v_i/\rho$ and multiply the discrepancy bound by $\rho$.
+Candidates with $p_i=0$ may be retained or deleted in advance.
+The theorem requires neither a positive lower bound on the probabilities
+nor an upper bound strictly below one. No optimality claim is made for
+the logarithmic upper bound.
+\end{remark}
+
+\clearpage
+\appendix
+\section{A proof of the finite-horizon Freedman inequality}
+\label{app:freedman}
+
+We prove Lemma~\ref{lem:freedman}. Write
+\[
+ q_t=\E[D_t^2\mid\F_{t-1}],\qquad V_t=\sum_{s=1}^t q_s.
+\]
+Then $V_n\le\nu$ almost surely, $q_t$ is predictable, and
+$\E[D_t\mid\F_{t-1}]=0$.
+
+\subsection{A conditional exponential-moment bound}
+
+For every integer $k\ge2$, $k!\ge2\cdot3^{k-2}$. Thus, for $|u|<3$,
+\begin{equation}\label{eq:taylor}
+ e^u
+ =1+u+\sum_{k=2}^{\infty}\frac{u^k}{k!}
+ \le1+u+\frac{u^2}{2}\sum_{j=0}^{\infty}(|u|/3)^j
+ =1+u+\frac{u^2}{2(1-|u|/3)}.
+\end{equation}
+Fix $0<\theta<3/R$. Since $|D_t|\le R$, taking conditional
+expectations in~\eqref{eq:taylor} gives
+\begin{equation}\label{eq:mgf}
+ \E[e^{\theta D_t}\mid\F_{t-1}]
+ \le1+\frac{\theta^2 q_t}{2(1-\theta R/3)}
+ \le\exp\!\bigl(g(\theta)q_t\bigr),\qquad
+ g(\theta)=\frac{\theta^2}{2(1-\theta R/3)}.
+\end{equation}
+The last step uses $1+a\le e^a$.
+
+\subsection{A nonnegative supermartingale and first crossing}
+
+Set
+\[
+ Z_t=\exp\!\bigl(\theta M_t-g(\theta)V_t\bigr),\qquad Z_0=1.
+\]
+Predictability of $q_t$ and~\eqref{eq:mgf} imply
+\[
+ \E[Z_t\mid\F_{t-1}]
+ =Z_{t-1}e^{-g(\theta)q_t}
+       \E[e^{\theta D_t}\mid\F_{t-1}]
+ \le Z_{t-1}.
+\]
+Thus $(Z_t)$ is a nonnegative supermartingale. Integrability follows
+from $Z_t\le e^{\theta nR}$, since $M_t\le nR$ and $V_t\ge0$.
+
+Let $E_b=\{\max_{0\le t\le n}M_t\ge b\}$ and
+\[
+ \kappa=\min\!\left\{\inf\{t\in\{0,\ldots,n\}:M_t\ge b\},\,n\right\},
+\]
+with $\inf\varnothing=\infty$. This is a stopping time bounded by $n$.
+The pathwise telescoping identity
+\[
+ Z_\kappa=1+\sum_{t=1}^n
+       \ind_{\{\kappa\ge t\}}(Z_t-Z_{t-1})
+\]
+and predictability of $\ind_{\{\kappa\ge t\}}$ show
+$\E[Z_\kappa]\le1$. This uses only a finite sum.
+On $E_b$, we have $M_\kappa\ge b$ and $V_\kappa\le\nu$, so
+\[
+ Z_\kappa\ge\exp\!\bigl(\theta b-g(\theta)\nu\bigr).
+\]
+Nonnegativity then gives
+\begin{equation}\label{eq:crossing-bound}
+ \Pp(E_b)\le\exp\!\bigl(-\theta b+g(\theta)\nu\bigr).
+\end{equation}
+
+\subsection{The parameter choice and both tails}
+
+If $\nu>0$, choose
+\[
+ \theta=\frac{b}{\nu+Rb/3}.
+\]
+This lies in $(0,3/R)$, and
+$1-\theta R/3=\nu/(\nu+Rb/3)$. Consequently,
+\[
+ -\theta b+g(\theta)\nu
+ =-\frac{b^2}{\nu+Rb/3}
+   +\frac{b^2}{2(\nu+Rb/3)}
+ =-\frac{b^2}{2(\nu+Rb/3)}.
+\]
+Substitution in~\eqref{eq:crossing-bound} proves the upper-tail
+maximal inequality. Apply the same argument to $-M_t$, which has the
+same increment and variance bounds, and take a union bound over the
+two tails to obtain~\eqref{eq:freedman}.
+
+If $\nu=0$, nonnegativity of the $q_t$ implies $q_t=0$ almost surely
+for every $t$. Hence $\E[D_t^2]=0$, every increment vanishes almost
+surely, and the inequality follows immediately. This completes the proof.
+
+\begin{thebibliography}{9}
+\bibitem{freedman1975}
+David A. Freedman.
+\newblock On tail probabilities for martingales.
+\newblock \emph{The Annals of Probability}, 3(1):100--118, 1975.
+\newblock \href{https://doi.org/10.1214/aop/1176996452}{doi:10.1214/aop/1176996452}.
+\end{thebibliography}
+\end{document}

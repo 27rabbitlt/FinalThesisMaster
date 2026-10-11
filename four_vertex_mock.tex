@@ -1,0 +1,155 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[default]{sourcesanspro}
+\usefonttheme[onlymath]{serif}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,microtype}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,backgrounds,calc,decorations.pathreplacing,fit,positioning,shapes.geometric}
+\usepackage{/Users/liuteng/Work/Workplace/FinalThesisMaster/thesis/beamer-slides/beamerthemethesis}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\optpost}{\OPT_{\mathrm{post}}}
+\newcommand{\optadapt}{\OPT_{\mathrm{adapt}}}
+\newcommand{\optprior}{\OPT_{\mathrm{prior}}}
+\input{/Users/liuteng/Work/Workplace/FinalThesisMaster/thesis/beamer-slides/diagrams}
+
+\newcommand{\ThAsymFourVertexSeed}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (-2.55,-2.02) rectangle (2.55,2.22);
+  \coordinate (a) at (0,1.55);
+  \coordinate (b) at (-1.82,0);
+  \coordinate (c) at (1.82,0);
+  \coordinate (d) at (0,-1.55);
+
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+    (a) to[bend right=11] (b);
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+    (b) to[bend right=11] (a);
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+    (a) to[bend left=11] (c);
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt]
+    (c) to[bend left=11] (a);
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (b)--(c);
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (c)--(d);
+  \draw[thArrowThin,draw=ThInkSoft,line width=0.82pt] (d)--(b);
+
+  \node[thDepot,minimum width=0.78cm,minimum height=0.58cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] at (a) {$r=a$};
+  \node[thDet,minimum size=0.58cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] at (b) {$b$};
+  \node[thDet,minimum size=0.58cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] at (c) {$c$};
+  \node[thStoch,minimum size=0.60cm,
+    font=\fontsize{9.5pt}{11pt}\selectfont] at (d) {$d$};
+  \node[thSmallLabel,text=ThTeal,anchor=west] at (0.38,-1.55)
+    {$p_d=\tfrac12$};
+\end{tikzpicture}}
+
+\newcommand{\ThAsymFourVertexOutcomes}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \path[use as bounding box] (0,-2.20) rectangle (11,2.20);
+  \draw[ThLine,line width=0.65pt] (5.50,-2.02)--(5.50,2.02);
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThMuted]
+    at (2.62,1.95) {$d$ inactive};
+  \coordinate (la) at (2.62,1.05);
+  \coordinate (lb) at (1.16,-0.18);
+  \coordinate (lc) at (4.08,-0.18);
+  \coordinate (ld) at (2.62,-1.38);
+  \foreach \x/\y/\bend in {la/lb/right,lb/la/right,la/lc/left,lc/la/left}{
+    \draw[thArrowThin,draw=ThLine,line width=0.58pt]
+      (\x) to[bend \bend=10] (\y);
+  }
+  \foreach \x/\y in {lb/lc,lc/ld,ld/lb}{
+    \draw[thArrowThin,draw=ThLine,line width=0.58pt] (\x)--(\y);
+  }
+  \draw[thArrow,draw=ThTeal,line width=1.48pt]
+    (la) to[bend right=10] (lb);
+  \draw[thArrow,draw=ThTeal,line width=1.48pt] (lb)--(lc);
+  \draw[thArrow,draw=ThTeal,line width=1.48pt]
+    (lc) to[bend left=10] (la);
+  \node[thDepot,minimum width=0.74cm] at (la) {$r=a$};
+  \node[thDet] at (lb) {$b$};
+  \node[thDet] at (lc) {$c$};
+  \node[thInactive] at (ld) {$d$};
+  \node[font=\fontsize{9.8pt}{11.5pt}\selectfont,text=ThTeal]
+    at (2.62,-1.93) {$a\to b\to c\to a$, cost $3$};
+
+  \node[font=\fontsize{11.5pt}{13.5pt}\selectfont\bfseries,text=ThTeal]
+    at (8.38,1.95) {$d$ active};
+  \coordinate (ra) at (8.38,1.05);
+  \coordinate (rb) at (6.92,-0.18);
+  \coordinate (rc) at (9.84,-0.18);
+  \coordinate (rd) at (8.38,-1.38);
+  \foreach \x/\y/\bend in {ra/rb/right,rb/ra/right,ra/rc/left,rc/ra/left}{
+    \draw[thArrowThin,draw=ThLine,line width=0.58pt]
+      (\x) to[bend \bend=10] (\y);
+  }
+  \foreach \x/\y in {rb/rc,rc/rd,rd/rb}{
+    \draw[thArrowThin,draw=ThLine,line width=0.58pt] (\x)--(\y);
+  }
+  \draw[thArrow,draw=ThTeal,line width=1.48pt]
+    (ra) to[bend left=10] (rc);
+  \draw[thArrow,draw=ThTeal,line width=1.48pt] (rc)--(rd);
+  \draw[thArrow,draw=ThTeal,line width=1.48pt] (rd)--(rb);
+  \draw[thArrow,draw=ThTeal,line width=1.48pt]
+    (rb) to[bend right=10] (ra);
+  \node[thDepot,minimum width=0.74cm] at (ra) {$r=a$};
+  \node[thDet] at (rb) {$b$};
+  \node[thDet] at (rc) {$c$};
+  \node[thActive] at (rd) {$d$};
+  \node[font=\fontsize{9.8pt}{11.5pt}\selectfont,text=ThTeal]
+    at (8.38,-1.93) {$a\to c\to d\to b\to a$, cost $4$};
+\end{tikzpicture}}
+
+\begin{document}
+\begin{frame}{A four-vertex asymmetric instance}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \centering
+      \theyebrow{unit-arc shortest-path metric}
+
+      \smallskip
+      \resizebox{0.82\linewidth}{!}{\ThAsymFourVertexSeed}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{itemize}\setlength{\itemsep}{0.64em}
+        \item The root $r=a$ and vertices $b,c$ are always active.
+        \item Vertex $d$ is active independently with probability $1/2$.
+        \item The arc $b\to c$ remains direct, while its reverse is
+          replaced by $c\to d\to b$.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Section 5.1}
+\end{frame}
+
+\begin{frame}{Activation reverses the best tour}
+  \centering
+  \resizebox{0.76\linewidth}{!}{\ThAsymFourVertexOutcomes}
+
+  \vspace{0.10cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.62\textwidth}
+      \small
+      An adaptive policy chooses its first probe before learning whether
+      $d$ is active, so it cannot realize both highlighted optima. Probing
+      $c,d,b$ costs $4$ in either realization. The fixed order
+      $a,c,d,b,a$ does as well.
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \vspace{-0.15cm}
+      \[
+        \optpost=\frac72,\qquad
+        \optadapt=\optprior=4.
+      \]
+      \vspace{-0.28cm}
+      \[
+        \operatorname{CG}=\frac{\optadapt}{\optpost}=\frac87.
+      \]
+    \end{column}
+  \end{columns}
+  \thsource{Thesis, Section 5.1}
+\end{frame}
+\end{document}
